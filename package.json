@@ -1,0 +1,13 @@
+{
+  "name": "liftech-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:back": "cd Backend && yarn dev",
+    "dev:front": "cd Frontend && yarn dev",
+    "dev": "concurrently \"yarn dev:back\" \"yarn dev:front\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
