@@ -1,7 +1,7 @@
 import express from 'express';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
-import Usuario from './schemas/user.js';
+import { Usuario } from './schemas/user.js';
 
 const app = express();
 
