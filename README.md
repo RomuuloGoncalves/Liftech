@@ -23,7 +23,7 @@ Este projeto está organizado no formato de **Monorepo**, contendo o Frontend e 
 *   TypeScript (Motor de Dev: `tsx`)
 *   Banco de Dados: MongoDB via Mongoose
 *   Validação: Camada de Schemas de Validação (DTOs)
-*   Arquitetura baseada em Camadas (Controller, Service, Models, Middlewares)
+*   Arquitetura Baseada em Features/Módulos (Domain-Driven Design), isolando componentes por Entidade.
 
 ---
 

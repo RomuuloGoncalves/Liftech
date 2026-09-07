@@ -8,17 +8,20 @@ O projeto foi concebido utilizando uma estrutura de **Monorepo**, mantendo tanto
 - O comando `yarn dev` na raiz sobe ambos os servidores simultaneamente.
 
 ## 2. Arquitetura do Backend
-O Backend foi desenhado seguindo a **Arquitetura em Camadas**, fortemente baseada na injeção de dependências e separação de responsabilidades. Isso garante um código escalável e fácil de manter.
+O Backend foi desenhado seguindo uma **Arquitetura Baseada em Features (Modular)**, fortemente inspirada no **Domain-Driven Design (DDD)**. Ao invés de agrupar arquivos por tipo (todos os controllers juntos), agrupamos por funcionalidade/entidade. Isso garante alta coesão, facilita a manutenção e prepara o sistema para uma possível extração de microsserviços no futuro.
 
 ### Estrutura de Pastas do Backend (`Backend/src/`)
-* **`config/`**: Configurações globais, variáveis de ambiente (via `dotenv`) e conexão com bancos de dados.
-* **`controllers/`**: Ponto de entrada das requisições. Responsável exclusivamente por receber o objeto `req`, repassar os dados para o Service, e devolver a resposta `res`.
-* **`middlewares/`**: Interceptadores de rotas utilizados para autenticação, autorização e tratamento de erros.
-* **`models/`**: Classes de domínio da aplicação e Schemas de Banco de Dados. Como utilizamos o Mongoose, o Schema (regras do banco) e o Model (motor do Mongoose) ficam agrupados aqui junto com a Interface TypeScript.
-* **`routes/`**: Definição dos caminhos das URLs (ex: `/usuarios`) e mapeamento para seus respectivos Controllers.
-* **`schemas/`**: Schemas de validação de dados de entrada (Data Transfer Objects - DTOs). Utilizado com bibliotecas como Zod ou Joi para garantir que os dados recebidos da internet estejam no formato correto antes de chegarem ao Controller/Service.
-* **`services/`**: O coração do sistema. Contém 100% da regra de negócio pesada, processamento de dados e chamadas aos repositórios/models.
-* **`utils/`**: Funções utilitárias puras e reaproveitáveis, como formatadores de data ou validadores de CPF.
+* **core/**: Elementos globais e compartilhados da aplicação, como classes abstratas, interfaces globais e configurações de repositório genéricas.
+* **middlewares/**: Interceptadores de rotas utilizados para autenticação, autorização e tratamento de erros globais.
+* **feature/**: O coração do sistema. Cada subpasta representa uma funcionalidade isolada (ex: `user`). Dentro de cada feature, agrupamos as responsabilidades de execução e orquestração:
+  * **Controller**: Ponto de entrada das requisições HTTP (req, res).
+  * **Service**: Regras de negócio da aplicação.
+  * **Repository**: Responsável exclusivamente por conversar com o banco de dados.
+* **models/**: Classes puras (POO) com as regras de domínio.
+* **schemas/**: O mapeamento do banco de dados (Mongoose/MongoDB).
+* **routes/**: Definição dos caminhos das URLs da aplicação.
+* **config/**: Configurações de infraestrutura (variáveis de ambiente, conexão com banco).
+* **utils/**: Funções utilitárias puras e genéricas.
 
 ## 3. Decisões Técnicas e Ferramental
 

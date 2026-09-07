@@ -1,6 +1,7 @@
 import express from 'express';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
+import Usuario from './schemas/user.js';
 
 const app = express();
 
@@ -21,4 +22,5 @@ app.get('/', (req, res) => {
 
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
+  console.log(Usuario)
 }); 
