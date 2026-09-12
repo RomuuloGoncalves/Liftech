@@ -6,5 +6,4 @@ const deviceSchema = new Schema({
     status: String
 })
 
-export const Devices = conn.mongoose.model('device', deviceSchema)
-
+export const Device = conn.mongoose.model('device', deviceSchema)

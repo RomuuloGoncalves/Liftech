@@ -3,6 +3,7 @@ const { Schema } = conn.mongoose
 
 const userSchema = new Schema({
     nome: String,
+    role: String
 })
 
-export const Usuario = conn.mongoose.model("user", userSchema)
+export const User = conn.mongoose.model("user", userSchema)
