@@ -2,8 +2,8 @@ import { conn } from "../config/conn.js"
 const { Schema } = conn.mongoose
 
 const telemetrySchema = new Schema({
-    data_dados: Date,
-    dispositivo_id: { 
+    dataDados: Date,
+    dispositivoId: { 
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'device'
     },

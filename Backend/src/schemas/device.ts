@@ -2,7 +2,7 @@ import { conn } from "../config/conn.js"
 const { Schema } = conn.mongoose
 
 const deviceSchema = new Schema({
-    endereco_mac: String,
+    enderecoMac: String,
     status: String
 })
 

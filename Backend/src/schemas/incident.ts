@@ -2,14 +2,14 @@ import { conn } from "../config/conn.js"
 const { Schema } = conn.mongoose
 
 const incidentSchema = new Schema ({
-    data_incidente: Date,
-    forca_impacto: Number,
+    dataIncidente: Date,
+    forcaImpacto: Number,
     status: String,
-    empilhadeira_id: {
+    empilhadeiraId: {
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'forklift'
     },
-    operador_id: {
+    operadorId: {
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'operator'
     }
