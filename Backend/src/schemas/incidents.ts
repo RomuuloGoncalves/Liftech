@@ -5,8 +5,8 @@ const { Schema } = conn.mongoose
         data_incidente: Date,
         forcao_impacto: Number,
         status: String,
-        
+
         
     })
 
-const Incident = conn.mongoose.model('incident', incidentSchema)
+export const Incident = conn.mongoose.model('incident', incidentSchema)
