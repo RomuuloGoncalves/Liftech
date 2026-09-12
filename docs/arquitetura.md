@@ -18,7 +18,7 @@ O Backend foi desenhado seguindo uma **Arquitetura Baseada em Features (Modular)
   * **Service**: Regras de negócio da aplicação.
   * **Repository**: Responsável exclusivamente por conversar com o banco de dados.
 * **models/**: Classes puras (POO) com as regras de domínio.
-* **schemas/**: O mapeamento do banco de dados (Mongoose/MongoDB).
+* **schemas/**: O mapeamento do banco de dados (Mongoose/MongoDB). Consulte a [Modelagem de Dados](./modelagem_de_dados.md) para o detalhamento e diagrama de relacionamentos das entidades.
 * **routes/**: Definição dos caminhos das URLs da aplicação.
 * **config/**: Configurações de infraestrutura (variáveis de ambiente, conexão com banco).
 * **utils/**: Funções utilitárias puras e genéricas.

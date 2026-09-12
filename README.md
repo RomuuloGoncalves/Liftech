@@ -3,7 +3,7 @@
 Bem-vindo ao repositório oficial do projeto **Liftech**.
 Este projeto está organizado no formato de **Monorepo**, contendo o Frontend e o Backend centralizados no mesmo lugar para facilitar o desenvolvimento, versionamento e orquestração.
 
-> Para detalhes profundos sobre a Arquitetura do Backend e do projeto, consulte a [Documentação de Arquitetura](./docs/architecture.md).
+> Para detalhes profundos sobre a Arquitetura do Backend e do projeto, consulte a [Documentação de Arquitetura](./docs/arquitetura.md).
 
 ## Especificações Técnicas
 
