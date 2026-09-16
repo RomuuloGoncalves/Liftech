@@ -1,19 +1,31 @@
 export class userModel {
-    private name: string
+    private nome: string;
+    private role: string;
 
-    constructor(name){
-        this.name = name
+    constructor(nome: string, role: string) {
+        this.nome = nome;
+        this.role = role;
     }
 
-    protected setName(value: string){
-        if(!value){
-            return 0
+    protected setNome(value: string): number | void {
+        if (!value) {
+            return 0;
         }
-
-        this.name = value
+        this.nome = value;
     }
 
-    protected getName(){
-        return this.name 
+    protected getNome(): string {
+        return this.nome;
+    }
+
+    protected setRole(value: string): number | void {
+        if (!value) {
+            return 0;
+        }
+        this.role = value;
+    }
+
+    protected getRole(): string {
+        return this.role;
     }
 }
