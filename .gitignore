@@ -40,3 +40,9 @@ coverage/
 # SO (Sistema Operacional)
 .DS_Store
 Thumbs.db
+
+# Ferramentas de IA / Agents
+.agents/
+.claude/
+.cursor/
+.windsurf/
