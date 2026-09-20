@@ -1,4 +1,5 @@
 import express from 'express';
+import { startKeepAlive } from '@rafaelhdsv/keep-alive';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { User } from './schemas/user.js';
@@ -25,12 +26,11 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
-  console.log(User)
-  console.log(Device)
-  console.log(Telemetry)
-  console.log(Operator)
-  console.log(Forklift)
-  console.log(Incident)
+  startKeepAlive();
 }); 
