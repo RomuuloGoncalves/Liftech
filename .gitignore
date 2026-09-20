@@ -47,3 +47,4 @@ Thumbs.db
 .cursor/
 .windsurf/
 skills-lock.json
+Backend/dist/
