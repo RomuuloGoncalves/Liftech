@@ -1,30 +1,27 @@
 # Arquitetura e Decisões Técnicas - Liftech
 
-Este documento registra as decisões de arquitetura e o ferramental escolhido para o projeto Liftech.
+Decisões de arquitetura e ferramentas do projeto Liftech.
 
 ## 1. Estrutura de Monorepo
-O projeto foi concebido utilizando uma estrutura de **Monorepo**, mantendo tanto o `Frontend` quanto o `Backend` no mesmo repositório git. Isso facilita o compartilhamento de tipos, padronização de commits e orquestração.
-- A orquestração do ambiente de desenvolvimento é feita pelo pacote `concurrently` na raiz do projeto.
-- O comando `yarn dev` na raiz sobe ambos os servidores simultaneamente.
+Escolhemos a estrutura de Monorepo para manter o `Frontend` e o `Backend` no mesmo repositório. Isso facilita o compartilhamento de tipos e a padronização do código. O pacote `concurrently` gerencia o ambiente de desenvolvimento, permitindo que o comando `yarn dev` inicie ambos os servidores juntos.
 
 ## 2. Arquitetura do Backend
-O Backend foi desenhado seguindo uma **Arquitetura Baseada em Features (Modular)**, fortemente inspirada no **Domain-Driven Design (DDD)**. Ao invés de agrupar arquivos por tipo (todos os controllers juntos), agrupamos por funcionalidade/entidade. Isso garante alta coesão, facilita a manutenção e prepara o sistema para uma possível extração de microsserviços no futuro.
+O Backend usa uma arquitetura baseada em módulos, inspirada em Domain-Driven Design (DDD). Arquivos são agrupados por funcionalidade em vez de tipo. Isso garante maior coesão e facilita a manutenção e uma futura separação em microsserviços.
 
 ### Estrutura de Pastas do Backend (`Backend/src/`)
-* **core/**: Elementos globais e compartilhados da aplicação, como classes abstratas, interfaces globais e configurações de repositório genéricas.
-* **middlewares/**: Interceptadores de rotas utilizados para autenticação, autorização e tratamento de erros globais.
-* **feature/**: O coração do sistema. Cada subpasta representa uma funcionalidade isolada (ex: `user`). Dentro de cada feature, agrupamos as responsabilidades de execução e orquestração:
-  * **Controller**: Ponto de entrada das requisições HTTP (req, res).
-  * **Service**: Regras de negócio da aplicação.
-  * **Repository**: Responsável exclusivamente por conversar com o banco de dados.
-* **models/**: Classes puras (POO) com as regras de domínio.
-* **schemas/**: O mapeamento do banco de dados (Mongoose/MongoDB). Consulte a [Modelagem de Dados](./modelagem_de_dados.md) para o detalhamento e diagrama de relacionamentos das entidades.
-* **routes/**: Definição dos caminhos das URLs da aplicação.
-* **config/**: Configurações de infraestrutura (variáveis de ambiente, conexão com banco).
-* **utils/**: Funções utilitárias puras e genéricas.
+* **core/**: Elementos compartilhados da aplicação, como classes abstratas e interfaces globais.
+* **middlewares/**: Interceptadores de rotas para autenticação, autorização e tratamento de erros.
+* **feature/**: A base do sistema. Cada pasta representa uma funcionalidade isolada (ex: `user`). Responsabilidades são divididas em:
+  * **Controller**: Recebe as requisições HTTP.
+  * **Service**: Contém as regras de negócio.
+  * **Repository**: Comunica-se exclusivamente com o banco de dados.
+* **models/**: Classes com regras de domínio.
+* **schemas/**: Mapeamento do banco de dados (MongoDB/Mongoose). Veja a [Modelagem de Dados](./modelagem_de_dados.md) para detalhes.
+* **routes/**: Definições de URLs da aplicação.
+* **config/**: Configurações de ambiente e banco de dados.
+* **utils/**: Funções genéricas e utilitárias.
 
-## 3. Decisões Técnicas e Ferramental
+## 3. Ferramentas e Decisões Técnicas
 
-### Motor de TypeScript no Backend (`tsx`)
-Inicialmente, o `ts-node-dev` estava causando conflitos com a versão 24 do Node.js (TypeError nativo do V8). Para resolver o "Paradoxo das Extensões do ES Modules" (onde o Node exige extensões `.js` no import, mas o compilador TS proíbe importar arquivos `.ts`), foi adotado o **`tsx`** (TypeScript eXecute). 
-- O `tsx` atua como um traduto, permitindo imports limpos sem quebra de extensão, fornecendo a melhor experiência de desenvolvimento no Node moderno.
+### Motor TypeScript no Backend (`tsx`)
+O Node.js 24 causou conflitos iniciais com o `ts-node-dev`. O Node exige extensões `.js` em módulos ES, mas o TypeScript restringe importações de `.ts`. A solução foi adotar o `tsx` (TypeScript eXecute), que traduz os imports automaticamente e resolve o problema sem exigir a extensão no código.

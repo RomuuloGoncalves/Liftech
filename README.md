@@ -1,9 +1,8 @@
 # Liftech
 
-Bem-vindo ao repositório oficial do projeto **Liftech**.
-Este projeto está organizado no formato de **Monorepo**, contendo o Frontend e o Backend centralizados no mesmo lugar para facilitar o desenvolvimento, versionamento e orquestração.
+Repositório do projeto **Liftech**. O projeto usa o formato Monorepo, mantendo Frontend e Backend no mesmo lugar para facilitar o desenvolvimento, versionamento e organização.
 
-> Para detalhes profundos sobre a Arquitetura do Backend e do projeto, consulte a [Documentação de Arquitetura](./docs/arquitetura.md).
+Consulte a [Documentação de Arquitetura](./docs/arquitetura.md) para detalhes sobre a estrutura do sistema.
 
 ## Especificações Técnicas
 
@@ -19,35 +18,28 @@ Este projeto está organizado no formato de **Monorepo**, contendo o Frontend e 
 *   Axios e React Router
 
 ### Backend
-*   Node.js + Express
+*   Node.js e Express
 *   TypeScript (Motor de Dev: `tsx`)
 *   Banco de Dados: MongoDB via Mongoose
-*   Validação: Camada de Schemas de Validação (DTOs)
-*   Arquitetura Baseada em Features/Módulos (Domain-Driven Design), isolando componentes por Entidade.
+*   Validação: Schemas de Validação (DTOs)
+*   Arquitetura: Baseada em Módulos (Domain-Driven Design), isolando componentes por entidade.
 
----
+## Inicialização Local
 
-## Instruções de Inicialização (Desenvolvimento Local)
-
-Graças ao pacote `concurrently`, subir o projeto para testes locais requer apenas um único comando na raiz do projeto.
+O projeto usa o pacote `concurrently`, permitindo iniciar tudo com um único comando.
 
 ### 1. Instalação
-Clone o projeto e, dentro da pasta raiz (`Liftech`), instale as dependências globais e as dependências internas dos subprojetos:
+Clone o projeto e instale as dependências na pasta raiz:
 
 ```bash
-# Na pasta raiz
 yarn install
 ```
 
 ### 2. Rodando a Aplicação
-Para iniciar os servidores do Frontend e do Backend simultaneamente, rode na raiz do projeto:
+Inicie os servidores do Frontend e do Backend simultaneamente:
 
 ```bash
 yarn dev
 ```
 
-Você verá os logs tanto do Backend quanto do Frontend dividindo o mesmo terminal.
-* O **Backend** usará o `tsx watch` para reiniciar automaticamente em caso de mudanças (sem problemas de compatibilidade com imports `.ts`).
-* O **Frontend** usará o servidor rápido do Vite.
-
----
+Você verá os logs do Backend e Frontend no mesmo terminal. O Backend reinicia automaticamente com `tsx watch` e o Frontend usa o servidor do Vite.
