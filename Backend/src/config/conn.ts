@@ -1,6 +1,9 @@
+import dns from "node:dns"
 import mongoose from "mongoose"
 import { env } from "./env.js"
 import pino from "pino"
+
+dns.setServers(["1.1.1.1"])
 
 const logger = pino()
 const MONGOURI = env.mongo_uri
