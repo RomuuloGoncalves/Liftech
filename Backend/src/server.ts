@@ -3,6 +3,7 @@ import { startKeepAlive } from '@rafaelhdsv/keep-alive';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
+import { TelemetryController } from './feature/telemetry/telemetryController.js';
 
 const app = express();
 
@@ -35,6 +36,32 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ ok: true, lastPing: displayLastPing });
   }
 });
+
+const telemetryController = new TelemetryController()
+
+app.post('/telemetry/create/', (req, res) => {
+    try {
+        telemetryController.create(req, res)
+    } catch (error) {
+        throw error
+    }
+})
+
+app.get('/telemetry/', (req, res) => {
+    try {
+        telemetryController.findAll(req, res)
+    } catch (error) {
+        throw error
+    }
+})
+
+app.get('/telemetry/dispositivo/:dispositivoId', (req, res) => {
+    try {
+        telemetryController.findByDispositivo(req, res)
+    } catch (error) {
+        throw error
+    }
+})
 
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
