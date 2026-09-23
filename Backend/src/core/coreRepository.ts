@@ -1,12 +1,6 @@
-type Constructor<T = {}> = new (...args: any[]) => T;
+import {type ICoreRepository } from "../interfaces/ICoreRepository.js"
 
-export interface ICoreRepository<T> {
-  findById(id: number): Promise<T | null>;
-  findAll(): Promise<T[]>;
-  create(data: T): Promise<T>;
-  update(id: number, data: Partial<T>): Promise<T>;
-  delete(id: number): Promise<void>;
-}
+type Constructor<T = {}> = new (...args: any[]) => T;
 
 /**
  * Versão "normal" — use quando o repository NÃO precisa herdar de outra

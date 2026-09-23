@@ -1,12 +1,6 @@
 import { userModel } from '../../models/userModel.js';
 import { CoreRepositoryMixin } from '../../core/coreRepository.js';
-
-export interface IUserPersistence {
-  id: number;
-  nome: string;
-  role: string;
-}
-
+import { type IUserPersistence } from '../../interfaces/user/IUserPersistence.js';
 // Aplica o contrato do CoreRepository em cima do userModel
 const UserCoreRepository = CoreRepositoryMixin<typeof userModel, IUserPersistence>(userModel);
 

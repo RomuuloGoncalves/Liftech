@@ -1,5 +1,5 @@
 import { userRepository } from './userRepository.js';
-import { IUserPersistence } from './userRepository.js';
+import { type IUserPersistence } from '../../interfaces/user/IUserPersistence.js';
 
 export class userService extends userRepository {
   constructor(nome: string, role: string, db: any) {
