@@ -9,4 +9,6 @@ const telemetrySchema = new Schema({
     },
 })
 
+
+
 export const Telemetry = conn.mongoose.model('telemetry', telemetrySchema)
