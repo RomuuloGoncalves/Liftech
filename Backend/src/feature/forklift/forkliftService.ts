@@ -9,9 +9,7 @@ export class ForkliftService extends ServiceBase<forkliftModel, ForkliftReposito
     super(repositorio);
   }
 
-  // Sobrescrevendo o criar para adicionar regras de negócio específicas
   async criar(forklift: forkliftModel): Promise<forkliftModel> {
-    // Verifica se identificação já existe
     const existente = await this.repositorio.obterPorIdentificacao(forklift.getIdentificacao());
     if (existente) {
       throw new Error(`Já existe uma empilhadeira com a identificação "${forklift.getIdentificacao()}".`);
