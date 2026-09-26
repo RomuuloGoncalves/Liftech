@@ -43,11 +43,18 @@ export async function buscar(req: Request, res: Response) {
   }
 }
 
+import regras from "./forkliftRules.js";
+
 export async function criar(req: Request, res: Response) {
   try {
     const corpo = req.body;
-    if (!corpo.id || typeof corpo.id !== 'string' || corpo.id.trim() === '') {
-        return respostaErro(res, StatusCode.BAD_REQUEST, "O campo 'id' (identificação) é obrigatório e deve ser texto válido.");
+    
+    const erros = regras.check(
+      { id: corpo.id }
+    );
+
+    if (erros) {
+        return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
     const forklift = new forkliftModel(
