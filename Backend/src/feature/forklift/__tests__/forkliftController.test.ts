@@ -59,12 +59,12 @@ describe('ForkliftController', () => {
 
     test('buscar: deve retornar 404 se serviço não encontrar empilhadeira', async () => {
         mockReq.params = { id: 'invalid-id' };
-        vi.mocked(servicoForklift.obterPorId).mockRejectedValue(new Error('Empilhadeira não encontrada.'));
+        vi.mocked(servicoForklift.obterPorId).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
         await buscar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(404);
-        expect(mockJson).toHaveBeenCalledWith({ error: 'Empilhadeira não encontrada.' });
+        expect(mockJson).toHaveBeenCalledWith({ error: 'Empilhadeira não encontrado(a).' });
     });
 
     test('criar: deve retornar 201 quando dados são válidos', async () => {
@@ -114,12 +114,12 @@ describe('ForkliftController', () => {
     test('atualizar: deve retornar 404 se empilhadeira não for encontrada', async () => {
         mockReq.params = { id: 'invalid-id' };
         mockReq.body = { identificacao: 'EMP-MOD' };
-        vi.mocked(servicoForklift.atualizar).mockRejectedValue(new Error('Empilhadeira não encontrada.'));
+        vi.mocked(servicoForklift.atualizar).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
         await atualizar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(404);
-        expect(mockJson).toHaveBeenCalledWith({ error: 'Empilhadeira não encontrada.' });
+        expect(mockJson).toHaveBeenCalledWith({ error: 'Empilhadeira não encontrado(a).' });
     });
 
     test('deletar: deve retornar 200 ao excluir empilhadeira', async () => {
@@ -136,11 +136,11 @@ describe('ForkliftController', () => {
 
     test('deletar: deve retornar 404 se empilhadeira não existir para exclusão', async () => {
         mockReq.params = { id: 'invalid-id' };
-        vi.mocked(servicoForklift.deletar).mockRejectedValue(new Error('Empilhadeira não encontrada.'));
+        vi.mocked(servicoForklift.deletar).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
         await deletar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(404);
-        expect(mockJson).toHaveBeenCalledWith({ error: 'Empilhadeira não encontrada.' });
+        expect(mockJson).toHaveBeenCalledWith({ error: 'Empilhadeira não encontrado(a).' });
     });
 });
