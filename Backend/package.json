@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "@rafaelhdsv/keep-alive": "^1.0.2",
+    "@zarco/isness": "npm:@jsr/zarco__isness",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.9.5",
     "pino": "^10.3.1",
-    "pino-http": "^11.0.0"
+    "pino-http": "^11.0.0",
+    "request-check": "^1.6.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
