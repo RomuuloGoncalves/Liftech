@@ -19,6 +19,6 @@ export function respostaSucesso(res: Response, status: StatusCode, data?: any) {
   return res.status(status).send();
 }
 
-export function respostaErro(res: Response, status: StatusCode, message: string) {
+export function respostaErro(res: Response, status: StatusCode, message: string | Record<string, any>) {
   return res.status(status).json({ error: message });
 }

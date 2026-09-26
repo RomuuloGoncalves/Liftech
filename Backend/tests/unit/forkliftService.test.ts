@@ -1,9 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { ForkliftService } from '../forkliftService.js';
-import { ForkliftRepository } from '../forkliftRepository.js';
-import { forkliftModel } from '../../../models/forkliftModel.js';
+import { ForkliftService } from '../../src/feature/forklift/forkliftService.js';
+import { ForkliftRepository } from '../../src/feature/forklift/forkliftRepository.js';
+import { forkliftModel } from '../../src/models/forkliftModel.js';
 import mongoose from 'mongoose';
-import { Forklift } from '../../../schemas/forklift.js';
+import { Forklift } from '../../src/schemas/forklift.js';
 
 describe('ForkliftService', () => {
     let service: ForkliftService;
