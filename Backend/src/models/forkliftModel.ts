@@ -1,10 +1,10 @@
 import { coreModel } from "../core/coreModel.js";
 
 export class forkliftModel extends coreModel {
-    private id: string | undefined;
-    private identificacao: string;
-    private dispositivoConectadoId: string | undefined;
-    private operadorConectadoId: string | undefined;
+    protected id: string | undefined;
+    protected identificacao: string;
+    protected dispositivoConectadoId: string | undefined;
+    protected operadorConectadoId: string | undefined;
 
     constructor(
         identificacao: string, 
