@@ -1,6 +1,6 @@
 import type { Response } from "express";
 
-export enum HttpStatus {
+export enum StatusCode {
   OK = 200,
   CREATED = 201,
   NO_CONTENT = 204,
@@ -12,13 +12,13 @@ export enum HttpStatus {
   INTERNAL_SERVER_ERROR = 500,
 }
 
-export function handleSuccess(res: Response, status: HttpStatus, data?: any) {
+export function respostaSucesso(res: Response, status: StatusCode, data?: any) {
   if (data !== undefined) {
     return res.status(status).json(data);
   }
   return res.status(status).send();
 }
 
-export function handleError(res: Response, status: HttpStatus, message: string) {
+export function respostaErro(res: Response, status: StatusCode, message: string) {
   return res.status(status).json({ error: message });
 }

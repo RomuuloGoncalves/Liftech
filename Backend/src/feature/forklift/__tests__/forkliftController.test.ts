@@ -71,7 +71,7 @@ describe('ForkliftController', () => {
         const mockModel = new forkliftModel('EMP-001', undefined, undefined, 'some-id');
         vi.mocked(servicoForklift.criar).mockResolvedValue(mockModel);
 
-        mockReq.body = { identificacao: 'EMP-001' };
+        mockReq.body = { id: 'EMP-001' };
 
         await criar(mockReq as Request, mockRes as Response);
 
@@ -80,16 +80,16 @@ describe('ForkliftController', () => {
     });
 
     test('criar: deve retornar 400 quando identificação é inválida', async () => {
-        mockReq.body = { identificacao: '' };
+        mockReq.body = { id: '' };
 
         await criar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(400);
-        expect(mockJson).toHaveBeenCalledWith({ error: 'Identificação é obrigatória e deve ser texto válido.' });
+        expect(mockJson).toHaveBeenCalledWith({ error: "O campo 'id' (identificação) é obrigatório e deve ser texto válido." });
     });
 
     test('criar: deve retornar 409 quando há conflito de identificação', async () => {
-        mockReq.body = { identificacao: 'EMP-001' };
+        mockReq.body = { id: 'EMP-001' };
         vi.mocked(servicoForklift.criar).mockRejectedValue(new Error('Já existe uma empilhadeira com a identificação "EMP-001".'));
 
         await criar(mockReq as Request, mockRes as Response);
@@ -103,7 +103,7 @@ describe('ForkliftController', () => {
         vi.mocked(servicoForklift.atualizar).mockResolvedValue(mockModel);
 
         mockReq.params = { id: '123' };
-        mockReq.body = { identificacao: 'EMP-MOD' };
+        mockReq.body = { id: 'EMP-MOD' };
 
         await atualizar(mockReq as Request, mockRes as Response);
 
@@ -113,7 +113,7 @@ describe('ForkliftController', () => {
 
     test('atualizar: deve retornar 404 se empilhadeira não for encontrada', async () => {
         mockReq.params = { id: 'invalid-id' };
-        mockReq.body = { identificacao: 'EMP-MOD' };
+        mockReq.body = { id: 'EMP-MOD' };
         vi.mocked(servicoForklift.atualizar).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
         await atualizar(mockReq as Request, mockRes as Response);
@@ -131,7 +131,7 @@ describe('ForkliftController', () => {
         await deletar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(200);
-        expect(mockJson).toHaveBeenCalledWith({ id: '123', message: 'Empilhadeira excluída com sucesso.' });
+        expect(mockJson).toHaveBeenCalledWith({ _id: '123', message: 'Empilhadeira excluída com sucesso.' });
     });
 
     test('deletar: deve retornar 404 se empilhadeira não existir para exclusão', async () => {

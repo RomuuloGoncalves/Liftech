@@ -22,7 +22,7 @@ export class forkliftModel extends coreModel {
     obterDados(): Record<string, unknown> {
         return {
             ...(this.id ? { _id: this.id } : {}),
-            identificacao: this.identificacao,
+            id: this.identificacao,
             dispositivoConectadoId: this.dispositivoConectadoId,
             operadorConectadoId: this.operadorConectadoId
         };
