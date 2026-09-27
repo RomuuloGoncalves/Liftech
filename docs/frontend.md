@@ -1,44 +1,85 @@
 # Estrutura e Arquitetura do Frontend (Liftech)
 
-Este documento descreve as responsabilidades de cada um dos diretórios principais localizados na camada de frontend (`Frontend/src/`).
+Este documento descreve as responsabilidades de cada diretório em `Frontend/src/`, as bibliotecas em uso e as convenções que o time já vem seguindo no código. `config/`, `services/`, `types/` e `utils/` ainda não existem no projeto, mas ficam mapeados aqui porque a estrutura já foi planejada para crescer nessa direção conforme as próximas páginas passarem a falar com a API.
 
 ---
 
-## Visão Geral da Estrutura (`Frontend/src/`)
+## Estrutura atual (`Frontend/src/`)
 
 ```
 src/
-├── assets/         # Imagens estáticas, SVGs e logos
-├── components/     # Componentes visuais reutilizáveis da UI (Design System)
-├── config/         # Configurações globais e instâncias de clientes
-├── pages/          # Páginas e telas da aplicação
-├── routes/         # Roteamento e proteção de rotas (Guards)
-├── services/       # Camada de comunicação HTTP com a API REST
-├── types/          # Definições de interfaces e tipos TypeScript
-└── utils/          # Funções utilitárias puras
+├── assets/         # Imagens estáticas (logo, hero, ícones)
+├── components/
+│   └── layout/     # Casca da aplicação: Sidebar e futuros componentes de layout
+├── pages/          # Telas da aplicação (uma por rota)
+├── routes/         # Definição de rotas com React Router
+├── test/           # Testes, espelhando a estrutura de src/
+├── App.tsx          # Shell da aplicação (monta layout + rotas)
+└── main.tsx          # Bootstrap do React e do BrowserRouter
 ```
+
+**Ainda não existem, mas estão reservados para quando a API entrar em jogo:**
+
+| Pasta | Responsabilidade prevista |
+| --- | --- |
+| `src/config/` | Variáveis de ambiente e inicialização de bibliotecas externas |
+| `src/services/` | Camada Axios de comunicação com o Backend |
+| `src/types/` | Interfaces/tipos TypeScript compartilhados, espelhando o contrato da API |
+| `src/utils/` | Funções utilitárias puras (formatação de datas, texto, cálculos) |
 
 ---
 
-## Responsabilidades das Pastas Principais
+## Responsabilidades das pastas
 
-### 1. `src/components/`
-- **Responsabilidade:** Abstrair e concentrar os componentes visuais reutilizáveis da interface do usuário (Design System), como botões, modais, tabelas, cards, headers, sidebars e indicadores de feedback.
+### `src/components/`
+Componentes visuais reutilizáveis da interface, organizados por domínio (hoje só `layout/`, para peças estruturais como a `Sidebar`). Conforme o design system crescer, componentes de UI mais genéricos (botões, cards, modais) devem ganhar sua própria subpasta aqui, no mesmo padrão.
 
-### 2. `src/pages/`
-- **Responsabilidade:** Armazenar as telas/visões completas da aplicação (Login, Dashboard/Matriz de Frota, Gestão de Operadores, Empilhadeiras, Dispositivos e Erros). Cada página é responsável por orquestrar os componentes visuais e integrar as chamadas aos serviços de dados.
+Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome — ver a seção "Estilização" abaixo.
 
-### 3. `src/routes/`
-- **Responsabilidade:** Centralizar as rotas de navegação da aplicação utilizando o React Router, definindo o mapeamento de URLs e as travas de acesso a rotas privadas.
+### `src/pages/`
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. Hoje `VisaoGeralPage`, `FrotaPage`, `EquipePage` e `AlertasPage` são placeholders que só marcam a existência da rota — o conteúdo real de cada uma é escopo de outras issues.
 
-### 4. `src/services/`
-- **Responsabilidade:** Isolar toda a camada de comunicação HTTP com o Backend (instância do Axios), centralizando as chamadas para as APIs REST.
+### `src/routes/`
+Centraliza as rotas com `react-router-dom` em um único `<Routes>` (`appRoutes.tsx`). `App.tsx` monta esse roteador dentro do shell visual da aplicação; o `BrowserRouter` em si vive em `main.tsx`, fora de `App`, para manter `App.tsx` testável sem precisar reconfigurar o router a cada teste.
 
-### 5. `src/config/`
-- **Responsabilidade:** Concentrar variáveis de ambiente, configurações globais da aplicação e parâmetros de inicialização de bibliotecas externas.
+### `src/test/`
+Espelha 1:1 a estrutura de `src/` (ex.: `test/components/layout/Sidebar.test.tsx` testa `components/layout/Sidebar.tsx`). Usa Vitest + Testing Library; ver "Testes" abaixo.
 
-### 6. `src/types/`
-- **Responsabilidade:** Guardar todas as definições de tipos e interfaces do TypeScript, mantendo a consistência dos dados recebidos da API no Frontend.
+---
 
-### 7. `src/utils/`
-- **Responsabilidade:** Armazenar funções utilitárias puras e reutilizáveis (como manipuladores de texto, formatação de datas e cálculos operacionais).
+## Bibliotecas em uso
+
+| Biblioteca | Para quê | Observações |
+| --- | --- | --- |
+| **React 19 + TypeScript** | Base da aplicação | `strict` mode do TS ligado via `tsconfig.app.json` |
+| **Vite** | Build e dev server | `npm run dev`, `npm run build` (roda `tsc -b` antes de empacotar) |
+| **react-router-dom** | Roteamento | Um `<Routes>` central em `routes/appRoutes.tsx`; `BrowserRouter` só em `main.tsx` |
+| **lucide-react** | Ícones | Um componente React por ícone (`<FileText />`, `<Truck />` etc.). Só ícones — não inclui componentes de UI, estilo ou qualquer outra coisa. Decisão registrada em `.specs/STATE.md` (AD-001), para manter um único sistema de ícones em todo o app |
+| **Vitest + Testing Library + jsdom** | Testes | `npm run test` roda tudo em modo não-interativo (`vitest run`) |
+| **ESLint** | Lint | `npm run lint`; roda sobre o projeto inteiro |
+
+Não há Tailwind nem outra lib de UI instalada — ver "Estilização" a seguir.
+
+---
+
+## Estilização
+
+O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Hoje só existe o tema claro — o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
+
+Um componente com estilo próprio ganha um arquivo `NomeDoComponente.module.css` ao lado do `.tsx`, importado como `import styles from './NomeDoComponente.module.css'`. Isso dá escopo automático (sem colisão de nomes de classe entre componentes) sem precisar de nenhuma dependência extra. A `Sidebar` (`components/layout/Sidebar.tsx` + `Sidebar.module.css`) é a referência atual desse padrão.
+
+---
+
+## Testes
+
+Convenção: todo arquivo de teste espelha o caminho do arquivo testado dentro de `src/test/` (ex.: `src/components/layout/Sidebar.tsx` → `src/test/components/layout/Sidebar.test.tsx`). Os testes usam `@testing-library/react` com `MemoryRouter` para qualquer componente que dependa de rota, e `fireEvent` para simular clique, teclado e resize.
+
+`npm run test` executa a suíte inteira uma vez (sem watch); é o mesmo comando que roda no gate de build/lint antes de qualquer commit.
+
+---
+
+## Convenções gerais
+
+- Componentes são sempre `React.FC` tipado, em arquivo próprio.
+- Ícones vêm exclusivamente de `lucide-react` (ver tabela de bibliotecas acima).
+- Decisões de arquitetura maiores (escolha de lib, mudança de tema, etc.) ficam registradas em `.specs/STATE.md`, não só no código — é o histórico que explica o "porquê" por trás de uma escolha quando ela não é óbvia lendo o arquivo isolado.
