@@ -147,6 +147,13 @@
   overflow: hidden;
 }
 
+.feedbackLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
 .privacyLink {
   text-align: center;
   font-size: 13px;

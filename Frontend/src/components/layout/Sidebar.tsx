@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { AlertCircle, ChevronRight, FileText, Menu, PanelLeft, Truck, Users, X } from 'lucide-react'
+import {
+  AlertCircle,
+  ChevronRight,
+  FileText,
+  MessageCircle,
+  Menu,
+  PanelLeft,
+  Truck,
+  Users,
+  X,
+} from 'lucide-react'
 import logo from '../../assets/logo.png'
 import styles from './Sidebar.module.css'
 
@@ -157,7 +167,10 @@ const Sidebar: React.FC = () => {
 
         <div className={styles.footer}>
           <button type="button" className={styles.feedbackButton}>
-            {!showCollapsedLayout && <span>Feedback &amp; Sugestões</span>}
+            <span className={styles.feedbackLabel}>
+              <MessageCircle size={16} />
+              {!showCollapsedLayout && <span>Feedback &amp; Sugestões</span>}
+            </span>
             <ChevronRight size={16} />
           </button>
           {!showCollapsedLayout && (
