@@ -37,7 +37,7 @@ describe('Sidebar component', () => {
 
   it('renders the Liftech brand name', () => {
     renderSidebarAt('/')
-    expect(screen.getByText('Liftech')).toBeInTheDocument()
+    expect(screen.getByAltText('Liftech')).toBeInTheDocument()
   })
 
   it('renders exactly 4 navigation links, in order, each with an icon', () => {
@@ -81,13 +81,13 @@ describe('Sidebar component', () => {
 
   it('toggles between expanded and collapsed layouts when the toggle button is clicked', () => {
     renderSidebarAt('/')
-    expect(screen.getByText('Liftech')).toBeInTheDocument()
+    expect(screen.getByAltText('Liftech')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
-    expect(screen.queryByText('Liftech')).not.toBeInTheDocument()
+    expect(screen.queryByAltText('Liftech')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /expandir menu/i }))
-    expect(screen.getByText('Liftech')).toBeInTheDocument()
+    expect(screen.getByAltText('Liftech')).toBeInTheDocument()
   })
 
   it('persists the collapsed state to localStorage under liftech.sidebar.collapsed', () => {
@@ -102,12 +102,12 @@ describe('Sidebar component', () => {
   it('initializes collapsed state from localStorage, defaulting to expanded when absent', () => {
     window.localStorage.setItem(STORAGE_KEY, 'true')
     renderSidebarAt('/')
-    expect(screen.queryByText('Liftech')).not.toBeInTheDocument()
+    expect(screen.queryByAltText('Liftech')).not.toBeInTheDocument()
   })
 
   it('defaults to expanded when localStorage has no stored value', () => {
     renderSidebarAt('/')
-    expect(screen.getByText('Liftech')).toBeInTheDocument()
+    expect(screen.getByAltText('Liftech')).toBeInTheDocument()
   })
 
   it('keeps the active link highlighted, icon-only, while collapsed', () => {
@@ -173,7 +173,7 @@ describe('Sidebar component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /abrir menu/i }))
 
-    expect(screen.getByText('Liftech')).toBeInTheDocument()
+    expect(screen.getByAltText('Liftech')).toBeInTheDocument()
     expect(screen.getByText('Gerenciamento Frota')).toBeInTheDocument()
   })
 
@@ -186,7 +186,7 @@ describe('Sidebar component', () => {
     })
 
     expect(() => renderSidebarAt('/')).not.toThrow()
-    expect(screen.getByText('Liftech')).toBeInTheDocument()
+    expect(screen.getByAltText('Liftech')).toBeInTheDocument()
     expect(() => fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))).not.toThrow()
 
     getItemSpy.mockRestore()
