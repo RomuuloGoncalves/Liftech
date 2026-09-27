@@ -48,10 +48,12 @@ import regras from "./forkliftRules.js";
 export async function criar(req: Request, res: Response) {
   try {
     const corpo = req.body;
-    
-    const erros = regras.check(
-      { id: corpo.id }
-    );
+
+    const erros = regras.check({
+      id: corpo.id,
+      dispositivoConectadoId: corpo.dispositivoConectadoId,
+      operadorConectadoId: corpo.operadorConectadoId
+    });
 
     if (erros) {
         return respostaErro(res, StatusCode.BAD_REQUEST, erros);
