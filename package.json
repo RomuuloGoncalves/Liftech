@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "yarn install:back && yarn install:front",
+    "install:back": "cd Backend && yarn install",
+    "install:front": "cd Frontend && yarn install",
     "dev:back": "cd Backend && yarn dev",
     "dev:front": "cd Frontend && yarn dev",
-    "dev": "concurrently \"yarn dev:back\" \"yarn dev:front\""
+    "dev": "concurrently \"yarn dev:back\" \"yarn dev:front\"",
+    "test:back": "cd Backend && yarn test",
+    "test:front": "cd Frontend && yarn test",
+    "test": "concurrently --kill-others-on-fail=false \"yarn test:back\" \"yarn test:front\""
   },
   "devDependencies": {
     "concurrently": "^10.0.5"

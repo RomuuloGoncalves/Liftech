@@ -4,14 +4,15 @@ import {
   AlertCircle,
   ChevronRight,
   FileText,
+  Forklift,
   MessageCircle,
   Menu,
   PanelLeft,
-  Truck,
   Users,
   X,
 } from 'lucide-react'
 import logo from '../../assets/logo.png'
+import logoName from '../../assets/logo-name.png'
 import styles from './Sidebar.module.css'
 
 const COLLAPSED_STORAGE_KEY = 'liftech.sidebar.collapsed'
@@ -25,7 +26,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: FileText },
-  { to: '/frota', label: 'Gerenciamento Frota', icon: Truck },
+  { to: '/frota', label: 'Gerenciamento Frota', icon: Forklift },
   { to: '/equipe', label: 'Gestão de Equipe', icon: Users },
   { to: '/alertas', label: 'Histórico de Alertas', icon: AlertCircle },
 ]
@@ -112,8 +113,10 @@ const Sidebar: React.FC = () => {
       >
         <div className={styles.header}>
           <div className={styles.brand}>
-            <img className={styles.brandMark} src={logo} alt="Liftech" width={24} height={24} />
-            {!showCollapsedLayout && <span className={styles.brandName}>Liftech</span>}
+            <img className={styles.brandMark} src={logo} alt="" aria-hidden="true" width={24} height={24} />
+            {!showCollapsedLayout && (
+              <img className={styles.brandName} src={logoName} alt="Liftech" height={16} />
+            )}
           </div>
 
           {isMobile ? (
