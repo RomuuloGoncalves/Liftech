@@ -32,7 +32,7 @@ function writeStoredCollapsed(value: boolean): void {
   try {
     window.localStorage.setItem(COLLAPSED_STORAGE_KEY, String(value))
   } catch {
-    // localStorage unavailable (e.g. private browsing) - state stays in-memory only
+    void 0
   }
 }
 

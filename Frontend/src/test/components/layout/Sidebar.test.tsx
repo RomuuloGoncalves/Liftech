@@ -35,13 +35,11 @@ describe('Sidebar component', () => {
     setViewportWidth(DESKTOP_WIDTH)
   })
 
-  // MSB-01
   it('renders the Liftech brand name', () => {
     renderSidebarAt('/')
     expect(screen.getByText('Liftech')).toBeInTheDocument()
   })
 
-  // MSB-02
   it('renders exactly 4 navigation links, in order, each with an icon', () => {
     renderSidebarAt('/')
     const list = screen.getByRole('list')
@@ -58,7 +56,6 @@ describe('Sidebar component', () => {
     })
   })
 
-  // MSB-03
   it('highlights the link matching the current route with the active class and aria-current', () => {
     renderSidebarAt('/frota')
     const activeLink = screen.getByRole('link', { name: /gerenciamento frota/i })
@@ -70,21 +67,18 @@ describe('Sidebar component', () => {
     expect(inactiveLink.className).not.toContain(styles.active)
   })
 
-  // MSB-04
   it('navigates to the target route when a link is clicked', () => {
     renderSidebarAt('/')
     fireEvent.click(screen.getByRole('link', { name: /gerenciamento frota/i }))
     expect(screen.getByText('Página Frota')).toBeInTheDocument()
   })
 
-  // MSB-05
   it('renders the footer with Feedback & Sugestões and Políticas & Privacidades', () => {
     renderSidebarAt('/')
     expect(screen.getByRole('button', { name: /feedback & sugestões/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /políticas & privacidades/i })).toBeInTheDocument()
   })
 
-  // MSB-06
   it('toggles between expanded and collapsed layouts when the toggle button is clicked', () => {
     renderSidebarAt('/')
     expect(screen.getByText('Liftech')).toBeInTheDocument()
@@ -96,7 +90,6 @@ describe('Sidebar component', () => {
     expect(screen.getByText('Liftech')).toBeInTheDocument()
   })
 
-  // MSB-07
   it('persists the collapsed state to localStorage under liftech.sidebar.collapsed', () => {
     renderSidebarAt('/')
     fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
@@ -106,7 +99,6 @@ describe('Sidebar component', () => {
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe('false')
   })
 
-  // MSB-08
   it('initializes collapsed state from localStorage, defaulting to expanded when absent', () => {
     window.localStorage.setItem(STORAGE_KEY, 'true')
     renderSidebarAt('/')
@@ -118,7 +110,6 @@ describe('Sidebar component', () => {
     expect(screen.getByText('Liftech')).toBeInTheDocument()
   })
 
-  // MSB-09
   it('keeps the active link highlighted, icon-only, while collapsed', () => {
     const { container } = renderSidebarAt('/frota')
     fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
@@ -128,7 +119,6 @@ describe('Sidebar component', () => {
     expect(screen.queryByText('Gerenciamento Frota')).not.toBeInTheDocument()
   })
 
-  // MSB-10
   it('renders as a closed overlay drawer below 768px, showing a hamburger trigger', () => {
     setViewportWidth(MOBILE_WIDTH)
     renderSidebarAt('/')
@@ -136,7 +126,6 @@ describe('Sidebar component', () => {
     expect(screen.queryByRole('button', { name: /fechar menu/i })).not.toBeInTheDocument()
   })
 
-  // MSB-11
   it('opens the drawer with a backdrop when the hamburger button is clicked on mobile', () => {
     setViewportWidth(MOBILE_WIDTH)
     const { container } = renderSidebarAt('/')
@@ -146,7 +135,6 @@ describe('Sidebar component', () => {
     expect(container.querySelector(`.${CSS.escape(styles.backdrop)}`)).toBeTruthy()
   })
 
-  // MSB-12
   it('closes the drawer when the backdrop is clicked', () => {
     setViewportWidth(MOBILE_WIDTH)
     const { container } = renderSidebarAt('/')
@@ -178,7 +166,6 @@ describe('Sidebar component', () => {
     expect(screen.getByRole('button', { name: /abrir menu/i })).toBeInTheDocument()
   })
 
-  // MSB-13
   it('always renders the expanded layout while the mobile drawer is open, ignoring collapsed state', () => {
     window.localStorage.setItem(STORAGE_KEY, 'true')
     setViewportWidth(MOBILE_WIDTH)
@@ -190,7 +177,6 @@ describe('Sidebar component', () => {
     expect(screen.getByText('Gerenciamento Frota')).toBeInTheDocument()
   })
 
-  // MSB-14
   it('falls back to in-memory expanded state without throwing when localStorage is unavailable', () => {
     const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('storage disabled')
@@ -207,7 +193,6 @@ describe('Sidebar component', () => {
     setItemSpy.mockRestore()
   })
 
-  // MSB-15
   it('marks no link active when the current route matches none of the 4 paths', () => {
     render(
       <MemoryRouter initialEntries={['/unknown']}>
@@ -220,7 +205,6 @@ describe('Sidebar component', () => {
       .forEach((link) => expect(link).not.toHaveAttribute('aria-current'))
   })
 
-  // MSB-16
   it('closes the drawer and returns to desktop layout when resized across the 768px breakpoint', () => {
     setViewportWidth(MOBILE_WIDTH)
     renderSidebarAt('/')
