@@ -10,7 +10,9 @@ Este documento descreve as responsabilidades de cada diretório em `Frontend/src
 src/
 ├── assets/         # Imagens estáticas (logo, hero, ícones)
 ├── components/
-│   └── layout/     # Casca da aplicação: Sidebar e futuros componentes de layout
+│   ├── layout/     # Casca da aplicação: Sidebar, Header
+│   └── machines/   # Domínio de máquinas: MachineCard, NewMachinePanel
+├── data/           # Módulos de dados mock, um por domínio (ex.: machines.ts)
 ├── pages/          # Telas da aplicação (uma por rota)
 ├── routes/         # Definição de rotas com React Router
 ├── test/           # Testes, espelhando a estrutura de src/
@@ -37,7 +39,13 @@ Componentes visuais reutilizáveis da interface, organizados por domínio (hoje 
 Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome (ver a seção "Estilização" abaixo).
 
 ### `src/pages/`
-Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. Hoje `VisaoGeralPage`, `FrotaPage`, `EquipePage` e `AlertasPage` são placeholders que só marcam a existência da rota; o conteúdo real de cada uma é escopo de outras issues.
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage`, `EquipePage` e `AlertasPage` ainda são placeholders que só marcam a existência da rota; `VisaoGeralPage` (rota `/`) já tem conteúdo real: o grid de máquinas, busca, filtro de status e o painel de cadastro, descritos abaixo.
+
+### `src/data/`
+Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status). A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
+
+### `src/components/machines/`
+`MachineCard` renderiza um card da Visão Geral com os dados de uma `Machine` (nome, código, setor, endereço MAC, operador quando existir, status e tempo de sessão). `NewMachinePanel` é o formulário de cadastro aberto pelo botão "Cadastrar Máquina": um drawer lateral a partir de 768px e tela cheia abaixo disso, sem chamada de API (o submit só adiciona a máquina à lista em memória da página). Decisão registrada em `.specs/STATE.md` (AD-005).
 
 ### `src/routes/`
 Centraliza as rotas com `react-router-dom` em um único `<Routes>` (`appRoutes.tsx`). `App.tsx` monta esse roteador dentro do shell visual da aplicação; o `BrowserRouter` em si vive em `main.tsx`, fora de `App`, para manter `App.tsx` testável sem precisar reconfigurar o router a cada teste.

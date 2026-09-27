@@ -5,6 +5,8 @@ Decisões de arquitetura e ferramentas do projeto Liftech.
 ## 1. Estrutura de Monorepo
 Escolhemos a estrutura de Monorepo para manter o `Frontend` e o `Backend` no mesmo repositório. Isso facilita o compartilhamento de tipos e a padronização do código. O pacote `concurrently` gerencia o ambiente de desenvolvimento, permitindo que o comando `yarn dev` inicie ambos os servidores juntos.
 
+O `package.json` da raiz só orquestra os dois projetos, não substitui os `package.json` de cada um. `yarn` na raiz instala as dependências da raiz e, pelo hook `postinstall`, roda `yarn install` dentro de `Backend/` e `Frontend/` também. `yarn test` na raiz usa o mesmo `concurrently` do `yarn dev` para rodar a suíte de cada projeto (`vitest run` nos dois casos) e reporta falha se qualquer um dos dois quebrar.
+
 ## 2. Arquitetura do Backend
 O Backend usa uma arquitetura baseada em módulos, inspirada em Domain-Driven Design (DDD). Arquivos são agrupados por funcionalidade em vez de tipo. Isso garante maior coesão e facilita a manutenção e uma futura separação em microsserviços.
 
