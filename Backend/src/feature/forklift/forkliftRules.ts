@@ -1,6 +1,8 @@
-import requestCheck from "request-check";
+import requestCheckPkg from "request-check";
 import * as isness from "@zarco/isness";
 import { Types } from "mongoose";
+
+const requestCheck = (requestCheckPkg as unknown as { default: typeof requestCheckPkg }).default ?? requestCheckPkg;
 
 // @ts-ignore
 const regras: any = requestCheck();
