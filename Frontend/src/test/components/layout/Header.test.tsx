@@ -39,8 +39,14 @@ describe('Header component', () => {
     expect(screen.getByRole('radio', { name: 'Inglês' })).toHaveAttribute('aria-checked', 'false')
 
     fireEvent.click(screen.getByText('Inglês'))
-    expect(screen.getByRole('radio', { name: 'Inglês' })).toHaveAttribute('aria-checked', 'true')
-    expect(screen.getByRole('radio', { name: 'Português (Brasil)' })).toHaveAttribute('aria-checked', 'false')
+
+    // After click, the language is English, so texts translate to English!
+    // And since we didn't close the dialog in the test (wait, click changes language AND closes the popover now!)
+    // So we need to re-open the popover to see the radios.
+    fireEvent.click(screen.getByRole('button', { name: /selecionar idioma/i }))
+
+    expect(screen.getByRole('radio', { name: 'English' })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('radio', { name: 'Portuguese (Brazil)' })).toHaveAttribute('aria-checked', 'false')
   })
 
   it('closes the popover when the close (X) button is clicked', () => {
