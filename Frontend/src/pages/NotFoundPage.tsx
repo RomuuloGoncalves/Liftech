@@ -1,11 +1,13 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const NotFoundPage: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <div style={{ textAlign: 'center', padding: '4rem 2rem', fontFamily: 'sans-serif' }}>
       <h1 style={{ fontSize: '6rem', margin: '0', color: '#e53e3e' }}>404</h1>
-      <h2 style={{ fontSize: '2rem', marginTop: '2rem' }}>Página Não Encontrada</h2>
+      <h2 style={{ fontSize: '2rem', marginTop: '2rem' }}>{t('navigation.notFound')}</h2>
       <p style={{ color: '#718096', margin: '2rem' }}>
         A página que você está procurando não existe ou foi movida.
       </p>

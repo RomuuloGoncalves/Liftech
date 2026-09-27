@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Search } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
@@ -10,12 +11,20 @@ type StatusFilter = MachineStatus | 'Todos'
 let nextMachineId = MACHINES.length + 1
 
 const VisaoGeralPage: React.FC = () => {
+  const { t } = useTranslation()
   const [allMachines, setAllMachines] = useState<Machine[]>(MACHINES)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('Todos')
   const [isPanelOpen, setIsPanelOpen] = useState(false)
 
   const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
+
+  const getStatusTranslation = (s: string) => {
+    if (s === 'Disponível') return t('machines.statusAvailable')
+    if (s === 'Em uso') return t('machines.statusInUse')
+    if (s === 'Manutenção' || s === 'Em manutenção') return t('machines.statusMaintenance')
+    return s
+  }
 
   const handleCreateMachine = (values: NewMachineFormValues) => {
     const newMachine: Machine = {
@@ -38,7 +47,7 @@ const VisaoGeralPage: React.FC = () => {
       <div className={styles.toolbar}>
         <button type="button" className={styles.registerButton} onClick={() => setIsPanelOpen(true)}>
           <Plus size={16} />
-          Cadastrar Máquina
+          {t('machines.registerButton')}
         </button>
 
         <div className={styles.searchField}>
@@ -46,7 +55,7 @@ const VisaoGeralPage: React.FC = () => {
           <input
             type="search"
             className={styles.searchInput}
-            placeholder="Search..."
+            placeholder={t('machines.searchPlaceholder')}
             aria-label="Buscar máquina por identificação ou setor"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -59,17 +68,17 @@ const VisaoGeralPage: React.FC = () => {
           value={status}
           onChange={(event) => setStatus(event.target.value as StatusFilter)}
         >
-          <option value="Todos">Padrão</option>
+          <option value="Todos">{t('machines.filterDefault')}</option>
           {MACHINE_STATUSES.map((option) => (
             <option key={option} value={option}>
-              {option}
+              {getStatusTranslation(option)}
             </option>
           ))}
         </select>
       </div>
 
       {machines.length === 0 ? (
-        <p className={styles.emptyState}>Nenhuma máquina encontrada</p>
+        <p className={styles.emptyState}>{t('machines.emptyState')}</p>
       ) : (
         <div className={styles.grid}>
           {machines.map((machine) => (
