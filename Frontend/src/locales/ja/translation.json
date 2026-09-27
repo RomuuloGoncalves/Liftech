@@ -1,0 +1,49 @@
+{
+  "common": {
+    "search": "検索",
+    "filter": "フィルター",
+    "noResults": "結果がありません",
+    "register": "登録",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "close": "閉じる"
+  },
+  "navigation": {
+    "overview": "概要",
+    "fleet": "フリート管理",
+    "team": "チーム管理",
+    "alerts": "アラート履歴",
+    "notFound": "ページが見つかりません",
+    "pages": "ページ",
+    "feedback": "フィードバックと提案",
+    "privacy": "プライバシーポリシー"
+  },
+  "machines": {
+    "registerButton": "機械を登録",
+    "searchPlaceholder": "検索...",
+    "filterDefault": "デフォルト",
+    "statusAvailable": "利用可能",
+    "statusInUse": "使用中",
+    "statusMaintenance": "メンテナンス中",
+    "sessionTime": "セッション時間",
+    "sector": "セクター",
+    "operator": "オペレーター",
+    "noOperator": "オペレーターなし",
+    "emptyState": "機械が見つかりません",
+    "newMachineTitle": "新しい機械",
+    "labelId": "ID",
+    "labelName": "名前",
+    "labelSector": "セクター",
+    "labelMac": "MACアドレス"
+  },
+  "languages": {
+    "title": "言語を選択",
+    "pt-BR": "ポルトガル語（ブラジル）",
+    "en-US": "英語",
+    "es": "スペイン語",
+    "fr": "フランス語",
+    "ja": "日本語",
+    "de": "ドイツ語",
+    "ru": "ロシア語"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "common": {
+    "search": "Buscar",
+    "filter": "Filtro",
+    "noResults": "Sem resultados",
+    "register": "Cadastrar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "close": "Fechar"
+  },
+  "navigation": {
+    "overview": "Visão Geral",
+    "fleet": "Gerenciamento Frota",
+    "team": "Gestão de Equipe",
+    "alerts": "Histórico de Alertas",
+    "notFound": "Página não encontrada",
+    "pages": "Páginas",
+    "feedback": "Feedback & Sugestões",
+    "privacy": "Políticas & Privacidades"
+  },
+  "machines": {
+    "registerButton": "Cadastrar Máquina",
+    "searchPlaceholder": "Search...",
+    "filterDefault": "Padrão",
+    "statusAvailable": "Disponível",
+    "statusInUse": "Em uso",
+    "statusMaintenance": "Em manutenção",
+    "sessionTime": "Tempo de sessão",
+    "sector": "Setor",
+    "operator": "Operador",
+    "noOperator": "Sem operador",
+    "emptyState": "Nenhuma máquina encontrada",
+    "newMachineTitle": "Nova Máquina",
+    "newMachineSubtitle": "Cadastre uma nova empilhadeira para a sua frota.",
+    "labelId": "ID",
+    "labelName": "Nome",
+    "labelSector": "Setor",
+    "labelDeviceName": "Nome Dispositivo",
+    "labelMac": "MAC Address"
+  },
+  "languages": {
+    "title": "Escolha um idioma",
+    "pt-BR": "Português (Brasil)",
+    "en-US": "Inglês",
+    "es": "Espanhol",
+    "fr": "Francês",
+    "ja": "Japonês",
+    "de": "Alemão",
+    "ru": "Russo"
+  }
+}
