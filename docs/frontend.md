@@ -24,10 +24,17 @@ src/
 
 | Pasta | Responsabilidade prevista |
 | --- | --- |
-| `src/config/` | Variáveis de ambiente e inicialização de bibliotecas externas |
 | `src/services/` | Camada Axios de comunicação com o Backend |
-| `src/types/` | Interfaces/tipos TypeScript compartilhados, espelhando o contrato da API |
 | `src/utils/` | Funções utilitárias puras (formatação de datas, texto, cálculos) |
+
+**Já existem, criadas pela feature de i18n:**
+
+| Pasta | Conteúdo |
+| --- | --- |
+| `src/config/` | `i18n.ts` — inicialização do i18next (ver [i18n.md](./i18n.md)) |
+| `src/hooks/` | `useLanguage.ts` — hook de troca e persistência de idioma |
+| `src/types/` | `i18n.ts` — constante `VALID_LANGUAGES` e tipo `SupportedLanguage` |
+| `src/locales/` | Arquivos JSON de tradução para os 7 idiomas suportados |
 
 ---
 
@@ -62,6 +69,7 @@ Espelha 1:1 a estrutura de `src/` (ex.: `test/components/layout/Sidebar.test.tsx
 | **React 19 + TypeScript** | Base da aplicação | `strict` mode do TS ligado via `tsconfig.app.json` |
 | **Vite** | Build e dev server | `npm run dev`, `npm run build` (roda `tsc -b` antes de empacotar) |
 | **react-router-dom** | Roteamento | Um `<Routes>` central em `routes/appRoutes.tsx`; `BrowserRouter` só em `main.tsx` |
+| **i18next + react-i18next** | Internacionalização | 7 idiomas, recursos inline, persistência em `localStorage`. Ver [i18n.md](./i18n.md) |
 | **lucide-react** | Ícones | Um componente React por ícone (`<FileText />`, `<Truck />` etc.). Só ícones: não inclui componentes de UI nem estilo. Decisão registrada em `.specs/STATE.md` (AD-001), para manter um único sistema de ícones em todo o app |
 | **Vitest + Testing Library + jsdom** | Testes | `npm run test` roda tudo em modo não-interativo (`vitest run`) |
 | **ESLint** | Lint | `npm run lint`; roda sobre o projeto inteiro |
