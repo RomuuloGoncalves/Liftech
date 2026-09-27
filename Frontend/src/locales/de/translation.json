@@ -1,0 +1,49 @@
+{
+  "common": {
+    "search": "Suchen",
+    "filter": "Filter",
+    "noResults": "Keine Ergebnisse",
+    "register": "Registrieren",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "close": "Schließen"
+  },
+  "navigation": {
+    "overview": "Übersicht",
+    "fleet": "Flottenmanagement",
+    "team": "Teammanagement",
+    "alerts": "Alarmverlauf",
+    "notFound": "Seite nicht gefunden",
+    "pages": "Seiten",
+    "feedback": "Feedback & Vorschläge",
+    "privacy": "Datenschutzrichtlinie"
+  },
+  "machines": {
+    "registerButton": "Maschine registrieren",
+    "searchPlaceholder": "Suchen...",
+    "filterDefault": "Standard",
+    "statusAvailable": "Verfügbar",
+    "statusInUse": "In Gebrauch",
+    "statusMaintenance": "In Wartung",
+    "sessionTime": "Sitzungszeit",
+    "sector": "Sektor",
+    "operator": "Bediener",
+    "noOperator": "Kein Bediener",
+    "emptyState": "Keine Maschinen gefunden",
+    "newMachineTitle": "Neue Maschine",
+    "labelId": "ID",
+    "labelName": "Name",
+    "labelSector": "Sektor",
+    "labelMac": "MAC-Adresse"
+  },
+  "languages": {
+    "title": "Sprache wählen",
+    "pt-BR": "Portugiesisch (Brasilien)",
+    "en-US": "Englisch",
+    "es": "Spanisch",
+    "fr": "Französisch",
+    "ja": "Japanisch",
+    "de": "Deutsch",
+    "ru": "Russisch"
+  }
+}

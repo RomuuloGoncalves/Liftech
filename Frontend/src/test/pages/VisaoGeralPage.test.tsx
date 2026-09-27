@@ -85,23 +85,23 @@ describe('VisaoGeralPage', () => {
     render(<VisaoGeralPage />)
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
 
-    fireEvent.change(screen.getByLabelText('Empilhadeira'), { target: { value: 'Empilhadeira Nova' } })
-    fireEvent.change(screen.getByLabelText('Código'), { target: { value: 'EMP-999' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Empilhadeira' }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(screen.queryByRole('dialog', { name: 'Nova Máquina' })).not.toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length + 1)
     const newCard = screen.getByText('EMP-999(ID)').closest('article') as HTMLElement
     expect(newCard).not.toBeNull()
     expect(within(newCard).getByText('Disponível')).toBeInTheDocument()
-    expect(within(newCard).getByText('0 minutos')).toBeInTheDocument()
+    expect(within(newCard).getByText('0 min')).toBeInTheDocument()
   })
 
   it('does not add a card and closes the panel when Cancelar is clicked', () => {
     render(<VisaoGeralPage />)
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
 
-    fireEvent.change(screen.getByLabelText('Empilhadeira'), { target: { value: 'Empilhadeira Descartada' } })
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Descartada' } })
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
 
     expect(screen.queryByRole('dialog', { name: 'Nova Máquina' })).not.toBeInTheDocument()

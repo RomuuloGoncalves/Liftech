@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import styles from './NewMachinePanel.module.css'
 
 export interface NewMachineFormValues {
@@ -24,6 +25,7 @@ const EMPTY_FORM: NewMachineFormValues = {
 }
 
 const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) => {
+  const { t } = useTranslation()
   const [values, setValues] = useState<NewMachineFormValues>(EMPTY_FORM)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -57,22 +59,22 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Nova Máquina"
+        aria-label={t('machines.newMachineTitle')}
       >
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.header}>
             <div>
-              <h2 className={styles.title}>Nova Máquina</h2>
-              <p className={styles.subtitle}>Cadastre uma nova empilhadeira para a sua frota.</p>
+              <h2 className={styles.title}>{t('machines.newMachineTitle')}</h2>
+              <p className={styles.subtitle}>{t('machines.newMachineSubtitle')}</p>
             </div>
-            <button type="button" className={styles.closeButton} aria-label="Fechar" onClick={onClose}>
+            <button type="button" className={styles.closeButton} aria-label={t('common.close')} onClick={onClose}>
               <X size={18} />
             </button>
           </div>
 
           <div className={styles.fields}>
             <label className={styles.field}>
-              <span className={styles.label}>Empilhadeira</span>
+              <span className={styles.label}>{t('machines.labelName')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -84,7 +86,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>Código</span>
+              <span className={styles.label}>{t('machines.labelId')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -96,7 +98,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>Setor</span>
+              <span className={styles.label}>{t('machines.labelSector')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -109,7 +111,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
             <div className={styles.divider} />
 
             <label className={styles.field}>
-              <span className={styles.label}>Nome Dispositivo</span>
+              <span className={styles.label}>{t('machines.labelDeviceName')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -120,7 +122,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>Endereço Mac</span>
+              <span className={styles.label}>{t('machines.labelMac')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -133,10 +135,10 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
 
           <div className={styles.footer}>
             <button type="submit" className={styles.submitButton}>
-              Criar Empilhadeira
+              {t('common.save')}
             </button>
             <button type="button" className={styles.cancelButton} onClick={onClose}>
-              Cancelar
+              {t('common.cancel')}
             </button>
           </div>
         </form>

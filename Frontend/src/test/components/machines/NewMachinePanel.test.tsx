@@ -3,10 +3,10 @@ import { describe, expect, it, vi } from 'vitest'
 import NewMachinePanel from '../../../components/machines/NewMachinePanel'
 
 function fillRequiredFields() {
-  fireEvent.change(screen.getByLabelText('Empilhadeira'), {
+  fireEvent.change(screen.getByLabelText('Nome'), {
     target: { value: 'Empilhadeira Elétrica Titan-X' },
   })
-  fireEvent.change(screen.getByLabelText('Código'), { target: { value: 'EMP-100' } })
+  fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-100' } })
 }
 
 describe('NewMachinePanel', () => {
@@ -15,21 +15,21 @@ describe('NewMachinePanel', () => {
 
     expect(screen.getByRole('dialog', { name: 'Nova Máquina' })).toBeInTheDocument()
     expect(screen.getByText('Cadastre uma nova empilhadeira para a sua frota.')).toBeInTheDocument()
-    expect(screen.getByLabelText('Empilhadeira')).toBeInTheDocument()
-    expect(screen.getByLabelText('Código')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome')).toBeInTheDocument()
+    expect(screen.getByLabelText('ID')).toBeInTheDocument()
     expect(screen.getByLabelText('Setor')).toBeInTheDocument()
     expect(screen.getByLabelText('Nome Dispositivo')).toBeInTheDocument()
-    expect(screen.getByLabelText('Endereço Mac')).toBeInTheDocument()
+    expect(screen.getByLabelText('MAC Address')).toBeInTheDocument()
   })
 
-  it('marks Empilhadeira and Código as required, and the rest as optional', () => {
+  it('marks Nome and ID as required, and the rest as optional', () => {
     render(<NewMachinePanel onClose={vi.fn()} onCreate={vi.fn()} />)
 
-    expect(screen.getByLabelText('Empilhadeira')).toBeRequired()
-    expect(screen.getByLabelText('Código')).toBeRequired()
+    expect(screen.getByLabelText('Nome')).toBeRequired()
+    expect(screen.getByLabelText('ID')).toBeRequired()
     expect(screen.getByLabelText('Setor')).not.toBeRequired()
     expect(screen.getByLabelText('Nome Dispositivo')).not.toBeRequired()
-    expect(screen.getByLabelText('Endereço Mac')).not.toBeRequired()
+    expect(screen.getByLabelText('MAC Address')).not.toBeRequired()
   })
 
   it('calls onCreate with the typed values when the form is submitted with required fields filled', () => {
@@ -38,7 +38,7 @@ describe('NewMachinePanel', () => {
 
     fillRequiredFields()
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Expedição - Bloco B' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Empilhadeira' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(onCreate).toHaveBeenCalledWith({
       nome: 'Empilhadeira Elétrica Titan-X',
@@ -53,7 +53,7 @@ describe('NewMachinePanel', () => {
     const onCreate = vi.fn()
     render(<NewMachinePanel onClose={vi.fn()} onCreate={onCreate} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Empilhadeira' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(onCreate).not.toHaveBeenCalled()
   })

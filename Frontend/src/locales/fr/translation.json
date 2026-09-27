@@ -1,0 +1,49 @@
+{
+  "common": {
+    "search": "Recherche",
+    "filter": "Filtre",
+    "noResults": "Aucun résultat",
+    "register": "S'inscrire",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "close": "Fermer"
+  },
+  "navigation": {
+    "overview": "Aperçu",
+    "fleet": "Gestion de Flotte",
+    "team": "Gestion d'Équipe",
+    "alerts": "Historique des Alertes",
+    "notFound": "Page non trouvée",
+    "pages": "Pages",
+    "feedback": "Commentaires & Suggestions",
+    "privacy": "Politique de confidentialité"
+  },
+  "machines": {
+    "registerButton": "Enregistrer la Machine",
+    "searchPlaceholder": "Rechercher...",
+    "filterDefault": "Défaut",
+    "statusAvailable": "Disponible",
+    "statusInUse": "En cours d'utilisation",
+    "statusMaintenance": "En maintenance",
+    "sessionTime": "Temps de session",
+    "sector": "Secteur",
+    "operator": "Opérateur",
+    "noOperator": "Aucun opérateur",
+    "emptyState": "Aucune machine trouvée",
+    "newMachineTitle": "Nouvelle Machine",
+    "labelId": "ID",
+    "labelName": "Nom",
+    "labelSector": "Secteur",
+    "labelMac": "Adresse MAC"
+  },
+  "languages": {
+    "title": "Choisissez une langue",
+    "pt-BR": "Portugais (Brésil)",
+    "en-US": "Anglais",
+    "es": "Espagnol",
+    "fr": "Français",
+    "ja": "Japonais",
+    "de": "Allemand",
+    "ru": "Russe"
+  }
+}

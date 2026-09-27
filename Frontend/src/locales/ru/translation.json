@@ -1,0 +1,49 @@
+{
+  "common": {
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "noResults": "Нет результатов",
+    "register": "Регистрация",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "close": "Закрыть"
+  },
+  "navigation": {
+    "overview": "Обзор",
+    "fleet": "Управление парком",
+    "team": "Управление командой",
+    "alerts": "История уведомлений",
+    "notFound": "Страница не найдена",
+    "pages": "Страницы",
+    "feedback": "Отзывы и предложения",
+    "privacy": "Политика конфиденциальности"
+  },
+  "machines": {
+    "registerButton": "Зарегистрировать машину",
+    "searchPlaceholder": "Поиск...",
+    "filterDefault": "По умолчанию",
+    "statusAvailable": "Доступно",
+    "statusInUse": "В использовании",
+    "statusMaintenance": "На обслуживании",
+    "sessionTime": "Время сеанса",
+    "sector": "Сектор",
+    "operator": "Оператор",
+    "noOperator": "Нет оператора",
+    "emptyState": "Машины не найдены",
+    "newMachineTitle": "Новая машина",
+    "labelId": "ID",
+    "labelName": "Имя",
+    "labelSector": "Сектор",
+    "labelMac": "MAC-адрес"
+  },
+  "languages": {
+    "title": "Выберите язык",
+    "pt-BR": "Португальский (Бразилия)",
+    "en-US": "Английский",
+    "es": "Испанский",
+    "fr": "Французский",
+    "ja": "Японский",
+    "de": "Немецкий",
+    "ru": "Русский"
+  }
+}

@@ -3,36 +3,25 @@ import { useLocation } from 'react-router-dom'
 import { Bell, Globe, User, X } from 'lucide-react'
 import styles from './Header.module.css'
 
-interface LanguageOption {
-  code: string
-  label: string
-  flag: string
-}
+import { useLanguage } from '../../hooks/useLanguage'
+import { useTranslation } from 'react-i18next'
 
-const LANGUAGES: LanguageOption[] = [
-  { code: 'pt-BR', label: 'Português (Brasil)', flag: '🇧🇷' },
-  { code: 'en-US', label: 'Inglês', flag: '🇺🇸' },
-  { code: 'es', label: 'Espanhol', flag: '🇪🇸' },
-  { code: 'fr', label: 'Francês', flag: '🇫🇷' },
-  { code: 'ja', label: 'Japonês', flag: '🇯🇵' },
-  { code: 'de', label: 'Alemão', flag: '🇩🇪' },
-  { code: 'ru', label: 'Russo', flag: '🇷🇺' },
-]
-
-const PAGE_TITLES: Record<string, string> = {
-  '/': 'Visão Geral',
-  '/frota': 'Gerenciamento Frota',
-  '/equipe': 'Gestão de Equipe',
-  '/alertas': 'Histórico de Alertas',
+const ROUTE_KEYS: Record<string, string> = {
+  '/': 'navigation.overview',
+  '/frota': 'navigation.fleet',
+  '/equipe': 'navigation.team',
+  '/alertas': 'navigation.alerts',
 }
 
 const Header: React.FC = () => {
   const location = useLocation()
+  const { language, changeLanguage, languages } = useLanguage()
+  const { t } = useTranslation()
   const [languageOpen, setLanguageOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('pt-BR')
   const popoverRef = useRef<HTMLDivElement>(null)
 
-  const title = PAGE_TITLES[location.pathname] ?? ''
+  const titleKey = ROUTE_KEYS[location.pathname]
+  const title = titleKey ? t(titleKey) : ''
 
   const closeLanguagePopover = useCallback(() => setLanguageOpen(false), [])
 
@@ -73,9 +62,9 @@ const Header: React.FC = () => {
           </button>
 
           {languageOpen && (
-            <div className={styles.popover} role="dialog" aria-label="Escolha um idioma">
+            <div className={styles.popover} role="dialog" aria-label={t('languages.title')}>
               <div className={styles.popoverHeader}>
-                <span className={styles.popoverTitle}>Escolha um idioma</span>
+                <span className={styles.popoverTitle}>{t('languages.title')}</span>
                 <button
                   type="button"
                   className={styles.popoverClose}
@@ -87,20 +76,23 @@ const Header: React.FC = () => {
               </div>
 
               <ul className={styles.languageList}>
-                {LANGUAGES.map(({ code, label, flag }) => (
+                {languages.map(({ code, label, flag }) => (
                   <li key={code}>
                     <button
                       type="button"
                       className={styles.languageOption}
-                      onClick={() => setSelectedLanguage(code)}
+                      onClick={() => {
+                        changeLanguage(code)
+                        closeLanguagePopover()
+                      }}
                     >
                       <span
-                        className={`${styles.radio} ${selectedLanguage === code ? styles.radioChecked : ''}`}
+                        className={`${styles.radio} ${language === code ? styles.radioChecked : ''}`}
                         role="radio"
-                        aria-checked={selectedLanguage === code}
-                        aria-label={label}
+                        aria-checked={language === code}
+                        aria-label={t(label)}
                       />
-                      <span className={styles.languageLabel}>{label}</span>
+                      <span className={styles.languageLabel}>{t(label)}</span>
                       <span aria-hidden="true">{flag}</span>
                     </button>
                   </li>

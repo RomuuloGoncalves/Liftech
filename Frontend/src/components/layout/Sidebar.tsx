@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   AlertCircle,
   ChevronRight,
@@ -20,15 +21,15 @@ const MOBILE_BREAKPOINT = 768
 
 interface NavItem {
   to: string
-  label: string
+  labelKey: string
   icon: React.ComponentType<{ size?: number }>
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Visão Geral', icon: FileText },
-  { to: '/frota', label: 'Gerenciamento Frota', icon: Forklift },
-  { to: '/equipe', label: 'Gestão de Equipe', icon: Users },
-  { to: '/alertas', label: 'Histórico de Alertas', icon: AlertCircle },
+  { to: '/', labelKey: 'navigation.overview', icon: FileText },
+  { to: '/frota', labelKey: 'navigation.fleet', icon: Forklift },
+  { to: '/equipe', labelKey: 'navigation.team', icon: Users },
+  { to: '/alertas', labelKey: 'navigation.alerts', icon: AlertCircle },
 ]
 
 function readStoredCollapsed(): boolean {
@@ -49,6 +50,7 @@ function writeStoredCollapsed(value: boolean): void {
 
 const Sidebar: React.FC = () => {
   const location = useLocation()
+  const { t } = useTranslation()
   const [collapsed, setCollapsed] = useState<boolean>(readStoredCollapsed)
   const [isMobile, setIsMobile] = useState<boolean>(() => window.innerWidth < MOBILE_BREAKPOINT)
   const [mobileOpen, setMobileOpen] = useState<boolean>(false)
@@ -143,10 +145,10 @@ const Sidebar: React.FC = () => {
           )}
         </div>
 
-        {!showCollapsedLayout && <p className={styles.sectionLabel}>Páginas</p>}
+        {!showCollapsedLayout && <p className={styles.sectionLabel}>{t('navigation.pages')}</p>}
 
         <ul className={styles.nav} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+          {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => {
             const isActive = location.pathname === to
             return (
               <li key={to}>
@@ -159,7 +161,7 @@ const Sidebar: React.FC = () => {
                   <span className={styles.navIcon}>
                     <Icon size={18} />
                   </span>
-                  {!showCollapsedLayout && <span className={styles.navLabel}>{label}</span>}
+                  {!showCollapsedLayout && <span className={styles.navLabel}>{t(labelKey)}</span>}
                 </Link>
               </li>
             )
@@ -172,13 +174,13 @@ const Sidebar: React.FC = () => {
           <button type="button" className={styles.feedbackButton}>
             <span className={styles.feedbackLabel}>
               <MessageCircle size={16} />
-              {!showCollapsedLayout && <span>Feedback &amp; Sugestões</span>}
+              {!showCollapsedLayout && <span>{ t('navigation.feedback') }</span>}
             </span>
             <ChevronRight size={16} />
           </button>
           {!showCollapsedLayout && (
             <a className={styles.privacyLink} href="/politicas-privacidade">
-              Políticas &amp; Privacidades
+              {t('navigation.privacy')}
             </a>
           )}
         </div>

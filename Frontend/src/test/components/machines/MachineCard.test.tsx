@@ -22,7 +22,7 @@ describe('MachineCard', () => {
     expect(screen.getByText('Expedição - Bloco B')).toBeInTheDocument()
     expect(screen.getByText('A2:C9:9B:1D:F7')).toBeInTheDocument()
     expect(screen.getByText('Disponível')).toBeInTheDocument()
-    expect(screen.getByText('34 minutos')).toBeInTheDocument()
+    expect(screen.getByText('34 min')).toBeInTheDocument()
   })
 
   it('renders a menu button without opening any content', () => {
