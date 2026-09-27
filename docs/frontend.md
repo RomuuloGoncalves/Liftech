@@ -34,10 +34,10 @@ src/
 ### `src/components/`
 Componentes visuais reutilizáveis da interface, organizados por domínio (hoje só `layout/`, para peças estruturais como a `Sidebar`). Conforme o design system crescer, componentes de UI mais genéricos (botões, cards, modais) devem ganhar sua própria subpasta aqui, no mesmo padrão.
 
-Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome — ver a seção "Estilização" abaixo.
+Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome (ver a seção "Estilização" abaixo).
 
 ### `src/pages/`
-Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. Hoje `VisaoGeralPage`, `FrotaPage`, `EquipePage` e `AlertasPage` são placeholders que só marcam a existência da rota — o conteúdo real de cada uma é escopo de outras issues.
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. Hoje `VisaoGeralPage`, `FrotaPage`, `EquipePage` e `AlertasPage` são placeholders que só marcam a existência da rota; o conteúdo real de cada uma é escopo de outras issues.
 
 ### `src/routes/`
 Centraliza as rotas com `react-router-dom` em um único `<Routes>` (`appRoutes.tsx`). `App.tsx` monta esse roteador dentro do shell visual da aplicação; o `BrowserRouter` em si vive em `main.tsx`, fora de `App`, para manter `App.tsx` testável sem precisar reconfigurar o router a cada teste.
@@ -54,17 +54,17 @@ Espelha 1:1 a estrutura de `src/` (ex.: `test/components/layout/Sidebar.test.tsx
 | **React 19 + TypeScript** | Base da aplicação | `strict` mode do TS ligado via `tsconfig.app.json` |
 | **Vite** | Build e dev server | `npm run dev`, `npm run build` (roda `tsc -b` antes de empacotar) |
 | **react-router-dom** | Roteamento | Um `<Routes>` central em `routes/appRoutes.tsx`; `BrowserRouter` só em `main.tsx` |
-| **lucide-react** | Ícones | Um componente React por ícone (`<FileText />`, `<Truck />` etc.). Só ícones — não inclui componentes de UI, estilo ou qualquer outra coisa. Decisão registrada em `.specs/STATE.md` (AD-001), para manter um único sistema de ícones em todo o app |
+| **lucide-react** | Ícones | Um componente React por ícone (`<FileText />`, `<Truck />` etc.). Só ícones: não inclui componentes de UI nem estilo. Decisão registrada em `.specs/STATE.md` (AD-001), para manter um único sistema de ícones em todo o app |
 | **Vitest + Testing Library + jsdom** | Testes | `npm run test` roda tudo em modo não-interativo (`vitest run`) |
 | **ESLint** | Lint | `npm run lint`; roda sobre o projeto inteiro |
 
-Não há Tailwind nem outra lib de UI instalada — ver "Estilização" a seguir.
+Não há Tailwind nem outra lib de UI instalada (ver "Estilização" a seguir).
 
 ---
 
 ## Estilização
 
-O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Hoje só existe o tema claro — o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
+O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Hoje só existe o tema claro: o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
 
 Um componente com estilo próprio ganha um arquivo `NomeDoComponente.module.css` ao lado do `.tsx`, importado como `import styles from './NomeDoComponente.module.css'`. Isso dá escopo automático (sem colisão de nomes de classe entre componentes) sem precisar de nenhuma dependência extra. A `Sidebar` (`components/layout/Sidebar.tsx` + `Sidebar.module.css`) é a referência atual desse padrão.
 
@@ -82,4 +82,4 @@ Convenção: todo arquivo de teste espelha o caminho do arquivo testado dentro d
 
 - Componentes são sempre `React.FC` tipado, em arquivo próprio.
 - Ícones vêm exclusivamente de `lucide-react` (ver tabela de bibliotecas acima).
-- Decisões de arquitetura maiores (escolha de lib, mudança de tema, etc.) ficam registradas em `.specs/STATE.md`, não só no código — é o histórico que explica o "porquê" por trás de uma escolha quando ela não é óbvia lendo o arquivo isolado.
+- Decisões de arquitetura maiores (escolha de lib, mudança de tema, etc.) ficam registradas em `.specs/STATE.md`, não só no código. É esse histórico que explica por que uma escolha foi feita, quando isso não fica óbvio lendo o arquivo isolado.
