@@ -1,7 +1,8 @@
 import requestCheck from "request-check";
 import * as isness from "@zarco/isness";
 
-const regras: any = requestCheck.default();
+// @ts-ignore
+const regras: any = requestCheck();
 
 regras.addRules("id", [{
   validator: (id: string) => isness.string(id) && id.trim().length > 0,

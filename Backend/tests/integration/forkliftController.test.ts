@@ -4,6 +4,7 @@ import { listar, buscar, criar, deletar, atualizar, servicoForklift } from '../.
 import { forkliftModel } from '../../src/models/forkliftModel.js';
 
 vi.mock('../../src/feature/forklift/forkliftService.js');
+vi.mock('../../src/schemas/forklift.js');
 
 describe('ForkliftController', () => {
     let mockReq: Partial<Request>;
@@ -85,7 +86,14 @@ describe('ForkliftController', () => {
         await criar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(400);
-        expect(mockJson).toHaveBeenCalledWith({ error: "O campo 'id' (identificação) é obrigatório e deve ser texto válido." });
+        expect(mockJson).toHaveBeenCalledWith({
+            error: [
+                {
+                    field: "id",
+                    message: "This field is required!"
+                }
+            ]
+        });
     });
 
     test('criar: deve retornar 409 quando há conflito de identificação', async () => {
