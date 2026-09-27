@@ -1,5 +1,6 @@
 import React from 'react'
 import { Forklift, MoreVertical } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
 import styles from './MachineCard.module.css'
 
@@ -15,11 +16,19 @@ const STATUS_CLASS: Record<Machine['dispositivoConectado']['status'], string> = 
 }
 
 function formatTempoSessao(minutos: number): string {
-  return `${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`
+  return `${minutos} min`
 }
 
 const MachineCard: React.FC<MachineCardProps> = ({ machine }) => {
+  const { t } = useTranslation()
   const { identificacao, nome, setor, dispositivoConectado, operadorConectado, tempoSessaoMinutos } = machine
+
+  const getStatusTranslation = (status: string) => {
+    if (status === 'Disponível') return t('machines.statusAvailable')
+    if (status === 'Em uso') return t('machines.statusInUse')
+    if (status === 'Manutenção' || status === 'Em manutenção') return t('machines.statusMaintenance')
+    return status
+  }
 
   return (
     <article className={styles.card}>
@@ -40,27 +49,32 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine }) => {
 
       <dl className={styles.details}>
         <div className={styles.detailRow}>
-          <dt>Setor:</dt>
+          <dt>{t('machines.sector')}:</dt>
           <dd>{setor}</dd>
         </div>
         <div className={styles.detailRow}>
-          <dt>Endereço Mac:</dt>
+          <dt>{t('machines.labelMac')}:</dt>
           <dd>{dispositivoConectado.enderecoMac}</dd>
         </div>
-        {operadorConectado && (
+        {operadorConectado ? (
           <div className={styles.detailRow}>
-            <dt>Operador:</dt>
+            <dt>{t('machines.operator')}:</dt>
             <dd>{operadorConectado.nome}</dd>
+          </div>
+        ) : (
+          <div className={styles.detailRow}>
+            <dt>{t('machines.operator')}:</dt>
+            <dd className={styles.emptyOperator}>{t('machines.noOperator')}</dd>
           </div>
         )}
       </dl>
 
       <div className={styles.bottomRow}>
         <span className={`${styles.statusBadge} ${STATUS_CLASS[dispositivoConectado.status]}`}>
-          {dispositivoConectado.status}
+          {getStatusTranslation(dispositivoConectado.status)}
         </span>
         <span className={styles.session}>
-          Tempo de sessão <strong>{formatTempoSessao(tempoSessaoMinutos)}</strong>
+          {t('machines.sessionTime')} <strong>{formatTempoSessao(tempoSessaoMinutos)}</strong>
         </span>
       </div>
     </article>
