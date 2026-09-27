@@ -49,7 +49,9 @@
 }
 
 .brandName {
-  white-space: nowrap;
+  display: block;
+  width: auto;
+  object-fit: contain;
 }
 
 .toggleButton {
