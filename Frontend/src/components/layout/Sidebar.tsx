@@ -4,10 +4,10 @@ import {
   AlertCircle,
   ChevronRight,
   FileText,
+  Forklift,
   MessageCircle,
   Menu,
   PanelLeft,
-  Truck,
   Users,
   X,
 } from 'lucide-react'
@@ -25,7 +25,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: FileText },
-  { to: '/frota', label: 'Gerenciamento Frota', icon: Truck },
+  { to: '/frota', label: 'Gerenciamento Frota', icon: Forklift },
   { to: '/equipe', label: 'Gestão de Equipe', icon: Users },
   { to: '/alertas', label: 'Histórico de Alertas', icon: AlertCircle },
 ]
