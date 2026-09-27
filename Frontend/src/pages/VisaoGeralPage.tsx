@@ -1,21 +1,42 @@
 import React, { useMemo, useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
-import { MACHINES, MACHINE_STATUSES, filterMachines, type MachineStatus } from '../data/machines'
+import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
+import { MACHINES, MACHINE_STATUSES, filterMachines, type Machine, type MachineStatus } from '../data/machines'
 import styles from './VisaoGeralPage.module.css'
 
 type StatusFilter = MachineStatus | 'Todos'
 
+let nextMachineId = MACHINES.length + 1
+
 const VisaoGeralPage: React.FC = () => {
+  const [allMachines, setAllMachines] = useState<Machine[]>(MACHINES)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('Todos')
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
 
-  const machines = useMemo(() => filterMachines(MACHINES, { query, status }), [query, status])
+  const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
+
+  const handleCreateMachine = (values: NewMachineFormValues) => {
+    const newMachine: Machine = {
+      id: String(nextMachineId++),
+      identificacao: values.identificacao,
+      nome: values.nome,
+      setor: values.setor,
+      dispositivoConectado: {
+        enderecoMac: values.enderecoMac,
+        status: 'Disponível',
+      },
+      tempoSessaoMinutos: 0,
+    }
+    setAllMachines((prev) => [newMachine, ...prev])
+    setIsPanelOpen(false)
+  }
 
   return (
     <div className={styles.page}>
       <div className={styles.toolbar}>
-        <button type="button" className={styles.registerButton}>
+        <button type="button" className={styles.registerButton} onClick={() => setIsPanelOpen(true)}>
           <Plus size={16} />
           Cadastrar Máquina
         </button>
@@ -55,6 +76,10 @@ const VisaoGeralPage: React.FC = () => {
             <MachineCard key={machine.id} machine={machine} />
           ))}
         </div>
+      )}
+
+      {isPanelOpen && (
+        <NewMachinePanel onClose={() => setIsPanelOpen(false)} onCreate={handleCreateMachine} />
       )}
     </div>
   )
