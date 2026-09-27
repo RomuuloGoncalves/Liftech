@@ -1,44 +1,58 @@
-export class forkliftModel {
-    private identificacao: string;
-    private dispositivoConectadoId: string;
-    private operadorConectadoId: string;
+import { coreModel } from "../core/coreModel.js";
 
-    constructor(identificacao: string, dispositivoConectadoId: string, operadorConectadoId: string) {
+export class forkliftModel extends coreModel {
+    protected id: string | undefined;
+    protected identificacao: string;
+    protected dispositivoConectadoId: string | undefined;
+    protected operadorConectadoId: string | undefined;
+
+    constructor(
+        identificacao: string, 
+        dispositivoConectadoId?: string, 
+        operadorConectadoId?: string,
+        id?: string
+    ) {
+        super();
+        this.id = id;
         this.identificacao = identificacao;
         this.dispositivoConectadoId = dispositivoConectadoId;
         this.operadorConectadoId = operadorConectadoId;
     }
 
-    protected setIdentificacao(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.identificacao = value;
+    obterDados(): Record<string, unknown> {
+        return {
+            ...(this.id ? { _id: this.id } : {}),
+            id: this.identificacao,
+            dispositivoConectadoId: this.dispositivoConectadoId,
+            operadorConectadoId: this.operadorConectadoId
+        };
     }
 
-    protected getIdentificacao(): string {
+    public getID(): string | undefined {
+        return this.id;
+    }
+
+    public getIdentificacao(): string {
         return this.identificacao;
     }
 
-    protected setDispositivoConectadoId(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.dispositivoConectadoId = value;
-    }
-
-    protected getDispositivoConectadoId(): string {
+    public getDispositivoConectadoId(): string | undefined {
         return this.dispositivoConectadoId;
     }
 
-    protected setOperadorConectadoId(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.operadorConectadoId = value;
+    public getOperadorConectadoId(): string | undefined {
+        return this.operadorConectadoId;
     }
 
-    protected getOperadorConectadoId(): string {
-        return this.operadorConectadoId;
+    public setIdentificacao(value: string): void {
+        this.identificacao = value;
+    }
+
+    public setDispositivoConectadoId(value: string): void {
+        this.dispositivoConectadoId = value;
+    }
+
+    public setOperadorConectadoId(value: string): void {
+        this.operadorConectadoId = value;
     }
 }

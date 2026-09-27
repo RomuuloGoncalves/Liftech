@@ -3,8 +3,11 @@ import { startKeepAlive } from '@rafaelhdsv/keep-alive';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
+import forkliftRouter from './feature/forklift/forkliftRouter.js';
 
 const app = express();
+
+app.use(express.json());
 
 // @ts-ignore
 app.use(pinoHttp({ 
@@ -35,6 +38,8 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ ok: true, lastPing: displayLastPing });
   }
 });
+
+app.use('/api/forklifts', forkliftRouter);
 
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
