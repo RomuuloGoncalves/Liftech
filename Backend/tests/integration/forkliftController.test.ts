@@ -40,10 +40,11 @@ describe('ForkliftController', () => {
     });
 
     test('buscar: deve retornar 200 e empilhadeira quando id válido fornecido nos params', async () => {
-        const mockModel = new forkliftModel('EMP-001', undefined, undefined, '123');
+        const validObjectId = '507f1f77bcf86cd799439010';
+        const mockModel = new forkliftModel('EMP-001', undefined, undefined, validObjectId);
         vi.mocked(servicoForklift.obterPorId).mockResolvedValue(mockModel);
-        
-        mockReq.params = { id: '123' };
+
+        mockReq.params = { id: validObjectId };
 
         await buscar(mockReq as Request, mockRes as Response);
 
@@ -58,8 +59,18 @@ describe('ForkliftController', () => {
         expect(mockJson).toHaveBeenCalledWith({ error: 'ID não informado.' });
     });
 
-    test('buscar: deve retornar 404 se serviço não encontrar empilhadeira', async () => {
+    test('buscar: deve retornar 400 se ID for inválido', async () => {
         mockReq.params = { id: 'invalid-id' };
+
+        await buscar(mockReq as Request, mockRes as Response);
+
+        expect(mockStatus).toHaveBeenCalledWith(400);
+        expect(mockJson).toHaveBeenCalledWith({ error: 'O ID fornecido não é um ObjectId válido do MongoDB.' });
+    });
+
+    test('buscar: deve retornar 404 se serviço não encontrar empilhadeira', async () => {
+        const validObjectId = '507f1f77bcf86cd799439015';
+        mockReq.params = { id: validObjectId };
         vi.mocked(servicoForklift.obterPorId).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
         await buscar(mockReq as Request, mockRes as Response);
@@ -107,10 +118,11 @@ describe('ForkliftController', () => {
     });
 
     test('atualizar: deve retornar 200 com empilhadeira atualizada', async () => {
-        const mockModel = new forkliftModel('EMP-MOD', undefined, undefined, '123');
+        const validObjectId = '507f1f77bcf86cd799439011';
+        const mockModel = new forkliftModel('EMP-MOD', undefined, undefined, validObjectId);
         vi.mocked(servicoForklift.atualizar).mockResolvedValue(mockModel);
 
-        mockReq.params = { id: '123' };
+        mockReq.params = { id: validObjectId };
         mockReq.body = { id: 'EMP-MOD' };
 
         await atualizar(mockReq as Request, mockRes as Response);
@@ -119,8 +131,19 @@ describe('ForkliftController', () => {
         expect(mockJson).toHaveBeenCalledWith(mockModel.obterDados());
     });
 
-    test('atualizar: deve retornar 404 se empilhadeira não for encontrada', async () => {
+    test('atualizar: deve retornar 400 se ID for inválido', async () => {
         mockReq.params = { id: 'invalid-id' };
+        mockReq.body = { id: 'EMP-MOD' };
+
+        await atualizar(mockReq as Request, mockRes as Response);
+
+        expect(mockStatus).toHaveBeenCalledWith(400);
+        expect(mockJson).toHaveBeenCalledWith({ error: 'O ID fornecido não é um ObjectId válido do MongoDB.' });
+    });
+
+    test('atualizar: deve retornar 404 se empilhadeira não for encontrada', async () => {
+        const validObjectId = '507f1f77bcf86cd799439012';
+        mockReq.params = { id: validObjectId };
         mockReq.body = { id: 'EMP-MOD' };
         vi.mocked(servicoForklift.atualizar).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
@@ -131,19 +154,30 @@ describe('ForkliftController', () => {
     });
 
     test('deletar: deve retornar 200 ao excluir empilhadeira', async () => {
-        const mockModel = new forkliftModel('EMP-001', undefined, undefined, '123');
+        const validObjectId = '507f1f77bcf86cd799439013';
+        const mockModel = new forkliftModel('EMP-001', undefined, undefined, validObjectId);
         vi.mocked(servicoForklift.deletar).mockResolvedValue(mockModel);
 
-        mockReq.params = { id: '123' };
+        mockReq.params = { id: validObjectId };
 
         await deletar(mockReq as Request, mockRes as Response);
 
         expect(mockStatus).toHaveBeenCalledWith(200);
-        expect(mockJson).toHaveBeenCalledWith({ _id: '123', message: 'Empilhadeira excluída com sucesso.' });
+        expect(mockJson).toHaveBeenCalledWith({ _id: validObjectId, message: 'Empilhadeira excluída com sucesso.' });
+    });
+
+    test('deletar: deve retornar 400 se ID for inválido', async () => {
+        mockReq.params = { id: 'invalid-id' };
+
+        await deletar(mockReq as Request, mockRes as Response);
+
+        expect(mockStatus).toHaveBeenCalledWith(400);
+        expect(mockJson).toHaveBeenCalledWith({ error: 'O ID fornecido não é um ObjectId válido do MongoDB.' });
     });
 
     test('deletar: deve retornar 404 se empilhadeira não existir para exclusão', async () => {
-        mockReq.params = { id: 'invalid-id' };
+        const validObjectId = '507f1f77bcf86cd799439014';
+        mockReq.params = { id: validObjectId };
         vi.mocked(servicoForklift.deletar).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
         await deletar(mockReq as Request, mockRes as Response);
