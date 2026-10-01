@@ -119,3 +119,27 @@ describe('team module translations', () => {
     }
   });
 });
+
+describe('machine detail translations', () => {
+  const NEW_KEYS = Object.keys(ptBR.machines).filter((key) =>
+    ['detailCode', 'detailMac', 'detailSector', 'detailTotalUsage', 'detailDeviceName', 'historyLabel', 'tabAccidents', 'tabMaintenance', 'periodFrom', 'periodTo', 'historyEmpty', 'editMachine', 'deleteMachine', 'editMachineTitle', 'editMachineSubtitle', 'editMachineSubmit', 'editLabelMachine', 'editLabelCode', 'editLabelMac', 'deleteMachineTitle', 'deleteMachineMessage', 'openDetails'].includes(key)
+  );
+
+  it('pt-BR defines all 22 detail keys', () => {
+    expect(NEW_KEYS).toHaveLength(22);
+  });
+
+  it.each(ALL_LOCALES)('locale $code has every detail key, non-empty', ({ code, data }) => {
+    const machines = data.machines as Record<string, string>;
+    for (const key of NEW_KEYS) {
+      expect(machines[key], `Locale "${code}" machines.${key} is missing or empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps {{name}} in per-machine texts', ({ code, data }) => {
+    const machines = data.machines as Record<string, string>;
+    for (const key of ['deleteMachineMessage', 'openDetails']) {
+      expect(machines[key], `Locale "${code}" machines.${key} lost {{name}}`).toContain('{{name}}');
+    }
+  });
+});
