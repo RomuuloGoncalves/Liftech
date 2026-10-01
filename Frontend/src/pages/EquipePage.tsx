@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import ConfirmDialog from '../components/common/ConfirmDialog'
 import EmployeeCard from '../components/team/EmployeeCard'
 import EmployeeFormModal, { type EmployeeFormValues } from '../components/team/EmployeeFormModal'
 import EmployeeInfoModal from '../components/team/EmployeeInfoModal'
@@ -27,6 +28,7 @@ type Dialog =
   | { kind: 'employeeInfo'; employee: Employee }
   | { kind: 'sectorForm'; sector?: Sector }
   | { kind: 'sectorInfo'; sector: Sector }
+  | { kind: 'confirmDelete'; target: { type: 'employee'; item: Employee } | { type: 'sector'; item: Sector } }
 
 let nextEmployeeId = EMPLOYEES.length + 1
 let nextSectorId = SECTORS.length + 1
@@ -75,6 +77,14 @@ const EquipePage: React.FC = () => {
     } else {
       setSectors((prev) => [{ ...values, id: String(nextSectorId++) }, ...prev])
     }
+    setDialog(null)
+  }
+
+  const deleteConfirmed = () => {
+    if (dialog?.kind !== 'confirmDelete') return
+    const { type, item } = dialog.target
+    if (type === 'employee') setEmployees((prev) => prev.filter((e) => e.id !== item.id))
+    else setSectors((prev) => prev.filter((sector) => sector.id !== item.id))
     setDialog(null)
   }
 
@@ -130,7 +140,7 @@ const EquipePage: React.FC = () => {
                 onOpen={(e) => setDialog({ kind: 'employeeInfo', employee: e })}
                 onToggleAccess={toggleAccess}
                 onEdit={(e) => setDialog({ kind: 'employeeForm', employee: e })}
-                onDelete={() => {}}
+                onDelete={(e) => setDialog({ kind: 'confirmDelete', target: { type: 'employee', item: e } })}
               />
             ))}
           </div>
@@ -171,7 +181,7 @@ const EquipePage: React.FC = () => {
                 sector={sector}
                 onOpen={(item) => setDialog({ kind: 'sectorInfo', sector: item })}
                 onEdit={(item) => setDialog({ kind: 'sectorForm', sector: item })}
-                onDelete={() => {}}
+                onDelete={(item) => setDialog({ kind: 'confirmDelete', target: { type: 'sector', item } })}
               />
             ))}
           </div>
@@ -186,6 +196,14 @@ const EquipePage: React.FC = () => {
         <SectorFormModal sector={dialog.sector} onSave={saveSector} onClose={closeDialog} />
       )}
       {dialog?.kind === 'sectorInfo' && <SectorInfoModal sector={dialog.sector} onClose={closeDialog} />}
+      {dialog?.kind === 'confirmDelete' && (
+        <ConfirmDialog
+          title={dialog.target.type === 'employee' ? t('team.deleteEmployeeTitle') : t('team.deleteSectorTitle')}
+          message={t('team.deleteMessage', { name: dialog.target.item.nome })}
+          onConfirm={deleteConfirmed}
+          onCancel={closeDialog}
+        />
+      )}
     </div>
   )
 }

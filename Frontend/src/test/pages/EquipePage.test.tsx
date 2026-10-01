@@ -232,3 +232,46 @@ describe('EquipePage: sectors section', () => {
     expect(screen.getAllByRole('dialog')).toHaveLength(1)
   })
 })
+
+describe('EquipePage: delete with confirmation', () => {
+  it('asks for confirmation naming the employee, then removes them', () => {
+    render(<EquipePage />)
+    const before = employeeCards().length
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Alexandre Mattos' }))
+    expect(screen.getByRole('dialog', { name: 'Excluir funcionário' })).toBeInTheDocument()
+    expect(screen.getByText('Excluir Alexandre Mattos? Esta ação não pode ser desfeita.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByText('Alexandre Mattos')).not.toBeInTheDocument()
+    expect(employeeCards()).toHaveLength(before - 1)
+  })
+
+  it('asks for confirmation naming the sector, then removes it', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Doca de Carga' }))
+    expect(screen.getByRole('dialog', { name: 'Excluir setor' })).toBeInTheDocument()
+    expect(screen.getByText('Excluir Doca de Carga? Esta ação não pode ser desfeita.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(screen.queryByRole('button', { name: 'Ver detalhes de Doca de Carga' })).not.toBeInTheDocument()
+    expect(sectorCards()).toHaveLength(SECTORS.length - 1)
+  })
+
+  it.each([
+    ['Cancelar', () => fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))],
+    ['Escape', () => fireEvent.keyDown(window, { key: 'Escape' })],
+    ['backdrop', () => fireEvent.click(screen.getByRole('dialog').parentElement as HTMLElement)],
+  ])('keeps the item when the confirmation is dismissed with %s', (_name, dismiss) => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Alexandre Mattos' }))
+    dismiss()
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByText('Alexandre Mattos')).toBeInTheDocument()
+    expect(employeeCards()).toHaveLength(EMPLOYEES.length)
+  })
+})
