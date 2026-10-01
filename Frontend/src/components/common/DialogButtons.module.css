@@ -1,0 +1,26 @@
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.cancel,
+.confirm {
+  min-width: 72px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel {
+  background: #ef4444;
+}
+
+.confirm {
+  background: #3a9cff;
+}
