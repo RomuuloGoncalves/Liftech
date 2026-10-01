@@ -1,0 +1,99 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 5px;
+  background: #f7f7f7;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.input::placeholder {
+  color: #b5b5b5;
+}
+
+.input:focus-visible {
+  outline: 2px solid #3a9cff;
+  outline-offset: 1px;
+}
+
+.withLeftIcon {
+  padding-left: 32px;
+}
+
+.withRightIcon {
+  padding-right: 36px;
+}
+
+.leftIcon {
+  position: absolute;
+  left: 10px;
+  color: #9a9a9a;
+  pointer-events: none;
+}
+
+.rightButton {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #9a9a9a;
+  cursor: pointer;
+}
+
+.invalid {
+  border-color: #ef4444;
+}
+
+.error {
+  font-size: 11px;
+  color: #ef4444;
+}
+
+.divider {
+  height: 1px;
+  margin: 2px -30px;
+  background: var(--border);
+}
+
+@media (max-width: 480px) {
+  .row {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
