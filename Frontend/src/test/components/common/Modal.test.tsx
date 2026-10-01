@@ -58,4 +58,33 @@ describe('Modal', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(onClose).not.toHaveBeenCalled()
   })
+
+  it('renders the badge next to the title without changing the dialog name', () => {
+    render(
+      <Modal title="Meu modal" badge={<span>Disponível</span>} onClose={vi.fn()}>
+        x
+      </Modal>
+    )
+
+    expect(screen.getByText('Disponível')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Meu modal' })).toBeInTheDocument()
+  })
+
+  it('renders the footer after the content', () => {
+    render(
+      <Modal title="Meu modal" footer={<button type="button">Ação</button>} onClose={vi.fn()}>
+        <p>conteúdo</p>
+      </Modal>
+    )
+
+    const content = screen.getByText('conteúdo')
+    const action = screen.getByRole('button', { name: 'Ação' })
+    expect(content.compareDocumentPosition(action) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('renders no footer or badge when they are not given', () => {
+    render(<Modal title="Meu modal" onClose={vi.fn()}>x</Modal>)
+
+    expect(screen.getAllByRole('button')).toHaveLength(1)
+  })
 })
