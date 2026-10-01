@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { Machine } from '../../data/machines'
 import styles from './NewMachinePanel.module.css'
 
 export interface NewMachineFormValues {
@@ -12,6 +13,8 @@ export interface NewMachineFormValues {
 }
 
 interface NewMachinePanelProps {
+  /** When given, the panel edits this machine; `onCreate` receives the edited values. */
+  machine?: Machine
   onClose: () => void
   onCreate: (values: NewMachineFormValues) => void
 }
@@ -24,9 +27,22 @@ const EMPTY_FORM: NewMachineFormValues = {
   enderecoMac: '',
 }
 
-const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) => {
+const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onCreate }) => {
   const { t } = useTranslation()
-  const [values, setValues] = useState<NewMachineFormValues>(EMPTY_FORM)
+  const isEdit = machine !== undefined
+  const [values, setValues] = useState<NewMachineFormValues>(
+    machine
+      ? {
+          nome: machine.nome,
+          identificacao: machine.identificacao,
+          setor: machine.setor,
+          nomeDispositivo: machine.dispositivoConectado.nomeDispositivo ?? '',
+          enderecoMac: machine.dispositivoConectado.enderecoMac,
+        }
+      : EMPTY_FORM
+  )
+  const title = isEdit ? t('machines.editMachineTitle') : t('machines.newMachineTitle')
+  const subtitle = isEdit ? t('machines.editMachineSubtitle') : t('machines.newMachineSubtitle')
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -59,13 +75,13 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={t('machines.newMachineTitle')}
+        aria-label={title}
       >
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.header}>
             <div>
-              <h2 className={styles.title}>{t('machines.newMachineTitle')}</h2>
-              <p className={styles.subtitle}>{t('machines.newMachineSubtitle')}</p>
+              <h2 className={styles.title}>{title}</h2>
+              <p className={styles.subtitle}>{subtitle}</p>
             </div>
             <button type="button" className={styles.closeButton} aria-label={t('common.close')} onClick={onClose}>
               <X size={18} />
@@ -74,7 +90,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
 
           <div className={styles.fields}>
             <label className={styles.field}>
-              <span className={styles.label}>{t('machines.labelName')}</span>
+              <span className={styles.label}>{isEdit ? t('machines.editLabelMachine') : t('machines.labelName')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -86,7 +102,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>{t('machines.labelId')}</span>
+              <span className={styles.label}>{isEdit ? t('machines.editLabelCode') : t('machines.labelId')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -122,7 +138,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>{t('machines.labelMac')}</span>
+              <span className={styles.label}>{isEdit ? t('machines.editLabelMac') : t('machines.labelMac')}</span>
               <input
                 type="text"
                 className={styles.input}
@@ -135,7 +151,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ onClose, onCreate }) 
 
           <div className={styles.footer}>
             <button type="submit" className={styles.submitButton}>
-              {t('common.save')}
+              {isEdit ? t('machines.editMachineSubmit') : t('common.save')}
             </button>
             <button type="button" className={styles.cancelButton} onClick={onClose}>
               {t('common.cancel')}
