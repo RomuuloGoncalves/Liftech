@@ -1,6 +1,6 @@
 # Estrutura e Arquitetura do Frontend (Liftech)
 
-Este documento descreve as responsabilidades de cada diretório em `Frontend/src/`, as bibliotecas em uso e as convenções que o time já vem seguindo no código. `config/`, `services/`, `types/` e `utils/` ainda não existem no projeto, mas ficam mapeados aqui porque a estrutura já foi planejada para crescer nessa direção conforme as próximas páginas passarem a falar com a API.
+Este documento descreve as responsabilidades de cada diretório em `Frontend/src/`, as bibliotecas em uso e as convenções que o time já vem seguindo no código. `services/` ainda não existe no projeto, mas ficam mapeados aqui porque a estrutura já foi planejada para crescer nessa direção conforme as próximas páginas passarem a falar com a API.
 
 ---
 
@@ -10,9 +10,12 @@ Este documento descreve as responsabilidades de cada diretório em `Frontend/src
 src/
 ├── assets/         # Imagens estáticas (logo, hero, ícones)
 ├── components/
+│   ├── common/     # Peças genéricas: Modal, ConfirmDialog
 │   ├── layout/     # Casca da aplicação: Sidebar, Header
-│   └── machines/   # Domínio de máquinas: MachineCard, NewMachinePanel
-├── data/           # Módulos de dados mock, um por domínio (ex.: machines.ts)
+│   ├── machines/   # Domínio de máquinas: MachineCard, NewMachinePanel, MachineDetailModal
+│   └── team/       # Domínio de equipe e setores: cards e modais de funcionário e setor
+├── data/           # Módulos de dados mock, um por domínio (machines.ts, team.ts)
+├── utils/          # Funções puras (format.ts: data, duração e horas com Intl)
 ├── pages/          # Telas da aplicação (uma por rota)
 ├── routes/         # Definição de rotas com React Router
 ├── test/           # Testes, espelhando a estrutura de src/
@@ -25,7 +28,6 @@ src/
 | Pasta | Responsabilidade prevista |
 | --- | --- |
 | `src/services/` | Camada Axios de comunicação com o Backend |
-| `src/utils/` | Funções utilitárias puras (formatação de datas, texto, cálculos) |
 
 **Já existem, criadas pela feature de i18n:**
 
@@ -46,13 +48,22 @@ Componentes visuais reutilizáveis da interface, organizados por domínio (hoje 
 Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome (ver a seção "Estilização" abaixo).
 
 ### `src/pages/`
-Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage`, `EquipePage` e `AlertasPage` ainda são placeholders que só marcam a existência da rota; `VisaoGeralPage` (rota `/`) já tem conteúdo real: o grid de máquinas, busca, filtro de status e o painel de cadastro, descritos abaixo.
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage` e `AlertasPage` ainda são placeholders que só marcam a existência da rota. `VisaoGeralPage` (rota `/`) mostra o grid de máquinas, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
 
 ### `src/data/`
-Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status). A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
+Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status), os eventos de histórico (`MACHINE_EVENTS`, `eventsForMachine`) e `filterEvents` (tipo + período). `team.ts` faz o mesmo para `Employee` e `Sector`. A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
 
 ### `src/components/machines/`
-`MachineCard` renderiza um card da Visão Geral com os dados de uma `Machine` (nome, código, setor, endereço MAC, operador quando existir, status e tempo de sessão). `NewMachinePanel` é o formulário de cadastro aberto pelo botão "Cadastrar Máquina": um drawer lateral a partir de 768px e tela cheia abaixo disso, sem chamada de API (o submit só adiciona a máquina à lista em memória da página). Decisão registrada em `.specs/STATE.md` (AD-005).
+`MachineCard` renderiza um card da Visão Geral com os dados de uma `Machine` (nome, código, setor, endereço MAC, operador quando existir, status e tempo de sessão). `NewMachinePanel` é o formulário de cadastro aberto pelo botão "Cadastrar Máquina": um drawer lateral a partir de 768px e tela cheia abaixo disso, sem chamada de API (o submit só adiciona a máquina à lista em memória da página). Decisão registrada em `.specs/STATE.md` (AD-005). Com a prop `machine`, o mesmo painel vira "Editar Máquina". `MachineDetailModal` abre ao clicar num card (o título do card é um botão esticado sobre ele, para não aninhar botões): mostra status, código, MAC, setor, tempo de uso total, nome do dispositivo e o histórico de acidentes e de manutenção, com abas e filtro de período. O rodapé tem Editar e Excluir; enquanto o drawer de edição ou a confirmação de exclusão está aberto, o modal de detalhe sai da tela e volta ao fechar, para o Escape fechar só a camada de cima.
+
+### `src/components/common/`
+`Modal` é a casca de diálogo (backdrop, Escape, `role="dialog"`, botão fechar) e aceita `badge` (ao lado do título) e `footer` (faixa inferior). `ConfirmDialog` é a confirmação de exclusão sobre o `Modal`. `DialogButtons.module.css` guarda os botões Cancelar/Confirmar compartilhados.
+
+### `src/components/team/`
+`EmployeeCard` e `SectorCard` (área clicável separada das ações), `EmployeeFormModal` e `SectorFormModal` (cadastro e edição, validação no submit), `EmployeeInfoModal` e `SectorInfoModal` (somente leitura). `TeamForm.module.css` concentra o estilo dos campos.
+
+### `src/utils/`
+`format.ts` formata data do evento ("Dom, 14 setembro 2025"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
 
 ### `src/routes/`
 Centraliza as rotas com `react-router-dom` em um único `<Routes>` (`appRoutes.tsx`). `App.tsx` monta esse roteador dentro do shell visual da aplicação; o `BrowserRouter` em si vive em `main.tsx`, fora de `App`, para manter `App.tsx` testável sem precisar reconfigurar o router a cada teste.
