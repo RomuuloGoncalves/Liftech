@@ -12,7 +12,7 @@ import ru from '../locales/ru/translation.json';
 
 const getInitialLanguage = (): string => {
   const savedLang = localStorage.getItem('liftech-lang');
-  if (savedLang && VALID_LANGUAGES.includes(savedLang as any)) {
+  if (savedLang && (VALID_LANGUAGES as readonly string[]).includes(savedLang)) {
     return savedLang;
   }
   return 'pt-BR';
@@ -35,7 +35,7 @@ i18n
     interpolation: {
       escapeValue: false,
     },
-    initImmediate: false,
-  } as any);
+    initAsync: false,
+  });
 
 export default i18n;
