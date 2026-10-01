@@ -17,7 +17,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-h);
 }
 
@@ -34,19 +34,15 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: transparent;
+  width: 30px;
+  height: 30px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: var(--shadow);
   color: var(--text);
   cursor: pointer;
-  transition: transform 120ms ease, background 120ms ease;
-}
-
-.iconButton:hover,
-.avatarButton:hover {
-  background: var(--accent-bg);
+  transition: transform 120ms ease;
 }
 
 .iconButton:active,
@@ -55,14 +51,9 @@
 }
 
 .avatarButton {
-  border-color: var(--active-bg, #2563eb);
-  background: var(--active-bg, #2563eb);
+  border-color: var(--active-bg);
+  background: var(--active-bg);
   color: #fff;
-}
-
-.avatarButton:hover {
-  background: var(--active-bg, #2563eb);
-  opacity: 0.9;
 }
 
 .popoverAnchor {
@@ -78,7 +69,7 @@
   box-sizing: border-box;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--bg);
   box-shadow: var(--shadow);
   transform-origin: top right;
@@ -116,14 +107,10 @@
   width: 24px;
   height: 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
   cursor: pointer;
-}
-
-.popoverClose:hover {
-  background: var(--accent-bg);
 }
 
 .languageList {
@@ -143,16 +130,12 @@
   box-sizing: border-box;
   padding: 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
   text-align: left;
   cursor: pointer;
-}
-
-.languageOption:hover {
-  background: var(--accent-bg);
 }
 
 .languageLabel {
@@ -173,8 +156,8 @@
 }
 
 .radioChecked {
-  border-color: var(--active-bg, #2563eb);
-  background: var(--active-bg, #2563eb);
+  border-color: var(--active-bg);
+  background: var(--active-bg);
   box-shadow: inset 0 0 0 3px var(--bg);
 }
 
@@ -195,7 +178,7 @@
 
   .iconButton,
   .avatarButton {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
   }
 }
