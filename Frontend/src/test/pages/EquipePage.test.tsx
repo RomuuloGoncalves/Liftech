@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import EquipePage from '../../pages/EquipePage'
-import { EMPLOYEES } from '../../data/team'
+import { EMPLOYEES, SECTORS } from '../../data/team'
 
 const employeeCards = () => screen.getAllByRole('switch')
 const searchEmployees = (text: string) =>
@@ -149,5 +149,86 @@ describe('EquipePage: create, edit and details', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Alexandre Mattos' }))
     expect(screen.getByRole('dialog', { name: 'Informações do funcionário' })).toBeInTheDocument()
     expect(screen.getByLabelText('Usuário')).toHaveAttribute('readonly')
+  })
+})
+
+const sectorCards = () =>
+  SECTORS.flatMap((s) => screen.queryAllByRole('button', { name: `Ver detalhes de ${s.nome}` }))
+const searchSectors = (text: string) =>
+  fireEvent.change(screen.getByRole('searchbox', { name: /Setores/ }), { target: { value: text } })
+
+describe('EquipePage: sectors section', () => {
+  it('lists every sector as a card', () => {
+    render(<EquipePage />)
+
+    expect(screen.getByRole('heading', { name: 'Setores' })).toBeInTheDocument()
+    expect(sectorCards()).toHaveLength(SECTORS.length)
+  })
+
+  it('filters sectors by nome and unidade, ignoring case', () => {
+    render(<EquipePage />)
+
+    searchSectors('DOCA')
+    expect(sectorCards()).toHaveLength(1)
+    searchSectors('unidade norte')
+    expect(sectorCards()).toHaveLength(2)
+  })
+
+  it('shows the empty state when no sector matches', () => {
+    render(<EquipePage />)
+
+    searchSectors('zzzz')
+    expect(screen.getByText('Nenhum setor encontrado')).toBeInTheDocument()
+  })
+
+  it('creates a sector at the top of the list', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Setor' }))
+    expect(screen.getByRole('dialog', { name: 'Cadastrar um novo setor' })).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Setor-novo' } })
+    fireEvent.change(screen.getByLabelText('Unidade'), { target: { value: 'Unidade Sul' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Criar setor' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ver detalhes de Setor-novo' })).toBeInTheDocument()
+  })
+
+  it('keeps the dialog open when the sector form is invalid', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Setor' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Criar setor' }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('edits a sector over the existing one with the pencil', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Doca de Carga' }))
+    expect(screen.getByRole('dialog', { name: 'Editar setor' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome setor')).toHaveValue('Doca de Carga')
+    fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Doca Sul' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(screen.queryByRole('button', { name: 'Ver detalhes de Doca de Carga' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ver detalhes de Doca Sul' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /^Editar / }).length).toBeGreaterThanOrEqual(SECTORS.length)
+  })
+
+  it('opens the read-only sector details when the card body is clicked', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Doca de Carga' }))
+    expect(screen.getByRole('dialog', { name: 'Informações do setor' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Unidade')).toHaveValue('Unidade Centro')
+    expect(screen.getByLabelText('Unidade')).toHaveAttribute('readonly')
+  })
+
+  it('shows one dialog at a time', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Setor' }))
+    expect(screen.getAllByRole('dialog')).toHaveLength(1)
   })
 })
