@@ -65,15 +65,11 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-h);
   cursor: pointer;
-  transition: background 120ms ease;
-}
-
-.closeButton:hover {
-  background: var(--accent-bg);
+  
 }
 
 .fields {
@@ -102,8 +98,8 @@
   box-sizing: border-box;
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--code-bg);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
   color: var(--text-h);
   font-size: 14px;
 }
@@ -132,8 +128,8 @@
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 8px;
-  background: var(--active-bg, #2563eb);
+  border-radius: var(--radius-sm);
+  background: var(--active-bg);
   color: #fff;
   font-size: 15px;
   font-weight: 600;

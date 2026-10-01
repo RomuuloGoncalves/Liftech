@@ -6,13 +6,8 @@
   box-sizing: border-box;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--bg);
-  transition: box-shadow 160ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
-}
-
-.card:hover {
-  box-shadow: var(--shadow);
 }
 
 .topRow {
@@ -36,9 +31,10 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
-  background: var(--accent-bg);
-  color: var(--active-bg, #2563eb);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
 }
 
 .names {
@@ -74,15 +70,11 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
   cursor: pointer;
-  transition: background 120ms ease, transform 120ms ease;
-}
-
-.menuButton:hover {
-  background: var(--accent-bg);
+  transition: transform 120ms ease;
 }
 
 .menuButton:active {
@@ -127,7 +119,7 @@
 .statusBadge {
   flex-shrink: 0;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   font-size: 12px;
   font-weight: 500;
@@ -141,7 +133,7 @@
 }
 
 .statusInUse {
-  color: #2563eb;
+  color: #3a9cff;
   border-color: #bfdbfe;
   background: #eff6ff;
 }
@@ -153,7 +145,7 @@
 }
 
 .statusOffline {
-  color: #6b6375;
+  color: var(--text);
   border-color: var(--border);
   background: var(--code-bg);
 }
