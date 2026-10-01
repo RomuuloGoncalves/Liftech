@@ -120,3 +120,118 @@ describe('VisaoGeralPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(1)
   })
 })
+
+function cardOf(code: string): HTMLElement {
+  return screen.getAllByRole('article').find((card) => within(card).queryByText(`${code}(ID)`)) as HTMLElement
+}
+
+function openDetail(code: string) {
+  const card = cardOf(code)
+  fireEvent.click(within(card).getByRole('button', { name: /Ver detalhes de/ }))
+}
+
+describe('VisaoGeralPage: machine detail', () => {
+  it('opens the detail modal with the machine data when a card is clicked', () => {
+    render(<VisaoGeralPage />)
+
+    openDetail('EMP-084')
+    const dialog = screen.getByRole('dialog', { name: 'Empilhadeira Elétrica Titan-X' })
+    expect(within(dialog).getByText('EMP-084(ID)')).toBeInTheDocument()
+    expect(within(dialog).getByText('Nome Dispositivo')).toBeInTheDocument()
+    expect(within(dialog).getByRole('tab', { name: 'Histórico de acidentes' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('closes the detail modal with Escape', () => {
+    render(<VisaoGeralPage />)
+
+    openDetail('EMP-084')
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('edits the machine: the drawer opens filled in and the card shows the new setor', () => {
+    render(<VisaoGeralPage />)
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
+    expect(screen.getByRole('dialog', { name: 'Editar Máquina' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Código')).toHaveValue('EMP-084')
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+
+    const card = cardOf('EMP-084')
+    expect(within(card).getByText('Doca Nova')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Empilhadeira Elétrica Titan-X' })).toBeInTheDocument()
+    expect(within(screen.getByRole('dialog')).getByText('Doca Nova')).toBeInTheDocument()
+  })
+
+  it('keeps the machine unchanged when the edit is cancelled', () => {
+    render(<VisaoGeralPage />)
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
+
+    const card = cardOf('EMP-084')
+    expect(within(card).queryByText('Doca Nova')).not.toBeInTheDocument()
+  })
+
+  it('keeps the active search after editing', () => {
+    render(<VisaoGeralPage />)
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'emp-084' } })
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(screen.getAllByRole('article')).toHaveLength(1)
+    expect(screen.getByRole('searchbox')).toHaveValue('emp-084')
+  })
+
+  it('deletes the machine after confirming, closing every dialog', () => {
+    render(<VisaoGeralPage />)
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    expect(screen.getByRole('dialog', { name: 'Excluir máquina' })).toBeInTheDocument()
+    expect(screen.getByText(/Excluir Empilhadeira Elétrica Titan-X \(EMP-084\)\?/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByText('EMP-084(ID)')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length - 1)
+  })
+
+  it('keeps the machine and returns to the detail modal when the delete is cancelled', () => {
+    render(<VisaoGeralPage />)
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
+
+    expect(screen.getByRole('dialog', { name: 'Empilhadeira Elétrica Titan-X' })).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
+  })
+
+  it('does not open the detail when the menu button of a card is clicked', () => {
+    render(<VisaoGeralPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /mais ações para emp-084/i }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('shows an empty history for a machine created in the UI', () => {
+    render(<VisaoGeralPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    openDetail('EMP-200')
+
+    expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+  })
+})
