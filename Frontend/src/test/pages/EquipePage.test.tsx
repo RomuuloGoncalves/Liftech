@@ -80,3 +80,74 @@ describe('EquipePage: employees section', () => {
     expect(screen.queryByText('Alexandre Mattos')).not.toBeInTheDocument()
   })
 })
+
+function fillEmployeeForm(values: Record<string, string>) {
+  for (const [label, value] of Object.entries(values)) {
+    fireEvent.change(screen.getByLabelText(label), { target: { value } })
+  }
+}
+
+describe('EquipePage: create, edit and details', () => {
+  it('creates an employee at the top with the next matricula and access Permitido', () => {
+    render(<EquipePage />)
+    const before = employeeCards().length
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Funcionário' }))
+    fillEmployeeForm({ 'Nome funcionário': 'Maria Lima', Cargo: 'Operadora', Usuário: 'maria', Senha: 'Maria123' })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(employeeCards()).toHaveLength(before + 1)
+    expect(screen.getByText('EMP-095(ID)')).toBeInTheDocument()
+    const created = screen.getByRole('switch', { name: 'Alterar acesso de Maria Lima' })
+    expect(created).toHaveAttribute('aria-checked', 'true')
+    expect(employeeCards()[0]).toBe(created)
+  })
+
+  it('keeps the dialog open and does not add anyone when the form is invalid', () => {
+    render(<EquipePage />)
+    const before = employeeCards().length
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Funcionário' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(employeeCards()).toHaveLength(before)
+  })
+
+  it('edits an employee in place and keeps the active search', () => {
+    render(<EquipePage />)
+
+    searchEmployees('alexandre')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Alexandre Mattos' }))
+    expect(screen.getByRole('dialog', { name: 'Editar informações do funcionário' })).toBeInTheDocument()
+    fillEmployeeForm({ Cargo: 'Supervisor' })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(employeeCards()).toHaveLength(1)
+    expect(screen.getByText('Alexandre Mattos')).toBeInTheDocument()
+    expect(screen.getByRole('searchbox', { name: /Funcionários/ })).toHaveValue('alexandre')
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Alexandre Mattos' }))
+    expect(screen.getByLabelText('Cargo')).toHaveValue('Supervisor')
+  })
+
+  it('does not change the list when the edit is cancelled', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Alexandre Mattos' }))
+    fillEmployeeForm({ Cargo: 'Outro' })
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Alexandre Mattos' }))
+    expect(screen.getByLabelText('Cargo')).toHaveValue('Ajudante')
+  })
+
+  it('opens the read-only details when the card body is clicked', () => {
+    render(<EquipePage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Alexandre Mattos' }))
+    expect(screen.getByRole('dialog', { name: 'Informações do funcionário' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Usuário')).toHaveAttribute('readonly')
+  })
+})
