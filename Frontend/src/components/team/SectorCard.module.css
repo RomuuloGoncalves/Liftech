@@ -1,0 +1,67 @@
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.openArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0.5px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-h);
+}
+
+.name {
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--text-h);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.iconButton {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.delete {
+  color: #ef4444;
+}
+
+.edit {
+  color: #3a9cff;
+}
