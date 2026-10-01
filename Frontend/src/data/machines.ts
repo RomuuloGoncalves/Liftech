@@ -10,14 +10,16 @@ export interface Machine {
   dispositivoConectado: {
     enderecoMac: string
     status: MachineStatus
+    nomeDispositivo?: string
   }
   operadorConectado?: {
     nome: string
   }
   tempoSessaoMinutos: number
+  tempoUsoTotalHoras?: number
 }
 
-export const MACHINES: Machine[] = [
+const BASE_MACHINES: Machine[] = [
   {
     id: '1',
     identificacao: 'EMP-081',
@@ -154,6 +156,72 @@ export const MACHINES: Machine[] = [
     tempoSessaoMinutos: 34,
   },
 ]
+
+export const MACHINES: Machine[] = BASE_MACHINES.map((machine, index) => ({
+  ...machine,
+  dispositivoConectado: { ...machine.dispositivoConectado, nomeDispositivo: `Mpa-${5300 + index}` },
+  tempoUsoTotalHoras: 4 + ((index * 3) % 20),
+}))
+
+export type MachineEventType = 'acidente' | 'manutencao'
+
+export interface MachineEvent {
+  id: string
+  machineId: string
+  tipo: MachineEventType
+  operador: string
+  data: string
+  inicio: string
+  fim: string
+}
+
+export const DEFAULT_PERIOD = { from: '2024-07-14', to: '2026-07-14' }
+
+const EVENT_OPERATORS = ['Alexandre Gomes', 'Carlos Silva', 'Ana Souza', 'João Pereira', 'Marina Costa']
+const EVENT_SLOTS = [
+  ['14:35:25', '16:35:20'],
+  ['08:10:00', '08:55:00'],
+  ['09:00:00', '10:30:00'],
+  ['13:15:30', '16:15:30'],
+]
+const EVENT_TYPES: MachineEventType[] = ['acidente', 'manutencao']
+const FIRST_EVENT_DAY = Date.UTC(2024, 7, 1)
+const DAY_MS = 24 * 60 * 60 * 1000
+
+export const MACHINE_EVENTS: MachineEvent[] = BASE_MACHINES.flatMap((machine, machineIndex) =>
+  EVENT_TYPES.flatMap((tipo, typeIndex) =>
+    EVENT_SLOTS.map(([inicio, fim], slot) => {
+      const dayOffset = (machineIndex * 7 + typeIndex * 11 + slot * 45) % 600
+      return {
+        id: `${machine.id}-${tipo}-${slot}`,
+        machineId: machine.id,
+        tipo,
+        operador: EVENT_OPERATORS[(machineIndex + slot + typeIndex) % EVENT_OPERATORS.length],
+        data: new Date(FIRST_EVENT_DAY + dayOffset * DAY_MS).toISOString().slice(0, 10),
+        inicio,
+        fim,
+      }
+    })
+  )
+)
+
+export function eventsForMachine(machineId: string): MachineEvent[] {
+  return MACHINE_EVENTS.filter((event) => event.machineId === machineId)
+}
+
+export interface EventFilters {
+  tipo: MachineEventType
+  from: string
+  to: string
+}
+
+export function filterEvents(events: MachineEvent[], { tipo, from, to }: EventFilters): MachineEvent[] {
+  if (from && to && from > to) return []
+
+  return events
+    .filter((event) => event.tipo === tipo && (!from || event.data >= from) && (!to || event.data <= to))
+    .sort((a, b) => (b.data + b.inicio).localeCompare(a.data + a.inicio))
+}
 
 export interface MachineFilters {
   query?: string
