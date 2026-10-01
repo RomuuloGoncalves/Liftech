@@ -20,11 +20,12 @@
   flex-shrink: 0;
   padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  background: var(--active-bg, #2563eb);
+  border-radius: var(--radius-sm);
+  background: var(--active-bg);
+  box-shadow: var(--shadow);
   color: #fff;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: transform 120ms ease, opacity 120ms ease;
 }
@@ -57,7 +58,7 @@
   box-sizing: border-box;
   padding: 10px 12px 10px 36px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-h);
   font-size: 14px;
@@ -72,7 +73,7 @@
   flex-shrink: 0;
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-h);
   font-size: 14px;
