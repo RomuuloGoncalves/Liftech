@@ -13,6 +13,17 @@ export class incidentModel {
         this.operadorId = operadorId;
     }
 
+    
+    obterDados(): Record<string, unknown> {
+    return {
+        dataIncidente: this.dataIncidente,
+        forcaImpacto: this.forcaImpacto,
+        status: this.status,
+        empilhadeiraId: this.empilhadeiraId,
+        operadorId: this.operadorId
+    }
+    }
+
     protected setDataIncidente(value: Date): number | void {
         if (!value) {
             return 0;
