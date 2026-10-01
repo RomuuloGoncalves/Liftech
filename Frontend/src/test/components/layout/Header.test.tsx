@@ -17,6 +17,11 @@ describe('Header component', () => {
     expect(screen.getByRole('heading', { name: 'Gerenciamento Frota' })).toBeInTheDocument()
   })
 
+  it('renders the team page title on /equipe', () => {
+    renderHeaderAt('/equipe')
+    expect(screen.getByRole('heading', { name: 'Gerenciamento da Equipe e Setores' })).toBeInTheDocument()
+  })
+
   it('renders notification and profile buttons with accessible labels', () => {
     renderHeaderAt('/')
     expect(screen.getByRole('button', { name: /notificações/i })).toBeInTheDocument()
