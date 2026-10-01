@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import MachineCard from '../../../components/machines/MachineCard'
 import type { Machine } from '../../../data/machines'
 
@@ -41,5 +41,27 @@ describe('MachineCard', () => {
     expect(() => render(<MachineCard machine={machineWithoutOperador} />)).not.toThrow()
     expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
     expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
+  })
+
+  it('calls onOpen with the machine when the card title button is clicked', () => {
+    const onOpen = vi.fn()
+    render(<MachineCard machine={baseMachine} onOpen={onOpen} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Empilhadeira Elétrica Titan-X' }))
+    expect(onOpen).toHaveBeenCalledWith(baseMachine)
+  })
+
+  it('does not call onOpen when the menu button is clicked', () => {
+    const onOpen = vi.fn()
+    render(<MachineCard machine={baseMachine} onOpen={onOpen} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /mais ações para emp-084/i }))
+    expect(onOpen).not.toHaveBeenCalled()
+  })
+
+  it('renders no open button when onOpen is not given', () => {
+    render(<MachineCard machine={baseMachine} />)
+
+    expect(screen.queryByRole('button', { name: /ver detalhes/i })).not.toBeInTheDocument()
   })
 })

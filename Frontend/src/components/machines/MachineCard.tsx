@@ -6,6 +6,7 @@ import styles from './MachineCard.module.css'
 
 interface MachineCardProps {
   machine: Machine
+  onOpen?: (machine: Machine) => void
 }
 
 const STATUS_CLASS: Record<Machine['dispositivoConectado']['status'], string> = {
@@ -19,7 +20,7 @@ function formatTempoSessao(minutos: number): string {
   return `${minutos} min`
 }
 
-const MachineCard: React.FC<MachineCardProps> = ({ machine }) => {
+const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
   const { t } = useTranslation()
   const { identificacao, nome, setor, dispositivoConectado, operadorConectado, tempoSessaoMinutos } = machine
 
@@ -38,7 +39,20 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine }) => {
             <Forklift size={20} />
           </span>
           <div className={styles.names}>
-            <h3 className={styles.nome}>{nome}</h3>
+            <h3 className={styles.nome}>
+              {onOpen ? (
+                <button
+                  type="button"
+                  className={styles.openButton}
+                  aria-label={t('machines.openDetails', { name: nome })}
+                  onClick={() => onOpen(machine)}
+                >
+                  {nome}
+                </button>
+              ) : (
+                nome
+              )}
+            </h3>
             <span className={styles.identificacao}>{identificacao}(ID)</span>
           </div>
         </div>
