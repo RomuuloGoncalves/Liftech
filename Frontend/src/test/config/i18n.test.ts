@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'languages'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'team', 'languages'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -97,6 +97,25 @@ describe('i18n locale files structure', () => {
           `Locale "${code}" navigation.${key} is missing or empty`
         ).toBeTruthy();
       }
+    }
+  });
+});
+
+describe('team module translations', () => {
+  const ptBRTeamKeys = Object.keys(ptBR.team).sort();
+
+  it.each(ALL_LOCALES)('locale $code has the same team keys as pt-BR, all non-empty', ({ code, data }) => {
+    const team = data.team as Record<string, string>;
+    expect(Object.keys(team).sort(), `Locale "${code}" team keys differ from pt-BR`).toEqual(ptBRTeamKeys);
+    for (const [key, value] of Object.entries(team)) {
+      expect(value, `Locale "${code}" team.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps the {{name}} placeholder in per-item labels', ({ code, data }) => {
+    const team = data.team as Record<string, string>;
+    for (const key of ['toggleAccess', 'edit', 'remove', 'openDetails', 'deleteMessage']) {
+      expect(team[key], `Locale "${code}" team.${key} lost {{name}}`).toContain('{{name}}');
     }
   });
 });
