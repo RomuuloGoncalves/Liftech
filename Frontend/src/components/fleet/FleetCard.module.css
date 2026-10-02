@@ -111,6 +111,7 @@
   border-radius: calc(6 * var(--px, 1px));
   background: #fff;
   box-shadow: 0 calc(4 * var(--px, 1px)) calc(12 * var(--px, 1px)) rgba(0, 0, 0, 0.08);
+  animation: menu-in 120ms ease-out;
 }
 
 .menuHeading {
@@ -205,4 +206,11 @@
 
 .highlight .success {
   color: #2e7d32;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }

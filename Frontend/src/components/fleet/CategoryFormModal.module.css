@@ -48,6 +48,7 @@
   border-radius: 4px;
   background: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  animation: menu-in 120ms ease-out;
 }
 
 .popoverClose {
@@ -139,4 +140,11 @@
 .error {
   font-size: 11px;
   color: #ef4444;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
