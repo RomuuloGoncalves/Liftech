@@ -19,6 +19,9 @@ import {
   type Employee,
   type Sector,
 } from '../data/team'
+import PageSkeleton from '../components/common/PageSkeleton'
+import { useToast } from '../components/common/Toast'
+import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
 import styles from './EquipePage.module.css'
 
 type AccessFilter = Access | 'Todos'
@@ -41,6 +44,8 @@ const EquipePage: React.FC = () => {
   const [sectors, setSectors] = useState<Sector[]>(SECTORS)
   const [sectorQuery, setSectorQuery] = useState('')
   const [dialog, setDialog] = useState<Dialog | null>(null)
+  const loading = useFirstVisitLoading('equipe')
+  const { show } = useToast()
 
   const visibleEmployees = useMemo(
     () => filterEmployees(employees, { query: employeeQuery, access: accessFilter }),
@@ -58,6 +63,7 @@ const EquipePage: React.FC = () => {
     if (dialog?.kind === 'employeeForm' && dialog.employee) {
       const id = dialog.employee.id
       setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, ...values } : e)))
+      show(t('team.toastEmployeeSaved', { name: values.nome }))
     } else {
       const created: Employee = {
         ...values,
@@ -66,6 +72,7 @@ const EquipePage: React.FC = () => {
         acesso: 'Permitido',
       }
       setEmployees((prev) => [created, ...prev])
+      show(t('team.toastEmployeeCreated', { name: values.nome }))
     }
     setDialog(null)
   }
@@ -74,8 +81,10 @@ const EquipePage: React.FC = () => {
     if (dialog?.kind === 'sectorForm' && dialog.sector) {
       const id = dialog.sector.id
       setSectors((prev) => prev.map((sector) => (sector.id === id ? { ...sector, ...values } : sector)))
+      show(t('team.toastSectorSaved', { name: values.nome }))
     } else {
       setSectors((prev) => [{ ...values, id: String(nextSectorId++) }, ...prev])
+      show(t('team.toastSectorCreated', { name: values.nome }))
     }
     setDialog(null)
   }
@@ -83,12 +92,25 @@ const EquipePage: React.FC = () => {
   const deleteConfirmed = () => {
     if (dialog?.kind !== 'confirmDelete') return
     const { type, item } = dialog.target
-    if (type === 'employee') setEmployees((prev) => prev.filter((e) => e.id !== item.id))
-    else setSectors((prev) => prev.filter((sector) => sector.id !== item.id))
+    if (type === 'employee') {
+      setEmployees((prev) => prev.filter((e) => e.id !== item.id))
+      show(t('team.toastEmployeeDeleted', { name: item.nome }))
+    } else {
+      setSectors((prev) => prev.filter((sector) => sector.id !== item.id))
+      show(t('team.toastSectorDeleted', { name: item.nome }))
+    }
     setDialog(null)
   }
 
   const closeDialog = () => setDialog(null)
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <PageSkeleton variant="team" gridClassName={styles.grid} />
+      </div>
+    )
+  }
 
   return (
     <div className={styles.page}>
