@@ -44,17 +44,18 @@
 .heroLogo {
   display: flex;
   align-items: center;
-  gap: 16px;
-  color: #3fa0f7;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
+  gap: 18px;
 }
 
-/* ponytail: logo.png tem só 27x30; trocar por SVG exportado do Figma se ficar borrado. */
-.logo img {
+.logo img:first-child,
+.heroLogo img:first-child {
   width: 38px;
   height: 42px;
+}
+
+.logo img:last-child {
+  width: 59px;
+  height: 15px;
 }
 
 .title {
@@ -102,17 +103,13 @@
   }
 }
 
-.heroLogo {
-  color: #fff;
-  font-size: 30px;
-  font-weight: 500;
-  gap: 18px;
+.heroLogo img {
+  filter: brightness(0) invert(1);
 }
 
-.heroLogo img {
-  width: 38px;
-  height: 42px;
-  filter: brightness(0) invert(1);
+.heroLogo img:last-child {
+  width: 98px;
+  height: 25px;
 }
 
 .heroTitle {
