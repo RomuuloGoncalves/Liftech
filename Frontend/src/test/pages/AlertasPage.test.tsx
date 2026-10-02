@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import AlertasPage from '../../pages/AlertasPage'
+
+const loading = vi.hoisted(() => ({ value: false }))
+vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
 import { DEFAULT_PERIOD, MACHINES, MACHINE_EVENTS } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
 
@@ -141,5 +144,20 @@ describe('AlertasPage', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByPlaceholderText('Procurar Máquina')).toHaveValue('EMP-084')
     expect(cards()).toHaveLength(visible)
+  })
+})
+
+describe('AlertasPage skeleton', () => {
+  afterEach(() => {
+    loading.value = false
+  })
+
+  it('shows the grid skeleton without the search and period while loading', () => {
+    loading.value = true
+    const { container } = render(<AlertasPage />)
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
+    expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
+    expect(screen.queryByPlaceholderText('Procurar Máquina')).not.toBeInTheDocument()
+    expect(cards()).toEqual([])
   })
 })
