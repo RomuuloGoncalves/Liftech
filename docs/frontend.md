@@ -57,10 +57,13 @@ Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não 
 `MachineCard` renderiza um card da Visão Geral com os dados de uma `Machine` (nome, código, setor, endereço MAC, operador quando existir, status e tempo de sessão). `NewMachinePanel` é o formulário de cadastro aberto pelo botão "Cadastrar Máquina": um drawer lateral a partir de 768px e tela cheia abaixo disso, sem chamada de API (o submit só adiciona a máquina à lista em memória da página). Decisão registrada em `.specs/STATE.md` (AD-005). Com a prop `machine`, o mesmo painel vira "Editar Máquina". `MachineDetailModal` abre ao clicar num card (o título do card é um botão esticado sobre ele, para não aninhar botões): mostra status, código, MAC, setor, tempo de uso total, nome do dispositivo e o histórico de acidentes e de manutenção, com abas e filtro de período. O rodapé tem Editar e Excluir; enquanto o drawer de edição ou a confirmação de exclusão está aberto, o modal de detalhe sai da tela e volta ao fechar, para o Escape fechar só a camada de cima.
 
 ### `src/components/common/`
-`Modal` é a casca de diálogo (backdrop, Escape, `role="dialog"`, botão fechar) e aceita `badge` (ao lado do título) e `footer` (faixa inferior). `ConfirmDialog` é a confirmação de exclusão sobre o `Modal`. `DialogButtons.module.css` guarda os botões Cancelar/Confirmar compartilhados.
+`Modal` é a casca de diálogo (backdrop, Escape, `role="dialog"`, botão fechar) e aceita `badge` (ao lado do título) e `footer` (faixa inferior). A entrada do `Modal` é animada (fade do fundo e fade + escala da caixa). `PageSkeleton` é o estado de carregamento das páginas, nas variantes `grid`, `kanban` e `team`, com `aria-busy`, um "Carregando..." só para leitor de tela e a classe de grid da própria página, para não haver salto de layout. `Toast.tsx` exporta `ToastProvider` (montado em `main.tsx`) e `useToast().show(mensagem)`: avisos curtos no canto inferior direito, numa região `role="status"`/`aria-live="polite"`, que somem em 4 s ou no X; fora do provider o `show` é um no-op, então componentes continuam testáveis isolados. `ConfirmDialog` é a confirmação de exclusão sobre o `Modal`. `DialogButtons.module.css` guarda os botões Cancelar/Confirmar compartilhados.
 
 ### `src/components/team/`
 `EmployeeCard` e `SectorCard` (área clicável separada das ações), `EmployeeFormModal` e `SectorFormModal` (cadastro e edição, validação no submit), `EmployeeInfoModal` e `SectorInfoModal` (somente leitura). `TeamForm.module.css` concentra o estilo dos campos.
+
+### `src/hooks/`
+`useFirstVisitLoading(chave)` devolve `true` só na primeira visita de cada página na sessão, por 600 ms (`MOCK_LATENCY_MS`), para mostrar o skeleton enquanto os dados ainda são mock. Nos testes o atraso é 0, e os testes de skeleton mocam o hook. Quando a API existir, o `loading` passa a vir da requisição e o `PageSkeleton` continua o mesmo.
 
 ### `src/utils/`
 `format.ts` formata data do evento ("Dom, 14 setembro 2025"), data do alerta ("23 Janeiro 2026"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
@@ -91,7 +94,7 @@ Não há Tailwind nem outra lib de UI instalada (ver "Estilização" a seguir).
 
 ## Estilização
 
-O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Hoje só existe o tema claro: o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
+O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Animações e transições usam CSS puro; uma regra global em `index.css` as desliga para quem ativa `prefers-reduced-motion`. Hoje só existe o tema claro: o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
 
 Um componente com estilo próprio ganha um arquivo `NomeDoComponente.module.css` ao lado do `.tsx`, importado como `import styles from './NomeDoComponente.module.css'`. Isso dá escopo automático (sem colisão de nomes de classe entre componentes) sem precisar de nenhuma dependência extra. A `Sidebar` (`components/layout/Sidebar.tsx` + `Sidebar.module.css`) é a referência atual desse padrão.
 
