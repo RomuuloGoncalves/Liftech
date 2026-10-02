@@ -124,7 +124,7 @@ const FrotaPage: React.FC = () => {
     <div className={styles.page} onDragEnd={endDrag}>
       <div className={styles.toolbar}>
         <button type="button" className={styles.createButton} onClick={() => setDialog({ type: 'create' })}>
-          <Plus size={14} />
+          <Plus size={16} />
           {t('fleet.createCategoryButton')}
         </button>
         <label className={styles.search}>
