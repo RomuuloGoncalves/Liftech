@@ -5,19 +5,24 @@ const toSeconds = (time: string): number => {
 
 const capitalize = (text: string): string => text.charAt(0).toLocaleUpperCase() + text.slice(1)
 
+function dateParts(isoDate: string, language: string, options: Intl.DateTimeFormatOptions) {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const parts = new Intl.DateTimeFormat(language, { ...options, timeZone: 'UTC' }).formatToParts(
+    new Date(Date.UTC(year, month - 1, day))
+  )
+  return (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? ''
+}
+
 /** "2025-09-14" -> "Dom, 14 setembro 2025" (weekday short, month long, no "de"). */
 export function formatEventDate(isoDate: string, language: string): string {
-  const [year, month, day] = isoDate.split('-').map(Number)
-  const parts = new Intl.DateTimeFormat(language, {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).formatToParts(new Date(Date.UTC(year, month - 1, day)))
-  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? ''
-
+  const get = dateParts(isoDate, language, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
   return `${capitalize(get('weekday').replace(/\.$/, ''))}, ${get('day')} ${get('month')} ${get('year')}`
+}
+
+/** "2026-01-23" -> "23 Janeiro 2026" (alert cards: month long and capitalized, no weekday). */
+export function formatAlertDate(isoDate: string, language: string): string {
+  const get = dateParts(isoDate, language, { day: 'numeric', month: 'long', year: 'numeric' })
+  return `${get('day')} ${capitalize(get('month'))} ${get('year')}`
 }
 
 const unit = (language: string, name: 'hour' | 'minute', display: 'long' | 'short') =>
