@@ -16,6 +16,10 @@ interface FleetRowProps {
   onDrop: (categoryId: string) => void
   onAdd: (categoryId: string) => void
   onDelete: (categoryId: string) => void
+  /** Linha sob o card arrastado (e diferente da de origem). */
+  isDropTarget?: boolean
+  onDragOverRow?: (categoryId: string) => void
+  onDragLeaveRow?: (categoryId: string) => void
 }
 
 const ICONS: Partial<Record<FleetCategory['kind'], React.ReactNode>> = {
@@ -23,7 +27,19 @@ const ICONS: Partial<Record<FleetCategory['kind'], React.ReactNode>> = {
   ativas: <CircleDot size={12} />,
 }
 
-const FleetRow: React.FC<FleetRowProps> = ({ category, label, machines, total, renderCard, onDrop, onAdd, onDelete }) => {
+const FleetRow: React.FC<FleetRowProps> = ({
+  category,
+  label,
+  machines,
+  total,
+  renderCard,
+  onDrop,
+  onAdd,
+  onDelete,
+  isDropTarget = false,
+  onDragOverRow,
+  onDragLeaveRow,
+}) => {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [from, setFrom] = useState(DEFAULT_PERIOD.from)
@@ -53,7 +69,15 @@ const FleetRow: React.FC<FleetRowProps> = ({ category, label, machines, total, r
       className={styles.row}
       aria-label={label}
       style={{ '--category-color': category.cor } as React.CSSProperties}
-      onDragOver={(event) => event.preventDefault()}
+      data-drop-target={isDropTarget || undefined}
+      onDragOver={(event) => {
+        event.preventDefault()
+        onDragOverRow?.(category.id)
+      }}
+      onDragLeave={(event) => {
+        // dragleave também dispara ao entrar num filho; só conta quando sai da linha.
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) onDragLeaveRow?.(category.id)
+      }}
       onDrop={(event) => {
         event.preventDefault()
         onDrop(category.id)
