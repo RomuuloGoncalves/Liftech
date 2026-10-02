@@ -1,6 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ToastProvider } from '../../components/common/Toast'
 import EquipePage from '../../pages/EquipePage'
+
+const loading = vi.hoisted(() => ({ value: false }))
+vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
 import { EMPLOYEES, SECTORS } from '../../data/team'
 
 const employeeCards = () => screen.getAllByRole('switch')
@@ -273,5 +277,80 @@ describe('EquipePage: delete with confirmation', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByText('Alexandre Mattos')).toBeInTheDocument()
     expect(employeeCards()).toHaveLength(EMPLOYEES.length)
+  })
+})
+
+describe('EquipePage skeleton', () => {
+  afterEach(() => {
+    loading.value = false
+  })
+
+  it('shows the team skeleton without toolbars while loading', () => {
+    loading.value = true
+    const { container } = render(<EquipePage />)
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
+    expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(12)
+    expect(screen.queryByRole('button', { name: 'Cadastrar Funcionário' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cadastrar Setor' })).not.toBeInTheDocument()
+  })
+})
+
+describe('EquipePage notifications', () => {
+  const renderWithToasts = () =>
+    render(
+      <ToastProvider>
+        <EquipePage />
+      </ToastProvider>
+    )
+  const toastTexts = () =>
+    within(screen.getByRole('status'))
+      .queryAllByRole('listitem')
+      .map((li) => li.textContent)
+
+  it('announces a registered employee', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Funcionário' }))
+    fillEmployeeForm({ 'Nome funcionário': 'Maria Lima', Cargo: 'Operadora', Usuário: 'maria', Senha: 'Maria123' })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(toastTexts()).toEqual(['Funcionário "Maria Lima" cadastrado'])
+  })
+
+  it('announces a saved employee', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Alexandre Mattos' }))
+    fillEmployeeForm({ Cargo: 'Supervisor' })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(toastTexts()).toEqual(['Funcionário "Alexandre Mattos" salvo'])
+  })
+
+  it('announces a deleted employee', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Alexandre Mattos' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    expect(toastTexts()).toEqual(['Funcionário "Alexandre Mattos" excluído'])
+  })
+
+  it('announces a registered sector', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Setor' }))
+    fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Setor-novo' } })
+    fireEvent.change(screen.getByLabelText('Unidade'), { target: { value: 'Unidade Sul' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Criar setor' }))
+    expect(toastTexts()).toEqual(['Setor "Setor-novo" cadastrado'])
+  })
+
+  it('announces a saved sector', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Doca de Carga' }))
+    fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Doca Sul' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(toastTexts()).toEqual(['Setor "Doca Sul" salvo'])
+  })
+
+  it('announces a deleted sector', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Doca de Carga' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    expect(toastTexts()).toEqual(['Setor "Doca de Carga" excluído'])
   })
 })
