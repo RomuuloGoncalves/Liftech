@@ -42,7 +42,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1 1 240px;
+  flex: 0 1 300px;
   min-width: 160px;
 }
 

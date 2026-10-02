@@ -23,15 +23,17 @@
 .createButton {
   display: inline-flex;
   align-items: center;
-  gap: calc(6 * var(--px, 1px));
-  height: calc(30 * var(--px, 1px));
-  padding: 0 calc(12 * var(--px, 1px));
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 16px;
   border: none;
-  border-radius: calc(4 * var(--px, 1px));
-  background: #3a9cff;
-  font: inherit;
-  font-size: calc(8 * var(--px, 1px));
-  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background: var(--active-bg);
+  box-shadow: var(--shadow);
+  font-family: inherit;
+  line-height: normal;
+  font-size: 14px;
+  font-weight: 600;
   color: #fff;
   cursor: pointer;
   transition: transform 120ms ease;
@@ -45,8 +47,8 @@
   display: flex;
   align-items: center;
   gap: calc(16 * var(--px, 1px));
-  width: calc(240 * var(--px, 1px));
-  height: calc(30 * var(--px, 1px));
+  width: 300px;
+  height: 36px;
   box-sizing: border-box;
   padding: 0 calc(14 * var(--px, 1px));
   border: 1px solid #ececec;
@@ -72,7 +74,7 @@
 
 .filter {
   width: calc(98 * var(--px, 1px));
-  height: calc(30 * var(--px, 1px));
+  height: 36px;
   padding: 0 calc(8 * var(--px, 1px));
   border: 1px solid #ececec;
   border-radius: calc(3 * var(--px, 1px));
