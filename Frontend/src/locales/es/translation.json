@@ -58,6 +58,16 @@
     "deleteMachineMessage": "¿Eliminar {{name}}? Esta acción no se puede deshacer.",
     "openDetails": "Ver detalles de {{name}}"
   },
+  "alerts": {
+    "accidents": "Accidentes",
+    "searchPlaceholder": "Buscar máquina",
+    "empty": "No se encontraron alertas",
+    "urgency": {
+      "media": "Media",
+      "alta": "Alta",
+      "critica": "Crítica"
+    }
+  },
   "team": {
     "pageTitle": "Gestión de Equipo y Sectores",
     "employees": "Empleados",

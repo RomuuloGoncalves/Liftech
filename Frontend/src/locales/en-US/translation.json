@@ -58,6 +58,16 @@
     "deleteMachineMessage": "Delete {{name}}? This action cannot be undone.",
     "openDetails": "View details of {{name}}"
   },
+  "alerts": {
+    "accidents": "Accidents",
+    "searchPlaceholder": "Search Machine",
+    "empty": "No alerts found",
+    "urgency": {
+      "media": "Medium",
+      "alta": "High",
+      "critica": "Critical"
+    }
+  },
   "team": {
     "pageTitle": "Team and Sectors Management",
     "employees": "Employees",

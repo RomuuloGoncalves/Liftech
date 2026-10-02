@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'team', 'languages', 'fleet'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -120,6 +120,31 @@ describe('team module translations', () => {
   });
 });
 
+describe('alerts module translations', () => {
+  const flatten = (obj: object, prefix = ''): Record<string, unknown> =>
+    Object.entries(obj).reduce<Record<string, unknown>>((acc, [key, value]) => {
+      const path = prefix + key;
+      return value && typeof value === 'object'
+        ? { ...acc, ...flatten(value, `${path}.`) }
+        : { ...acc, [path]: value };
+    }, {});
+  const ptBRAlertKeys = Object.keys(flatten(ptBR.alerts)).sort();
+
+  it('pt-BR defines the accidents label, search, empty state and the three urgency levels', () => {
+    expect(ptBRAlertKeys).toEqual(
+      ['accidents', 'empty', 'searchPlaceholder', 'urgency.alta', 'urgency.critica', 'urgency.media']
+    );
+  });
+
+  it.each(ALL_LOCALES)('locale $code has the same alerts keys as pt-BR, all non-empty', ({ code, data }) => {
+    const alerts = flatten(data.alerts);
+    expect(Object.keys(alerts).sort(), `Locale "${code}" alerts keys differ from pt-BR`).toEqual(ptBRAlertKeys);
+    for (const [key, value] of Object.entries(alerts)) {
+      expect(value, `Locale "${code}" alerts.${key} is empty`).toBeTruthy();
+    }
+  });
+});
+
 describe('machine detail translations', () => {
   const NEW_KEYS = Object.keys(ptBR.machines).filter((key) =>
     ['detailCode', 'detailMac', 'detailSector', 'detailTotalUsage', 'detailDeviceName', 'historyLabel', 'tabAccidents', 'tabMaintenance', 'periodFrom', 'periodTo', 'historyEmpty', 'editMachine', 'deleteMachine', 'editMachineTitle', 'editMachineSubtitle', 'editMachineSubmit', 'editLabelMachine', 'editLabelCode', 'editLabelMac', 'deleteMachineTitle', 'deleteMachineMessage', 'openDetails'].includes(key)
@@ -140,28 +165,6 @@ describe('machine detail translations', () => {
     const machines = data.machines as Record<string, string>;
     for (const key of ['deleteMachineMessage', 'openDetails']) {
       expect(machines[key], `Locale "${code}" machines.${key} lost {{name}}`).toContain('{{name}}');
-    }
-  });
-});
-
-describe('fleet module translations', () => {
-  const ptBRFleetKeys = Object.keys(ptBR.fleet).sort();
-
-  it.each(ALL_LOCALES)('locale $code has the same fleet keys as pt-BR, all non-empty', ({ code, data }) => {
-    const fleet = data.fleet as Record<string, string>;
-    expect(Object.keys(fleet).sort(), `Locale "${code}" fleet keys differ from pt-BR`).toEqual(ptBRFleetKeys);
-    for (const [key, value] of Object.entries(fleet)) {
-      expect(value, `Locale "${code}" fleet.${key} is empty`).toBeTruthy();
-    }
-  });
-
-  it.each(ALL_LOCALES)('locale $code keeps the interpolation placeholders', ({ code, data }) => {
-    const fleet = data.fleet as Record<string, string>;
-    for (const key of ['deleteCategoryMessage', 'addMachines', 'moreActions', 'removeChip']) {
-      expect(fleet[key], `Locale "${code}" fleet.${key} lost {{name}}`).toContain('{{name}}');
-    }
-    for (const key of ['machineCount', 'cardMinutes', 'cardHours']) {
-      expect(fleet[key], `Locale "${code}" fleet.${key} lost {{count}}`).toContain('{{count}}');
     }
   });
 });
