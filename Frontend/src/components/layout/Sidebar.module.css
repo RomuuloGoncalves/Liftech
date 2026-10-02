@@ -153,6 +153,15 @@
   overflow: hidden;
 }
 
+.sidebar.collapsed .feedbackButton {
+  justify-content: center;
+  padding: 10px;
+}
+
+.feedbackButton svg {
+  flex-shrink: 0;
+}
+
 .privacyLink {
   text-align: center;
   font-size: 12px;
