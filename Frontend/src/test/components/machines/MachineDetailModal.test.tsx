@@ -204,3 +204,32 @@ describe('MachineDetailModal fleet variant', () => {
     expect(screen.queryByRole('button', { name: /Excluir/ })).not.toBeInTheDocument()
   })
 })
+
+describe('MachineDetailModal alerts variant', () => {
+  const setupAlerts = () =>
+    render(
+      <MachineDetailModal
+        machine={{ ...machine, operadorConectado: { nome: 'Alexandre Gomes' } }}
+        events={events}
+        onClose={vi.fn()}
+        variant="alerts"
+      />
+    )
+
+  it('starts on the alerts tab, listed before repairs', () => {
+    setupAlerts()
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Histórico de alertas', 'Histórico de reparos'])
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('Carlos Silva')).toBeInTheDocument()
+    expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
+  })
+
+  it('shows the fleet rows, without status badge nor edit/delete buttons', () => {
+    setupAlerts()
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toContain('FuncionárioAlexandre Gomes')
+    expect(screen.queryByText('Disponível')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Excluir/ })).not.toBeInTheDocument()
+  })
+})
