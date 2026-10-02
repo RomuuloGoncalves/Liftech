@@ -4,6 +4,7 @@ import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
 import forkliftRouter from './feature/forklift/forkliftRouter.js';
+import userRouter from './feature/user/userRouter.js';
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/forklifts', forkliftRouter);
+app.use('/api/users', userRouter);
 
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
