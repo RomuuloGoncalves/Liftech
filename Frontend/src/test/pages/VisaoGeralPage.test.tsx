@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ToastProvider } from '../../components/common/Toast'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
+
+const loading = vi.hoisted(() => ({ value: false }))
+vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
 import { MACHINES } from '../../data/machines'
 
 describe('VisaoGeralPage', () => {
@@ -233,5 +237,63 @@ describe('VisaoGeralPage: machine detail', () => {
     openDetail('EMP-200')
 
     expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+  })
+})
+
+describe('VisaoGeralPage skeleton', () => {
+  afterEach(() => {
+    loading.value = false
+  })
+
+  it('shows the grid skeleton without toolbar while loading', () => {
+    loading.value = true
+    const { container } = render(<VisaoGeralPage />)
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
+    expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
+    expect(screen.queryByRole('button', { name: /cadastrar máquina/i })).not.toBeInTheDocument()
+    expect(screen.queryAllByRole('article')).toEqual([])
+  })
+})
+
+describe('VisaoGeralPage notifications', () => {
+  const renderWithToasts = () =>
+    render(
+      <ToastProvider>
+        <VisaoGeralPage />
+      </ToastProvider>
+    )
+  const toastTexts = () =>
+    within(screen.getByRole('status'))
+      .queryAllByRole('listitem')
+      .map((li) => li.textContent)
+  const open = (code: string) =>
+    fireEvent.click(
+      within(screen.getByText(`${code}(ID)`).closest('article') as HTMLElement).getByRole('button', { name: /Ver detalhes/ })
+    )
+
+  it('announces a registered machine', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    expect(toastTexts()).toEqual(['Máquina "EMP-999" cadastrada'])
+  })
+
+  it('announces a saved machine', () => {
+    renderWithToasts()
+    open('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    expect(toastTexts()).toEqual(['Máquina "EMP-084" salva'])
+  })
+
+  it('announces a deleted machine', () => {
+    renderWithToasts()
+    open('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    expect(toastTexts()).toEqual(['Máquina "EMP-084" excluída'])
   })
 })
