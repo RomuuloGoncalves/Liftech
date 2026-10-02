@@ -264,6 +264,8 @@ describe('FrotaPage drag feedback', () => {
     dragOver('Manutenção')
     fireEvent.dragEnd(card('EMP-082'))
     expect(row('Manutenção')).not.toHaveAttribute('data-drop-target')
+    expect(codesIn('Ativas')).toContain('EMP-082(ID)')
+    expect(codesIn('Manutenção')).not.toContain('EMP-082(ID)')
   })
 
   it('flashes a card dropped in another row for 1 second', () => {

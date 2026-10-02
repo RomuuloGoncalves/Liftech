@@ -2,11 +2,11 @@ import { act, fireEvent, render, renderHook, screen, within } from '@testing-lib
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ToastProvider, useToast } from '../../../components/common/Toast'
 
-const Trigger: React.FC<{ messages: string[] }> = ({ messages }) => {
+const Trigger: React.FC<{ messages: string[]; label?: string }> = ({ messages, label = 'fire' }) => {
   const { show } = useToast()
   return (
     <button type="button" onClick={() => messages.forEach(show)}>
-      fire
+      {label}
     </button>
   )
 }
@@ -56,13 +56,19 @@ describe('Toast', () => {
   })
 
   it('keeps other toasts when one is closed early and its timer would fire later', () => {
-    setup(['primeiro'])
+    render(
+      <ToastProvider>
+        <Trigger messages={['primeiro']} label="first" />
+        <Trigger messages={['segundo']} label="second" />
+      </ToastProvider>
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'first' }))
     act(() => vi.advanceTimersByTime(2000))
-    fireEvent.click(screen.getByRole('button', { name: 'fire' }))
+    fireEvent.click(screen.getByRole('button', { name: 'second' }))
     fireEvent.click(screen.getAllByRole('button', { name: 'Fechar aviso' })[0])
-    expect(toasts()).toEqual(['primeiro'])
+    expect(toasts()).toEqual(['segundo'])
     act(() => vi.advanceTimersByTime(2000))
-    expect(toasts()).toEqual(['primeiro'])
+    expect(toasts()).toEqual(['segundo'])
     act(() => vi.advanceTimersByTime(2000))
     expect(toasts()).toEqual([])
   })
