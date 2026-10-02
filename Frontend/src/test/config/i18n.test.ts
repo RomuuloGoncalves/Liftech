@@ -208,7 +208,7 @@ describe('loading and notification translations', () => {
 
   it.each(ALL_LOCALES)('locale $code has every key, non-empty, with {{name}} in notifications', ({ code, data }) => {
     for (const [mod, keys] of Object.entries(KEYS)) {
-      const module = (data as Record<string, Record<string, string>>)[mod];
+      const module = (data as unknown as Record<string, Record<string, string>>)[mod];
       for (const key of keys) {
         expect(module[key], `Locale "${code}" ${mod}.${key} is missing or empty`).toBeTruthy();
         if (key.startsWith('toast')) expect(module[key], `Locale "${code}" ${mod}.${key} lost {{name}}`).toContain('{{name}}');
