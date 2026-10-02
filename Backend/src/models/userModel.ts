@@ -1,37 +1,42 @@
-export class userModel {
-    private nome: string;
-    private role: string;
+import { coreModel } from "../core/coreModel.js";
 
-    constructor(nome: string, role: string) {
+export class userModel extends coreModel {
+    protected id: string | undefined;
+    protected nome: string;
+    protected role: string;
+
+    constructor(nome: string, role: string, id?: string) {
+        super();
+        this.id = id;
         this.nome = nome;
         this.role = role;
     }
 
-        obterDados(): Record<string, unknown> {
+    obterDados(): Record<string, unknown> {
         return {
-            usuarioConectado: this.nome,
+            ...(this.id ? { _id: this.id } : {}),
+            nome: this.nome,
+            role: this.role,
         };
     }
 
-    protected setNome(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.nome = value;
+    public getID(): string | undefined {
+        return this.id;
     }
 
-    protected getNome(): string {
+    public getNome(): string {
         return this.nome;
     }
 
-    protected setRole(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.role = value;
+    public setNome(value: string): void {
+        this.nome = value;
     }
 
-    protected getRole(): string {
+    public getRole(): string {
         return this.role;
+    }
+
+    public setRole(value: string): void {
+        this.role = value;
     }
 }
