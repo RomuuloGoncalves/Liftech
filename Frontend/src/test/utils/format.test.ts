@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDuration, formatEventDate, formatHours } from '../../utils/format'
+import { formatAlertDate, formatDuration, formatEventDate, formatHours } from '../../utils/format'
 
 describe('formatEventDate', () => {
   it('formats as weekday short, day, month long and year in pt-BR, without dot or "de"', () => {
@@ -12,6 +12,16 @@ describe('formatEventDate', () => {
 
   it('follows the active language', () => {
     expect(formatEventDate('2025-09-14', 'en-US')).toBe('Sun, 14 September 2025')
+  })
+})
+
+describe('formatAlertDate', () => {
+  it('formats as day, capitalized long month and year in pt-BR, without weekday or "de"', () => {
+    expect(formatAlertDate('2026-01-23', 'pt-BR')).toBe('23 Janeiro 2026')
+  })
+
+  it('does not shift the day with the machine time zone', () => {
+    expect(formatAlertDate('2025-01-01', 'pt-BR')).toBe('1 Janeiro 2025')
   })
 })
 
