@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 
 const ROUTE_KEYS: Record<string, string> = {
   '/': 'navigation.overview',
-  '/frota': 'navigation.fleet',
+  '/frota': 'fleet.pageTitle',
   '/equipe': 'team.pageTitle',
   '/alertas': 'navigation.alerts',
 }

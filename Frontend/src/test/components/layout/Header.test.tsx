@@ -14,7 +14,7 @@ function renderHeaderAt(path: string) {
 describe('Header component', () => {
   it('renders the title matching the current route', () => {
     renderHeaderAt('/frota')
-    expect(screen.getByRole('heading', { name: 'Gerenciamento Frota' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Gerenciamento das máquinas' })).toBeInTheDocument()
   })
 
   it('renders the team page title on /equipe', () => {
