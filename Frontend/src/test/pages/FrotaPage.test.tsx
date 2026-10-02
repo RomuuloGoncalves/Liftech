@@ -183,4 +183,33 @@ describe('FrotaPage', () => {
     openMenu('EMP-082')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
+
+  it('does not open the detail when a card is dragged', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.dragEnd(card('EMP-082'))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('keeps the machine status after moving it to another category', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.drop(row('Manutenção'))
+    fireEvent.click(within(card('EMP-082')).getByRole('button', { name: /Ver detalhes/ }))
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).getByText('Em uso')).toBeInTheDocument()
+    expect(within(dialog).queryByText('Manutenção')).not.toBeInTheDocument()
+  })
+
+  it('goes back to all categories when the filtered category is deleted', () => {
+    render(<FrotaPage />)
+    createCategory('Reserva')
+    const filter = screen.getByRole('combobox', { name: 'Filtrar categoria' })
+    const reservaId = within(filter).getByRole('option', { name: 'Reserva' }).getAttribute('value')!
+    fireEvent.change(filter, { target: { value: reservaId } })
+    fireEvent.click(within(row('Reserva')).getByRole('button', { name: 'Excluir categoria' }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }))
+    expect(filter).toHaveValue('all')
+    expect(screen.getAllByRole('region')).toHaveLength(4)
+  })
 })
