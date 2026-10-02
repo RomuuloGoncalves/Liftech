@@ -18,7 +18,9 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ existingNames, on
   const [nome, setNome] = useState('')
   const [cor, setCor] = useState(CATEGORY_COLORS[0])
   const [hex, setHex] = useState(CATEGORY_COLORS[0])
-  const [pickerOpen, setPickerOpen] = useState(false)
+  // Posição fixa: o Modal tem overflow e cortaria o popover, que no Figma sai para fora dele.
+  const [pickerAt, setPickerAt] = useState<{ top: number; left: number } | null>(null)
+  const pickerOpen = pickerAt !== null
   const [error, setError] = useState<string | null>(null)
 
   const choose = (color: string) => {
@@ -47,17 +49,20 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ existingNames, on
               aria-label={t('fleet.colorLabel')}
               aria-expanded={pickerOpen}
               data-color={cor}
-              onClick={() => setPickerOpen((open) => !open)}
+              onClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect()
+                setPickerAt(pickerOpen ? null : { top: rect.bottom + 8, left: rect.left - 75 })
+              }}
             >
               <span className={styles.dot} style={{ background: cor }} />
             </button>
             {pickerOpen && (
-              <div className={styles.popover}>
+              <div className={styles.popover} style={pickerAt}>
                 <button
                   type="button"
                   className={styles.popoverClose}
                   aria-label={t('fleet.closeColors')}
-                  onClick={() => setPickerOpen(false)}
+                  onClick={() => setPickerAt(null)}
                 >
                   <X size={10} />
                 </button>
