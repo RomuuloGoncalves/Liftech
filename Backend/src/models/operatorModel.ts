@@ -5,6 +5,12 @@ export class operatorModel {
         this.nome = nome;
     }
 
+    obterDados(): Record<string, unknown> {
+    return {
+        operador: this.nome,
+    }
+    }
+
     protected setNome(value: string): number | void {
         if (!value) {
             return 0;

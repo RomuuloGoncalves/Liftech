@@ -7,6 +7,12 @@ export class userModel {
         this.role = role;
     }
 
+        obterDados(): Record<string, unknown> {
+        return {
+            usuarioConectado: this.nome,
+        };
+    }
+
     protected setNome(value: string): number | void {
         if (!value) {
             return 0;
