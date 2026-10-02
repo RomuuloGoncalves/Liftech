@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Calendar, Search } from 'lucide-react'
+import PageSkeleton from '../components/common/PageSkeleton'
 import FleetCard from '../components/fleet/FleetCard'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
+import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
 import {
   ACCIDENT_URGENCY,
   DEFAULT_PERIOD,
@@ -21,6 +23,7 @@ const AlertasPage: React.FC = () => {
   const [from, setFrom] = useState(DEFAULT_PERIOD.from)
   const [to, setTo] = useState(DEFAULT_PERIOD.to)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const loading = useFirstVisitLoading('alertas')
 
   const alerts = useMemo(() => {
     const text = query.trim().toLowerCase()
@@ -33,6 +36,14 @@ const AlertasPage: React.FC = () => {
   }, [query, from, to])
 
   const detailMachine = detailId ? MACHINE_BY_ID.get(detailId) : undefined
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <PageSkeleton variant="grid" gridClassName={styles.grid} />
+      </div>
+    )
+  }
 
   return (
     <div className={styles.page}>
