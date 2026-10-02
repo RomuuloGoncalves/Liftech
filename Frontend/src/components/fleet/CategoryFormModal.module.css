@@ -36,10 +36,8 @@
 }
 
 .popover {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: -75px;
-  z-index: 2;
+  position: fixed;
+  z-index: 51;
   display: flex;
   flex-direction: column;
   gap: 14px;
