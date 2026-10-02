@@ -58,6 +58,16 @@
     "deleteMachineMessage": "Удалить {{name}}? Это действие нельзя отменить.",
     "openDetails": "Подробности: {{name}}"
   },
+  "alerts": {
+    "accidents": "Аварии",
+    "searchPlaceholder": "Поиск машины",
+    "empty": "Оповещения не найдены",
+    "urgency": {
+      "media": "Средний",
+      "alta": "Высокий",
+      "critica": "Критический"
+    }
+  },
   "team": {
     "pageTitle": "Управление командой и секторами",
     "employees": "Сотрудники",

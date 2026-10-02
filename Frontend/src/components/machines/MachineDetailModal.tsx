@@ -19,8 +19,8 @@ interface MachineDetailModalProps {
   onEdit?: (machine: Machine) => void
   onDelete?: (machine: Machine) => void
   onClose: () => void
-  /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. */
-  variant?: 'overview' | 'fleet'
+  /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. `alerts`: igual, com a aba de alertas primeiro e sem selo de status. */
+  variant?: 'overview' | 'fleet' | 'alerts'
 }
 
 const STATUS_CLASS: Record<MachineStatus, string> = {
@@ -36,7 +36,7 @@ const STATUS_KEY: Partial<Record<MachineStatus, string>> = {
   Manutenção: 'machines.statusMaintenance',
 }
 
-const TABS: Record<'overview' | 'fleet', { type: MachineEventType; labelKey: string }[]> = {
+const TABS: Record<'overview' | 'fleet' | 'alerts', { type: MachineEventType; labelKey: string }[]> = {
   overview: [
     { type: 'acidente', labelKey: 'machines.tabAccidents' },
     { type: 'manutencao', labelKey: 'machines.tabMaintenance' },
@@ -44,6 +44,10 @@ const TABS: Record<'overview' | 'fleet', { type: MachineEventType; labelKey: str
   fleet: [
     { type: 'manutencao', labelKey: 'fleet.tabRepairs' },
     { type: 'acidente', labelKey: 'fleet.tabAlerts' },
+  ],
+  alerts: [
+    { type: 'acidente', labelKey: 'fleet.tabAlerts' },
+    { type: 'manutencao', labelKey: 'fleet.tabRepairs' },
   ],
 }
 
@@ -70,7 +74,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   const sectorRow = { icon: <MapPin size={14} />, label: t('machines.detailSector'), value: machine.setor || dash }
   const deviceRow = { icon: <Cpu size={14} />, label: t('machines.detailDeviceName'), value: nomeDispositivo || dash }
   const infoRows =
-    variant === 'fleet'
+    variant !== 'overview'
       ? [
           sectorRow,
           {
@@ -101,7 +105,9 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       title={machine.nome}
       onClose={onClose}
       badge={
-        <span className={`${styles.badge} ${STATUS_CLASS[status]}`}>{statusKey ? t(statusKey) : status}</span>
+        variant !== 'alerts' && (
+          <span className={`${styles.badge} ${STATUS_CLASS[status]}`}>{statusKey ? t(statusKey) : status}</span>
+        )
       }
       footer={
         onEdit &&

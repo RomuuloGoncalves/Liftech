@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'team', 'languages', 'fleet'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -116,6 +116,31 @@ describe('team module translations', () => {
     const team = data.team as Record<string, string>;
     for (const key of ['toggleAccess', 'edit', 'remove', 'openDetails', 'deleteMessage']) {
       expect(team[key], `Locale "${code}" team.${key} lost {{name}}`).toContain('{{name}}');
+    }
+  });
+});
+
+describe('alerts module translations', () => {
+  const flatten = (obj: object, prefix = ''): Record<string, unknown> =>
+    Object.entries(obj).reduce<Record<string, unknown>>((acc, [key, value]) => {
+      const path = prefix + key;
+      return value && typeof value === 'object'
+        ? { ...acc, ...flatten(value, `${path}.`) }
+        : { ...acc, [path]: value };
+    }, {});
+  const ptBRAlertKeys = Object.keys(flatten(ptBR.alerts)).sort();
+
+  it('pt-BR defines the accidents label, search, empty state and the three urgency levels', () => {
+    expect(ptBRAlertKeys).toEqual(
+      ['accidents', 'empty', 'searchPlaceholder', 'urgency.alta', 'urgency.critica', 'urgency.media']
+    );
+  });
+
+  it.each(ALL_LOCALES)('locale $code has the same alerts keys as pt-BR, all non-empty', ({ code, data }) => {
+    const alerts = flatten(data.alerts);
+    expect(Object.keys(alerts).sort(), `Locale "${code}" alerts keys differ from pt-BR`).toEqual(ptBRAlertKeys);
+    for (const [key, value] of Object.entries(alerts)) {
+      expect(value, `Locale "${code}" alerts.${key} is empty`).toBeTruthy();
     }
   });
 });

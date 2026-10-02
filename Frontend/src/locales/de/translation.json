@@ -58,6 +58,16 @@
     "deleteMachineMessage": "{{name}} löschen? Dies kann nicht rückgängig gemacht werden.",
     "openDetails": "Details von {{name}} anzeigen"
   },
+  "alerts": {
+    "accidents": "Unfälle",
+    "searchPlaceholder": "Maschine suchen",
+    "empty": "Keine Warnungen gefunden",
+    "urgency": {
+      "media": "Mittel",
+      "alta": "Hoch",
+      "critica": "Kritisch"
+    }
+  },
   "team": {
     "pageTitle": "Team- und Bereichsverwaltung",
     "employees": "Mitarbeiter",

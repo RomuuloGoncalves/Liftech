@@ -44,8 +44,25 @@ describe('FleetCard', () => {
 
   it('shows the last accident date and Urgente on accident cards', () => {
     setup('acidentes', { lastAccident: { data: '2026-01-23', hora: '14:38:20' } })
-    expect(field('Data e Hora')).toBe('23 janeiro 2026, 14:38:20')
+    expect(field('Data e Hora')).toBe('23 Janeiro 2026, 14:38:20')
     expect(field('Nível de urgência')).toBe('Urgente')
+  })
+
+  it.each([
+    ['media', 'Média', 'caution'],
+    ['alta', 'Alta', 'warning'],
+    ['critica', 'Crítica', 'danger'],
+  ] as const)('shows the %s urgency level with its color instead of Urgente', (urgency, label, tone) => {
+    setup('acidentes', { urgency })
+    const value = screen.getByText('Nível de urgência').nextElementSibling
+    expect(value?.textContent).toBe(label)
+    expect(value?.className).toContain(tone)
+  })
+
+  it('has no actions menu and is not draggable without move handlers', () => {
+    render(<FleetCard machine={machine} kind="acidentes" onOpen={vi.fn()} />)
+    expect(screen.queryByRole('button', { name: 'Mais ações para EMP-084' })).not.toBeInTheDocument()
+    expect(screen.getByRole('article')).toHaveAttribute('draggable', 'false')
   })
 
   it('shows (Indefinido) when an accident card has no accident date', () => {

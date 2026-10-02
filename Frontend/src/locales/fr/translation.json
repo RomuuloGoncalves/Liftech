@@ -58,6 +58,16 @@
     "deleteMachineMessage": "Supprimer {{name}} ? Cette action est irréversible.",
     "openDetails": "Voir les détails de {{name}}"
   },
+  "alerts": {
+    "accidents": "Accidents",
+    "searchPlaceholder": "Rechercher une machine",
+    "empty": "Aucune alerte trouvée",
+    "urgency": {
+      "media": "Moyenne",
+      "alta": "Élevée",
+      "critica": "Critique"
+    }
+  },
   "team": {
     "pageTitle": "Gestion de l'équipe et des secteurs",
     "employees": "Employés",

@@ -2,18 +2,22 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Forklift, MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CategoryKind } from '../../data/fleet'
-import type { Machine } from '../../data/machines'
+import type { Machine, UrgencyLevel } from '../../data/machines'
+import { formatAlertDate } from '../../utils/format'
 import styles from './FleetCard.module.css'
 
 interface FleetCardProps {
   machine: Machine
   kind: CategoryKind
   lastAccident?: { data: string; hora: string }
-  moveTargets: { id: string; nome: string }[]
+  /** Acidentes: mostra o nível no lugar do "Urgente" fixo. */
+  urgency?: UrgencyLevel
+  /** Sem `onMove`/`onRemove` o card não tem menu; sem `onDragStart` não é arrastável. */
+  moveTargets?: { id: string; nome: string }[]
   onOpen: (machine: Machine) => void
-  onDragStart: (machineId: string) => void
-  onMove: (machineId: string, categoryId: string) => void
-  onRemove: (machineId: string) => void
+  onDragStart?: (machineId: string) => void
+  onMove?: (machineId: string, categoryId: string) => void
+  onRemove?: (machineId: string) => void
 }
 
 interface Highlight {
@@ -23,20 +27,18 @@ interface Highlight {
   left?: { label: string; value: string }
 }
 
-/** "2026-01-23" + "14:38:20" -> "23 janeiro 2026, 14:38:20". */
-function formatAccident(data: string, hora: string, language: string): string {
-  const [year, month, day] = data.split('-').map(Number)
-  const parts = new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
-    .formatToParts(new Date(Date.UTC(year, month - 1, day)))
-  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? ''
-  return `${get('day')} ${get('month')} ${get('year')}, ${hora}`
+const URGENCY_TONE: Record<UrgencyLevel, string> = {
+  media: styles.caution,
+  alta: styles.warning,
+  critica: styles.danger,
 }
 
 const FleetCard: React.FC<FleetCardProps> = ({
   machine,
   kind,
   lastAccident,
-  moveTargets,
+  urgency,
+  moveTargets = [],
   onOpen,
   onDragStart,
   onMove,
@@ -64,11 +66,13 @@ const FleetCard: React.FC<FleetCardProps> = ({
   const highlights: Partial<Record<CategoryKind, Highlight>> = {
     acidentes: {
       label: t('fleet.cardUrgency'),
-      value: t('fleet.cardUrgent'),
-      tone: styles.danger,
+      value: urgency ? t(`alerts.urgency.${urgency}`) : t('fleet.cardUrgent'),
+      tone: urgency ? URGENCY_TONE[urgency] : styles.danger,
       left: {
         label: t('fleet.cardDateTime'),
-        value: lastAccident ? formatAccident(lastAccident.data, lastAccident.hora, i18n.language) : undefinedText,
+        value: lastAccident
+          ? `${formatAlertDate(lastAccident.data, i18n.language)}, ${lastAccident.hora}`
+          : undefinedText,
       },
     },
     ativas: {
@@ -90,10 +94,10 @@ const FleetCard: React.FC<FleetCardProps> = ({
   return (
     <article
       className={styles.card}
-      draggable
+      draggable={Boolean(onDragStart)}
       onDragStart={(event) => {
         event.dataTransfer?.setData('text/plain', machine.id)
-        onDragStart(machine.id)
+        onDragStart?.(machine.id)
       }}
     >
       <div className={styles.topRow}>
@@ -113,46 +117,48 @@ const FleetCard: React.FC<FleetCardProps> = ({
           </h3>
           <span className={styles.code}>{machine.identificacao}(ID)</span>
         </div>
-        <div className={styles.menuWrap} ref={menuRef}>
-          <button
-            type="button"
-            className={styles.menuButton}
-            aria-label={t('fleet.moreActions', { name: machine.identificacao })}
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <MoreVertical size={14} />
-          </button>
-          {menuOpen && (
-            <div
-              className={styles.menu}
-              role="menu"
-              onKeyDown={(event) => event.key === 'Escape' && setMenuOpen(false)}
+        {onMove && onRemove && (
+          <div className={styles.menuWrap} ref={menuRef}>
+            <button
+              type="button"
+              className={styles.menuButton}
+              aria-label={t('fleet.moreActions', { name: machine.identificacao })}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((open) => !open)}
             >
-              <span className={styles.menuHeading}>{t('fleet.moveTo')}</span>
-              {moveTargets.map((target) => (
+              <MoreVertical size={14} />
+            </button>
+            {menuOpen && (
+              <div
+                className={styles.menu}
+                role="menu"
+                onKeyDown={(event) => event.key === 'Escape' && setMenuOpen(false)}
+              >
+                <span className={styles.menuHeading}>{t('fleet.moveTo')}</span>
+                {moveTargets.map((target) => (
+                  <button
+                    key={target.id}
+                    type="button"
+                    role="menuitem"
+                    className={styles.menuItem}
+                    onClick={() => pick(() => onMove(machine.id, target.id))}
+                  >
+                    {target.nome}
+                  </button>
+                ))}
                 <button
-                  key={target.id}
                   type="button"
                   role="menuitem"
-                  className={styles.menuItem}
-                  onClick={() => pick(() => onMove(machine.id, target.id))}
+                  className={`${styles.menuItem} ${styles.menuRemove}`}
+                  onClick={() => pick(() => onRemove(machine.id))}
                 >
-                  {target.nome}
+                  {t('fleet.removeFromCategory')}
                 </button>
-              ))}
-              <button
-                type="button"
-                role="menuitem"
-                className={`${styles.menuItem} ${styles.menuRemove}`}
-                onClick={() => pick(() => onRemove(machine.id))}
-              >
-                {t('fleet.removeFromCategory')}
-              </button>
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <dl className={styles.details}>
