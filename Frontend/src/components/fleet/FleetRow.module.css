@@ -14,7 +14,7 @@
 .row[data-drop-target] {
   border-style: dashed;
   border-color: var(--category-color);
-  background: color-mix(in srgb, var(--category-color) 8%, #fff);
+  background: color-mix(in srgb, var(--category-color) 14%, #fff);
 }
 
 .header {
