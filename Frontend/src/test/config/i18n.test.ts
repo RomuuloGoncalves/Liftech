@@ -190,3 +190,29 @@ describe('fleet module translations', () => {
     }
   });
 });
+
+describe('loading and notification translations', () => {
+  const KEYS: Record<string, string[]> = {
+    common: ['loading', 'closeNotification'],
+    machines: ['toastCreated', 'toastSaved', 'toastDeleted'],
+    team: [
+      'toastEmployeeCreated',
+      'toastEmployeeSaved',
+      'toastEmployeeDeleted',
+      'toastSectorCreated',
+      'toastSectorSaved',
+      'toastSectorDeleted',
+    ],
+    fleet: ['toastCategoryCreated', 'toastCategoryDeleted', 'toastMachinesAdded', 'toastMachineRemoved'],
+  };
+
+  it.each(ALL_LOCALES)('locale $code has every key, non-empty, with {{name}} in notifications', ({ code, data }) => {
+    for (const [mod, keys] of Object.entries(KEYS)) {
+      const module = (data as Record<string, Record<string, string>>)[mod];
+      for (const key of keys) {
+        expect(module[key], `Locale "${code}" ${mod}.${key} is missing or empty`).toBeTruthy();
+        if (key.startsWith('toast')) expect(module[key], `Locale "${code}" ${mod}.${key} lost {{name}}`).toContain('{{name}}');
+      }
+    }
+  });
+});

@@ -6,7 +6,9 @@
     "register": "S'inscrire",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "close": "Fermer"
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "closeNotification": "Fermer la notification"
   },
   "navigation": {
     "overview": "Aperçu",
@@ -56,7 +58,10 @@
     "editLabelMac": "Adresse Mac",
     "deleteMachineTitle": "Supprimer la machine",
     "deleteMachineMessage": "Supprimer {{name}} ? Cette action est irréversible.",
-    "openDetails": "Voir les détails de {{name}}"
+    "openDetails": "Voir les détails de {{name}}",
+    "toastCreated": "Machine « {{name}} » enregistrée",
+    "toastSaved": "Machine « {{name}} » enregistrée",
+    "toastDeleted": "Machine « {{name}} » supprimée"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -117,7 +122,13 @@
     "deleteEmployeeTitle": "Supprimer l'employé",
     "deleteSectorTitle": "Supprimer le secteur",
     "deleteMessage": "Supprimer {{name}} ? Cette action est irréversible.",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "toastEmployeeCreated": "Employé « {{name}} » enregistré",
+    "toastEmployeeSaved": "Employé « {{name}} » mis à jour",
+    "toastEmployeeDeleted": "Employé « {{name}} » supprimé",
+    "toastSectorCreated": "Secteur « {{name}} » enregistré",
+    "toastSectorSaved": "Secteur « {{name}} » mis à jour",
+    "toastSectorDeleted": "Secteur « {{name}} » supprimé"
   },
   "languages": {
     "title": "Choisissez une langue",
@@ -216,6 +227,10 @@
     "detailEmployee": "Employé",
     "detailSessionUsage": "Temps d'utilisation (session)",
     "tabRepairs": "Historique des réparations",
-    "tabAlerts": "Historique des alertes"
+    "tabAlerts": "Historique des alertes",
+    "toastCategoryCreated": "Catégorie « {{name}} » créée",
+    "toastCategoryDeleted": "Catégorie « {{name}} » supprimée",
+    "toastMachinesAdded": "Machines ajoutées à « {{name}} »",
+    "toastMachineRemoved": "{{name}} retirée de la catégorie"
   }
 }

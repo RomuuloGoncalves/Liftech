@@ -6,7 +6,9 @@
     "register": "登録",
     "cancel": "キャンセル",
     "save": "保存",
-    "close": "閉じる"
+    "close": "閉じる",
+    "loading": "読み込み中...",
+    "closeNotification": "通知を閉じる"
   },
   "navigation": {
     "overview": "概要",
@@ -56,7 +58,10 @@
     "editLabelMac": "MACアドレス",
     "deleteMachineTitle": "機械を削除",
     "deleteMachineMessage": "{{name}}を削除しますか？この操作は元に戻せません。",
-    "openDetails": "{{name}}の詳細を見る"
+    "openDetails": "{{name}}の詳細を見る",
+    "toastCreated": "機械「{{name}}」を登録しました",
+    "toastSaved": "機械「{{name}}」を保存しました",
+    "toastDeleted": "機械「{{name}}」を削除しました"
   },
   "alerts": {
     "accidents": "事故",
@@ -117,7 +122,13 @@
     "deleteEmployeeTitle": "従業員を削除",
     "deleteSectorTitle": "セクターを削除",
     "deleteMessage": "{{name}}を削除しますか？この操作は元に戻せません。",
-    "delete": "削除"
+    "delete": "削除",
+    "toastEmployeeCreated": "担当者「{{name}}」を登録しました",
+    "toastEmployeeSaved": "担当者「{{name}}」を保存しました",
+    "toastEmployeeDeleted": "担当者「{{name}}」を削除しました",
+    "toastSectorCreated": "部署「{{name}}」を登録しました",
+    "toastSectorSaved": "部署「{{name}}」を保存しました",
+    "toastSectorDeleted": "部署「{{name}}」を削除しました"
   },
   "languages": {
     "title": "言語を選択",
@@ -216,6 +227,10 @@
     "detailEmployee": "担当者",
     "detailSessionUsage": "使用時間（セッション）",
     "tabRepairs": "修理履歴",
-    "tabAlerts": "アラート履歴"
+    "tabAlerts": "アラート履歴",
+    "toastCategoryCreated": "カテゴリー「{{name}}」を作成しました",
+    "toastCategoryDeleted": "カテゴリー「{{name}}」を削除しました",
+    "toastMachinesAdded": "「{{name}}」に機械を追加しました",
+    "toastMachineRemoved": "{{name}} をカテゴリーから外しました"
   }
 }
