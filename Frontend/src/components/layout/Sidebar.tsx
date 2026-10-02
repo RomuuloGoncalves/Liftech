@@ -6,6 +6,7 @@ import {
   ChevronRight,
   FileText,
   Forklift,
+  LogIn,
   MessageCircle,
   Menu,
   PanelLeft,
@@ -30,6 +31,12 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/frota', labelKey: 'navigation.fleet', icon: Forklift },
   { to: '/equipe', labelKey: 'navigation.team', icon: Users },
   { to: '/alertas', labelKey: 'navigation.alerts', icon: AlertCircle },
+]
+
+const TEMP_AUTH_LINKS: { to: string; label: string }[] = [
+  { to: '/login', label: 'Login Admin' },
+  { to: '/login/colaborador', label: 'Login Colaborador' },
+  { to: '/solicitar-acesso', label: 'Solicitar Acesso' },
 ]
 
 function readStoredCollapsed(): boolean {
@@ -169,6 +176,26 @@ const Sidebar: React.FC = () => {
         </ul>
 
         <div className={styles.spacer} />
+
+        {!showCollapsedLayout && (
+          <div style={{ padding: '0 12px 8px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <p className={styles.sectionLabel}>DEV: Telas de auth</p>
+            {TEMP_AUTH_LINKS.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={styles.navLink}
+                onClick={isMobile ? closeMobileDrawer : undefined}
+                style={{ fontSize: 12 }}
+              >
+                <span className={styles.navIcon}>
+                  <LogIn size={16} />
+                </span>
+                <span className={styles.navLabel}>{label}</span>
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className={styles.footer}>
           <button type="button" className={styles.feedbackButton}>
