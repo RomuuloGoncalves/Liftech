@@ -1,5 +1,6 @@
 import React from 'react'
-import logo from '../../assets/logo.png'
+import logo from '../../assets/logo.svg'
+import logoName from '../../assets/logo-name.svg'
 import styles from './AuthLayout.module.css'
 
 export interface AuthInfoCard {
@@ -21,7 +22,7 @@ export interface AuthLayoutProps {
 const Logo: React.FC<{ className: string }> = ({ className }) => (
   <div className={className}>
     <img src={logo} alt="" aria-hidden="true" />
-    <span>Liftech</span>
+    <img src={logoName} alt="Liftech" />
   </div>
 )
 
