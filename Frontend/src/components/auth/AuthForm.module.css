@@ -1,26 +1,54 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
 .labelAccent {
-  color: var(--accent);
+  font-size: 11px;
+  color: #3a9cff;
+}
+
+.input {
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #dedede;
+  background: #fff;
+  font-size: 13px;
+}
+
+.input::placeholder {
+  font-family: 'Lexend', var(--sans);
+  font-size: 11px;
+  font-weight: 300;
+  color: #b3b3b3;
 }
 
 .sectionTitle {
-  margin: 0 0 -8px;
-  font-size: 13px;
+  margin: 11px 0 6px;
+  font-size: 10px;
   font-weight: 600;
-  color: var(--text-h);
+  color: #333;
 }
 
 .submitButton {
   width: 100%;
-  padding: 11px 16px;
+  height: 41px;
+  margin-top: 15px;
   border: none;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #3a9cff 0%, #4f6cff 100%);
-  box-shadow: var(--shadow);
+  border-radius: 8px;
+  background: linear-gradient(90deg, #40b2ff 30%, #4550ee 100%);
   color: #fff;
-  font-size: 14px;
+  font: inherit;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 120ms ease, transform 120ms ease;
+}
+
+/* Nos logins o botão fica 45px abaixo da senha, com ou sem "Esqueceu a senha?". */
+.loginSubmit {
+  margin-top: 37px;
 }
 
 .submitButton:hover {
@@ -32,19 +60,23 @@
 }
 
 .forgotLink {
-  align-self: center;
-  background: none;
-  border: none;
+  align-self: flex-end;
+  height: 16px;
+  margin: -6px 0 -19px;
   padding: 0;
-  font-size: 12px;
-  color: var(--accent);
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 8px;
+  color: #3a9cff;
   cursor: default;
 }
 
 .crossLink {
   align-self: center;
-  font-size: 13px;
-  color: var(--accent);
+  margin-top: -4px;
+  font-size: 11px;
+  color: #3a9cff;
   text-decoration: none;
 }
 
@@ -55,10 +87,10 @@
 .divider {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 4px 0;
-  color: var(--text);
-  font-size: 12px;
+  gap: 8px;
+  margin: 4px 0 3px;
+  color: #666;
+  font-size: 9px;
 }
 
 .divider::before,
@@ -66,33 +98,34 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: #d6d6d6;
 }
 
 .secondaryRow {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 11px;
 }
 
 .secondaryLabel {
-  font-size: 13px;
-  color: var(--text);
+  font-size: 10px;
+  color: #3a9cff;
 }
 
 .secondaryButton {
-  width: 100%;
-  padding: 10px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  color: var(--accent);
-  font-size: 14px;
+  width: 175px;
+  height: 24px;
+  line-height: 22px;
+  box-sizing: border-box;
+  border: 1px solid #e3e3e3;
+  border-radius: 3px;
+  background: #fff;
+  color: #3a9cff;
+  font-size: 10px;
   font-weight: 600;
   text-align: center;
   text-decoration: none;
-  cursor: pointer;
 }
 
 .successBox {

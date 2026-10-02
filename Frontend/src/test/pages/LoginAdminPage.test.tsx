@@ -56,7 +56,13 @@ describe('LoginAdminPage', () => {
 
   it('renders the forgot-password affordance without navigation', () => {
     renderPage()
-    const forgot = screen.getByText('Esqueceu a senha? Clique aqui')
+    const forgot = screen.getByRole('button', { name: 'Esqueceu a senha? Clique aqui' })
     expect(forgot.tagName).toBe('BUTTON')
+  })
+
+  it('bolds the call to action after the question in the auth links', () => {
+    renderPage()
+    expect(screen.getByText('Clique aqui!').tagName).toBe('STRONG')
+    expect(screen.getByText('Clique aqui').tagName).toBe('STRONG')
   })
 })

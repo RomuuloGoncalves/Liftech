@@ -1,9 +1,8 @@
 import React, { useId, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import AuthLayout from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
-import formStyles from '../components/team/TeamForm.module.css'
 import authStyles from '../components/auth/AuthForm.module.css'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -42,8 +41,8 @@ const LoginAdminPage: React.FC = () => {
   }
 
   return (
-    <AuthLayout title={t('auth.loginAdminTitle')} subtitle={t('auth.loginAdminSubtitle')} titleAccent>
-      <form className={formStyles.form} onSubmit={handleSubmit} noValidate>
+    <AuthLayout title={t('auth.loginAdminTitle')} subtitle={t('auth.loginAdminSubtitle')}>
+      <form className={authStyles.form} onSubmit={handleSubmit} noValidate>
         <AuthField
           id={`${uid}-email`}
           label={t('auth.emailLabel')}
@@ -65,13 +64,13 @@ const LoginAdminPage: React.FC = () => {
           accentLabel
         />
         <button type="button" className={authStyles.forgotLink}>
-          {t('auth.forgotPassword')}
+          <Trans i18nKey="auth.forgotPassword" components={{ b: <strong /> }} />
         </button>
-        <button type="submit" className={authStyles.submitButton}>
+        <button type="submit" className={`${authStyles.submitButton} ${authStyles.loginSubmit}`}>
           {t('auth.enterButton')}
         </button>
         <Link to="/login/colaborador" className={authStyles.crossLink}>
-          {t('auth.collaboratorLink')}
+          <Trans i18nKey="auth.collaboratorLink" components={{ b: <strong /> }} />
         </Link>
       </form>
     </AuthLayout>

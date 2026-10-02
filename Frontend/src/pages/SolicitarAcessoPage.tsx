@@ -1,10 +1,9 @@
 import React, { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { ShieldCheck, Eye, Zap } from 'lucide-react'
 import AuthLayout from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
-import formStyles from '../components/team/TeamForm.module.css'
 import authStyles from '../components/auth/AuthForm.module.css'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -50,12 +49,11 @@ const SolicitarAcessoPage: React.FC = () => {
       subtitle={t('auth.signupSubtitle')}
       heroTitle={t('auth.heroSignupTitle')}
       heroSubtitle={t('auth.heroSignupSubtitle')}
-      titleAccent
       layout="split"
       infoCards={[
-        { icon: <ShieldCheck size={16} />, title: t('auth.infoSecurityTitle'), description: t('auth.infoSecurityDesc') },
-        { icon: <Eye size={16} />, title: t('auth.infoControlTitle'), description: t('auth.infoControlDesc') },
-        { icon: <Zap size={16} />, title: t('auth.infoEfficiencyTitle'), description: t('auth.infoEfficiencyDesc') },
+        { icon: <ShieldCheck size={12} fill="currentColor" stroke="#fff" />, title: t('auth.infoSecurityTitle'), description: t('auth.infoSecurityDesc') },
+        { icon: <Eye size={12} />, title: t('auth.infoControlTitle'), description: t('auth.infoControlDesc') },
+        { icon: <Zap size={12} fill="currentColor" />, title: t('auth.infoEfficiencyTitle'), description: t('auth.infoEfficiencyDesc') },
       ]}
     >
       {submitted ? (
@@ -64,7 +62,7 @@ const SolicitarAcessoPage: React.FC = () => {
           <p className={authStyles.successMessage}>{t('auth.requestSuccessMessage')}</p>
         </div>
       ) : (
-        <form className={formStyles.form} onSubmit={handleSubmit} noValidate aria-label={t('auth.signupSectionTitle')}>
+        <form className={authStyles.form} onSubmit={handleSubmit} noValidate aria-label={t('auth.signupSectionTitle')}>
           <p className={authStyles.sectionTitle}>{t('auth.signupSectionTitle')}</p>
           <AuthField
             id={`${uid}-email`}
@@ -100,7 +98,7 @@ const SolicitarAcessoPage: React.FC = () => {
             {t('auth.requestAccessButton')}
           </button>
           <Link to="/login/colaborador" className={authStyles.crossLink}>
-            {t('auth.collaboratorLink')}
+            <Trans i18nKey="auth.collaboratorLink" components={{ b: <strong /> }} />
           </Link>
           <div className={authStyles.divider}>{t('auth.or')}</div>
           <div className={authStyles.secondaryRow}>
