@@ -1,0 +1,114 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: calc(22 * var(--px, 1px));
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14 * var(--px, 1px));
+  padding: calc(14 * var(--px, 1px)) calc(20 * var(--px, 1px)) calc(20 * var(--px, 1px));
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.kanbanCards {
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.kanbanCards .card {
+  flex: 0 0 calc(256 * var(--px, 1px));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: calc(147 * var(--px, 1px));
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.compact {
+  min-height: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Brilho deslizante; com "reduzir movimento" a regra global de index.css o deixa parado. */
+.block {
+  display: block;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eeeeee 25%, #f7f7f7 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+}
+
+.line {
+  width: 100%;
+  height: 9px;
+}
+
+.medium {
+  width: 70%;
+}
+
+.short {
+  width: 45%;
+}
+
+.label {
+  width: calc(158 * var(--px, 1px));
+  height: calc(24 * var(--px, 1px));
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
