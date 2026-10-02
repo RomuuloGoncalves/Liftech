@@ -1,12 +1,15 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { CirclePlus, Plus, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
+import PageSkeleton from '../components/common/PageSkeleton'
+import { useToast } from '../components/common/Toast'
 import CategoryFormModal from '../components/fleet/CategoryFormModal'
 import FleetCard from '../components/fleet/FleetCard'
 import FleetRow from '../components/fleet/FleetRow'
 import MachinePickerModal from '../components/fleet/MachinePickerModal'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
+import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
 import {
   addMachines,
   createCategory,
@@ -38,6 +41,7 @@ const LABEL_KEYS: Record<Exclude<CategoryKind, 'custom'>, string> = {
 }
 
 const MACHINES_BY_ID = new Map(MACHINES.map((m) => [m.id, m]))
+const ARRIVE_MS = 1000
 
 const FrotaPage: React.FC = () => {
   const { t } = useTranslation()
@@ -45,16 +49,45 @@ const FrotaPage: React.FC = () => {
   const [query, setQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dialog, setDialog] = useState<Dialog>(null)
-  const draggingId = useRef<string | null>(null)
+  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const [overRowId, setOverRowId] = useState<string | null>(null)
+  const [arrivedIds, setArrivedIds] = useState<Set<string>>(() => new Set())
+  const arriveTimers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const loading = useFirstVisitLoading('frota')
+  const { show } = useToast()
+
+  useEffect(() => {
+    const timers = arriveTimers.current
+    return () => timers.forEach(clearTimeout)
+  }, [])
 
   const labelOf = (category: FleetCategory) => (category.kind === 'custom' ? category.nome : t(LABEL_KEYS[category.kind]))
   const close = () => setDialog(null)
   const visibleRows = categoryFilter === 'all' ? board : board.filter((c) => c.id === categoryFilter)
 
+  const sourceRowId = draggingId ? board.find((c) => c.machineIds.includes(draggingId))?.id : undefined
+
+  /** Destaca por 1 s os cards que acabaram de entrar numa linha. */
+  const markArrived = (ids: string[]) => {
+    setArrivedIds((prev) => new Set([...prev, ...ids]))
+    arriveTimers.current.push(
+      setTimeout(() => setArrivedIds((prev) => new Set([...prev].filter((id) => !ids.includes(id)))), ARRIVE_MS)
+    )
+  }
+
+  const moveTo = (machineId: string, categoryId: string) => {
+    setBoard((prev) => moveMachine(prev, machineId, categoryId))
+    markArrived([machineId])
+  }
+
+  const endDrag = () => {
+    setDraggingId(null)
+    setOverRowId(null)
+  }
+
   const handleDrop = (categoryId: string) => {
-    const machineId = draggingId.current
-    draggingId.current = null
-    if (machineId) setBoard((prev) => moveMachine(prev, machineId, categoryId))
+    if (draggingId && categoryId !== sourceRowId) moveTo(draggingId, categoryId)
+    endDrag()
   }
 
   const renderCard = (category: FleetCategory) => (machine: Machine) => (
@@ -65,17 +98,30 @@ const FrotaPage: React.FC = () => {
       lastAccident={category.kind === 'acidentes' ? lastAccidentDate(machine.id, MACHINE_EVENTS) : undefined}
       moveTargets={board.filter((c) => c.id !== category.id).map((c) => ({ id: c.id, nome: labelOf(c) }))}
       onOpen={(item) => setDialog({ type: 'detail', machineId: item.id })}
-      onDragStart={(id) => (draggingId.current = id)}
-      onMove={(id, to) => setBoard((prev) => moveMachine(prev, id, to))}
-      onRemove={(id) => setBoard((prev) => removeMachine(prev, id))}
+      onDragStart={setDraggingId}
+      onMove={moveTo}
+      onRemove={(id) => {
+        setBoard((prev) => removeMachine(prev, id))
+        show(t('fleet.toastMachineRemoved', { name: MACHINES_BY_ID.get(id)?.identificacao }))
+      }}
+      isDragging={draggingId === machine.id}
+      isArriving={arrivedIds.has(machine.id)}
     />
   )
 
   const deleting = dialog?.type === 'delete' ? board.find((c) => c.id === dialog.categoryId) : undefined
   const detail = dialog?.type === 'detail' ? MACHINES_BY_ID.get(dialog.machineId) : undefined
 
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <PageSkeleton variant="kanban" />
+      </div>
+    )
+  }
+
   return (
-    <div className={styles.page} onDragEnd={() => (draggingId.current = null)}>
+    <div className={styles.page} onDragEnd={endDrag}>
       <div className={styles.toolbar}>
         <button type="button" className={styles.createButton} onClick={() => setDialog({ type: 'create' })}>
           <Plus size={14} />
@@ -118,6 +164,11 @@ const FrotaPage: React.FC = () => {
             total={category.machineIds.length}
             renderCard={renderCard(category)}
             onDrop={handleDrop}
+            isDropTarget={overRowId === category.id}
+            onDragOverRow={(id) => {
+              if (draggingId) setOverRowId(id === sourceRowId ? null : id)
+            }}
+            onDragLeaveRow={(id) => setOverRowId((prev) => (prev === id ? null : prev))}
             onAdd={(categoryId) => setDialog({ type: 'add', categoryId })}
             onDelete={(categoryId) => setDialog({ type: 'delete', categoryId })}
           />
@@ -138,6 +189,7 @@ const FrotaPage: React.FC = () => {
           existingNames={board.map(labelOf)}
           onSubmit={(nome, cor) => {
             setBoard((prev) => createCategory(prev, nome, cor))
+            show(t('fleet.toastCategoryCreated', { name: nome }))
             close()
           }}
           onClose={close}
@@ -148,6 +200,9 @@ const FrotaPage: React.FC = () => {
           machines={unassignedMachines(board, MACHINES)}
           onConfirm={(ids) => {
             setBoard((prev) => addMachines(prev, dialog.categoryId, ids))
+            markArrived(ids)
+            const target = board.find((c) => c.id === dialog.categoryId)
+            if (target) show(t('fleet.toastMachinesAdded', { name: labelOf(target) }))
             close()
           }}
           onClose={close}
@@ -159,6 +214,7 @@ const FrotaPage: React.FC = () => {
           message={t('fleet.deleteCategoryMessage', { name: labelOf(deleting) })}
           onConfirm={() => {
             setBoard((prev) => deleteCategory(prev, deleting.id))
+            show(t('fleet.toastCategoryDeleted', { name: labelOf(deleting) }))
             if (categoryFilter === deleting.id) setCategoryFilter('all')
             close()
           }}
