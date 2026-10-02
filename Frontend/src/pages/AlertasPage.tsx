@@ -59,7 +59,7 @@ const AlertasPage: React.FC = () => {
 
           <div className={styles.filters}>
             <div className={styles.searchField}>
-              <Search size={14} className={styles.searchIcon} aria-hidden="true" />
+              <Search size={16} className={styles.searchIcon} aria-hidden="true" />
               <input
                 type="search"
                 className={styles.searchInput}
@@ -70,7 +70,7 @@ const AlertasPage: React.FC = () => {
               />
             </div>
             <div className={styles.period}>
-              <Calendar size={12} aria-hidden="true" />
+              <Calendar size={14} className={styles.periodIcon} aria-hidden="true" />
               <input
                 type="date"
                 className={styles.dateInput}
@@ -78,7 +78,9 @@ const AlertasPage: React.FC = () => {
                 value={from}
                 onChange={(event) => setFrom(event.target.value)}
               />
-              <span aria-hidden="true">-</span>
+              <span aria-hidden="true" className={styles.periodSeparator}>
+                –
+              </span>
               <input
                 type="date"
                 className={styles.dateInput}

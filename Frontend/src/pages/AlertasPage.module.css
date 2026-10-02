@@ -64,48 +64,85 @@
 
 .searchIcon {
   position: absolute;
-  left: 8px;
+  left: 12px;
   color: var(--text);
   pointer-events: none;
 }
 
 .searchInput {
-  width: 180px;
+  width: 260px;
+  height: 36px;
   box-sizing: border-box;
-  padding: 5px 8px 5px 26px;
-  border: 0.5px solid var(--border);
-  border-radius: 5px;
-  background: #fafafa;
+  padding: 0 12px 0 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
   color: var(--text-h);
-  font-size: 10px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.searchInput::placeholder {
+  color: #9a9a9a;
+}
+
+.searchInput:hover,
+.period:hover {
+  border-color: rgba(21, 28, 39, 0.22);
 }
 
 .searchInput:focus,
-.dateInput:focus {
-  outline: 2px solid var(--accent-border);
-  outline-offset: 1px;
+.period:focus-within {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(58, 156, 255, 0.18);
 }
 
 .period {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 8px;
-  border: 0.5px solid var(--border);
-  border-radius: 5px;
-  background: #fafafa;
-  font-size: 10px;
-  font-weight: 700;
+  gap: 8px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: 13px;
   color: var(--text);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.periodIcon {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.periodSeparator {
+  color: #b5b5b5;
 }
 
 .dateInput {
   padding: 0;
   border: none;
+  outline: none;
   background: transparent;
   font: inherit;
-  font-weight: 400;
-  color: var(--text);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  margin-left: 4px;
+  opacity: 0.45;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.dateInput:hover::-webkit-calendar-picker-indicator,
+.dateInput:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
 }
 
 .grid {
@@ -139,6 +176,8 @@
     padding: 20px 16px 24px;
   }
 
+  .filters,
+  .searchField,
   .searchInput {
     width: 100%;
   }
