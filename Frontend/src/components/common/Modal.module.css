@@ -9,6 +9,7 @@
   box-sizing: border-box;
   background: rgba(245, 245, 245, 0.55);
   backdrop-filter: blur(6px);
+  animation: fade-in 150ms ease-out;
 }
 
 .dialog {
@@ -22,6 +23,7 @@
   border: 0.5px solid var(--border);
   border-radius: 10px;
   background: #fff;
+  animation: dialog-in 180ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .body {
@@ -72,4 +74,17 @@
   background: transparent;
   color: var(--text-h);
   cursor: pointer;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
