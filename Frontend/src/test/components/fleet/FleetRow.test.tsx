@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import FleetRow from '../../../components/fleet/FleetRow'
-import type { FleetCategory } from '../../../data/fleet'
-import { MACHINES, type Machine } from '../../../data/machines'
+import { lastAccidentDate, type FleetCategory } from '../../../data/fleet'
+import { MACHINES, MACHINE_EVENTS, type Machine } from '../../../data/machines'
 
 const pick = (...codes: string[]) => codes.map((code) => MACHINES.find((m) => m.identificacao === code)!)
 
@@ -101,6 +101,25 @@ describe('FleetRow', () => {
     fireEvent.change(screen.getByLabelText('Data final'), { target: { value: '2030-12-31' } })
     expect(cards()).toEqual([])
     expect(screen.getByText('Nenhuma máquina encontrada')).toBeInTheDocument()
+  })
+
+  it('includes both period bounds when filtering by last accident date', () => {
+    const [machine] = pick('EMP-081')
+    const day = lastAccidentDate(machine.id, MACHINE_EVENTS)!.data
+    const shift = (days: number) => new Date(Date.parse(day) + days * 86_400_000).toISOString().slice(0, 10)
+    setup([machine], { category: category({ id: 'acidentes', kind: 'acidentes' }), label: 'Acidentes' })
+
+    fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: day } })
+    fireEvent.change(screen.getByLabelText('Data final'), { target: { value: day } })
+    expect(cards()).toEqual(['EMP-081'])
+
+    fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: shift(1) } })
+    fireEvent.change(screen.getByLabelText('Data final'), { target: { value: shift(2) } })
+    expect(cards()).toEqual([])
+
+    fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: shift(-2) } })
+    fireEvent.change(screen.getByLabelText('Data final'), { target: { value: shift(-1) } })
+    expect(cards()).toEqual([])
   })
 
   it('does not show the period on other rows', () => {
