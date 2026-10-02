@@ -48,7 +48,7 @@ Componentes visuais reutilizáveis da interface, organizados por domínio (hoje 
 Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome (ver a seção "Estilização" abaixo).
 
 ### `src/pages/`
-Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage` e `AlertasPage` ainda são placeholders que só marcam a existência da rota. `VisaoGeralPage` (rota `/`) mostra o grid de máquinas, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage` ainda é placeholder que só marca a existência da rota. `AlertasPage` (rota `/alertas`) lista um card por acidente do mock (reusa o `FleetCard` de acidente, com o nível de urgência derivado da causa via `ACCIDENT_URGENCY`), com busca por nome ou código da máquina, filtro de período e o `MachineDetailModal` na variante `alerts`. `VisaoGeralPage` (rota `/`) mostra o grid de máquinas, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
 
 ### `src/data/`
 Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status), os eventos de histórico (`MACHINE_EVENTS`, `eventsForMachine`) e `filterEvents` (tipo + período). `team.ts` faz o mesmo para `Employee` e `Sector`. A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
@@ -63,7 +63,7 @@ Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não 
 `EmployeeCard` e `SectorCard` (área clicável separada das ações), `EmployeeFormModal` e `SectorFormModal` (cadastro e edição, validação no submit), `EmployeeInfoModal` e `SectorInfoModal` (somente leitura). `TeamForm.module.css` concentra o estilo dos campos.
 
 ### `src/utils/`
-`format.ts` formata data do evento ("Dom, 14 setembro 2025"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
+`format.ts` formata data do evento ("Dom, 14 setembro 2025"), data do alerta ("23 Janeiro 2026"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
 
 ### `src/routes/`
 Centraliza as rotas com `react-router-dom` em um único `<Routes>` (`appRoutes.tsx`). `App.tsx` monta esse roteador dentro do shell visual da aplicação; o `BrowserRouter` em si vive em `main.tsx`, fora de `App`, para manter `App.tsx` testável sem precisar reconfigurar o router a cada teste.
