@@ -164,6 +164,14 @@ export const MACHINES: Machine[] = BASE_MACHINES.map((machine, index) => ({
 }))
 
 export type MachineEventType = 'acidente' | 'manutencao'
+export type AccidentCause = 'frenagem' | 'colisao' | 'tombamento'
+export type UrgencyLevel = 'media' | 'alta' | 'critica'
+
+export const ACCIDENT_URGENCY: Record<AccidentCause, UrgencyLevel> = {
+  frenagem: 'media',
+  colisao: 'alta',
+  tombamento: 'critica',
+}
 
 export interface MachineEvent {
   id: string
@@ -173,6 +181,7 @@ export interface MachineEvent {
   data: string
   inicio: string
   fim: string
+  causa?: AccidentCause
 }
 
 export const DEFAULT_PERIOD = { from: '2024-07-14', to: '2026-07-14' }
@@ -185,6 +194,7 @@ const EVENT_SLOTS = [
   ['13:15:30', '16:15:30'],
 ]
 const EVENT_TYPES: MachineEventType[] = ['acidente', 'manutencao']
+const ACCIDENT_CAUSES = Object.keys(ACCIDENT_URGENCY) as AccidentCause[]
 const FIRST_EVENT_DAY = Date.UTC(2024, 7, 1)
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -200,6 +210,7 @@ export const MACHINE_EVENTS: MachineEvent[] = BASE_MACHINES.flatMap((machine, ma
         data: new Date(FIRST_EVENT_DAY + dayOffset * DAY_MS).toISOString().slice(0, 10),
         inicio,
         fim,
+        ...(tipo === 'acidente' && { causa: ACCIDENT_CAUSES[(machineIndex + slot) % ACCIDENT_CAUSES.length] }),
       }
     })
   )

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ACCIDENT_URGENCY,
   DEFAULT_PERIOD,
+  MACHINE_EVENTS,
   MACHINES,
   eventsForMachine,
   filterEvents,
@@ -128,5 +130,23 @@ describe('filterEvents', () => {
     const copy = [...events]
     filterEvents(events, { tipo: 'acidente', from: '', to: '' })
     expect(events).toEqual(copy)
+  })
+})
+
+describe('accident cause and urgency', () => {
+  it('maps frenagem to media, colisao to alta and tombamento to critica', () => {
+    expect(ACCIDENT_URGENCY).toEqual({ frenagem: 'media', colisao: 'alta', tombamento: 'critica' })
+  })
+
+  it('gives every accident a cause, and no maintenance event a cause', () => {
+    MACHINE_EVENTS.forEach((event) => {
+      if (event.tipo === 'acidente') expect(Object.keys(ACCIDENT_URGENCY)).toContain(event.causa)
+      else expect(event.causa).toBeUndefined()
+    })
+  })
+
+  it('uses all three causes in the mock', () => {
+    const causes = new Set(MACHINE_EVENTS.map((event) => event.causa).filter(Boolean))
+    expect([...causes].sort()).toEqual(['colisao', 'frenagem', 'tombamento'])
   })
 })
