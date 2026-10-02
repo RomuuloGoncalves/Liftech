@@ -10,6 +10,7 @@ describe('Integração: Mongoose Schema', () => {
 
         expect(usuarioSalvo._id).toBeDefined();
         expect(usuarioSalvo.nome).toBe('Nome Teste');
+        expect(usuarioSalvo.role).toBe('admin');
 
         await User.findByIdAndDelete(usuarioSalvo._id);
     });
