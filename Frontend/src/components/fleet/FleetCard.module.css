@@ -2,13 +2,13 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 0 0 256px;
-  min-height: 147px;
+  gap: calc(8 * var(--px, 1px));
+  flex: 0 0 calc(256 * var(--px, 1px));
+  min-height: calc(147 * var(--px, 1px));
   box-sizing: border-box;
-  padding: 12px;
+  padding: calc(12 * var(--px, 1px));
   border: 1px solid #e3e3e3;
-  border-radius: 6px;
+  border-radius: calc(6 * var(--px, 1px));
   background: #fff;
 }
 
@@ -23,7 +23,7 @@
 .topRow {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: calc(8 * var(--px, 1px));
 }
 
 .icon {
@@ -31,11 +31,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: calc(42 * var(--px, 1px));
+  height: calc(42 * var(--px, 1px));
   box-sizing: border-box;
   border: 1px solid #e3e3e3;
-  border-radius: 5px;
+  border-radius: calc(5 * var(--px, 1px));
   color: var(--text-h);
 }
 
@@ -48,9 +48,9 @@
 
 .nome {
   margin: 0;
-  font-size: 10px;
+  font-size: calc(10 * var(--px, 1px));
   font-weight: 600;
-  line-height: 14px;
+  line-height: calc(14 * var(--px, 1px));
   letter-spacing: 0;
   color: var(--text-h);
 }
@@ -72,14 +72,14 @@
 }
 
 .openButton:focus-visible::after {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 6px;
+  outline: calc(2 * var(--px, 1px)) solid var(--accent);
+  outline-offset: calc(2 * var(--px, 1px));
+  border-radius: calc(6 * var(--px, 1px));
 }
 
 .code {
-  font-size: 7px;
-  line-height: 10px;
+  font-size: calc(7 * var(--px, 1px));
+  line-height: calc(10 * var(--px, 1px));
   color: var(--text);
 }
 
@@ -90,7 +90,7 @@
 
 .menuButton {
   display: inline-flex;
-  padding: 2px;
+  padding: calc(2 * var(--px, 1px));
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -105,28 +105,28 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  min-width: 160px;
-  padding: 6px;
+  min-width: calc(160 * var(--px, 1px));
+  padding: calc(6 * var(--px, 1px));
   border: 1px solid #e3e3e3;
-  border-radius: 6px;
+  border-radius: calc(6 * var(--px, 1px));
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 calc(4 * var(--px, 1px)) calc(12 * var(--px, 1px)) rgba(0, 0, 0, 0.08);
 }
 
 .menuHeading {
-  padding: 4px 8px;
-  font-size: 9px;
+  padding: calc(4 * var(--px, 1px)) calc(8 * var(--px, 1px));
+  font-size: calc(9 * var(--px, 1px));
   font-weight: 600;
   color: var(--text);
 }
 
 .menuItem {
-  padding: 6px 8px;
+  padding: calc(6 * var(--px, 1px)) calc(8 * var(--px, 1px));
   border: none;
-  border-radius: 4px;
+  border-radius: calc(4 * var(--px, 1px));
   background: transparent;
   font: inherit;
-  font-size: 11px;
+  font-size: calc(11 * var(--px, 1px));
   color: var(--text-h);
   text-align: left;
   cursor: pointer;
@@ -138,9 +138,9 @@
 }
 
 .menuRemove {
-  margin-top: 4px;
+  margin-top: calc(4 * var(--px, 1px));
   border-top: 1px solid #eee;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 calc(4 * var(--px, 1px)) calc(4 * var(--px, 1px));
   color: #ef4444;
 }
 
@@ -152,7 +152,7 @@
 
 .details {
   flex-direction: column;
-  gap: 6px;
+  gap: calc(4 * var(--px, 1px));
 }
 
 .bottomRow {
@@ -163,16 +163,16 @@
 
 .details dt,
 .bottomRow dt {
-  font-size: 6px;
-  line-height: 9px;
+  font-size: calc(6 * var(--px, 1px));
+  line-height: calc(9 * var(--px, 1px));
   color: var(--text-h);
 }
 
 .details dd,
 .bottomRow dd {
   margin: 0;
-  font-size: 8px;
-  line-height: 11px;
+  font-size: calc(8 * var(--px, 1px));
+  line-height: calc(11 * var(--px, 1px));
   color: var(--text-h);
 }
 
@@ -182,9 +182,9 @@
 }
 
 .highlight dd {
-  font-size: 14px;
+  font-size: calc(14 * var(--px, 1px));
   font-weight: 700;
-  line-height: 18px;
+  line-height: calc(18 * var(--px, 1px));
 }
 
 .highlight .danger {

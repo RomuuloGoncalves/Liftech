@@ -1,11 +1,11 @@
 .row {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: calc(12 * var(--px, 1px));
   min-width: 0;
-  padding: 12px 20px 20px;
+  padding: calc(12 * var(--px, 1px)) calc(20 * var(--px, 1px)) calc(20 * var(--px, 1px));
   border: 1px solid #e3e3e3;
-  border-radius: 8px;
+  border-radius: calc(8 * var(--px, 1px));
   background: #fff;
 }
 
@@ -14,21 +14,21 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: calc(8 * var(--px, 1px));
 }
 
 .label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 158px;
-  height: 24px;
+  gap: calc(8 * var(--px, 1px));
+  width: calc(158 * var(--px, 1px));
+  height: calc(24 * var(--px, 1px));
   box-sizing: border-box;
-  padding: 0 6px 0 14px;
+  padding: 0 calc(6 * var(--px, 1px)) 0 calc(14 * var(--px, 1px));
   border: 1px solid var(--category-color);
-  border-radius: 2px;
+  border-radius: calc(2 * var(--px, 1px));
   background: color-mix(in srgb, var(--category-color) 25%, #fff);
-  font-size: 8px;
+  font-size: calc(8 * var(--px, 1px));
 }
 
 .labelIcon {
@@ -45,13 +45,13 @@
 }
 
 .count {
-  min-width: 9px;
-  padding: 0 2px;
+  min-width: calc(9 * var(--px, 1px));
+  padding: 0 calc(2 * var(--px, 1px));
   border: 1px solid color-mix(in srgb, var(--category-color) 40%, #fff);
-  border-radius: 2px;
+  border-radius: calc(2 * var(--px, 1px));
   background: #fff;
-  font-size: 5px;
-  line-height: 8px;
+  font-size: calc(5 * var(--px, 1px));
+  line-height: calc(8 * var(--px, 1px));
   text-align: center;
   color: var(--text);
 }
@@ -60,20 +60,20 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: calc(10 * var(--px, 1px));
   margin-left: auto;
 }
 
 .search {
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: 240px;
-  height: 24px;
+  gap: calc(14 * var(--px, 1px));
+  width: calc(240 * var(--px, 1px));
+  height: calc(24 * var(--px, 1px));
   box-sizing: border-box;
-  padding: 0 12px;
+  padding: 0 calc(12 * var(--px, 1px));
   border: 1px solid #ececec;
-  border-radius: 2px;
+  border-radius: calc(2 * var(--px, 1px));
   color: #8a8a8a;
 }
 
@@ -84,7 +84,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: 9px;
+  font-size: calc(9 * var(--px, 1px));
   color: var(--text-h);
 }
 
@@ -99,36 +99,36 @@
 .period {
   display: flex;
   align-items: center;
-  gap: 4px;
-  height: 24px;
+  gap: calc(4 * var(--px, 1px));
+  height: calc(24 * var(--px, 1px));
   box-sizing: border-box;
-  padding: 0 8px;
+  padding: 0 calc(8 * var(--px, 1px));
   border: 1px solid #d9d9d9;
-  border-radius: 2px;
-  font-size: 7px;
+  border-radius: calc(2 * var(--px, 1px));
+  font-size: calc(7 * var(--px, 1px));
   color: var(--text-h);
 }
 
 .period input {
-  width: 72px;
+  width: calc(72 * var(--px, 1px));
   border: none;
   background: transparent;
   font: inherit;
-  font-size: 7px;
+  font-size: calc(7 * var(--px, 1px));
   color: var(--text-h);
 }
 
 .deleteButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 24px;
-  padding: 0 14px;
+  gap: calc(8 * var(--px, 1px));
+  height: calc(24 * var(--px, 1px));
+  padding: 0 calc(14 * var(--px, 1px));
   border: none;
-  border-radius: 2px;
+  border-radius: calc(2 * var(--px, 1px));
   background: #ef4444;
   font: inherit;
-  font-size: 7px;
+  font-size: calc(7 * var(--px, 1px));
   font-weight: 700;
   color: #fff;
   cursor: pointer;
@@ -137,30 +137,30 @@
 .cards {
   display: flex;
   align-items: stretch;
-  gap: 10px;
+  gap: calc(10 * var(--px, 1px));
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: calc(4 * var(--px, 1px));
 }
 
 .cards .addButton {
   align-self: center;
   flex-shrink: 0;
-  margin: 0 12px;
+  margin: 0 calc(12 * var(--px, 1px));
 }
 
 .empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 150px;
+  min-height: calc(150 * var(--px, 1px));
 }
 
 .addButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: calc(42 * var(--px, 1px));
+  height: calc(42 * var(--px, 1px));
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -176,7 +176,7 @@
 
 .noResults {
   margin: 0;
-  padding: 24px 0;
-  font-size: 12px;
+  padding: calc(24 * var(--px, 1px)) 0;
+  font-size: calc(12 * var(--px, 1px));
   color: var(--text);
 }
