@@ -58,6 +58,16 @@
     "deleteMachineMessage": "{{name}}を削除しますか？この操作は元に戻せません。",
     "openDetails": "{{name}}の詳細を見る"
   },
+  "alerts": {
+    "accidents": "事故",
+    "searchPlaceholder": "機械を検索",
+    "empty": "アラートが見つかりません",
+    "urgency": {
+      "media": "中",
+      "alta": "高",
+      "critica": "重大"
+    }
+  },
   "team": {
     "pageTitle": "チームとセクターの管理",
     "employees": "従業員",

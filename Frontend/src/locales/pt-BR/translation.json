@@ -60,6 +60,16 @@
     "deleteMachineMessage": "Excluir {{name}}? Esta ação não pode ser desfeita.",
     "openDetails": "Ver detalhes de {{name}}"
   },
+  "alerts": {
+    "accidents": "Acidentes",
+    "searchPlaceholder": "Procurar Máquina",
+    "empty": "Nenhum alerta encontrado",
+    "urgency": {
+      "media": "Média",
+      "alta": "Alta",
+      "critica": "Crítica"
+    }
+  },
   "team": {
     "pageTitle": "Gerenciamento da Equipe e Setores",
     "employees": "Funcionários",
