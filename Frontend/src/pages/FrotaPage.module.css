@@ -1,0 +1,108 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 16px 22px 32px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 17px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.createButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 4px;
+  background: #3a9cff;
+  font: inherit;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.createButton:active {
+  transform: scale(0.97);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 240px;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 1px solid #ececec;
+  border-radius: 3px;
+  background: #fff;
+  color: #8a8a8a;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-h);
+}
+
+.search:focus-within {
+  border-color: var(--accent);
+}
+
+.filter {
+  width: 98px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #ececec;
+  border-radius: 3px;
+  background: #fff;
+  font: inherit;
+  font-size: 11px;
+  color: #8a8a8a;
+  cursor: pointer;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.addCategory {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #3a9cff;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.addCategory:active {
+  transform: scale(0.94);
+}
