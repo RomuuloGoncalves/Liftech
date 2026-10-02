@@ -150,3 +150,57 @@ describe('MachineDetailModal: actions', () => {
     expect(h.onClose).toHaveBeenCalledTimes(3)
   })
 })
+
+describe('MachineDetailModal fleet variant', () => {
+  const fleetMachine: Machine = { ...machine, operadorConectado: { nome: 'Alexandre Gomes' }, tempoSessaoMinutos: 34 }
+
+  const setupFleet = () => {
+    const onClose = vi.fn()
+    render(<MachineDetailModal machine={fleetMachine} events={events} onClose={onClose} variant="fleet" />)
+    return onClose
+  }
+
+  it('shows Setor, Funcionário, Tempo Uso (Sessão) and Nome Dispositivo rows', () => {
+    setupFleet()
+    const rows = screen.getAllByRole('listitem').map((li) => li.textContent)
+    expect(rows).toEqual(
+      expect.arrayContaining([
+        'SetorExpedição - Bloco B',
+        'FuncionárioAlexandre Gomes',
+        'Tempo Uso (Sessão)34 minutos',
+        'Nome DispositivoMpa-5312',
+      ])
+    )
+    expect(screen.queryByText('Tempo Uso (Total)')).not.toBeInTheDocument()
+  })
+
+  it('shows an em dash when the machine has no employee', () => {
+    render(<MachineDetailModal machine={machine} events={events} onClose={vi.fn()} variant="fleet" />)
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toContain('Funcionário—')
+  })
+
+  it('shows the repair and alert tabs, starting on repairs', () => {
+    setupFleet()
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Histórico de reparos', 'Histórico de alertas'])
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('Ana Souza')).toBeInTheDocument()
+    expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
+
+    fireEvent.click(tabs[1])
+    expect(screen.getByText('Carlos Silva')).toBeInTheDocument()
+    expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
+  })
+
+  it('keeps the period filter', () => {
+    setupFleet()
+    expect(screen.getByLabelText('Data inicial')).toBeInTheDocument()
+    expect(screen.getByLabelText('Data final')).toBeInTheDocument()
+  })
+
+  it('has no edit or delete buttons', () => {
+    setupFleet()
+    expect(screen.queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Excluir/ })).not.toBeInTheDocument()
+  })
+})

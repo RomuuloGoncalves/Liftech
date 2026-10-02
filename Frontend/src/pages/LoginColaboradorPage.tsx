@@ -1,9 +1,8 @@
 import React, { useId, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import AuthLayout from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
-import formStyles from '../components/team/TeamForm.module.css'
 import authStyles from '../components/auth/AuthForm.module.css'
 
 interface FormValues {
@@ -36,8 +35,8 @@ const LoginColaboradorPage: React.FC = () => {
   }
 
   return (
-    <AuthLayout title={t('auth.loginAdminTitle')} subtitle={t('auth.loginCollabSubtitle')} titleAccent>
-      <form className={formStyles.form} onSubmit={handleSubmit} noValidate>
+    <AuthLayout title={t('auth.loginAdminTitle')} subtitle={t('auth.loginCollabSubtitle')}>
+      <form className={authStyles.form} onSubmit={handleSubmit} noValidate>
         <AuthField
           id={`${uid}-usuario`}
           label={t('auth.usernameLabel')}
@@ -58,11 +57,11 @@ const LoginColaboradorPage: React.FC = () => {
           onChange={update('senha')}
           accentLabel
         />
-        <button type="submit" className={authStyles.submitButton}>
+        <button type="submit" className={`${authStyles.submitButton} ${authStyles.loginSubmit}`}>
           {t('auth.enterButton')}
         </button>
         <Link to="/login" className={authStyles.crossLink}>
-          {t('auth.administratorLink')}
+          <Trans i18nKey="auth.administratorLink" components={{ b: <strong /> }} />
         </Link>
       </form>
     </AuthLayout>

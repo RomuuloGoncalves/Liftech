@@ -1,5 +1,5 @@
 import React, { useId, useMemo, useState } from 'react'
-import { Calendar, Cpu, MapPin, Pencil, Timer, Trash2 } from 'lucide-react'
+import { Calendar, CircleUser, Cpu, MapPin, Pencil, Timer, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
 import {
@@ -16,9 +16,11 @@ import styles from './MachineDetailModal.module.css'
 interface MachineDetailModalProps {
   machine: Machine
   events: MachineEvent[]
-  onEdit: (machine: Machine) => void
-  onDelete: (machine: Machine) => void
+  onEdit?: (machine: Machine) => void
+  onDelete?: (machine: Machine) => void
   onClose: () => void
+  /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. */
+  variant?: 'overview' | 'fleet'
 }
 
 const STATUS_CLASS: Record<MachineStatus, string> = {
@@ -34,15 +36,29 @@ const STATUS_KEY: Partial<Record<MachineStatus, string>> = {
   Manutenção: 'machines.statusMaintenance',
 }
 
-const TABS: { type: MachineEventType; labelKey: string }[] = [
-  { type: 'acidente', labelKey: 'machines.tabAccidents' },
-  { type: 'manutencao', labelKey: 'machines.tabMaintenance' },
-]
+const TABS: Record<'overview' | 'fleet', { type: MachineEventType; labelKey: string }[]> = {
+  overview: [
+    { type: 'acidente', labelKey: 'machines.tabAccidents' },
+    { type: 'manutencao', labelKey: 'machines.tabMaintenance' },
+  ],
+  fleet: [
+    { type: 'manutencao', labelKey: 'fleet.tabRepairs' },
+    { type: 'acidente', labelKey: 'fleet.tabAlerts' },
+  ],
+}
 
-const MachineDetailModal: React.FC<MachineDetailModalProps> = ({ machine, events, onEdit, onDelete, onClose }) => {
+const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
+  machine,
+  events,
+  onEdit,
+  onDelete,
+  onClose,
+  variant = 'overview',
+}) => {
   const { t, i18n } = useTranslation()
   const uid = useId()
-  const [tab, setTab] = useState<MachineEventType>('acidente')
+  const tabs = TABS[variant]
+  const [tab, setTab] = useState<MachineEventType>(tabs[0].type)
   const [from, setFrom] = useState(DEFAULT_PERIOD.from)
   const [to, setTo] = useState(DEFAULT_PERIOD.to)
 
@@ -51,15 +67,34 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({ machine, events
   const statusKey = STATUS_KEY[status]
   const dash = '—'
 
-  const infoRows = [
-    { icon: <MapPin size={14} />, label: t('machines.detailSector'), value: machine.setor || dash },
-    {
-      icon: <Timer size={14} />,
-      label: t('machines.detailTotalUsage'),
-      value: machine.tempoUsoTotalHoras === undefined ? dash : formatHours(machine.tempoUsoTotalHoras, i18n.language),
-    },
-    { icon: <Cpu size={14} />, label: t('machines.detailDeviceName'), value: nomeDispositivo || dash },
-  ]
+  const sectorRow = { icon: <MapPin size={14} />, label: t('machines.detailSector'), value: machine.setor || dash }
+  const deviceRow = { icon: <Cpu size={14} />, label: t('machines.detailDeviceName'), value: nomeDispositivo || dash }
+  const infoRows =
+    variant === 'fleet'
+      ? [
+          sectorRow,
+          {
+            icon: <CircleUser size={14} />,
+            label: t('fleet.detailEmployee'),
+            value: machine.operadorConectado?.nome || dash,
+          },
+          {
+            icon: <Timer size={14} />,
+            label: t('fleet.detailSessionUsage'),
+            value: t('fleet.cardMinutes', { count: machine.tempoSessaoMinutos }),
+          },
+          deviceRow,
+        ]
+      : [
+          sectorRow,
+          {
+            icon: <Timer size={14} />,
+            label: t('machines.detailTotalUsage'),
+            value:
+              machine.tempoUsoTotalHoras === undefined ? dash : formatHours(machine.tempoUsoTotalHoras, i18n.language),
+          },
+          deviceRow,
+        ]
 
   return (
     <Modal
@@ -69,16 +104,19 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({ machine, events
         <span className={`${styles.badge} ${STATUS_CLASS[status]}`}>{statusKey ? t(statusKey) : status}</span>
       }
       footer={
-        <>
-          <button type="button" className={`${styles.action} ${styles.edit}`} onClick={() => onEdit(machine)}>
-            <Pencil size={14} />
-            {t('machines.editMachine')}
-          </button>
-          <button type="button" className={`${styles.action} ${styles.delete}`} onClick={() => onDelete(machine)}>
-            <Trash2 size={14} />
-            {t('machines.deleteMachine')}
-          </button>
-        </>
+        onEdit &&
+        onDelete && (
+          <>
+            <button type="button" className={`${styles.action} ${styles.edit}`} onClick={() => onEdit(machine)}>
+              <Pencil size={14} />
+              {t('machines.editMachine')}
+            </button>
+            <button type="button" className={`${styles.action} ${styles.delete}`} onClick={() => onDelete(machine)}>
+              <Trash2 size={14} />
+              {t('machines.deleteMachine')}
+            </button>
+          </>
+        )
       }
     >
       <dl className={styles.meta}>
@@ -104,7 +142,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({ machine, events
 
       <div className={styles.controls}>
         <div role="tablist" aria-label={t('machines.historyLabel')} className={styles.tabs}>
-          {TABS.map(({ type, labelKey }) => (
+          {tabs.map(({ type, labelKey }) => (
             <button
               key={type}
               type="button"

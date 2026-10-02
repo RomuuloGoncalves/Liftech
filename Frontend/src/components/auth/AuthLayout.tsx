@@ -1,6 +1,6 @@
 import React from 'react'
-import logo from '../../assets/logo.png'
-import logoName from '../../assets/logo-name.png'
+import logo from '../../assets/logo.svg'
+import logoName from '../../assets/logo-name.svg'
 import styles from './AuthLayout.module.css'
 
 export interface AuthInfoCard {
@@ -13,18 +13,23 @@ export interface AuthLayoutProps {
   title: string
   subtitle: string
   children: React.ReactNode
-  titleAccent?: boolean
   layout?: 'split' | 'single'
   heroTitle?: string
   heroSubtitle?: string
   infoCards?: AuthInfoCard[]
 }
 
+const Logo: React.FC<{ className: string }> = ({ className }) => (
+  <div className={className}>
+    <img src={logo} alt="" aria-hidden="true" />
+    <img src={logoName} alt="Liftech" />
+  </div>
+)
+
 const AuthLayout: React.FC<AuthLayoutProps> = ({
   title,
   subtitle,
   children,
-  titleAccent = false,
   layout = 'single',
   heroTitle,
   heroSubtitle,
@@ -32,50 +37,37 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 }) => {
   const formBlock = (
     <div className={styles.formContent}>
-      <div className={styles.logo}>
-        <img src={logo} alt="" aria-hidden="true" width={24} height={24} />
-        <img src={logoName} alt="Liftech" height={16} />
-      </div>
-      <div>
-        <h1 className={`${styles.title} ${titleAccent ? styles.titleAccent : ''}`}>{title}</h1>
+      <header className={styles.header}>
+        <Logo className={styles.logo} />
+        <h1 className={styles.title}>{title}</h1>
         <p className={styles.subtitle}>{subtitle}</p>
-      </div>
+      </header>
       {children}
     </div>
   )
 
   if (layout === 'single') {
-    return (
-      <div className={styles.singleWrapper}>
-        <div className={styles.formSideSingle}>{formBlock}</div>
-      </div>
-    )
+    return <div className={styles.page}>{formBlock}</div>
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.formSide}>{formBlock}</div>
-      <div className={styles.heroSide}>
-        <div className={`${styles.heroContent} ${styles.heroContentLeft}`}>
-          <div className={styles.heroLogo}>
-            <img src={logo} alt="" aria-hidden="true" width={24} height={24} />
-            <img src={logoName} alt="Liftech" height={16} style={{ filter: 'brightness(0) invert(1)' }} />
-          </div>
-          <h2 className={styles.heroTitle}>{heroTitle}</h2>
-          <p className={styles.heroSubtitle}>{heroSubtitle}</p>
-          <ul className={`${styles.infoList} ${styles.timeline}`} style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {infoCards.map((card) => (
-              <li key={card.title} className={styles.infoCard}>
-                <span className={styles.timelineDot} aria-hidden="true" />
+    <div className={`${styles.page} ${styles.split}`}>
+      {formBlock}
+      <div className={styles.hero}>
+        <Logo className={styles.heroLogo} />
+        <h2 className={styles.heroTitle}>{heroTitle}</h2>
+        <p className={styles.heroSubtitle}>{heroSubtitle}</p>
+        <ul className={styles.timeline}>
+          {infoCards.map((card) => (
+            <li key={card.title} className={styles.infoCard}>
+              <p className={styles.infoCardTitle}>
                 <span className={styles.infoIcon}>{card.icon}</span>
-                <div>
-                  <p className={styles.infoCardTitle}>{card.title}</p>
-                  <p className={styles.infoCardDesc}>{card.description}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+                {card.title}
+              </p>
+              <p className={styles.infoCardDesc}>{card.description}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )

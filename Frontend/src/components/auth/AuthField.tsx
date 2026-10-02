@@ -31,7 +31,7 @@ const AuthField: React.FC<AuthFieldProps> = ({
       <input
         id={id}
         type={type}
-        className={[formStyles.input, error ? formStyles.invalid : ''].join(' ')}
+        className={[formStyles.input, authStyles.input, error ? formStyles.invalid : ''].join(' ')}
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}

@@ -13,8 +13,8 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import logo from '../../assets/logo.png'
-import logoName from '../../assets/logo-name.png'
+import logo from '../../assets/logo.svg'
+import logoName from '../../assets/logo-name.svg'
 import styles from './Sidebar.module.css'
 
 const COLLAPSED_STORAGE_KEY = 'liftech.sidebar.collapsed'
