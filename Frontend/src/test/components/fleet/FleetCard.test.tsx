@@ -147,3 +147,21 @@ describe('FleetCard', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 })
+
+describe('FleetCard drag feedback', () => {
+  it('marks the card while it is being dragged', () => {
+    setup('custom', { isDragging: true })
+    expect(screen.getByRole('article')).toHaveAttribute('data-dragging', 'true')
+  })
+
+  it('marks the card that just arrived in the row', () => {
+    setup('custom', { isArriving: true })
+    expect(screen.getByRole('article')).toHaveAttribute('data-arriving', 'true')
+  })
+
+  it('has no drag marks by default', () => {
+    setup('custom')
+    expect(screen.getByRole('article')).not.toHaveAttribute('data-dragging')
+    expect(screen.getByRole('article')).not.toHaveAttribute('data-arriving')
+  })
+})

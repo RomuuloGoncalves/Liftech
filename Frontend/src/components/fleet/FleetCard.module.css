@@ -20,6 +20,26 @@
   cursor: grabbing;
 }
 
+/* Arrastando: fica no lugar, esmaecido, para mostrar de onde saiu. */
+.card[data-dragging] {
+  border-style: dashed;
+  border-color: #9a9a9a;
+  opacity: 0.4;
+}
+
+/* Recém-chegado: pisca na cor da categoria (--category-color vem do FleetRow). */
+.card[data-arriving] {
+  animation: arrive 1s ease-out;
+}
+
+@keyframes arrive {
+  0%,
+  40% {
+    border-color: var(--category-color, #3a9cff);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--category-color, #3a9cff) 35%, transparent);
+  }
+}
+
 .topRow {
   display: flex;
   align-items: flex-start;

@@ -18,6 +18,10 @@ interface FleetCardProps {
   onDragStart?: (machineId: string) => void
   onMove?: (machineId: string, categoryId: string) => void
   onRemove?: (machineId: string) => void
+  /** Card sendo arrastado agora. */
+  isDragging?: boolean
+  /** Card que acabou de entrar na linha (destaque de 1 s). */
+  isArriving?: boolean
 }
 
 interface Highlight {
@@ -43,6 +47,8 @@ const FleetCard: React.FC<FleetCardProps> = ({
   onDragStart,
   onMove,
   onRemove,
+  isDragging = false,
+  isArriving = false,
 }) => {
   const { t, i18n } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -95,6 +101,8 @@ const FleetCard: React.FC<FleetCardProps> = ({
     <article
       className={styles.card}
       draggable={Boolean(onDragStart)}
+      data-dragging={isDragging || undefined}
+      data-arriving={isArriving || undefined}
       onDragStart={(event) => {
         event.dataTransfer?.setData('text/plain', machine.id)
         onDragStart?.(machine.id)
