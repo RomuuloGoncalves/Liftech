@@ -3,8 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { Plus, Search } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
 import ConfirmDialog from '../components/common/ConfirmDialog'
+import PageSkeleton from '../components/common/PageSkeleton'
+import { useToast } from '../components/common/Toast'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
+import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
 import {
   MACHINES,
   MACHINE_STATUSES,
@@ -27,6 +30,8 @@ const VisaoGeralPage: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
+  const loading = useFirstVisitLoading('visao-geral')
+  const { show } = useToast()
 
   const detailMachine = allMachines.find((machine) => machine.id === detailId)
 
@@ -55,6 +60,7 @@ const VisaoGeralPage: React.FC = () => {
     }
     setAllMachines((prev) => [newMachine, ...prev])
     setIsPanelOpen(false)
+    show(t('machines.toastCreated', { name: values.identificacao }))
   }
 
   const handleEditMachine = (values: NewMachineFormValues) => {
@@ -76,12 +82,22 @@ const VisaoGeralPage: React.FC = () => {
       )
     )
     setSubDialog(null)
+    show(t('machines.toastSaved', { name: values.identificacao }))
   }
 
   const handleDeleteMachine = () => {
     setAllMachines((prev) => prev.filter((machine) => machine.id !== detailId))
     setSubDialog(null)
     setDetailId(null)
+    if (detailMachine) show(t('machines.toastDeleted', { name: detailMachine.identificacao }))
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <PageSkeleton variant="grid" gridClassName={styles.grid} />
+      </div>
+    )
   }
 
   return (
