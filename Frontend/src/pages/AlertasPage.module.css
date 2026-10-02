@@ -1,4 +1,7 @@
+/* Mesma escala da Frota: --px = 1px do Figma numa área útil de 1121px. */
 .page {
+  container-type: inline-size;
+  --px: max(1px, 100cqi / 1121);
   box-sizing: border-box;
   padding: 24px 32px 32px;
 }
