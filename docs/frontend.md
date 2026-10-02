@@ -61,10 +61,13 @@ Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não 
 `FleetRow` é uma categoria do kanban: rótulo colorido com contador, busca própria, período (só na linha Acidentes, filtrando pela data do último acidente), "Excluir categoria" (só nas categorias criadas), cards com rolagem horizontal e o "+" que abre `MachinePickerModal` com as máquinas sem categoria. `FleetCard` muda os campos conforme o tipo da linha e é arrastável; o arrasto usa a API nativa de drag and drop do HTML (o id arrastado fica num `useRef` da `FrotaPage`), sem biblioteca. Como o drag nativo não funciona com teclado nem toque, o menu ⋮ do card oferece "Mover para" e "Remover da categoria" para o mesmo fluxo. `CategoryFormModal` cria a categoria (nome + cor das 7 prontas ou hex); o popover de cores usa `position: fixed` porque o `Modal` tem `overflow` e o cortaria. `MachineDetailModal` ganhou `variant="fleet"` (linhas Setor, Funcionário, Tempo Uso (Sessão), Nome Dispositivo; abas de reparos e alertas; sem Editar/Excluir).
 
 ### `src/components/common/`
-`Modal` é a casca de diálogo (backdrop, Escape, `role="dialog"`, botão fechar) e aceita `badge` (ao lado do título) e `footer` (faixa inferior). `ConfirmDialog` é a confirmação de exclusão sobre o `Modal`. `DialogButtons.module.css` guarda os botões Cancelar/Confirmar compartilhados.
+`Modal` é a casca de diálogo (backdrop, Escape, `role="dialog"`, botão fechar) e aceita `badge` (ao lado do título) e `footer` (faixa inferior). A entrada do `Modal` é animada (fade do fundo e fade + escala da caixa). `PageSkeleton` é o estado de carregamento das páginas, nas variantes `grid`, `kanban` e `team`, com `aria-busy`, um "Carregando..." só para leitor de tela e a classe de grid da própria página, para não haver salto de layout. `Toast.tsx` exporta `ToastProvider` (montado em `main.tsx`) e `useToast().show(mensagem)`: avisos curtos no canto inferior direito, numa região `role="status"`/`aria-live="polite"`, que somem em 4 s ou no X; fora do provider o `show` é um no-op, então componentes continuam testáveis isolados. `ConfirmDialog` é a confirmação de exclusão sobre o `Modal`. `DialogButtons.module.css` guarda os botões Cancelar/Confirmar compartilhados.
 
 ### `src/components/team/`
 `EmployeeCard` e `SectorCard` (área clicável separada das ações), `EmployeeFormModal` e `SectorFormModal` (cadastro e edição, validação no submit), `EmployeeInfoModal` e `SectorInfoModal` (somente leitura). `TeamForm.module.css` concentra o estilo dos campos.
+
+### `src/hooks/`
+`useFirstVisitLoading(chave)` devolve `true` só na primeira visita de cada página na sessão, por 600 ms (`MOCK_LATENCY_MS`), para mostrar o skeleton enquanto os dados ainda são mock. Nos testes o atraso é 0, e os testes de skeleton mocam o hook. Quando a API existir, o `loading` passa a vir da requisição e o `PageSkeleton` continua o mesmo.
 
 ### `src/utils/`
 `format.ts` formata data do evento ("Dom, 14 setembro 2025"), data do alerta ("23 Janeiro 2026"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
@@ -95,7 +98,7 @@ Não há Tailwind nem outra lib de UI instalada (ver "Estilização" a seguir).
 
 ## Estilização
 
-O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Hoje só existe o tema claro: o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
+O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Animações e transições usam CSS puro; uma regra global em `index.css` as desliga para quem ativa `prefers-reduced-motion`. Hoje só existe o tema claro: o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
 
 Um componente com estilo próprio ganha um arquivo `NomeDoComponente.module.css` ao lado do `.tsx`, importado como `import styles from './NomeDoComponente.module.css'`. Isso dá escopo automático (sem colisão de nomes de classe entre componentes) sem precisar de nenhuma dependência extra. A `Sidebar` (`components/layout/Sidebar.tsx` + `Sidebar.module.css`) é a referência atual desse padrão.
 
