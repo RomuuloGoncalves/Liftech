@@ -138,3 +138,32 @@ describe('FleetRow', () => {
     expect(screen.queryByRole('button', { name: 'Excluir categoria' })).not.toBeInTheDocument()
   })
 })
+
+describe('FleetRow drop target', () => {
+  it('highlights the row when it is the drop target', () => {
+    setup(pick('EMP-082'), { isDropTarget: true })
+    expect(screen.getByRole('region', { name: 'Ativas' })).toHaveAttribute('data-drop-target', 'true')
+  })
+
+  it('is not highlighted by default', () => {
+    setup(pick('EMP-082'))
+    expect(screen.getByRole('region', { name: 'Ativas' })).not.toHaveAttribute('data-drop-target')
+  })
+
+  it('reports dragover with its id', () => {
+    const onDragOverRow = vi.fn()
+    setup(pick('EMP-082'), { onDragOverRow })
+    fireEvent.dragOver(screen.getByRole('region', { name: 'Ativas' }))
+    expect(onDragOverRow).toHaveBeenCalledWith('ativas')
+  })
+
+  it('reports dragleave only when the pointer leaves the row, not when it enters a child', () => {
+    const onDragLeaveRow = vi.fn()
+    setup(pick('EMP-082'), { onDragLeaveRow })
+    const region = screen.getByRole('region', { name: 'Ativas' })
+    fireEvent.dragLeave(region, { relatedTarget: within(region).getByRole('article') })
+    expect(onDragLeaveRow).not.toHaveBeenCalled()
+    fireEvent.dragLeave(region, { relatedTarget: document.body })
+    expect(onDragLeaveRow).toHaveBeenCalledWith('ativas')
+  })
+})
