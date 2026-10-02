@@ -1,6 +1,10 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ToastProvider } from '../../components/common/Toast'
 import FrotaPage from '../../pages/FrotaPage'
+
+const loading = vi.hoisted(() => ({ value: false }))
+vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
 
 const row = (name: string) => screen.getByRole('region', { name })
 const queryRow = (name: string) => screen.queryByRole('region', { name })
@@ -211,5 +215,152 @@ describe('FrotaPage', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }))
     expect(filter).toHaveValue('all')
     expect(screen.getAllByRole('region')).toHaveLength(4)
+  })
+})
+
+describe('FrotaPage drag feedback', () => {
+  afterEach(() => vi.useRealTimers())
+
+  const dragOver = (name: string) => fireEvent.dragOver(row(name))
+
+  it('marks the dragged card until the drag ends', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    expect(card('EMP-082')).toHaveAttribute('data-dragging', 'true')
+    fireEvent.dragEnd(card('EMP-082'))
+    expect(card('EMP-082')).not.toHaveAttribute('data-dragging')
+  })
+
+  it('highlights only the row under the card when it is not the source row', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    dragOver('Manutenção')
+    expect(row('Manutenção')).toHaveAttribute('data-drop-target', 'true')
+    expect(row('Disponíveis')).not.toHaveAttribute('data-drop-target')
+
+    dragOver('Ativas')
+    expect(row('Ativas')).not.toHaveAttribute('data-drop-target')
+    expect(row('Manutenção')).not.toHaveAttribute('data-drop-target')
+  })
+
+  it('does not highlight rows when nothing is being dragged', () => {
+    render(<FrotaPage />)
+    dragOver('Manutenção')
+    expect(row('Manutenção')).not.toHaveAttribute('data-drop-target')
+  })
+
+  it('clears every mark when the card is dropped', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    dragOver('Manutenção')
+    fireEvent.drop(row('Manutenção'))
+    expect(screen.getAllByRole('region').filter((r) => r.hasAttribute('data-drop-target'))).toEqual([])
+    expect(card('EMP-082')).not.toHaveAttribute('data-dragging')
+  })
+
+  it('clears every mark when the drag is cancelled outside the rows', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    dragOver('Manutenção')
+    fireEvent.dragEnd(card('EMP-082'))
+    expect(row('Manutenção')).not.toHaveAttribute('data-drop-target')
+  })
+
+  it('flashes a card dropped in another row for 1 second', () => {
+    vi.useFakeTimers()
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.drop(row('Manutenção'))
+    expect(card('EMP-082')).toHaveAttribute('data-arriving', 'true')
+    act(() => vi.advanceTimersByTime(999))
+    expect(card('EMP-082')).toHaveAttribute('data-arriving', 'true')
+    act(() => vi.advanceTimersByTime(1))
+    expect(card('EMP-082')).not.toHaveAttribute('data-arriving')
+  })
+
+  it('does not flash a card dropped on its own row', () => {
+    render(<FrotaPage />)
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.drop(row('Ativas'))
+    expect(card('EMP-082')).not.toHaveAttribute('data-arriving')
+  })
+
+  it('flashes a card moved with the menu', () => {
+    render(<FrotaPage />)
+    openMenu('EMP-082')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Disponíveis' }))
+    expect(card('EMP-082')).toHaveAttribute('data-arriving', 'true')
+  })
+
+  it('flashes every card added through the picker', () => {
+    render(<FrotaPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' }))
+    fireEvent.click(screen.getByRole('option', { name: 'EMP-086(ID)' }))
+    fireEvent.click(screen.getByRole('option', { name: 'EMP-094(ID)' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(card('EMP-086')).toHaveAttribute('data-arriving', 'true')
+    expect(card('EMP-094')).toHaveAttribute('data-arriving', 'true')
+  })
+})
+
+describe('FrotaPage skeleton', () => {
+  afterEach(() => {
+    loading.value = false
+  })
+
+  it('shows the kanban skeleton without toolbar while loading', () => {
+    loading.value = true
+    render(<FrotaPage />)
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
+    expect(screen.queryByRole('button', { name: 'Cadastrar categoria' })).not.toBeInTheDocument()
+    expect(screen.queryAllByRole('region')).toEqual([])
+  })
+
+  it('shows the board when not loading', () => {
+    render(<FrotaPage />)
+    expect(screen.queryByText('Carregando...')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cadastrar categoria' })).toBeInTheDocument()
+  })
+})
+
+describe('FrotaPage notifications', () => {
+  const renderWithToasts = () =>
+    render(
+      <ToastProvider>
+        <FrotaPage />
+      </ToastProvider>
+    )
+  const toastTexts = () =>
+    within(screen.getByRole('status'))
+      .queryAllByRole('listitem')
+      .map((li) => li.textContent)
+
+  it('announces a created category', () => {
+    renderWithToasts()
+    createCategory('Reserva')
+    expect(toastTexts()).toEqual(['Categoria "Reserva" criada'])
+  })
+
+  it('announces a deleted category', () => {
+    renderWithToasts()
+    createCategory('Reserva')
+    fireEvent.click(within(row('Reserva')).getByRole('button', { name: 'Excluir categoria' }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }))
+    expect(toastTexts()).toContain('Categoria "Reserva" excluída')
+  })
+
+  it('announces machines added to a category', () => {
+    renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' }))
+    fireEvent.click(screen.getByRole('option', { name: 'EMP-086(ID)' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(toastTexts()).toEqual(['Máquinas adicionadas a "Ativas"'])
+  })
+
+  it('announces a machine removed from its category', () => {
+    renderWithToasts()
+    openMenu('EMP-082')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Remover da categoria' }))
+    expect(toastTexts()).toEqual(['EMP-082 removida da categoria'])
   })
 })
