@@ -119,6 +119,15 @@ describe('Sidebar component', () => {
     expect(screen.queryByText('Gerenciamento Frota')).not.toBeInTheDocument()
   })
 
+  it('keeps the feedback button, icon-only with an accessible name, while collapsed', () => {
+    renderSidebarAt('/')
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    const feedback = screen.getByRole('button', { name: 'Feedback & Sugestões' })
+    expect(feedback).not.toHaveTextContent('Feedback & Sugestões')
+    expect(feedback.querySelectorAll('svg')).toHaveLength(1)
+  })
+
   it('renders as a closed overlay drawer below 768px, showing a hamburger trigger', () => {
     setViewportWidth(MOBILE_WIDTH)
     renderSidebarAt('/')

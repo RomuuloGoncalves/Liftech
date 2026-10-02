@@ -198,12 +198,17 @@ const Sidebar: React.FC = () => {
         )}
 
         <div className={styles.footer}>
-          <button type="button" className={styles.feedbackButton}>
+          <button
+            type="button"
+            className={styles.feedbackButton}
+            aria-label={showCollapsedLayout ? t('navigation.feedback') : undefined}
+            title={showCollapsedLayout ? t('navigation.feedback') : undefined}
+          >
             <span className={styles.feedbackLabel}>
-              <MessageCircle size={16} />
-              {!showCollapsedLayout && <span>{ t('navigation.feedback') }</span>}
+              <MessageCircle size={16} aria-hidden="true" />
+              {!showCollapsedLayout && <span>{t('navigation.feedback')}</span>}
             </span>
-            <ChevronRight size={16} />
+            {!showCollapsedLayout && <ChevronRight size={16} aria-hidden="true" />}
           </button>
           {!showCollapsedLayout && (
             <a className={styles.privacyLink} href="/politicas-privacidade">
