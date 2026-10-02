@@ -6,7 +6,9 @@
     "register": "Registrar",
     "cancel": "Cancelar",
     "save": "Guardar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "closeNotification": "Cerrar aviso"
   },
   "navigation": {
     "overview": "Visión General",
@@ -56,7 +58,10 @@
     "editLabelMac": "Dirección Mac",
     "deleteMachineTitle": "Eliminar máquina",
     "deleteMachineMessage": "¿Eliminar {{name}}? Esta acción no se puede deshacer.",
-    "openDetails": "Ver detalles de {{name}}"
+    "openDetails": "Ver detalles de {{name}}",
+    "toastCreated": "Máquina \"{{name}}\" registrada",
+    "toastSaved": "Máquina \"{{name}}\" guardada",
+    "toastDeleted": "Máquina \"{{name}}\" eliminada"
   },
   "alerts": {
     "accidents": "Accidentes",
@@ -117,7 +122,13 @@
     "deleteEmployeeTitle": "Eliminar empleado",
     "deleteSectorTitle": "Eliminar sector",
     "deleteMessage": "¿Eliminar {{name}}? Esta acción no se puede deshacer.",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "toastEmployeeCreated": "Empleado \"{{name}}\" registrado",
+    "toastEmployeeSaved": "Empleado \"{{name}}\" guardado",
+    "toastEmployeeDeleted": "Empleado \"{{name}}\" eliminado",
+    "toastSectorCreated": "Sector \"{{name}}\" registrado",
+    "toastSectorSaved": "Sector \"{{name}}\" guardado",
+    "toastSectorDeleted": "Sector \"{{name}}\" eliminado"
   },
   "languages": {
     "title": "Elige un idioma",
@@ -216,6 +227,10 @@
     "detailEmployee": "Empleado",
     "detailSessionUsage": "Tiempo de uso (sesión)",
     "tabRepairs": "Historial de reparaciones",
-    "tabAlerts": "Historial de alertas"
+    "tabAlerts": "Historial de alertas",
+    "toastCategoryCreated": "Categoría \"{{name}}\" creada",
+    "toastCategoryDeleted": "Categoría \"{{name}}\" eliminada",
+    "toastMachinesAdded": "Máquinas agregadas a \"{{name}}\"",
+    "toastMachineRemoved": "{{name}} quitada de la categoría"
   }
 }

@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -165,6 +165,54 @@ describe('machine detail translations', () => {
     const machines = data.machines as Record<string, string>;
     for (const key of ['deleteMachineMessage', 'openDetails']) {
       expect(machines[key], `Locale "${code}" machines.${key} lost {{name}}`).toContain('{{name}}');
+    }
+  });
+});
+
+describe('fleet module translations', () => {
+  const ptBRFleetKeys = Object.keys(ptBR.fleet).sort();
+
+  it.each(ALL_LOCALES)('locale $code has the same fleet keys as pt-BR, all non-empty', ({ code, data }) => {
+    const fleet = data.fleet as Record<string, string>;
+    expect(Object.keys(fleet).sort(), `Locale "${code}" fleet keys differ from pt-BR`).toEqual(ptBRFleetKeys);
+    for (const [key, value] of Object.entries(fleet)) {
+      expect(value, `Locale "${code}" fleet.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps the interpolation placeholders', ({ code, data }) => {
+    const fleet = data.fleet as Record<string, string>;
+    for (const key of ['deleteCategoryMessage', 'addMachines', 'moreActions', 'removeChip']) {
+      expect(fleet[key], `Locale "${code}" fleet.${key} lost {{name}}`).toContain('{{name}}');
+    }
+    for (const key of ['machineCount', 'cardMinutes', 'cardHours']) {
+      expect(fleet[key], `Locale "${code}" fleet.${key} lost {{count}}`).toContain('{{count}}');
+    }
+  });
+});
+
+describe('loading and notification translations', () => {
+  const KEYS: Record<string, string[]> = {
+    common: ['loading', 'closeNotification'],
+    machines: ['toastCreated', 'toastSaved', 'toastDeleted'],
+    team: [
+      'toastEmployeeCreated',
+      'toastEmployeeSaved',
+      'toastEmployeeDeleted',
+      'toastSectorCreated',
+      'toastSectorSaved',
+      'toastSectorDeleted',
+    ],
+    fleet: ['toastCategoryCreated', 'toastCategoryDeleted', 'toastMachinesAdded', 'toastMachineRemoved'],
+  };
+
+  it.each(ALL_LOCALES)('locale $code has every key, non-empty, with {{name}} in notifications', ({ code, data }) => {
+    for (const [mod, keys] of Object.entries(KEYS)) {
+      const module = (data as Record<string, Record<string, string>>)[mod];
+      for (const key of keys) {
+        expect(module[key], `Locale "${code}" ${mod}.${key} is missing or empty`).toBeTruthy();
+        if (key.startsWith('toast')) expect(module[key], `Locale "${code}" ${mod}.${key} lost {{name}}`).toContain('{{name}}');
+      }
     }
   });
 });

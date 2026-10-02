@@ -6,7 +6,9 @@
     "register": "Регистрация",
     "cancel": "Отмена",
     "save": "Сохранить",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "loading": "Загрузка...",
+    "closeNotification": "Закрыть уведомление"
   },
   "navigation": {
     "overview": "Обзор",
@@ -56,7 +58,10 @@
     "editLabelMac": "Mac-адрес",
     "deleteMachineTitle": "Удалить машину",
     "deleteMachineMessage": "Удалить {{name}}? Это действие нельзя отменить.",
-    "openDetails": "Подробности: {{name}}"
+    "openDetails": "Подробности: {{name}}",
+    "toastCreated": "Машина «{{name}}» добавлена",
+    "toastSaved": "Машина «{{name}}» сохранена",
+    "toastDeleted": "Машина «{{name}}» удалена"
   },
   "alerts": {
     "accidents": "Аварии",
@@ -117,7 +122,13 @@
     "deleteEmployeeTitle": "Удалить сотрудника",
     "deleteSectorTitle": "Удалить сектор",
     "deleteMessage": "Удалить {{name}}? Это действие нельзя отменить.",
-    "delete": "Удалить"
+    "delete": "Удалить",
+    "toastEmployeeCreated": "Сотрудник «{{name}}» добавлен",
+    "toastEmployeeSaved": "Сотрудник «{{name}}» сохранён",
+    "toastEmployeeDeleted": "Сотрудник «{{name}}» удалён",
+    "toastSectorCreated": "Участок «{{name}}» добавлен",
+    "toastSectorSaved": "Участок «{{name}}» сохранён",
+    "toastSectorDeleted": "Участок «{{name}}» удалён"
   },
   "languages": {
     "title": "Выберите язык",
@@ -216,6 +227,10 @@
     "detailEmployee": "Сотрудник",
     "detailSessionUsage": "Время использования (сессия)",
     "tabRepairs": "История ремонтов",
-    "tabAlerts": "История оповещений"
+    "tabAlerts": "История оповещений",
+    "toastCategoryCreated": "Категория «{{name}}» создана",
+    "toastCategoryDeleted": "Категория «{{name}}» удалена",
+    "toastMachinesAdded": "Машины добавлены в «{{name}}»",
+    "toastMachineRemoved": "{{name}} убрана из категории"
   }
 }
