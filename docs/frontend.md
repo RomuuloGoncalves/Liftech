@@ -11,11 +11,10 @@ src/
 ├── assets/         # Imagens estáticas (logo, hero, ícones)
 ├── components/
 │   ├── common/     # Peças genéricas: Modal, ConfirmDialog
-│   ├── fleet/      # Kanban da Frota: FleetRow, FleetCard, CategoryFormModal, MachinePickerModal
 │   ├── layout/     # Casca da aplicação: Sidebar, Header
 │   ├── machines/   # Domínio de máquinas: MachineCard, NewMachinePanel, MachineDetailModal
 │   └── team/       # Domínio de equipe e setores: cards e modais de funcionário e setor
-├── data/           # Módulos de dados mock, um por domínio (machines.ts, team.ts, fleet.ts)
+├── data/           # Módulos de dados mock, um por domínio (machines.ts, team.ts)
 ├── utils/          # Funções puras (format.ts: data, duração e horas com Intl)
 ├── pages/          # Telas da aplicação (uma por rota)
 ├── routes/         # Definição de rotas com React Router
@@ -49,16 +48,13 @@ Componentes visuais reutilizáveis da interface, organizados por domínio (hoje 
 Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome (ver a seção "Estilização" abaixo).
 
 ### `src/pages/`
-Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `AlertasPage` ainda é um placeholder que só marca a existência da rota. `FrotaPage` (rota `/frota`) é o kanban horizontal da frota: uma linha por categoria, cards arrastáveis entre linhas, criação e exclusão de categorias e inclusão de máquinas sem categoria. `VisaoGeralPage` (rota `/`) mostra o grid de máquinas, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage` ainda é placeholder que só marca a existência da rota. `AlertasPage` (rota `/alertas`) lista um card por acidente do mock (reusa o `FleetCard` de acidente, com o nível de urgência derivado da causa via `ACCIDENT_URGENCY`), com busca por nome ou código da máquina, filtro de período e o `MachineDetailModal` na variante `alerts`. `VisaoGeralPage` (rota `/`) mostra o grid de máquinas, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
 
 ### `src/data/`
-Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status), os eventos de histórico (`MACHINE_EVENTS`, `eventsForMachine`) e `filterEvents` (tipo + período). `team.ts` faz o mesmo para `Employee` e `Sector`. `fleet.ts` guarda o modelo do quadro da Frota (`FleetCategory`: id, tipo, nome, cor e a lista ordenada de `machineIds`), a posição inicial (`initialBoard`) e todas as transformações como funções puras que devolvem um novo array (`moveMachine`, `removeMachine`, `addMachines`, `createCategory`, `deleteCategory`), além da validação do nome e da cor. Cada máquina fica em no máximo uma categoria; mover não altera o status da máquina. A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
+Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status), os eventos de histórico (`MACHINE_EVENTS`, `eventsForMachine`) e `filterEvents` (tipo + período). `team.ts` faz o mesmo para `Employee` e `Sector`. A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
 
 ### `src/components/machines/`
 `MachineCard` renderiza um card da Visão Geral com os dados de uma `Machine` (nome, código, setor, endereço MAC, operador quando existir, status e tempo de sessão). `NewMachinePanel` é o formulário de cadastro aberto pelo botão "Cadastrar Máquina": um drawer lateral a partir de 768px e tela cheia abaixo disso, sem chamada de API (o submit só adiciona a máquina à lista em memória da página). Decisão registrada em `.specs/STATE.md` (AD-005). Com a prop `machine`, o mesmo painel vira "Editar Máquina". `MachineDetailModal` abre ao clicar num card (o título do card é um botão esticado sobre ele, para não aninhar botões): mostra status, código, MAC, setor, tempo de uso total, nome do dispositivo e o histórico de acidentes e de manutenção, com abas e filtro de período. O rodapé tem Editar e Excluir; enquanto o drawer de edição ou a confirmação de exclusão está aberto, o modal de detalhe sai da tela e volta ao fechar, para o Escape fechar só a camada de cima.
-
-### `src/components/fleet/`
-`FleetRow` é uma categoria do kanban: rótulo colorido com contador, busca própria, período (só na linha Acidentes, filtrando pela data do último acidente), "Excluir categoria" (só nas categorias criadas), cards com rolagem horizontal e o "+" que abre `MachinePickerModal` com as máquinas sem categoria. `FleetCard` muda os campos conforme o tipo da linha e é arrastável; o arrasto usa a API nativa de drag and drop do HTML (o id arrastado fica num `useRef` da `FrotaPage`), sem biblioteca. Como o drag nativo não funciona com teclado nem toque, o menu ⋮ do card oferece "Mover para" e "Remover da categoria" para o mesmo fluxo. `CategoryFormModal` cria a categoria (nome + cor das 7 prontas ou hex); o popover de cores usa `position: fixed` porque o `Modal` tem `overflow` e o cortaria. `MachineDetailModal` ganhou `variant="fleet"` (linhas Setor, Funcionário, Tempo Uso (Sessão), Nome Dispositivo; abas de reparos e alertas; sem Editar/Excluir).
 
 ### `src/components/common/`
 `Modal` é a casca de diálogo (backdrop, Escape, `role="dialog"`, botão fechar) e aceita `badge` (ao lado do título) e `footer` (faixa inferior). `ConfirmDialog` é a confirmação de exclusão sobre o `Modal`. `DialogButtons.module.css` guarda os botões Cancelar/Confirmar compartilhados.
@@ -67,7 +63,7 @@ Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não 
 `EmployeeCard` e `SectorCard` (área clicável separada das ações), `EmployeeFormModal` e `SectorFormModal` (cadastro e edição, validação no submit), `EmployeeInfoModal` e `SectorInfoModal` (somente leitura). `TeamForm.module.css` concentra o estilo dos campos.
 
 ### `src/utils/`
-`format.ts` formata data do evento ("Dom, 14 setembro 2025"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
+`format.ts` formata data do evento ("Dom, 14 setembro 2025"), data do alerta ("23 Janeiro 2026"), duração arredondada ao minuto e horas, sempre no idioma ativo via `Intl`.
 
 ### `src/routes/`
 Centraliza as rotas com `react-router-dom` em um único `<Routes>` (`appRoutes.tsx`). `App.tsx` monta esse roteador dentro do shell visual da aplicação; o `BrowserRouter` em si vive em `main.tsx`, fora de `App`, para manter `App.tsx` testável sem precisar reconfigurar o router a cada teste.
