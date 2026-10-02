@@ -1,0 +1,144 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  min-width: min(400px, 100%);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.colorWrap {
+  position: relative;
+}
+
+.colorButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -75px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 118px;
+  padding: 18px 8px 8px;
+  box-sizing: border-box;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.popoverClose {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.swatches {
+  display: flex;
+  justify-content: space-between;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.swatch[aria-pressed='true'] {
+  outline: 1px solid var(--text-h);
+  outline-offset: 1px;
+}
+
+.hex {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 14px;
+  padding: 0 6px;
+  border: 1px solid #dedede;
+  border-radius: 7px;
+  font-size: 5px;
+  color: #9a9a9a;
+}
+
+.hex .dot {
+  width: 5px;
+  height: 5px;
+}
+
+.hex input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 5px;
+  color: var(--text-h);
+}
+
+.nameField {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nameInput {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #dedede;
+  border-radius: 3px;
+  background: #f7f7f7;
+  font: inherit;
+  font-size: 11px;
+  color: var(--text-h);
+}
+
+.nameInput::placeholder {
+  color: #b5b5b5;
+}
+
+.nameInput[aria-invalid='true'] {
+  border-color: #ef4444;
+}
+
+.error {
+  font-size: 11px;
+  color: #ef4444;
+}
