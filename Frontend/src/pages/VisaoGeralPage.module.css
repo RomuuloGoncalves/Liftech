@@ -85,8 +85,7 @@
 
 .statusSelect {
   flex-shrink: 0;
-  padding: 10px 12px;
-  padding-left: 36px;
+  padding: 10px 12px 10px 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);

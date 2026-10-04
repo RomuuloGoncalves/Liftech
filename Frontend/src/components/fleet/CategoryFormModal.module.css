@@ -41,7 +41,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  width: 118px;
+  width: 200px;
   padding: 18px 8px 8px;
   box-sizing: border-box;
   border: 1px solid #e3e3e3;
@@ -49,6 +49,7 @@
   background: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   animation: menu-in 120ms ease-out;
+  transform: translateX(-40%);
 }
 
 .popoverClose {
@@ -66,11 +67,12 @@
 .swatches {
   display: flex;
   justify-content: space-between;
+  padding: 10px;
 }
 
 .swatch {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -87,16 +89,16 @@
   align-items: center;
   gap: 6px;
   height: 14px;
-  padding: 0 6px;
+  padding: 8px 12px;
   border: 1px solid #dedede;
   border-radius: 7px;
-  font-size: 5px;
+  font-size: 10px;
   color: #9a9a9a;
 }
 
 .hex .dot {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 
 .hex input {
@@ -106,7 +108,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: 5px;
+  font-size: 10px;
   color: var(--text-h);
 }
 
