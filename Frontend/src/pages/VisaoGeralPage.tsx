@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Copy } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import PageSkeleton from '../components/common/PageSkeleton'
@@ -103,10 +103,6 @@ const VisaoGeralPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <div className={styles.toolbar}>
-        <button type="button" className={styles.registerButton} onClick={() => setIsPanelOpen(true)}>
-          <Plus size={16} />
-          {t('machines.registerButton')}
-        </button>
 
         <div className={styles.searchField}>
           <Search size={16} className={styles.searchIcon} aria-hidden="true" />
@@ -120,19 +116,28 @@ const VisaoGeralPage: React.FC = () => {
           />
         </div>
 
-        <select
-          className={styles.statusSelect}
-          aria-label="Filtrar máquinas por status"
-          value={status}
-          onChange={(event) => setStatus(event.target.value as StatusFilter)}
-        >
-          <option value="Todos">{t('machines.filterDefault')}</option>
-          {MACHINE_STATUSES.map((option) => (
-            <option key={option} value={option}>
-              {getStatusTranslation(option)}
-            </option>
-          ))}
-        </select>
+        <div className={styles.selectWrapper}>
+          <Copy size={16} className={styles.selectLeftIcon} aria-hidden="true" />
+
+          <select
+            className={styles.statusSelect}
+            aria-label="Filtrar máquinas por status"
+            value={status}
+            onChange={(event) => setStatus(event.target.value as StatusFilter)}
+          >
+            <option value="Todos">{t('machines.filterDefault')}</option>
+            {MACHINE_STATUSES.map((option) => (
+              <option key={option} value={option}>
+                {getStatusTranslation(option)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button type="button" className={styles.registerButton} onClick={() => setIsPanelOpen(true)}>
+          <Plus size={16} />
+          {t('machines.registerButton')}
+        </button>
       </div>
 
       {machines.length === 0 ? (

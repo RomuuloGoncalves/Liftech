@@ -70,13 +70,26 @@
   outline-offset: 1px;
 }
 
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selectLeftIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text);
+  pointer-events: none;
+}
+
 .statusSelect {
   flex-shrink: 0;
-  padding: 10px 12px;
+  padding: 10px 12px 10px 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--text-h);
+  color: var(--text);
   font-size: 14px;
   cursor: pointer;
 }

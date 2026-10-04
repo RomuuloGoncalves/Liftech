@@ -17,7 +17,7 @@ const STATUS_CLASS: Record<Machine['dispositivoConectado']['status'], string> = 
 }
 
 function formatTempoSessao(minutos: number): string {
-  return `${minutos} min`
+  return `${minutos} minutos`
 }
 
 const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
@@ -35,9 +35,6 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
     <article className={styles.card}>
       <div className={styles.topRow}>
         <div className={styles.identity}>
-          <span className={styles.icon}>
-            <Forklift size={20} />
-          </span>
           <div className={styles.names}>
             <h3 className={styles.nome}>
               {onOpen ? (
@@ -70,17 +67,6 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
           <dt>{t('machines.labelMac')}:</dt>
           <dd>{dispositivoConectado.enderecoMac}</dd>
         </div>
-        {operadorConectado ? (
-          <div className={styles.detailRow}>
-            <dt>{t('machines.operator')}:</dt>
-            <dd>{operadorConectado.nome}</dd>
-          </div>
-        ) : (
-          <div className={styles.detailRow}>
-            <dt>{t('machines.operator')}:</dt>
-            <dd className={styles.emptyOperator}>{t('machines.noOperator')}</dd>
-          </div>
-        )}
       </dl>
 
       <div className={styles.bottomRow}>
