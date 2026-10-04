@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { CirclePlus, Plus, Search } from 'lucide-react'
+import { CirclePlus, Plus, Search, Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import PageSkeleton from '../components/common/PageSkeleton'
@@ -114,7 +114,7 @@ const FrotaPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page}> 
         <PageSkeleton variant="kanban" />
       </div>
     )
@@ -123,10 +123,6 @@ const FrotaPage: React.FC = () => {
   return (
     <div className={styles.page} onDragEnd={endDrag}>
       <div className={styles.toolbar}>
-        <button type="button" className={styles.createButton} onClick={() => setDialog({ type: 'create' })}>
-          <Plus size={16} />
-          {t('fleet.createCategoryButton')}
-        </button>
         <label className={styles.search}>
           <Search size={16} aria-hidden="true" />
           <input
@@ -137,19 +133,26 @@ const FrotaPage: React.FC = () => {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        <select
-          className={styles.filter}
-          aria-label={t('fleet.filterLabel')}
-          value={categoryFilter}
-          onChange={(event) => setCategoryFilter(event.target.value)}
-        >
-          <option value="all">{t('fleet.filterAll')}</option>
-          {board.map((category) => (
-            <option key={category.id} value={category.id}>
-              {labelOf(category)}
-            </option>
-          ))}
-        </select>
+        <div className={styles.selectWrapper}>
+          <Copy size={16} className={styles.selectLeftIcon} aria-hidden="true" />
+          <select
+            className={styles.filter}
+            aria-label={t('fleet.filterLabel')}
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+          >
+            <option value="all">{t('fleet.filterAll')}</option>
+            {board.map((category) => (
+              <option key={category.id} value={category.id}>
+                {labelOf(category)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button type="button" className={styles.createButton} onClick={() => setDialog({ type: 'create' })}>
+          <Plus size={16} />
+          {t('fleet.createCategoryButton')}
+        </button>
       </div>
 
       <div className={styles.rows}>
