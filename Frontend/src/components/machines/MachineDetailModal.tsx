@@ -165,6 +165,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
         </div>
         <div className={styles.period}>
           <Calendar size={12} aria-hidden="true" />
+          <span className={styles.dateLabel} > Date:</span>
           <input
             type="date"
             className={styles.dateInput}

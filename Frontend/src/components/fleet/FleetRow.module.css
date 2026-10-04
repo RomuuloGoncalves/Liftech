@@ -37,6 +37,7 @@
   border-radius: calc(2 * var(--px, 1px));
   background: color-mix(in srgb, var(--category-color) 25%, #fff);
   font-size: calc(8 * var(--px, 1px));
+  border-left: 2px solid var(--category-color, #ef4444);
 }
 
 .labelIcon {
@@ -58,7 +59,7 @@
   border: 1px solid color-mix(in srgb, var(--category-color) 40%, #fff);
   border-radius: calc(2 * var(--px, 1px));
   background: #fff;
-  font-size: calc(5 * var(--px, 1px));
+  font-size: 8px;
   line-height: calc(8 * var(--px, 1px));
   text-align: center;
   color: var(--text);
@@ -105,25 +106,34 @@
 }
 
 .period {
-  display: flex;
+  border: 0.5px solid var(--border);
+  border-radius: 5px;
+  background: #fafafa;
+  height: 25px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--bg-sidebar);
+  display: inline-flex;
   align-items: center;
-  gap: calc(4 * var(--px, 1px));
-  height: calc(24 * var(--px, 1px));
-  box-sizing: border-box;
-  padding: 0 calc(8 * var(--px, 1px));
-  border: 1px solid #d9d9d9;
-  border-radius: calc(2 * var(--px, 1px));
-  font-size: calc(7 * var(--px, 1px));
-  color: var(--text-h);
+  gap: 6px;
+  margin-left: auto;
+  padding: 0px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .period input {
-  width: calc(72 * var(--px, 1px));
+  padding: 0;
   border: none;
   background: transparent;
   font: inherit;
-  font-size: calc(7 * var(--px, 1px));
-  color: var(--text-h);
+  font-weight: 400;
+  color: var(--text);
+  width: 60px;
+}
+
+.period input::-webkit-calendar-picker-indicator {
+  display: none;
 }
 
 .deleteButton {

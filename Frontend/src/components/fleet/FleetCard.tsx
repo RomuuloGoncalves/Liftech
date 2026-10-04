@@ -110,7 +110,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
     >
       <div className={styles.topRow}>
         <span className={styles.icon}>
-          <Forklift size={20} />
+          <Forklift size={30} />
         </span>
         <div className={styles.names}>
           <h3 className={styles.nome}>

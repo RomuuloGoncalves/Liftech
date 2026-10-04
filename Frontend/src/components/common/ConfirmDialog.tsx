@@ -15,7 +15,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ title, message, onConfirm
   const { t } = useTranslation()
 
   return (
-    <Modal title={title} onClose={onCancel}>
+    <Modal title={title} onClose={onCancel}> 
       <p className={styles.message}>{message}</p>
       <div className={buttons.actions}>
         <button type="button" className={buttons.cancel} onClick={onCancel}>
