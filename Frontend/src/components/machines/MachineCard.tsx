@@ -1,5 +1,5 @@
 import React from 'react'
-import { Forklift, MoreVertical } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
 import styles from './MachineCard.module.css'
@@ -22,7 +22,7 @@ function formatTempoSessao(minutos: number): string {
 
 const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
   const { t } = useTranslation()
-  const { identificacao, nome, setor, dispositivoConectado, operadorConectado, tempoSessaoMinutos } = machine
+  const { identificacao, nome, setor, dispositivoConectado, tempoSessaoMinutos } = machine
 
   const getStatusTranslation = (status: string) => {
     if (status === 'Disponível') return t('machines.statusAvailable')

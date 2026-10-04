@@ -232,5 +232,9 @@
     "toastCategoryDeleted": "カテゴリー「{{name}}」を削除しました",
     "toastMachinesAdded": "「{{name}}」に機械を追加しました",
     "toastMachineRemoved": "{{name}} をカテゴリーから外しました"
+  },
+  "notFound": {
+    "description": "お探しのページは存在しないか、移動しました。",
+    "backHome": "ホームに戻る"
   }
 }
