@@ -8,8 +8,8 @@
 }
 
 .statusAvailable {
-  color: #3a9cff;
-  border-color: #3a9cff;
+  color: var(--accent);
+  border-color: var(--accent);
   background: rgba(58, 156, 255, 0.25);
 }
 
@@ -56,7 +56,7 @@
   margin: 0;
   padding: 0;
   border: 0.5px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: #fafafa;
   list-style: none;
 }
@@ -70,7 +70,7 @@
   color: var(--text);
 }
 
-.infoRow + .infoRow {
+.infoRow+.infoRow {
   border-top: 0.5px solid var(--border);
 }
 
@@ -89,18 +89,19 @@
 .infoLabel {
   flex: 1;
   font-weight: 500;
+  font-size: 12px;
 }
 
 .infoValue {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-align: right;
 }
 
 .controls {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px 12px;
 }
 
@@ -125,17 +126,19 @@
 }
 
 .tabActive {
-  border-color: #3a9cff;
-  background: #3a9cff;
+  border-color: var(--accent);
+  background: var(--accent);
   color: #fff;
 }
 
 .period {
+  background: var(--bg-sidebar);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   margin-left: auto;
   padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .dateInput {
@@ -145,13 +148,18 @@
   font: inherit;
   font-weight: 400;
   color: var(--text);
+  width: 60px;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  display: none;
 }
 
 .history {
   max-height: 232px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #3a9cff #fafafa;
+  scrollbar-color: var(--accent) #fafafa;
 }
 
 .timeline {
@@ -171,7 +179,7 @@
   bottom: 6px;
   left: 3px;
   width: 1px;
-  background: #3a9cff;
+  background: #ddd;
 }
 
 .event {
@@ -182,21 +190,40 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--text);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 2px;
+  max-width: 270px;
+  padding: 7px;
+}
+
+.event:first-child {
+  color: var(--text);
+  background: #fafafa;
+  border-color: var(--border);
 }
 
 .event::before {
   content: '';
   position: absolute;
   top: 4px;
-  left: -30px;
+  left: -31px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #3a9cff;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--accent);
 }
 
 .operator {
   font-weight: 700;
+  color: #fff;
+}
+
+.event:first-child .operator {
   color: var(--text-h);
 }
 
@@ -222,7 +249,7 @@
 }
 
 .edit {
-  background: #3a9cff;
+  background: var(--accent);
 }
 
 .delete {
