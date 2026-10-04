@@ -35,7 +35,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--text-h);
+  color: var(--text);
 }
 
 .names {
@@ -47,10 +47,10 @@
 
 .nome {
   margin: 0;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 130%;
-  color: var(--text-h);
+  color: var(--accent);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -82,7 +82,7 @@
 }
 
 .identificacao {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text);
 }
 
@@ -117,8 +117,10 @@
 
 .detailRow {
   display: flex;
+  flex-direction: column;
   gap: 4px;
   overflow: hidden;
+  font-size: 10px;
 }
 
 .detailRow dt {
@@ -128,10 +130,11 @@
 
 .detailRow dd {
   margin: 0;
+  font-size: 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-h);
+  color: var(--text);
 }
 
 .bottomRow {
@@ -144,8 +147,8 @@
 
 .statusBadge {
   flex-shrink: 0;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  padding: 4px 18px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
   font-size: 12px;
   font-weight: 500;
@@ -153,21 +156,21 @@
 }
 
 .statusAvailable {
-  color: #15803d;
+  color: #16a34a;
+  background: #dcfce7;
   border-color: #bbf7d0;
-  background: #f0fdf4;
 }
 
 .statusInUse {
-  color: #3a9cff;
-  border-color: #bfdbfe;
-  background: #eff6ff;
+  color: var(--accent);
+  background: #e0f2fe;
+  border-color: #bae6fd;
 }
 
 .statusMaintenance {
-  color: #b45309;
-  border-color: #fde68a;
-  background: #fffbeb;
+  color: #ef4444;
+  background: #fee2e2;
+  border-color: #fecaca;
 }
 
 .statusOffline {
@@ -177,12 +180,16 @@
 }
 
 .session {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
   font-size: 12px;
   color: var(--text);
   white-space: nowrap;
 }
 
 .session strong {
-  color: var(--text-h);
+  color: var(--text);
   font-weight: 600;
+  font-size: 20px;
 }
