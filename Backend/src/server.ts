@@ -5,6 +5,7 @@ import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
 import forkliftRouter from './feature/forklift/forkliftRouter.js';
 import userRouter from './feature/user/userRouter.js';
+import { StatusCode, respostaSucesso, respostaErro } from "./utils/responseHandler.js";
 
 const app = express();
 
@@ -41,11 +42,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.post('/auth/login', (req, res) => {
-  console.log("Variável recebida no backend:", req.body);
-  res.json({
-    mensagem: "Rota de login acessada com sucesso!",
-    dadosQueChegaram: req.body
-  });
+  respostaSucesso(res, StatusCode.OK, req.body)
 });
 
 app.use('/api/forklifts', forkliftRouter);
