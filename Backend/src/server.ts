@@ -40,6 +40,14 @@ app.get('/api/health', (req, res) => {
   }
 });
 
+app.post('/auth/login', (req, res) => {
+  console.log("Variável recebida no backend:", req.body);
+  res.json({
+    mensagem: "Rota de login acessada com sucesso!",
+    dadosQueChegaram: req.body
+  });
+});
+
 app.use('/api/forklifts', forkliftRouter);
 app.use('/api/users', userRouter);
 
