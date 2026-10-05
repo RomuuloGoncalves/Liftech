@@ -5,6 +5,7 @@ import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
 import forkliftRouter from './feature/forklift/forkliftRouter.js';
 import userRouter from './feature/user/userRouter.js';
+import { StatusCode, respostaSucesso, respostaErro } from "./utils/responseHandler.js";
 
 const app = express();
 
@@ -38,6 +39,10 @@ app.get('/api/health', (req, res) => {
   } else {
     res.status(200).json({ ok: true, lastPing: displayLastPing });
   }
+});
+
+app.post('/auth/login', (req, res) => {
+  respostaSucesso(res, StatusCode.OK, req.body)
 });
 
 app.use('/api/forklifts', forkliftRouter);
