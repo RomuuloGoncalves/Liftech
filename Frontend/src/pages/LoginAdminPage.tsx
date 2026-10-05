@@ -99,13 +99,8 @@ const LoginAdminPage: React.FC = () => {
         <button type="button" className={authStyles.forgotLink}>
           <Trans i18nKey="auth.forgotPassword" components={{ b: <strong /> }} />
         </button>
-
-        <button 
-          type="submit" 
-          className={`${authStyles.submitButton} ${authStyles.loginSubmit}`}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Entrando...' : t('auth.enterButton')}
+        <button type="submit" disabled={isLoading} className={`${authStyles.submitButton} ${authStyles.loginSubmit}`}>
+          {t('auth.enterButton')}
         </button>
         
         <Link to="/login/colaborador" className={authStyles.crossLink}>

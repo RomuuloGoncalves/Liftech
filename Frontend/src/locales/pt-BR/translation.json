@@ -234,5 +234,9 @@
     "toastCategoryDeleted": "Categoria \"{{name}}\" excluída",
     "toastMachinesAdded": "Máquinas adicionadas a \"{{name}}\"",
     "toastMachineRemoved": "{{name}} removida da categoria"
+  },
+  "notFound": {
+    "description": "A página que você está procurando não existe ou foi movida.",
+    "backHome": "Voltar para o início"
   }
 }
