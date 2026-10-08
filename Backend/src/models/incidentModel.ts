@@ -1,11 +1,26 @@
-export class incidentModel {
-    private dataIncidente: Date;
-    private forcaImpacto: number;
-    private status: string;
-    private empilhadeiraId: string;
-    private operadorId: string;
+import { coreModel } from "../core/coreModel.js";
 
-    constructor(dataIncidente: Date, forcaImpacto: number, status: string, empilhadeiraId: string, operadorId: string) {
+export const STATUS_VALIDOS = ["aberto", "em_analise", "resolvido"] as const;
+export type StatusIncidente = (typeof STATUS_VALIDOS)[number];
+
+export class incidentModel extends coreModel {
+    protected id: string | undefined;
+    protected dataIncidente: Date;
+    protected forcaImpacto: number;
+    protected status: StatusIncidente;
+    protected empilhadeiraId: string | undefined;
+    protected operadorId: string | undefined;
+
+    constructor(
+        dataIncidente: Date,
+        forcaImpacto: number,
+        status: StatusIncidente,
+        empilhadeiraId?: string,
+        operadorId?: string,
+        id?: string
+    ) {
+        super();
+        this.id = id;
         this.dataIncidente = dataIncidente;
         this.forcaImpacto = forcaImpacto;
         this.status = status;
@@ -13,69 +28,58 @@ export class incidentModel {
         this.operadorId = operadorId;
     }
 
-    
     obterDados(): Record<string, unknown> {
-    return {
-        dataIncidente: this.dataIncidente,
-        forcaImpacto: this.forcaImpacto,
-        status: this.status,
-        empilhadeiraId: this.empilhadeiraId,
-        operadorId: this.operadorId
-    }
-    }
-
-    protected setDataIncidente(value: Date): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.dataIncidente = value;
+        return {
+            ...(this.id ? { _id: this.id } : {}),
+            dataIncidente: this.dataIncidente,
+            forcaImpacto: this.forcaImpacto,
+            status: this.status,
+            empilhadeiraId: this.empilhadeiraId,
+            operadorId: this.operadorId
+        };
     }
 
-    protected getDataIncidente(): Date {
+    public getID(): string | undefined {
+        return this.id;
+    }
+
+    public getDataIncidente(): Date {
         return this.dataIncidente;
     }
 
-    protected setForcaImpacto(value: number): number | void {
-        if (value === undefined || value === null) {
-            return 0;
-        }
-        this.forcaImpacto = value;
-    }
-
-    protected getForcaImpacto(): number {
+    public getForcaImpacto(): number {
         return this.forcaImpacto;
     }
 
-    protected setStatus(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.status = value;
-    }
-
-    protected getStatus(): string {
+    public getStatus(): StatusIncidente {
         return this.status;
     }
 
-    protected setEmpilhadeiraId(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.empilhadeiraId = value;
-    }
-
-    protected getEmpilhadeiraId(): string {
+    public getEmpilhadeiraId(): string | undefined {
         return this.empilhadeiraId;
     }
 
-    protected setOperadorId(value: string): number | void {
-        if (!value) {
-            return 0;
-        }
-        this.operadorId = value;
+    public getOperadorId(): string | undefined {
+        return this.operadorId;
     }
 
-    protected getOperadorId(): string {
-        return this.operadorId;
+    public setDataIncidente(value: Date): void {
+        this.dataIncidente = value;
+    }
+
+    public setForcaImpacto(value: number): void {
+        this.forcaImpacto = value;
+    }
+
+    public setStatus(value: StatusIncidente): void {
+        this.status = value;
+    }
+
+    public setEmpilhadeiraId(value: string): void {
+        this.empilhadeiraId = value;
+    }
+
+    public setOperadorId(value: string): void {
+        this.operadorId = value;
     }
 }
