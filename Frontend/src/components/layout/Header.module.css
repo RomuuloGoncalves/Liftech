@@ -18,6 +18,7 @@
   white-space: nowrap;
   font-size: var(--fs-2xl);
   font-weight: 500;
+  line-height: 1.25;
   color: var(--text-h);
 }
 
