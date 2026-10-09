@@ -7,6 +7,7 @@ import { getHealthTemplate } from './utils/healthTemplate.js';
 import forkliftRouter from './feature/forklift/forkliftRouter.js';
 import userRouter from './feature/user/userRouter.js';
 import authRouter from './feature/auth/authRouter.js';
+import accessRequestRouter from './feature/accessRequest/accessRequestRouter.js';
 import { seedAdmin } from './scripts/seedAdmin.js';
 
 const app = express();
@@ -47,6 +48,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/forklifts', forkliftRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/access-requests', accessRequestRouter);
 
 if (process.argv.includes('--seed')) {
   await seedAdmin();
