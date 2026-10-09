@@ -1,23 +1,33 @@
 import api from './api';
-import type { AxiosPromise } from 'axios';
 
-export interface LoginRequest {
-  email: string;
-  senha: string;
+export type RoleLogin = 'admin' | 'colaborador';
+
+export interface UsuarioLogado {
+  _id: string;
+  nome: string;
+  role: RoleLogin;
 }
 
-export interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    nome: string;
-    email: string;
-  };
-  message?: string;
+export interface SolicitacaoAcesso {
+  email: string;
+  nomeEmpresa: string;
+  nomeAdministrador: string;
 }
 
 export const authService = {
-  loginAdmin: (dados: LoginRequest): AxiosPromise<LoginResponse> => {
-    return api.post<LoginResponse>('/auth/login', dados);
+  async login(role: RoleLogin, login: string, senha: string): Promise<UsuarioLogado> {
+    const { data } = await api.post<{ token: string; user: UsuarioLogado }>('/auth/login', { role, login, senha });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    return data.user;
+  },
+
+  async solicitarAcesso(dados: SolicitacaoAcesso): Promise<void> {
+    await api.post('/access-requests', dados);
+  },
+
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
 };
