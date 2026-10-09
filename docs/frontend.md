@@ -100,6 +100,8 @@ Não há Tailwind nem outra lib de UI instalada (ver "Estilização" a seguir).
 
 O projeto usa **CSS Modules**, não Tailwind. `index.css` concentra os tokens globais (cores, tipografia, espaçamento) como CSS custom properties (`--text`, `--bg`, `--border`, `--accent`, etc.) em `:root`, para reaproveitar em qualquer componente. Animações e transições usam CSS puro; uma regra global em `index.css` as desliga para quem ativa `prefers-reduced-motion`. Hoje só existe o tema claro: o bloco `@media (prefers-color-scheme: dark)` foi removido para acompanhar o Figma, que ainda não tem uma versão dark aprovada (decisão AD-003 em `.specs/STATE.md`).
 
+Tamanho de fonte sempre vem da escala única de `index.css`: `--fs-xs` (11px, rótulos e IDs), `--fs-sm` (12px, metadados e navegação), `--fs-md` (13px, valores e campos), `--fs-base` (14px, corpo e botões), `--fs-lg` (16px, títulos de card), `--fs-xl` (18px, títulos de seção e modal), `--fs-2xl` (24px, título de página) e `--fs-3xl` (32px, títulos das telas de auth). Nada abaixo de 11px. Em Frota e Alertas, que escalam com a largura, o padrão é `calc(N * var(--px, 1px))` com N igual a um desses passos.
+
 Um componente com estilo próprio ganha um arquivo `NomeDoComponente.module.css` ao lado do `.tsx`, importado como `import styles from './NomeDoComponente.module.css'`. Isso dá escopo automático (sem colisão de nomes de classe entre componentes) sem precisar de nenhuma dependência extra. A `Sidebar` (`components/layout/Sidebar.tsx` + `Sidebar.module.css`) é a referência atual desse padrão.
 
 ---
