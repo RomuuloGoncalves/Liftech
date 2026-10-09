@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 2,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "surviving_mutant::assert inclusive range boundaries with dates equal to the bounds not only far outside values",
+      "text": "Assert inclusive range boundaries with dates equal to the bounds, not only far-outside values",
+      "signal": "surviving_mutant",
+      "scope": "fleet-filters",
+      "status": "candidate",
+      "features": [
+        "fleet-kanban"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FilterRow period bounds M8 (fleet-filters)"
+      ],
+      "created": "2026-10-02T12:06:43Z",
+      "last_seen": "2026-10-02T12:06:43Z"
+    }
+  ]
+}
