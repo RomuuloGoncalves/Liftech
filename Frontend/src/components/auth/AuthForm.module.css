@@ -72,62 +72,6 @@
   cursor: default;
 }
 
-.crossLink {
-  align-self: center;
-  margin-top: -4px;
-  font-size: 11px;
-  color: #3a9cff;
-  text-decoration: none;
-}
-
-.crossLink:hover {
-  text-decoration: underline;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 3px;
-  color: #666;
-  font-size: 9px;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #d6d6d6;
-}
-
-.secondaryRow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 11px;
-}
-
-.secondaryLabel {
-  font-size: 10px;
-  color: #3a9cff;
-}
-
-.secondaryButton {
-  width: 175px;
-  height: 24px;
-  line-height: 22px;
-  box-sizing: border-box;
-  border: 1px solid #e3e3e3;
-  border-radius: 3px;
-  background: #fff;
-  color: #3a9cff;
-  font-size: 10px;
-  font-weight: 600;
-  text-align: center;
-  text-decoration: none;
-}
-
 .successBox {
   display: flex;
   flex-direction: column;
