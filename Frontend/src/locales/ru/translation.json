@@ -18,7 +18,8 @@
     "notFound": "Страница не найдена",
     "pages": "Страницы",
     "feedback": "Отзывы и предложения",
-    "privacy": "Политика конфиденциальности"
+    "privacy": "Политика конфиденциальности",
+    "logout": "Выйти"
   },
   "machines": {
     "registerButton": "Зарегистрировать машину",
@@ -151,9 +152,7 @@
     "passwordLabel": "Пароль",
     "passwordPlaceholder": "Введите ваш пароль",
     "enterButton": "Войти",
-    "forgotPassword": "Забыли пароль? <b>Нажмите здесь</b>",
-    "collaboratorLink": "Сотрудник? <b>Нажмите здесь!</b>",
-    "administratorLink": "Администратор? <b>Нажмите здесь!</b>",
+    "forgotPassword": "Забыли пароль? <b>Нажмите здесь!</b>",
     "signupTitle": "Добро пожаловать в Liftech",
     "signupSubtitle": "Отслеживайте свои машины, фиксируйте каждое происшествие и держите операцию под контролем — с большей безопасностью и эффективностью.",
     "signupSectionTitle": "Запросите доступ к платформе",
@@ -162,9 +161,6 @@
     "adminNameLabel": "Имя администратора",
     "adminNamePlaceholder": "Введите имя администратора",
     "requestAccessButton": "Запросить доступ",
-    "alreadyRegistered": "Уже зарегистрированы?",
-    "enterNow": "Войти сейчас!",
-    "or": "или",
     "requestSuccessTitle": "Запрос отправлен!",
     "requestSuccessMessage": "Мы свяжемся с вами в ближайшее время.",
     "required": "Обязательное поле",
@@ -176,7 +172,16 @@
     "infoControlTitle": "Больше контроля",
     "infoControlDesc": "Отслеживайте свою деятельность в реальном времени.",
     "infoEfficiencyTitle": "Больше эффективности",
-    "infoEfficiencyDesc": "Выполняйте задачи быстрее."
+    "infoEfficiencyDesc": "Выполняйте задачи быстрее.",
+    "tabRequest": "Запросите доступ",
+    "tabAdmin": "Вход администратора",
+    "tabCollaborator": "Сотрудник",
+    "invalidCredentials": "Неверный логин или пароль.",
+    "networkError": "Не удалось подключиться к серверу.",
+    "loginError": "Ошибка при входе.",
+    "requestDuplicate": "Для этого адреса электронной почты уже есть ожидающий запрос.",
+    "requestError": "Не удалось отправить запрос.",
+    "tabsLabel": "Тип доступа"
   },
   "fleet": {
     "pageTitle": "Управление машинами",

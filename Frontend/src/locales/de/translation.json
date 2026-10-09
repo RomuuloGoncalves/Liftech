@@ -18,7 +18,8 @@
     "notFound": "Seite nicht gefunden",
     "pages": "Seiten",
     "feedback": "Feedback & Vorschläge",
-    "privacy": "Datenschutzrichtlinie"
+    "privacy": "Datenschutzrichtlinie",
+    "logout": "Abmelden"
   },
   "machines": {
     "registerButton": "Maschine registrieren",
@@ -151,9 +152,7 @@
     "passwordLabel": "Passwort",
     "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
     "enterButton": "Anmelden",
-    "forgotPassword": "Passwort vergessen? <b>Hier klicken</b>",
-    "collaboratorLink": "Mitarbeiter? <b>Hier klicken!</b>",
-    "administratorLink": "Administrator? <b>Hier klicken!</b>",
+    "forgotPassword": "Passwort vergessen? <b>Hier klicken!</b>",
     "signupTitle": "Willkommen bei Liftech",
     "signupSubtitle": "Überwachen Sie Ihre Maschinen, verfolgen Sie jeden Vorfall und behalten Sie Ihren Betrieb unter Kontrolle – mit mehr Sicherheit und Effizienz.",
     "signupSectionTitle": "Zugang zur Plattform anfordern",
@@ -162,9 +161,6 @@
     "adminNameLabel": "Name des Administrators",
     "adminNamePlaceholder": "Geben Sie den Namen des Administrators ein",
     "requestAccessButton": "Zugang anfordern",
-    "alreadyRegistered": "Bereits registriert?",
-    "enterNow": "Jetzt anmelden!",
-    "or": "oder",
     "requestSuccessTitle": "Anfrage gesendet!",
     "requestSuccessMessage": "Wir melden uns in Kürze bei Ihnen.",
     "required": "Pflichtfeld",
@@ -176,7 +172,16 @@
     "infoControlTitle": "Mehr Kontrolle",
     "infoControlDesc": "Verfolgen Sie Ihre Aktivitäten in Echtzeit.",
     "infoEfficiencyTitle": "Mehr Effizienz",
-    "infoEfficiencyDesc": "Erledigen Sie Ihre Aufgaben schneller."
+    "infoEfficiencyDesc": "Erledigen Sie Ihre Aufgaben schneller.",
+    "tabRequest": "Zugang anfordern",
+    "tabAdmin": "Als Administrator anmelden",
+    "tabCollaborator": "Mitarbeiter",
+    "invalidCredentials": "Ungültiger Benutzername oder ungültiges Passwort.",
+    "networkError": "Verbindung zum Server nicht möglich.",
+    "loginError": "Fehler bei der Anmeldung.",
+    "requestDuplicate": "Für diese E-Mail liegt bereits eine ausstehende Anfrage vor.",
+    "requestError": "Die Anfrage konnte nicht gesendet werden.",
+    "tabsLabel": "Zugangsart"
   },
   "fleet": {
     "pageTitle": "Maschinenverwaltung",

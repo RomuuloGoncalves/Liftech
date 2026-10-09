@@ -216,3 +216,21 @@ describe('loading and notification translations', () => {
     }
   });
 });
+
+describe('auth and navigation translations', () => {
+  const NEW_KEYS: Record<'auth' | 'navigation', string[]> = {
+    auth: ['tabRequest', 'tabAdmin', 'tabCollaborator', 'invalidCredentials', 'networkError', 'loginError', 'requestDuplicate', 'requestError', 'tabsLabel'],
+    navigation: ['logout'],
+  };
+
+  it.each(ALL_LOCALES)('locale $code has the same auth and navigation keys as pt-BR, including the new ones', ({ code, data }) => {
+    for (const mod of ['auth', 'navigation'] as const) {
+      const module = data[mod] as Record<string, string>;
+      expect(Object.keys(module).sort(), `Locale "${code}" ${mod} keys differ from pt-BR`).toEqual(Object.keys(ptBR[mod]).sort());
+      for (const key of NEW_KEYS[mod]) {
+        expect(module[key], `Locale "${code}" ${mod}.${key} is missing or empty`).toBeTruthy();
+      }
+    }
+    expect(data.auth.forgotPassword, `Locale "${code}" auth.forgotPassword lost <b>`).toMatch(/<b>.+<\/b>/);
+  });
+});

@@ -18,7 +18,8 @@
     "notFound": "Page non trouvée",
     "pages": "Pages",
     "feedback": "Commentaires & Suggestions",
-    "privacy": "Politique de confidentialité"
+    "privacy": "Politique de confidentialité",
+    "logout": "Se déconnecter"
   },
   "machines": {
     "registerButton": "Enregistrer la Machine",
@@ -151,9 +152,7 @@
     "passwordLabel": "Mot de passe",
     "passwordPlaceholder": "Saisissez votre mot de passe",
     "enterButton": "Se connecter",
-    "forgotPassword": "Mot de passe oublié ? <b>Cliquez ici</b>",
-    "collaboratorLink": "Collaborateur ? <b>Cliquez ici !</b>",
-    "administratorLink": "Administrateur ? <b>Cliquez ici !</b>",
+    "forgotPassword": "Mot de passe oublié ? <b>Cliquez ici !</b>",
     "signupTitle": "Bienvenue chez Liftech",
     "signupSubtitle": "Surveillez vos machines, suivez chaque incident et gardez votre opération sous contrôle, avec plus de sécurité et d'efficacité.",
     "signupSectionTitle": "Demandez l'accès à la plateforme",
@@ -162,9 +161,6 @@
     "adminNameLabel": "Nom de l'administrateur",
     "adminNamePlaceholder": "Saisissez le nom de l'administrateur",
     "requestAccessButton": "Demander l'accès",
-    "alreadyRegistered": "Déjà inscrit ?",
-    "enterNow": "Se connecter maintenant !",
-    "or": "ou",
     "requestSuccessTitle": "Demande envoyée !",
     "requestSuccessMessage": "Nous vous contacterons bientôt.",
     "required": "Champ obligatoire",
@@ -176,7 +172,16 @@
     "infoControlTitle": "Plus de contrôle",
     "infoControlDesc": "Suivez vos activités en temps réel.",
     "infoEfficiencyTitle": "Plus d'efficacité",
-    "infoEfficiencyDesc": "Réalisez vos tâches avec plus d'agilité."
+    "infoEfficiencyDesc": "Réalisez vos tâches avec plus d'agilité.",
+    "tabRequest": "Demander l'accès",
+    "tabAdmin": "Connexion Administrateur",
+    "tabCollaborator": "Collaborateur",
+    "invalidCredentials": "Identifiant ou mot de passe invalide.",
+    "networkError": "Impossible de se connecter au serveur.",
+    "loginError": "Erreur lors de la connexion.",
+    "requestDuplicate": "Une demande est déjà en attente pour cet e-mail.",
+    "requestError": "Impossible d'envoyer la demande.",
+    "tabsLabel": "Type d'accès"
   },
   "fleet": {
     "pageTitle": "Gestion des machines",
