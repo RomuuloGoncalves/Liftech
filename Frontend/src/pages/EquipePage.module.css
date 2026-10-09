@@ -40,6 +40,13 @@
   gap: 12px;
 }
 
+.registerButton,
+.searchInput,
+.select {
+  box-sizing: border-box;
+  height: 36px;
+}
+
 .registerButton {
   display: inline-flex;
   align-items: center;
