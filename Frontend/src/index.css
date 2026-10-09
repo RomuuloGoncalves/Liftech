@@ -29,7 +29,7 @@
   --fs-2xl: 24px;
   --fs-3xl: 32px;
 
-  font: var(--fs-base)/145% var(--sans);
+  font: var(--fs-base)/1.45 var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light;
   color: var(--text);
