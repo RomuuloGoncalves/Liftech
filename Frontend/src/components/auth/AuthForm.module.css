@@ -5,7 +5,7 @@
 }
 
 .labelAccent {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: #3a9cff;
 }
 
@@ -14,19 +14,19 @@
   padding: 0 10px;
   border: 1px solid #dedede;
   background: #fff;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .input::placeholder {
   font-family: 'Lexend', var(--sans);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 300;
   color: #b3b3b3;
 }
 
 .sectionTitle {
   margin: 11px 0 6px;
-  font-size: 10px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: #333;
 }
@@ -40,7 +40,7 @@
   background: linear-gradient(90deg, #40b2ff 30%, #4550ee 100%);
   color: #fff;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 120ms ease, transform 120ms ease;
@@ -67,7 +67,7 @@
   border: none;
   background: none;
   font: inherit;
-  font-size: 8px;
+  font-size: var(--fs-xs);
   color: #3a9cff;
   cursor: default;
 }
@@ -84,13 +84,13 @@
 
 .successTitle {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--fs-base);
   font-weight: 700;
   color: var(--text-h);
 }
 
 .successMessage {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text);
 }

@@ -25,7 +25,7 @@
 
 .title {
   margin: 0;
-  font-size: 20px;
+  font-size: var(--fs-xl);
   font-weight: 500;
   color: var(--text-h);
 }
@@ -34,7 +34,7 @@
   margin: 0 0 12px;
   max-width: 420px;
   color: var(--text);
-  font-size: 14px;
+  font-size: var(--fs-base);
 }
 
 .cta {
@@ -43,7 +43,7 @@
   background: var(--accent);
   color: #fff;
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--fs-base);
   text-decoration: none;
   box-shadow: var(--shadow);
   transition: opacity 120ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),

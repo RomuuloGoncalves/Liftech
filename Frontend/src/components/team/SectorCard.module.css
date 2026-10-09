@@ -38,7 +38,7 @@
 
 .name {
   overflow: hidden;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--text-h);
   text-overflow: ellipsis;
   white-space: nowrap;

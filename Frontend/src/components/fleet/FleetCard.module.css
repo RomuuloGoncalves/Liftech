@@ -68,7 +68,7 @@
 
 .nome {
   margin: 0;
-  font-size: calc(10 * var(--px, 1px));
+  font-size: calc(13 * var(--px, 1px));
   font-weight: 600;
   line-height: calc(14 * var(--px, 1px));
   letter-spacing: 0;
@@ -98,7 +98,7 @@
 }
 
 .code {
-  font-size: calc(7 * var(--px, 1px));
+  font-size: calc(11 * var(--px, 1px));
   line-height: calc(10 * var(--px, 1px));
   color: var(--text);
 }
@@ -136,7 +136,7 @@
 
 .menuHeading {
   padding: calc(4 * var(--px, 1px)) calc(8 * var(--px, 1px));
-  font-size: calc(9 * var(--px, 1px));
+  font-size: calc(11 * var(--px, 1px));
   font-weight: 600;
   color: var(--text);
 }
@@ -147,7 +147,7 @@
   border-radius: calc(4 * var(--px, 1px));
   background: transparent;
   font: inherit;
-  font-size: calc(11 * var(--px, 1px));
+  font-size: calc(13 * var(--px, 1px));
   color: var(--text-h);
   text-align: left;
   cursor: pointer;
@@ -184,7 +184,7 @@
 
 .details dt,
 .bottomRow dt {
-  font-size: calc(6 * var(--px, 1px));
+  font-size: calc(11 * var(--px, 1px));
   line-height: calc(9 * var(--px, 1px));
   color: var(--text-h);
 }
@@ -192,7 +192,7 @@
 .details dd,
 .bottomRow dd {
   margin: 0;
-  font-size: calc(8 * var(--px, 1px));
+  font-size: calc(12 * var(--px, 1px));
   line-height: calc(11 * var(--px, 1px));
   color: var(--text-h);
 }

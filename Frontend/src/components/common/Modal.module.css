@@ -59,7 +59,7 @@
 
 .title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--fs-xl);
   font-weight: 500;
   letter-spacing: 0;
   color: var(--text-h);

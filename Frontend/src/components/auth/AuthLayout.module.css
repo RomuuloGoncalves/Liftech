@@ -51,7 +51,7 @@
 .title {
   margin: 7px 0 0;
   font-family: inherit;
-  font-size: 32px;
+  font-size: var(--fs-3xl);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.4px;
@@ -63,7 +63,7 @@
   width: 340px;
   max-width: calc(100vw - 32px);
   margin: 8px 0 0;
-  font-size: 10.5px;
+  font-size: var(--fs-md);
   line-height: 16px;
   color: #4c4c4c;
 }
@@ -83,7 +83,7 @@
   border-radius: 3px;
   background: #fff;
   box-sizing: border-box;
-  font-size: 10px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: #3a9cff;
   text-decoration: none;
@@ -135,7 +135,7 @@
 .heroTitle {
   margin: 10px 0 0;
   font-family: inherit;
-  font-size: 32px;
+  font-size: var(--fs-3xl);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.3px;
@@ -145,7 +145,7 @@
 .heroSubtitle {
   max-width: 410px;
   margin: 12px 0 0;
-  font-size: 14px;
+  font-size: var(--fs-base);
   font-weight: 500;
   line-height: 17px;
 }
@@ -200,7 +200,7 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 10px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   line-height: 14px;
 }
@@ -212,7 +212,7 @@
 
 .infoCardDesc {
   margin: 6px 0 0;
-  font-size: 8px;
+  font-size: var(--fs-xs);
   line-height: 10px;
   color: #444;
 }
