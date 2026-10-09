@@ -18,7 +18,7 @@
 }
 
 .label {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-h);
 }
@@ -31,13 +31,14 @@
 
 .input {
   width: 100%;
+  height: 42px;
   box-sizing: border-box;
   padding: 10px 12px;
   border: 0.5px solid var(--border);
   border-radius: 5px;
   background: #f7f7f7;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-h);
 }
 
@@ -81,7 +82,7 @@
 }
 
 .error {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: #ef4444;
 }
 

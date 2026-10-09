@@ -18,7 +18,8 @@
     "notFound": "Página no encontrada",
     "pages": "Páginas",
     "feedback": "Comentarios y Sugerencias",
-    "privacy": "Políticas de Privacidad"
+    "privacy": "Políticas de Privacidad",
+    "logout": "Salir"
   },
   "machines": {
     "registerButton": "Registrar Máquina",
@@ -151,9 +152,7 @@
     "passwordLabel": "Contraseña",
     "passwordPlaceholder": "Escribe tu contraseña",
     "enterButton": "Entrar",
-    "forgotPassword": "¿Olvidaste tu contraseña? <b>Haz clic aquí</b>",
-    "collaboratorLink": "¿Colaborador? <b>¡Haz clic aquí!</b>",
-    "administratorLink": "¿Administrador? <b>¡Haz clic aquí!</b>",
+    "forgotPassword": "¿Olvidaste tu contraseña? <b>¡Haz clic aquí!</b>",
     "signupTitle": "Bienvenido a Liftech",
     "signupSubtitle": "Monitorea tus máquinas, sigue cada incidencia y mantén tu operación bajo control, con más seguridad y eficiencia.",
     "signupSectionTitle": "Solicita el acceso a la plataforma",
@@ -162,9 +161,6 @@
     "adminNameLabel": "Nombre del Administrador",
     "adminNamePlaceholder": "Escribe el nombre del administrador",
     "requestAccessButton": "Solicitar acceso",
-    "alreadyRegistered": "¿Ya tienes cuenta?",
-    "enterNow": "¡Entrar ahora!",
-    "or": "o",
     "requestSuccessTitle": "¡Solicitud enviada!",
     "requestSuccessMessage": "Nos pondremos en contacto pronto.",
     "required": "Campo obligatorio",
@@ -176,7 +172,16 @@
     "infoControlTitle": "Más Control",
     "infoControlDesc": "Sigue tus actividades en tiempo real.",
     "infoEfficiencyTitle": "Más Eficiencia",
-    "infoEfficiencyDesc": "Realiza tus tareas con más agilidad."
+    "infoEfficiencyDesc": "Realiza tus tareas con más agilidad.",
+    "tabRequest": "Solicita el acceso",
+    "tabAdmin": "Entrar como Administrador",
+    "tabCollaborator": "Colaborador",
+    "invalidCredentials": "Usuario o contraseña inválidos.",
+    "networkError": "No fue posible conectar con el servidor.",
+    "loginError": "Error al iniciar sesión.",
+    "requestDuplicate": "Ya existe una solicitud pendiente para este correo.",
+    "requestError": "No fue posible enviar la solicitud.",
+    "tabsLabel": "Tipo de acceso"
   },
   "fleet": {
     "pageTitle": "Gestión de máquinas",

@@ -33,7 +33,7 @@
   border-radius: 5px;
   background: #fde8e8;
   color: #ef1c1c;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   line-height: 16px;
 }
@@ -44,7 +44,7 @@
   border-radius: 999px;
   background: #ef1c1c;
   color: #fff;
-  font-size: 9px;
+  font-size: var(--fs-xs);
   line-height: 14px;
   text-align: center;
 }
@@ -78,7 +78,7 @@
   border-radius: var(--radius-sm);
   background: #fff;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-h);
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
@@ -109,7 +109,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: #fff;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text);
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
@@ -147,7 +147,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(calc(288 * var(--px, 1px)), 1fr));
   gap: 20px;
 }
 
@@ -156,7 +156,7 @@
   margin: 0;
   text-align: center;
   color: var(--text);
-  font-size: 14px;
+  font-size: var(--fs-base);
 }
 
 @media (max-width: 1279px) {

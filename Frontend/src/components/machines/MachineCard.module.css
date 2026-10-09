@@ -47,7 +47,7 @@
 
 .nome {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--fs-lg);
   font-weight: 600;
   line-height: 130%;
   color: var(--accent);
@@ -82,7 +82,7 @@
 }
 
 .identificacao {
-  font-size: 14px;
+  font-size: var(--fs-sm);
   color: var(--text);
 }
 
@@ -112,7 +112,7 @@
   flex-direction: column;
   gap: 4px;
   margin: 0;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .detailRow {
@@ -120,7 +120,7 @@
   flex-direction: column;
   gap: 4px;
   overflow: hidden;
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 
 .detailRow dt {
@@ -130,7 +130,7 @@
 
 .detailRow dd {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--fs-md);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -147,10 +147,10 @@
 
 .statusBadge {
   flex-shrink: 0;
-  padding: 4px 18px;
+  padding: 4px 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -183,13 +183,14 @@
   display: flex;
   flex-direction: column;
   align-items: end;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--text);
+  margin-left: auto;
   white-space: nowrap;
 }
 
 .session strong {
   color: var(--text);
   font-weight: 600;
-  font-size: 20px;
+  font-size: var(--fs-lg);
 }

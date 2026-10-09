@@ -1,11 +1,11 @@
 /* Medidas tiradas dos frames do Figma em 1440x900. */
 .page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 672fr 729fr;
+  align-items: stretch;
   min-height: 100svh;
   width: 100%;
-  padding: 24px 16px;
+  padding: 35px 39px 34px 0;
   box-sizing: border-box;
   background: #f4f4f4;
   font-family: 'Inter', var(--sans);
@@ -13,21 +13,11 @@
   line-height: 1.3;
 }
 
-.split {
-  display: grid;
-  grid-template-columns: 672fr 729fr;
-  align-items: stretch;
-  padding: 35px 39px 34px 0;
-}
-
-.split .formContent {
+.formContent {
   justify-self: center;
   align-self: center;
-}
-
-.formContent {
   width: 100%;
-  max-width: 311px;
+  max-width: 374px;
   display: flex;
   flex-direction: column;
   gap: 29px;
@@ -61,7 +51,7 @@
 .title {
   margin: 7px 0 0;
   font-family: inherit;
-  font-size: 32px;
+  font-size: var(--fs-3xl);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.4px;
@@ -73,9 +63,38 @@
   width: 340px;
   max-width: calc(100vw - 32px);
   margin: 8px 0 0;
-  font-size: 10.5px;
+  font-size: var(--fs-md);
   line-height: 16px;
   color: #4c4c4c;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tab {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 5px;
+  border: 1px solid #e3e3e3;
+  border-radius: 3px;
+  background: #fff;
+  box-sizing: border-box;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: #3a9cff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tabActive {
+  border: none;
+  background: linear-gradient(90deg, #40b2ff 30%, #4550ee 100%);
+  color: #fff;
 }
 
 .hero {
@@ -97,8 +116,10 @@
 }
 
 @media (max-width: 899px) {
-  .split {
+  .page {
     display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 24px 16px;
   }
 }
@@ -115,7 +136,7 @@
 .heroTitle {
   margin: 10px 0 0;
   font-family: inherit;
-  font-size: 32px;
+  font-size: var(--fs-3xl);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.3px;
@@ -125,7 +146,7 @@
 .heroSubtitle {
   max-width: 410px;
   margin: 12px 0 0;
-  font-size: 14px;
+  font-size: var(--fs-base);
   font-weight: 500;
   line-height: 17px;
 }
@@ -153,7 +174,7 @@
 
 .infoCard {
   position: relative;
-  height: 60px;
+  min-height: 60px;
   padding: 12px;
   box-sizing: border-box;
   border: 1px solid #d9d9d9;
@@ -180,7 +201,7 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 10px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   line-height: 14px;
 }
@@ -192,7 +213,7 @@
 
 .infoCardDesc {
   margin: 6px 0 0;
-  font-size: 8px;
-  line-height: 10px;
+  font-size: var(--fs-xs);
+  line-height: 14px;
   color: #444;
 }

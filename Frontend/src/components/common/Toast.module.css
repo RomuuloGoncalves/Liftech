@@ -27,7 +27,7 @@
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-h);
   pointer-events: auto;
   animation: toast-in 180ms ease-out;

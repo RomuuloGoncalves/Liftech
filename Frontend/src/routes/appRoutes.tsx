@@ -5,8 +5,7 @@ import VisaoGeralPage from '../pages/VisaoGeralPage'
 import FrotaPage from '../pages/FrotaPage'
 import EquipePage from '../pages/EquipePage'
 import AlertasPage from '../pages/AlertasPage'
-import LoginAdminPage from '../pages/LoginAdminPage'
-import LoginColaboradorPage from '../pages/LoginColaboradorPage'
+import LoginPage from '../pages/LoginPage'
 import SolicitarAcessoPage from '../pages/SolicitarAcessoPage'
 
 const AppRoutes: React.FC = () => {
@@ -16,8 +15,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/frota" element={<FrotaPage />} />
       <Route path="/equipe" element={<EquipePage />} />
       <Route path="/alertas" element={<AlertasPage />} />
-      <Route path="/login" element={<LoginAdminPage />} />
-      <Route path="/login/colaborador" element={<LoginColaboradorPage />} />
+      <Route path="/login" element={<LoginPage key="admin" role="admin" />} />
+      <Route path="/login/colaborador" element={<LoginPage key="colaborador" role="colaborador" />} />
       <Route path="/solicitar-acesso" element={<SolicitarAcessoPage />} />
       {/* Rota 404 - Fallback para rotas não encontradas */}
       <Route path="*" element={<NotFoundPage />} />

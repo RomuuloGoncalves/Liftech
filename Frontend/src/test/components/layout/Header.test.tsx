@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import Header from '../../../components/layout/Header'
 
@@ -75,5 +75,24 @@ describe('Header component', () => {
 
     fireEvent.mouseDown(document.body)
     expect(screen.queryByRole('dialog', { name: /escolha um idioma/i })).not.toBeInTheDocument()
+  })
+
+  it('logs out: clears token/user and navigates to /login', () => {
+    localStorage.setItem('token', 'abc')
+    localStorage.setItem('user', '{"id":"1"}')
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<Header />} />
+          <Route path="/login" element={<div>login screen</div>} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }))
+
+    expect(localStorage.getItem('token')).toBeNull()
+    expect(localStorage.getItem('user')).toBeNull()
+    expect(screen.getByText('login screen')).toBeInTheDocument()
   })
 })

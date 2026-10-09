@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { Bell, Globe, User, X } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Bell, Globe, LogOut, User, X } from 'lucide-react'
 import styles from './Header.module.css'
 
 import { useLanguage } from '../../hooks/useLanguage'
 import { useTranslation } from 'react-i18next'
+import { authService } from '../../services/authService'
 
 const ROUTE_KEYS: Record<string, string> = {
   '/': 'navigation.overview',
@@ -15,6 +16,7 @@ const ROUTE_KEYS: Record<string, string> = {
 
 const Header: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const { language, changeLanguage, languages } = useLanguage()
   const { t } = useTranslation()
   const [languageOpen, setLanguageOpen] = useState(false)
@@ -24,6 +26,11 @@ const Header: React.FC = () => {
   const title = titleKey ? t(titleKey) : ''
 
   const closeLanguagePopover = useCallback(() => setLanguageOpen(false), [])
+
+  const handleLogout = () => {
+    authService.logout()
+    navigate('/login')
+  }
 
   useEffect(() => {
     if (!languageOpen) return
@@ -108,6 +115,16 @@ const Header: React.FC = () => {
 
         <button type="button" className={styles.avatarButton} aria-label="Perfil do usuário">
           <User size={18} />
+        </button>
+
+        <button
+          type="button"
+          className={styles.iconButton}
+          aria-label={t('navigation.logout')}
+          title={t('navigation.logout')}
+          onClick={handleLogout}
+        >
+          <LogOut size={18} />
         </button>
       </div>
     </header>

@@ -27,7 +27,7 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--fs-xl);
   font-weight: 500;
   letter-spacing: 0;
   color: #3a9cff;
@@ -40,6 +40,13 @@
   gap: 12px;
 }
 
+.registerButton,
+.searchInput,
+.select {
+  box-sizing: border-box;
+  height: 36px;
+}
+
 .registerButton {
   display: inline-flex;
   align-items: center;
@@ -50,7 +57,7 @@
   background: #3a9cff;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
   color: #fff;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
 }
@@ -78,7 +85,7 @@
   border-radius: 5px;
   background: #fff;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-h);
 }
 
@@ -88,7 +95,7 @@
   border-radius: 5px;
   background: #fff;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text);
 }
 
@@ -108,7 +115,7 @@
   margin: 0;
   padding: 24px 0;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--fs-base);
   color: var(--text);
 }
 

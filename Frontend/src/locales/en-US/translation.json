@@ -18,7 +18,8 @@
     "notFound": "Page not found",
     "pages": "Pages",
     "feedback": "Feedback & Suggestions",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "logout": "Sign out"
   },
   "machines": {
     "registerButton": "Register Machine",
@@ -151,9 +152,7 @@
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter your password",
     "enterButton": "Sign in",
-    "forgotPassword": "Forgot your password? <b>Click here</b>",
-    "collaboratorLink": "Collaborator? <b>Click here!</b>",
-    "administratorLink": "Administrator? <b>Click here!</b>",
+    "forgotPassword": "Forgot your password? <b>Click here!</b>",
     "signupTitle": "Welcome to Liftech",
     "signupSubtitle": "Monitor your machines, track every occurrence and keep your operation under control, with more safety and efficiency.",
     "signupSectionTitle": "Request access to the platform",
@@ -162,9 +161,6 @@
     "adminNameLabel": "Administrator Name",
     "adminNamePlaceholder": "Enter the administrator's name",
     "requestAccessButton": "Request access",
-    "alreadyRegistered": "Already registered?",
-    "enterNow": "Sign in now!",
-    "or": "or",
     "requestSuccessTitle": "Request sent!",
     "requestSuccessMessage": "We'll get in touch with you soon.",
     "required": "Required field",
@@ -176,7 +172,16 @@
     "infoControlTitle": "More Control",
     "infoControlDesc": "Track your activities in real time.",
     "infoEfficiencyTitle": "More Efficiency",
-    "infoEfficiencyDesc": "Get your tasks done more quickly."
+    "infoEfficiencyDesc": "Get your tasks done more quickly.",
+    "tabRequest": "Request access",
+    "tabAdmin": "Administrator sign in",
+    "tabCollaborator": "Collaborator",
+    "invalidCredentials": "Invalid username or password.",
+    "networkError": "Unable to connect to the server.",
+    "loginError": "Error signing in.",
+    "requestDuplicate": "There is already a pending request for this email.",
+    "requestError": "Unable to send the request.",
+    "tabsLabel": "Access type"
   },
   "fleet": {
     "pageTitle": "Machine management",

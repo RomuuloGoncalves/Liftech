@@ -18,7 +18,8 @@
     "notFound": "ページが見つかりません",
     "pages": "ページ",
     "feedback": "フィードバックと提案",
-    "privacy": "プライバシーポリシー"
+    "privacy": "プライバシーポリシー",
+    "logout": "ログアウト"
   },
   "machines": {
     "registerButton": "機械を登録",
@@ -151,9 +152,7 @@
     "passwordLabel": "パスワード",
     "passwordPlaceholder": "パスワードを入力してください",
     "enterButton": "ログイン",
-    "forgotPassword": "パスワードをお忘れですか？<b>こちらをクリック</b>",
-    "collaboratorLink": "コラボレーターですか？<b>こちらをクリック！</b>",
-    "administratorLink": "管理者ですか？<b>こちらをクリック！</b>",
+    "forgotPassword": "パスワードをお忘れですか？<b>こちらをクリック！</b>",
     "signupTitle": "Liftechへようこそ",
     "signupSubtitle": "機械を監視し、あらゆる事象を把握して、より安全かつ効率的に業務をコントロールしましょう。",
     "signupSectionTitle": "プラットフォームへのアクセスをリクエスト",
@@ -162,9 +161,6 @@
     "adminNameLabel": "管理者名",
     "adminNamePlaceholder": "管理者の名前を入力してください",
     "requestAccessButton": "アクセスをリクエスト",
-    "alreadyRegistered": "すでに登録済みですか？",
-    "enterNow": "今すぐログイン！",
-    "or": "または",
     "requestSuccessTitle": "リクエストを送信しました！",
     "requestSuccessMessage": "まもなくご連絡いたします。",
     "required": "必須項目です",
@@ -176,7 +172,16 @@
     "infoControlTitle": "より高い管理性",
     "infoControlDesc": "活動をリアルタイムで確認できます。",
     "infoEfficiencyTitle": "より高い効率性",
-    "infoEfficiencyDesc": "よりスピーディーに業務をこなせます。"
+    "infoEfficiencyDesc": "よりスピーディーに業務をこなせます。",
+    "tabRequest": "アクセスをリクエスト",
+    "tabAdmin": "管理者ログイン",
+    "tabCollaborator": "コラボレーター",
+    "invalidCredentials": "ユーザー名またはパスワードが無効です。",
+    "networkError": "サーバーに接続できませんでした。",
+    "loginError": "ログイン中にエラーが発生しました。",
+    "requestDuplicate": "このメールアドレスには保留中のリクエストがすでにあります。",
+    "requestError": "リクエストを送信できませんでした。",
+    "tabsLabel": "アクセスの種類"
   },
   "fleet": {
     "pageTitle": "機械管理",
