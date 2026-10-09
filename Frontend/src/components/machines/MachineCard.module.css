@@ -147,7 +147,7 @@
 
 .statusBadge {
   flex-shrink: 0;
-  padding: 4px 18px;
+  padding: 4px 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   font-size: var(--fs-sm);
@@ -185,6 +185,7 @@
   align-items: end;
   font-size: var(--fs-sm);
   color: var(--text);
+  margin-left: auto;
   white-space: nowrap;
 }
 
