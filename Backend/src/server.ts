@@ -1,14 +1,16 @@
 import express from 'express';
+import cors from 'cors';
 import { startKeepAlive } from '@rafaelhdsv/keep-alive';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
 import forkliftRouter from './feature/forklift/forkliftRouter.js';
 import userRouter from './feature/user/userRouter.js';
-import { StatusCode, respostaSucesso, respostaErro } from "./utils/responseHandler.js";
+import authRouter from './feature/auth/authRouter.js';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 // @ts-ignore
@@ -41,12 +43,9 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-app.post('/auth/login', (req, res) => {
-  respostaSucesso(res, StatusCode.OK, req.body)
-});
-
 app.use('/api/forklifts', forkliftRouter);
 app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
 
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
