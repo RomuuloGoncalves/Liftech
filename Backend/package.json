@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "dev:seed": "tsx watch src/server.ts --seed",
+    "seed": "tsx src/scripts/seedAdmin.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest run"
