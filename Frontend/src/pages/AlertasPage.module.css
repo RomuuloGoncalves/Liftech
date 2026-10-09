@@ -147,7 +147,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(calc(288 * var(--px, 1px)), 1fr));
   gap: 20px;
 }
 

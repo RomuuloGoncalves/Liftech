@@ -3,8 +3,8 @@
   display: flex;
   flex-direction: column;
   gap: calc(8 * var(--px, 1px));
-  flex: 0 0 calc(256 * var(--px, 1px));
-  min-height: calc(147 * var(--px, 1px));
+  flex: 0 0 calc(288 * var(--px, 1px));
+  min-height: calc(184 * var(--px, 1px));
   box-sizing: border-box;
   padding: calc(12 * var(--px, 1px));
   border: 1px solid #e3e3e3;
@@ -70,7 +70,7 @@
   margin: 0;
   font-size: calc(13 * var(--px, 1px));
   font-weight: 600;
-  line-height: calc(14 * var(--px, 1px));
+  line-height: calc(17 * var(--px, 1px));
   letter-spacing: 0;
   color: var(--text-h);
 }
@@ -99,7 +99,7 @@
 
 .code {
   font-size: calc(11 * var(--px, 1px));
-  line-height: calc(10 * var(--px, 1px));
+  line-height: calc(14 * var(--px, 1px));
   color: var(--text);
 }
 
@@ -179,13 +179,14 @@
 .bottomRow {
   align-items: flex-end;
   justify-content: space-between;
+  gap: calc(8 * var(--px, 1px));
   margin-top: auto;
 }
 
 .details dt,
 .bottomRow dt {
   font-size: calc(11 * var(--px, 1px));
-  line-height: calc(9 * var(--px, 1px));
+  line-height: calc(14 * var(--px, 1px));
   color: var(--text-h);
 }
 
@@ -193,7 +194,7 @@
 .bottomRow dd {
   margin: 0;
   font-size: calc(12 * var(--px, 1px));
-  line-height: calc(11 * var(--px, 1px));
+  line-height: calc(15 * var(--px, 1px));
   color: var(--text-h);
 }
 
