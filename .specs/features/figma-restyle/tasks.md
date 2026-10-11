@@ -180,7 +180,7 @@ T9 → T10
 
 #### T5: Status e detalhe da máquina (Visão Geral)
 
-**What**: Badges do `MachineCard` (Disponível verde, Em uso azul, Manutenção amarelo, Offline cinza) e pill do `MachineDetailModal` (mesmas cores; "Crítico" em `--red-bg` com borda `--red`); `NewMachinePanel` sem hex.
+**What**: Badges do `MachineCard` (Disponível verde, Em uso azul, Manutenção amarelo, Offline cinza) e pill do `MachineDetailModal` (mesmas cores); `NewMachinePanel` sem hex.
 **Where**: `Frontend/src/components/machines/`
 **Depends on**: T1
 **Reuses**: `STATUS_CLASS` em `MachineCard.tsx`
@@ -194,7 +194,7 @@ T9 → T10
 **Done when**:
 
 - [ ] `src/test/styles/machines.test.ts` confere que `.statusAvailable`, `.statusInUse`, `.statusMaintenance` usam `--green-bg`/`--green`, `--blue-bg`/`--blue`, `--yellow-bg`/`--yellow` (AC RST-06)
-- [ ] Teste do `MachineDetailModal` confere o pill "Crítico" com `--red-bg` (AC RST-06)
+- [ ] Teste do `MachineDetailModal` confere o pill de status Disponível/Em uso/Manutenção (AC RST-06)
 - [ ] Botão Excluir Máquina usa `--danger-solid`, Editar usa `--blue` (AC RST-08)
 - [ ] Gate: `cd Frontend && npx vitest run src/test/components/machines src/test/styles`
 - [ ] Test count: ≥ 4 testes novos passam; as 2 falhas anteriores de `MachineCard` (texto "34 min") continuam as únicas falhas desta pasta

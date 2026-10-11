@@ -19,6 +19,7 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 | Página de Política e Privacidade | Dono pediu para não fazer ainda |
 | Botão "?" e modal de explicação de categoria em Alertas | Funcionalidade nova, não existe no app |
 | Botão "Enviar para manutenção" no detalhe de acidente | Funcionalidade nova |
+| Pill "Crítico" no detalhe de acidente (frame 335:1957) | O `MachineDetailModal` não tem esse elemento; criá-lo é funcionalidade nova |
 | Popup "Alerta!" de acidente (círculo vermelho, frame 100:21063) | Funcionalidade nova; o diálogo de exclusão do app não tem frame no Figma e fica como está |
 | Seção "Funcionário" (11 telas mobile) | Não existe versão mobile de funcionário no app |
 | Telas "Descarte" e as marcadas "Não desenvolver" | Descartadas pelo dono no Figma |
@@ -96,7 +97,7 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 
 1. WHEN uma máquina com status Disponível, Em uso ou Manutenção aparece num card da Visão Geral THEN the frontend SHALL exibir o badge com fundo/texto `--green-bg`/`--green`, `--blue-bg`/`--blue` ou `--yellow-bg`/`--yellow` respectivamente.
 2. WHEN o chip de uma categoria `acidentes`, `ativas`, `manutencao` ou `disponiveis` aparece na Frota THEN the frontend SHALL exibir fundo `--red-bg`, `--blue-bg`, `--yellow-bg` ou `--green-bg` respectivamente, com texto e borda na cor sólida correspondente.
-3. WHEN o detalhe da máquina mostra o status THEN the frontend SHALL exibir o pill com as mesmas cores do badge da Visão Geral; o pill "Crítico" usa `--red-bg` com borda `--red`.
+3. WHEN o detalhe da máquina mostra o status THEN the frontend SHALL exibir o pill com as mesmas cores do badge da Visão Geral.
 4. WHERE a categoria é `custom` the frontend SHALL manter a cor escolhida pelo usuário.
 
 **Independent Test**: Renderizar `MachineCard` e `FleetRow` e conferir a classe/variável aplicada; Chrome headless confere a cor computada.
