@@ -153,7 +153,7 @@ T9 → T10
 
 #### T4: Modais, botões de diálogo e componentes comuns
 
-**What**: `DialogButtons` com `--danger-solid`/`--blue`; `ConfirmDialog` com círculo e título em `--danger-solid`; overlay do `Modal` em `rgba(245, 245, 245, 0.55)` com caixa branca; `Toast` e `PageSkeleton` sem hex.
+**What**: `DialogButtons` com `--danger-solid`/`--blue`; overlay do `Modal` em `rgba(245, 245, 245, 0.55)` com caixa branca; `Toast` e `PageSkeleton` sem hex.
 **Where**: `Frontend/src/components/common/`
 **Depends on**: T1
 **Reuses**: `DialogButtons.module.css`, `Modal.module.css`
@@ -166,7 +166,7 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/components/common/ConfirmDialog.test.tsx` confere o ícone de alerta e a classe do botão de confirmar/cancelar (AC RST-09)
+- [ ] `src/test/styles/common.test.ts` confere o overlay do `Modal` em `rgba(245, 245, 245, 0.55)` e a caixa em `var(--bg)` (AC RST-09)
 - [ ] `src/test/styles/common.test.ts` confere `--danger-solid` em `.cancel` e `--blue` em `.confirm` (AC RST-08)
 - [ ] Gate: `cd Frontend && npx vitest run src/test/components/common src/test/styles`
 - [ ] Test count: ≥ 3 testes novos passam, nenhum removido
