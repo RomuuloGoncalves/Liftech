@@ -31,6 +31,26 @@ describe('SectorCard', () => {
     expect(h.onOpen).not.toHaveBeenCalled()
   })
 
+  it('has no icon box before the name', () => {
+    const { container } = render(<SectorCard sector={sector} onOpen={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const open = screen.getByRole('button', { name: 'Ver detalhes de Doca de Carga' })
+
+    expect(open.querySelector('svg')).toBeNull()
+    expect(open.children).toHaveLength(1)
+    expect(container.querySelectorAll('svg')).toHaveLength(2)
+  })
+
+  it('keeps the delete and edit buttons as the only icon buttons', () => {
+    setup()
+    const del = screen.getByRole('button', { name: 'Excluir Doca de Carga' })
+    const edit = screen.getByRole('button', { name: 'Editar Doca de Carga' })
+
+    expect(del.querySelector('svg')).not.toBeNull()
+    expect(edit.querySelector('svg')).not.toBeNull()
+    expect(del.className).toMatch(/delete/)
+    expect(edit.className).toMatch(/edit/)
+  })
+
   it('calls onDelete from the trash without opening the details', () => {
     const h = setup()
 

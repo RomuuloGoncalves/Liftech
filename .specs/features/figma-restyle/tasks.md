@@ -270,10 +270,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/components/team/SectorCard.test.tsx` confere botões excluir/editar com as classes preenchidas e sem a caixa de ícone (AC RST-08, RST-11)
-- [ ] `EmployeeCard.test.tsx` confere ausência da caixa de ícone e o toggle de acesso intacto (AC RST-11)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/team src/test/pages/EquipePage.test.tsx`
-- [ ] Test count: ≥ 4 testes novos passam, nenhum removido
+- [x] `src/test/components/team/SectorCard.test.tsx` confere botões excluir/editar com as classes preenchidas e sem a caixa de ícone (AC RST-08, RST-11)
+- [x] `EmployeeCard.test.tsx` confere ausência da caixa de ícone e o toggle de acesso intacto (AC RST-11)
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/team src/test/pages/EquipePage.test.tsx`
+- [x] Test count: ≥ 4 testes novos passam, nenhum removido
 
 **Tests**: unit
 **Gate**: full

@@ -7,7 +7,7 @@
   padding: 12px;
   border: 0.5px solid var(--border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--bg);
 }
 
 .openArea {
@@ -22,18 +22,6 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 0.5px solid var(--border);
-  border-radius: 5px;
-  color: var(--text-h);
 }
 
 .name {
@@ -52,16 +40,21 @@
 
 .iconButton {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
   padding: 0;
   border: none;
-  background: transparent;
+  border-radius: 5px;
+  color: var(--white);
   cursor: pointer;
 }
 
 .delete {
-  color: #ef4444;
+  background: var(--danger-solid);
 }
 
 .edit {
-  color: #3a9cff;
+  background: var(--blue);
 }
