@@ -238,6 +238,97 @@
     "toastMachinesAdded": "Machines added to \"{{name}}\"",
     "toastMachineRemoved": "{{name}} removed from the category"
   },
+  "employee": {
+    "nav": {
+      "overview": "Overview",
+      "machines": "Forklifts",
+      "history": "History",
+      "incident": "Incident"
+    },
+    "common": {
+      "available": "Available",
+      "inUse": "In use",
+      "maintenance": "Maintenance",
+      "offline": "Offline",
+      "sector": "Sector",
+      "dateTime": "Date and Time",
+      "cancel": "Cancel",
+      "navigationLabel": "Employee navigation",
+      "alertButton": "Report an incident",
+      "menuButton": "Open settings"
+    },
+    "home": {
+      "title": "Overview",
+      "subtitle": "Follow your latest updates and check the machines available for use.",
+      "lastMachine": "Last machine",
+      "workday": "Work shift",
+      "workdaySchedule": "From 8 am to 5 pm",
+      "workdayDaily": "Daily shift of 8 hours.",
+      "remaining": "Remaining shift time",
+      "remainingValue": "04 Hours",
+      "availableTitle": "Available forklifts",
+      "more": "More"
+    },
+    "machines": {
+      "title": "Available machines",
+      "subtitle": "Follow your latest updates and check the machines available for use.",
+      "searchPlaceholder": "Search machine or sector",
+      "searchLabel": "Search forklift",
+      "select": "Select",
+      "empty": "No available forklift found"
+    },
+    "detail": {
+      "title": "Select Machine",
+      "mac": "Mac",
+      "code": "Code",
+      "sector": "Sector",
+      "deviceName": "Device Name",
+      "history": "Usage history",
+      "date": "Date",
+      "periodFrom": "Start date",
+      "periodTo": "End date",
+      "historyEmpty": "No records in the period",
+      "cancel": "Cancel",
+      "activate": "Activate machine",
+      "activeSessionHint": "You already have a session in progress."
+    },
+    "session": {
+      "description": "The <b>usage time tracking</b> is already in progress. When you are done, remember to <b>end the operation</b>.",
+      "timerLabel": "Session time",
+      "end": "End Session",
+      "reportIncident": "Report an incident"
+    },
+    "history": {
+      "title": "History",
+      "subtitle": "Review your previous usage and filter by period, time or machine.",
+      "filters": "Filters",
+      "periodFrom": "Start date",
+      "periodTo": "End date",
+      "startTime": "Time",
+      "endTime": "End time",
+      "searchPlaceholder": "Search machine",
+      "empty": "No records found",
+      "moreDetails": "More details"
+    },
+    "incident": {
+      "title": "Report an incident",
+      "employeeName": "Employee name",
+      "sector": "Sector",
+      "machine": "Machine",
+      "time": "Time",
+      "employeeNamePlaceholder": "E.g. Alexandre Mattos",
+      "sectorPlaceholder": "E.g. Shipping - Block B",
+      "machinePlaceholder": "E.g. Titan-X Electric Forklift",
+      "cancel": "Cancel",
+      "submit": "Send incident",
+      "required": "Required field",
+      "toastSent": "Incident sent successfully"
+    },
+    "settings": {
+      "title": "Settings",
+      "close": "Close"
+    }
+  },
   "notFound": {
     "description": "The page you are looking for does not exist or was moved.",
     "backHome": "Back to home"

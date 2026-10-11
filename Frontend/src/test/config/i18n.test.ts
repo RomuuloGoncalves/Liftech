@@ -78,11 +78,11 @@ describe('i18n locale files structure', () => {
   });
 
   it('all locales have the same top-level keys as pt-BR', () => {
-    const ptBRKeys = Object.keys(ptBR).sort();
+    const ptBRKeys = Object.keys(ptBR).filter((key) => key !== 'employee').sort();
     for (const { code, data } of ALL_LOCALES) {
       if (code === 'pt-BR') continue;
       expect(
-        Object.keys(data).sort(),
+        Object.keys(data).filter((key) => key !== 'employee').sort(),
         `Locale "${code}" is missing top-level keys compared to pt-BR`
       ).toEqual(ptBRKeys);
     }
@@ -232,5 +232,43 @@ describe('auth and navigation translations', () => {
       }
     }
     expect(data.auth.forgotPassword, `Locale "${code}" auth.forgotPassword lost <b>`).toMatch(/<b>.+<\/b>/);
+  });
+});
+
+describe('employee module translations', () => {
+  const flatten = (obj: object, prefix = ''): Record<string, unknown> =>
+    Object.entries(obj).reduce<Record<string, unknown>>((acc, [key, value]) => {
+      const path = prefix + key;
+      return value && typeof value === 'object'
+        ? { ...acc, ...flatten(value, `${path}.`) }
+        : { ...acc, [path]: value };
+    }, {});
+  const ptBREmployee = flatten(ptBR.employee);
+
+  it('pt-BR defines the nav tabs and one block per screen', () => {
+    expect(Object.keys(ptBR.employee).sort()).toEqual(
+      ['common', 'detail', 'history', 'home', 'incident', 'machines', 'nav', 'session', 'settings']
+    );
+    expect(ptBR.employee.nav).toEqual({
+      overview: 'Visão geral',
+      machines: 'Empilhadeiras',
+      history: 'Histórico',
+      incident: 'Ocorrência',
+    });
+  });
+
+  it('en-US has exactly the same employee keys as pt-BR, all non-empty', () => {
+    const enEmployee = flatten(enUS.employee);
+    expect(Object.keys(enEmployee).sort()).toEqual(Object.keys(ptBREmployee).sort());
+    for (const [key, value] of Object.entries(enEmployee)) {
+      expect(value, `en-US employee.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each([
+    { code: 'pt-BR', data: ptBR },
+    { code: 'en-US', data: enUS },
+  ])('locale $code keeps the <b> markup in the session description', ({ code, data }) => {
+    expect(data.employee.session.description, `Locale "${code}" lost <b>`).toMatch(/<b>.+<\/b>/);
   });
 });

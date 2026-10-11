@@ -48,11 +48,11 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] `filterAvailableMachines` devolve só "Disponível" e filtra por nome, identificação e setor sem diferenciar maiúsculas
-- [ ] `filterUsageHistory` aplica período, hora inicial, hora final e máquina; período invertido devolve lista vazia
-- [ ] `useWorkSession` inicia, limpa, devolve os segundos decorridos e funciona em memória quando `sessionStorage` lança erro
-- [ ] Chaves `employee.*` existem em pt-BR e en-US
-- [ ] Gate passa
+- [x] `filterAvailableMachines` devolve só "Disponível" e filtra por nome, identificação e setor sem diferenciar maiúsculas
+- [x] `filterUsageHistory` aplica período, hora inicial, hora final e máquina; período invertido devolve lista vazia
+- [x] `useWorkSession` inicia, limpa, devolve os segundos decorridos e funciona em memória quando `sessionStorage` lança erro
+- [x] Chaves `employee.*` existem em pt-BR e en-US
+- [x] Gate passa
 
 #### T2: Layout do funcionário, rotas e bottom sheet
 
