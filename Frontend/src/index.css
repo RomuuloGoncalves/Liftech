@@ -79,6 +79,7 @@
 
 body {
   margin: 0;
+  background: var(--bg-page);
 }
 
 h1,

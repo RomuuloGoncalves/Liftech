@@ -49,6 +49,11 @@ describe('Base colors (RST-04, RST-05)', () => {
     expect(token('bg')).toBe('var(--white)')
   })
 
+  it('also paints body with --bg-page', () => {
+    const body = css.match(/\nbody\s*{[^}]*}/s)?.[0] ?? ''
+    expect(norm(body)).toContain('background:var(--bg-page);')
+  })
+
   it('maps title and body text to the guide blacks', () => {
     expect(token('text-h')).toBe('var(--black-title)')
     expect(token('text')).toBe('var(--black-text)')
