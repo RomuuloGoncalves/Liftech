@@ -225,10 +225,10 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] Título, subtítulo e os 4 filtros aparecem como no Figma
-- [ ] Cada filtro e a combinação deles restringem a lista; período invertido mostra a lista vazia
-- [ ] "Mais detalhes" abre o sheet da empilhadeira do registro
-- [ ] Gate passa
+- [x] Título, subtítulo e os 4 filtros aparecem como no Figma
+- [x] Cada filtro e a combinação deles restringem a lista; período invertido mostra a lista vazia
+- [x] "Mais detalhes" abre o sheet da empilhadeira do registro
+- [x] Gate passa
 
 #### T8: Reportar ocorrência [P]
 
