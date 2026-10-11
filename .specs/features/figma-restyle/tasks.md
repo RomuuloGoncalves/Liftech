@@ -193,11 +193,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/styles/machines.test.ts` confere que `.statusAvailable`, `.statusInUse`, `.statusMaintenance` usam `--green-bg`/`--green`, `--blue-bg`/`--blue`, `--yellow-bg`/`--yellow` (AC RST-06)
-- [ ] Teste do `MachineDetailModal` confere o pill de status Disponível/Em uso/Manutenção (AC RST-06)
-- [ ] Botão Excluir Máquina usa `--danger-solid`, Editar usa `--blue` (AC RST-08)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/machines src/test/styles`
-- [ ] Test count: ≥ 4 testes novos passam; as 2 falhas anteriores de `MachineCard` (texto "34 min") continuam as únicas falhas desta pasta
+- [x] `src/test/styles/machines.test.ts` confere que `.statusAvailable`, `.statusInUse`, `.statusMaintenance` usam `--green-bg`/`--green`, `--blue-bg`/`--blue`, `--yellow-bg`/`--yellow` (AC RST-06)
+- [x] Teste do `MachineDetailModal` confere o pill de status Disponível/Em uso/Manutenção (AC RST-06)
+- [x] Botão Excluir Máquina usa `--danger-solid`, Editar usa `--blue` (AC RST-08)
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/machines src/test/styles`
+- [x] Test count: ≥ 4 testes novos passam; as 2 falhas anteriores de `MachineCard` (texto "34 min") continuam as únicas falhas desta pasta
 
 **Tests**: unit
 **Gate**: quick

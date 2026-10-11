@@ -8,21 +8,21 @@
 }
 
 .statusAvailable {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: rgba(58, 156, 255, 0.25);
+  color: var(--green);
+  border-color: var(--green);
+  background: var(--green-bg);
 }
 
 .statusInUse {
-  color: #15803d;
-  border-color: #15803d;
-  background: rgba(21, 128, 61, 0.15);
+  color: var(--blue);
+  border-color: var(--blue);
+  background: var(--blue-bg);
 }
 
 .statusMaintenance {
-  color: #b45309;
-  border-color: #b45309;
-  background: rgba(180, 83, 9, 0.15);
+  color: var(--yellow);
+  border-color: var(--yellow);
+  background: var(--yellow-bg);
 }
 
 .statusOffline {
@@ -57,7 +57,7 @@
   padding: 0;
   border: 0.5px solid var(--border);
   border-radius: var(--radius-lg);
-  background: #fafafa;
+  background: var(--gray-bg);
   list-style: none;
 }
 
@@ -81,7 +81,7 @@
   width: 24px;
   height: 24px;
   border-radius: 5px;
-  background: #fff;
+  background: var(--white);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
   color: var(--text-h);
 }
@@ -114,7 +114,7 @@
 .period {
   border: 0.5px solid var(--border);
   border-radius: 5px;
-  background: #fafafa;
+  background: var(--gray-bg);
   height: 25px;
   font-size: var(--fs-xs);
   font-weight: 500;
@@ -129,7 +129,7 @@
 .tabActive {
   border-color: var(--accent);
   background: var(--accent);
-  color: #fff;
+  color: var(--white);
 }
 
 .period {
@@ -160,7 +160,7 @@
   max-height: 232px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--accent) #fafafa;
+  scrollbar-color: var(--accent) var(--gray-bg);
 }
 
 .timeline {
@@ -180,7 +180,7 @@
   bottom: 6px;
   left: 3px;
   width: 1px;
-  background: #ddd;
+  background: var(--gray-border);
 }
 
 .event {
@@ -193,7 +193,7 @@
   color: var(--text);
   background: var(--accent);
   border: 1px solid var(--accent);
-  color: #fff;
+  color: var(--white);
   border-radius: var(--radius-lg);
   padding: 2px;
   max-width: 270px;
@@ -202,7 +202,7 @@
 
 .event:first-child {
   color: var(--text);
-  background: #fafafa;
+  background: var(--gray-bg);
   border-color: var(--border);
 }
 
@@ -221,7 +221,7 @@
 
 .operator {
   font-weight: 700;
-  color: #fff;
+  color: var(--white);
 }
 
 .event:first-child .operator {
@@ -243,16 +243,16 @@
   padding: 7px 16px;
   border: 0.5px solid var(--border);
   border-radius: 5px;
-  color: #fff;
+  color: var(--white);
   font-size: var(--fs-xs);
   font-weight: 700;
   cursor: pointer;
 }
 
 .edit {
-  background: var(--accent);
+  background: var(--blue);
 }
 
 .delete {
-  background: #ef4444;
+  background: var(--danger-solid);
 }

@@ -233,3 +233,20 @@ describe('MachineDetailModal alerts variant', () => {
     expect(screen.queryByRole('button', { name: /Excluir/ })).not.toBeInTheDocument()
   })
 })
+
+describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
+  it.each([
+    ['Disponível', 'Disponível', 'statusAvailable'],
+    ['Em uso', 'Em uso', 'statusInUse'],
+    ['Manutenção', 'Em manutenção', 'statusMaintenance'],
+  ] as const)('maps %s to %s', (status, label, cls) => {
+    setup({ machine: { ...machine, dispositivoConectado: { ...machine.dispositivoConectado, status } } })
+    expect(screen.getByText(label).className).toContain(cls)
+  })
+
+  it('renders Editar and Excluir with edit and delete classes', () => {
+    setup()
+    expect(screen.getByRole('button', { name: 'Editar Máquina' }).className).toContain('edit')
+    expect(screen.getByRole('button', { name: 'Excluir Máquina' }).className).toContain('delete')
+  })
+})

@@ -65,3 +65,15 @@ describe('MachineCard', () => {
     expect(screen.queryByRole('button', { name: /ver detalhes/i })).not.toBeInTheDocument()
   })
 })
+
+describe('MachineCard status classes (RST-06)', () => {
+  it.each([
+    ['Manutenção', 'Em manutenção', 'statusMaintenance'],
+    ['Em uso', 'Em uso', 'statusInUse'],
+    ['Disponível', 'Disponível', 'statusAvailable'],
+    ['Offline', 'Offline', 'statusOffline'],
+  ] as const)('maps %s to %s', (status, label, cls) => {
+    render(<MachineCard machine={{ ...baseMachine, dispositivoConectado: { ...baseMachine.dispositivoConectado, status } }} />)
+    expect(screen.getByText(label).className).toContain(cls)
+  })
+})

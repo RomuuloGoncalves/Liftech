@@ -132,7 +132,7 @@
   border: none;
   border-radius: var(--radius-lg);
   background: var(--active-bg);
-  color: #fff;
+  color: var(--white);
   font-size: var(--fs-base);
   font-weight: 600;
   cursor: pointer;
@@ -151,7 +151,7 @@
   padding: 4px;
   border: none;
   background: transparent;
-  color: #dc2626;
+  color: var(--red);
   font-size: var(--fs-base);
   font-weight: 600;
   cursor: pointer;

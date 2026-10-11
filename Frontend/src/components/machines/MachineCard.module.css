@@ -156,27 +156,27 @@
 }
 
 .statusAvailable {
-  color: #16a34a;
-  background: #dcfce7;
-  border-color: #bbf7d0;
+  color: var(--green);
+  background: var(--green-bg);
+  border-color: var(--green-bg);
 }
 
 .statusInUse {
-  color: var(--accent);
-  background: #e0f2fe;
-  border-color: #bae6fd;
+  color: var(--blue);
+  background: var(--blue-bg);
+  border-color: var(--blue-bg);
 }
 
 .statusMaintenance {
-  color: #ef4444;
-  background: #fee2e2;
-  border-color: #fecaca;
+  color: var(--yellow);
+  background: var(--yellow-bg);
+  border-color: var(--yellow-bg);
 }
 
 .statusOffline {
-  color: var(--text);
-  border-color: var(--border);
-  background: var(--code-bg);
+  color: var(--black-text);
+  border-color: var(--gray-border);
+  background: var(--gray-bg);
 }
 
 .session {
