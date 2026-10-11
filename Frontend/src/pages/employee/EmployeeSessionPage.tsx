@@ -1,8 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
-import forklift from '../../assets/employee-forklift.svg'
+import forklift from '../../assets/forklift.gif'
 import { formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
 import styles from './EmployeeSessionPage.module.css'
 
@@ -11,12 +11,12 @@ const EmployeeSessionPage: React.FC = () => {
   const navigate = useNavigate()
   const { session, end, elapsedSeconds } = useWorkSession()
 
-  const ending = useRef(false)
+  const [ending, setEnding] = useState(false)
 
-  if (!session) return ending.current ? null : <Navigate to="/funcionario/maquinas" replace />
+  if (!session) return ending ? null : <Navigate to="/funcionario/maquinas" replace />
 
   const endSession = () => {
-    ending.current = true
+    setEnding(true)
     end()
     navigate('/funcionario')
   }
