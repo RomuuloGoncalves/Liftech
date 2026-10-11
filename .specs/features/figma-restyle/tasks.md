@@ -166,10 +166,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/styles/common.test.ts` confere o overlay do `Modal` em `rgba(245, 245, 245, 0.55)` e a caixa em `var(--bg)` (AC RST-09)
-- [ ] `src/test/styles/common.test.ts` confere `--danger-solid` em `.cancel` e `--blue` em `.confirm` (AC RST-08)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/common src/test/styles`
-- [ ] Test count: ≥ 3 testes novos passam, nenhum removido
+- [x] `src/test/styles/common.test.ts` confere o overlay do `Modal` em `rgba(245, 245, 245, 0.55)` e a caixa em `var(--bg)` (AC RST-09)
+- [x] `src/test/styles/common.test.ts` confere `--danger-solid` em `.cancel` e `--blue` em `.confirm` (AC RST-08)
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/common src/test/styles`
+- [x] Test count: ≥ 3 testes novos passam, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

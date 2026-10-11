@@ -25,9 +25,9 @@
   flex-direction: column;
   gap: calc(14 * var(--px, 1px));
   padding: calc(14 * var(--px, 1px)) calc(20 * var(--px, 1px)) calc(20 * var(--px, 1px));
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--bg);
 }
 
 .kanbanCards {
@@ -47,9 +47,9 @@
   min-height: calc(147 * var(--px, 1px));
   box-sizing: border-box;
   padding: 14px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--bg);
 }
 
 .compact {
@@ -74,7 +74,7 @@
 .block {
   display: block;
   border-radius: 4px;
-  background: linear-gradient(90deg, #eeeeee 25%, #f7f7f7 50%, #eeeeee 75%);
+  background: linear-gradient(90deg, var(--gray-border) 25%, var(--bg-page) 50%, var(--gray-border) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
 }
