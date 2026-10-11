@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
-import forklift from '../../assets/forklift.gif'
+import forkliftWebm from '../../assets/forklift.webm'
+import forkliftMp4 from '../../assets/forklift.mp4'
 import { formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
 import styles from './EmployeeSessionPage.module.css'
 
@@ -23,7 +24,10 @@ const EmployeeSessionPage: React.FC = () => {
 
   return (
     <section className={styles.page}>
-      <img className={styles.illustration} src={forklift} alt="" />
+      <video className={styles.illustration} autoPlay loop muted playsInline aria-hidden="true">
+        <source src={forkliftWebm} type="video/webm" />
+        <source src={forkliftMp4} type="video/mp4" />
+      </video>
       <p className={styles.description}>
         <Trans i18nKey="employee.session.description" components={{ b: <b /> }} />
       </p>
