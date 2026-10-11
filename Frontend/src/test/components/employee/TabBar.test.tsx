@@ -38,6 +38,39 @@ describe('TabBar', () => {
     }
   })
 
+  it.each([
+    ['/funcionario', 'Visão geral', '0'],
+    ['/funcionario/maquinas', 'Empilhadeiras', '1'],
+    ['/funcionario/maquinas/3', 'Empilhadeiras', '1'],
+    ['/funcionario/historico', 'Histórico', '2'],
+    ['/funcionario/ocorrencia', 'Ocorrência', '3'],
+  ])('at %s the single indicator sits at the "%s" tab (index %s)', (path, name, index) => {
+    renderAt(path)
+    expect(screen.getAllByTestId('tab-indicator')).toHaveLength(1)
+    const indicator = screen.getByTestId('tab-indicator')
+    expect(indicator).toHaveAttribute('aria-hidden', 'true')
+    expect(indicator).not.toHaveClass(styles.hidden)
+    expect(indicator.style.getPropertyValue('--tab-index')).toBe(index)
+    expect(screen.getByRole('link', { name })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it.each(['/funcionario/sessao', '/funcionario/configuracoes'])(
+    'indicator is hidden at %s and no tab has aria-current',
+    (path) => {
+      renderAt(path)
+      expect(screen.getByTestId('tab-indicator')).toHaveClass(styles.hidden)
+      for (const name of TABS) {
+        expect(screen.getByRole('link', { name })).not.toHaveAttribute('aria-current')
+      }
+    }
+  )
+
+  it('indicator moves to the tapped tab', () => {
+    renderAt('/funcionario')
+    fireEvent.click(screen.getByRole('link', { name: 'Histórico' }))
+    expect(screen.getByTestId('tab-indicator').style.getPropertyValue('--tab-index')).toBe('2')
+  })
+
   it('no tab is active on /funcionario/sessao except none matching', () => {
     renderAt('/funcionario/sessao')
     expect(screen.getByRole('link', { name: 'Visão geral' })).not.toHaveClass(styles.active)

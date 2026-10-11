@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
+import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
+import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import MachineDetailSheet from '../../components/employee/MachineDetailSheet'
 import { MACHINES } from '../../data/machines'
@@ -15,6 +17,7 @@ const EmployeeMachinesPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const [query, setQuery] = useState('')
+  const loading = useFirstVisitLoading('employee-machines')
 
   const machines = useMemo(() => filterAvailableMachines(MACHINES, query), [query])
   const selected = id ? MACHINES.find((machine) => machine.id === id) : undefined
@@ -26,6 +29,14 @@ const EmployeeMachinesPage: React.FC = () => {
       date: new Date(`${date}T12:00:00`).toLocaleDateString(i18n.language),
       time: record?.start.slice(0, 5) ?? FALLBACK_USAGE.time,
     }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <EmployeeSkeleton variant="list" />
+      </div>
+    )
   }
 
   return (

@@ -247,7 +247,7 @@ describe('employee module translations', () => {
 
   it('pt-BR defines the nav tabs and one block per screen', () => {
     expect(Object.keys(ptBR.employee).sort()).toEqual(
-      ['common', 'detail', 'history', 'home', 'incident', 'machines', 'nav', 'session', 'settings']
+      ['common', 'detail', 'history', 'home', 'incident', 'machines', 'nav', 'session', 'sessionBar', 'settings']
     );
     expect(ptBR.employee.nav).toEqual({
       overview: 'Visão geral',

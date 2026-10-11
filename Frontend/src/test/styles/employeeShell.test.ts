@@ -21,10 +21,11 @@ describe('Employee shell styles', () => {
     expect(b).toContain('var(--gray-border)')
   })
 
-  it('active tab is a blue circle with white icon', () => {
-    const b = block(bar, '.active')
+  it('the animated indicator is a blue circle and the active icon is white', () => {
+    const b = block(bar, '.indicator')
     expect(b).toContain('background: var(--blue)')
-    expect(b).toContain('color: var(--white)')
+    expect(b).toContain('border-radius: 50%')
+    expect(bar).toMatch(/\.active \.icon \{[^}]*color: var\(--white\)/)
   })
 
   it('layout uses page background, 100svh and 1120px column', () => {

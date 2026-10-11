@@ -239,6 +239,9 @@
     "toastMachineRemoved": "{{name}} removed from the category"
   },
   "employee": {
+    "sessionBar": {
+      "title": "Session in progress"
+    },
     "nav": {
       "overview": "Overview",
       "machines": "Forklifts",

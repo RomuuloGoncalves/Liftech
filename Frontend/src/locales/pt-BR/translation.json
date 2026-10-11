@@ -241,6 +241,9 @@
     "toastMachineRemoved": "{{name}} removida da categoria"
   },
   "employee": {
+    "sessionBar": {
+      "title": "Sessão em andamento"
+    },
     "nav": {
       "overview": "Visão geral",
       "machines": "Empilhadeiras",

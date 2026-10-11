@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CalendarDays, Clock, Search } from 'lucide-react'
+import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
+import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import { MACHINES } from '../../data/machines'
 import { USAGE_HISTORY, filterUsageHistory } from '../../data/employeeArea'
@@ -15,6 +17,7 @@ const EmployeeHistoryPage: React.FC = () => {
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [machineQuery, setMachineQuery] = useState('')
+  const loading = useFirstVisitLoading('employee-history')
 
   const records = filterUsageHistory(USAGE_HISTORY, { from, to, startTime, endTime, machineQuery })
   const formatDate = (date: string) =>
@@ -24,6 +27,14 @@ const EmployeeHistoryPage: React.FC = () => {
       year: 'numeric',
       timeZone: 'UTC',
     })
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <EmployeeSkeleton variant="list" />
+      </div>
+    )
+  }
 
   return (
     <section className={styles.page}>

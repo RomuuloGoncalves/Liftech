@@ -2,6 +2,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Clock } from 'lucide-react'
+import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
+import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import { LAST_MACHINE_USAGE, filterAvailableMachines } from '../../data/employeeArea'
 import { MACHINES } from '../../data/machines'
@@ -13,7 +15,16 @@ const MAX_CARDS = 3
 const EmployeeHomePage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const loading = useFirstVisitLoading('employee-home')
   const available = filterAvailableMachines(MACHINES, '').slice(0, MAX_CARDS)
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <EmployeeSkeleton variant="home" />
+      </div>
+    )
+  }
 
   return (
     <div className={styles.page}>
