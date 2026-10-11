@@ -8,6 +8,7 @@ import forkliftRouter from './feature/forklift/forkliftRouter.js';
 import userRouter from './feature/user/userRouter.js';
 import authRouter from './feature/auth/authRouter.js';
 import accessRequestRouter from './feature/accessRequest/accessRequestRouter.js';
+import telemetryRouter from './feature/telemetry/telemtryRouter.js';
 import { seedAdmin } from './scripts/seedAdmin.js';
 
 const app = express();
@@ -49,6 +50,7 @@ app.use('/api/forklifts', forkliftRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/access-requests', accessRequestRouter);
+app.use('/api/telemetry', telemetryRouter);
 
 if (process.argv.includes('--seed')) {
   await seedAdmin();
