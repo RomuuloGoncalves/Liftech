@@ -68,6 +68,12 @@ T8
 T9 → T10
 ```
 
+### Phase 5: Correções da validação e cabeçalho por status
+
+```
+T11 → T12
+```
+
 ---
 
 ## Task Breakdown
@@ -331,6 +337,60 @@ T9 → T10
 
 ---
 
+### Phase 5: Correções da validação e cabeçalho por status
+
+#### T11: Cobertura dos gaps do Verifier
+
+**What**: Testes estáticos para fundo branco de cards e seções (RST-04 AC2), `.app-main` com `--bg-page` (RST-04 AC1) e botões primários com `--blue` (RST-08 AC2); fallback `system-ui` também em `--heading`.
+**Where**: `Frontend/src/test/styles/surfaces.test.ts`
+**Depends on**: T10
+**Reuses**: padrão estático de `tokens.test.ts`
+**Requirement**: RST-04, RST-08
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] `.app-main` declara `background: var(--bg-page)` em `App.css` e o teste confere
+- [ ] Teste confere `background: var(--bg)` (ou `--white` em Frota) nas superfícies de Visão Geral, Equipe, Alertas e Frota
+- [ ] Teste confere `var(--blue)` nos botões primários de Visão Geral, Frota, Equipe e `NewMachinePanel`
+- [ ] Gate: `cd Frontend && npx vitest run src/test/styles`
+- [ ] Test count: ≥ 10 testes novos passam
+
+**Tests**: unit
+**Gate**: quick
+
+---
+
+#### T12: Cabeçalho do card pelo status
+
+**What**: `FleetCard` fora de Acidentes preenche o cabeçalho com a cor do status da máquina (Disponível verde, Em uso azul, Manutenção amarelo com texto escuro, Offline cinza).
+**Where**: `Frontend/src/components/fleet/FleetCard.tsx`
+**Depends on**: T11
+**Reuses**: `.topRow.danger/.warning/.caution` de `FleetCard.module.css`
+**Requirement**: RST-12
+
+**Tools**:
+
+- MCP: `Claude_Browser`
+- Skill: NONE
+
+**Done when**:
+
+- [ ] `FleetCard.test.tsx` confere a classe do cabeçalho para cada status e a mesma classe com `kind` diferente (AC RST-12.3)
+- [ ] Em Acidentes o cabeçalho segue a urgência (AC RST-12.4)
+- [ ] `fleet.test.ts` confere fundo e texto de cada classe de status (AC RST-12.1, RST-12.2)
+- [ ] Gate: `cd Frontend && npx vitest run src/test/components/fleet src/test/pages/FrotaPage.test.tsx src/test/pages/AlertasPage.test.tsx src/test/styles/fleet.test.ts`
+- [ ] Test count: ≥ 8 testes novos passam
+
+**Tests**: unit
+**Gate**: full
+
+---
+
 ## Phase Execution Map
 
 ```
@@ -340,9 +400,10 @@ Phase 1:  T1 ------→ T2
 Phase 2:  T3, T4
 Phase 3:  T5, T6, T7 (depende de T6), T8
 Phase 4:  T9 ------→ T10
+Phase 5:  T11 ------→ T12
 ```
 
-Execução sequencial, 10 tasks. Passa de ~8, então o fluxo oferece sub-agentes em lotes (~7 tasks por lote, fases inteiras); o padrão é executar inline.
+Execução sequencial, 12 tasks. Passa de ~8, então o fluxo oferece sub-agentes em lotes (~7 tasks por lote, fases inteiras); o padrão é executar inline.
 
 ---
 
@@ -360,6 +421,8 @@ Execução sequencial, 10 tasks. Passa de ~8, então o fluxo oferece sub-agentes
 | T8 | T1 | cross-phase | ✅ Match |
 | T9 | T3, T4, T5, T6, T7, T8 | cross-phase | ✅ Match |
 | T10 | T9 | T9 → T10 | ✅ Match |
+| T11 | T10 | cross-phase | ✅ Match |
+| T12 | T11 | T11 → T12 | ✅ Match |
 
 ## Test Co-location Validation
 
@@ -375,3 +438,5 @@ Execução sequencial, 10 tasks. Passa de ~8, então o fluxo oferece sub-agentes
 | T8 | Componente (team) | unit | unit | ✅ OK |
 | T9 | Página + CSS Module | unit (suíte existente) | unit | ✅ OK |
 | T10 | CSS Module sem lógica (guarda) | unit (estático) | unit | ✅ OK |
+| T11 | Tokens / CSS global (estático) | unit (estático) | unit | ✅ OK |
+| T12 | Componente (fleet) | unit | unit | ✅ OK |

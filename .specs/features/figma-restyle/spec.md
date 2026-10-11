@@ -44,6 +44,9 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 | Categoria sem tipo no guide ("Desativadas" do Figma) | Categorias `custom` mantêm a cor escolhida pelo usuário | A cor é dado do usuário; o app não tem tipo "desativadas" | n |
 | Caixa de ícone nos cards | Removida dos cards de Frota, Alertas e Equipe | Os frames novos não têm; é mudança de layout, não de função | n |
 | Cabeçalho de acidente | Fundo = cor da urgência, texto branco; "Média" usa texto branco também | Figma 88:272 e 100:20173 | n |
+| Responsividade e categoria `custom` clara | Sem teste: a feature só troca cores e não mexe nas media queries; a legibilidade do chip `custom` segue o comportamento atual | O Verifier apontou ambos como não verificáveis estaticamente; removidos dos edge cases em vez de deixar critério sem prova | y |
+| Cor do card da Frota | Vem do status da máquina, nunca da coluna; Acidentes usam a urgência | Esclarecimento do dono | y |
+| Texto sobre amarelo | `--black-title` no cabeçalho de Manutenção | Branco sobre `#E5D000` tem contraste ~1,4:1 | n |
 | Verificação visual | Script com Chrome headless que lê o `getComputedStyle` das rotas a 1440x900 e compara com os valores desta spec | Sem Figma no CI; Chrome já existe na máquina | n |
 
 **Open questions:** none - all resolved or logged above.
@@ -138,6 +141,23 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 
 ---
 
+### P2: Cabeçalho do card da Frota pelo status da máquina
+
+**User Story**: As a administrador, I want que todo card da Frota tenha o cabeçalho na cor do status da máquina so that eu veja o estado de cada máquina sem abrir o card.
+
+**Why P2**: Pedido do dono após ver a Frota: só os acidentes estavam coloridos.
+
+**Acceptance Criteria**:
+
+1. WHEN um card fora da coluna Acidentes é renderizado THEN the frontend SHALL preencher o cabeçalho com a cor do status da máquina: Disponível `--green`, Em uso `--blue`, Manutenção `--yellow`, Offline `--black-text`.
+2. The frontend SHALL exibir o texto do cabeçalho em `--white`, exceto em Manutenção, que usa `--black-title`.
+3. WHEN uma máquina muda de categoria THEN the frontend SHALL manter a cor do cabeçalho do status dela, sem herdar a cor da coluna de destino.
+4. WHEN um card está na coluna Acidentes THEN the frontend SHALL manter a cor da urgência (RST-10).
+
+**Independent Test**: Renderizar `FleetCard` com cada status em colunas diferentes e conferir a classe do cabeçalho.
+
+---
+
 ### P3: Cards sem caixa de ícone
 
 **User Story**: As a usuário, I want cards mais limpos como no Figma so that haja menos ruído visual.
@@ -156,8 +176,6 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 ## Edge Cases
 
 - IF o Google Fonts não carregar THEN the frontend SHALL cair em `system-ui` sem quebrar o layout.
-- WHEN a largura da janela está entre 640px e 1279px THEN the frontend SHALL manter fundo `--bg-page` e cards brancos (responsividade existente não muda).
-- IF uma categoria `custom` usa uma cor muito clara THEN the frontend SHALL manter o texto legível usando o texto do chip atual (comportamento atual, sem mudança).
 
 ---
 
@@ -176,8 +194,9 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 | RST-09 | P2 Botões: AC4 | Execute | Pending |
 | RST-10 | P2 Acidente: AC1, AC2, AC3, AC4 | Execute | Pending |
 | RST-11 | P3 Ícone: AC1, AC2 | Execute | Pending |
+| RST-12 | P2 Cabeçalho por status: AC1, AC2, AC3, AC4 | Execute | Pending |
 
-**Coverage:** 11 total, 0 mapped to tasks, 11 unmapped ⚠️
+**Coverage:** 12 total, 0 mapped to tasks, 12 unmapped ⚠️
 
 ---
 
