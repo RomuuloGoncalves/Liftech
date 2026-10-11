@@ -1,0 +1,66 @@
+.bar {
+  --tab-size: 40px;
+  --tab-gap: 8px;
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--tab-gap);
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--gray-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateX(-50%);
+}
+
+.indicator {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: var(--tab-size);
+  height: var(--tab-size);
+  border-radius: 50%;
+  background: var(--blue);
+  opacity: 1;
+  pointer-events: none;
+  transform: translateX(calc(var(--tab-index) * (var(--tab-size) + var(--tab-gap))));
+  transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tab-size);
+  height: var(--tab-size);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--black-text);
+  text-decoration: none;
+}
+
+.icon {
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), color 200ms ease;
+}
+
+.active .icon {
+  color: var(--white);
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .icon {
+    transition: none;
+  }
+}

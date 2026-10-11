@@ -36,18 +36,18 @@
   padding: 10px 12px;
   border: 0.5px solid var(--border);
   border-radius: 5px;
-  background: #f7f7f7;
+  background: var(--bg-page);
   font: inherit;
   font-size: var(--fs-md);
   color: var(--text-h);
 }
 
 .input::placeholder {
-  color: #b5b5b5;
+  color: var(--black-text);
 }
 
 .input:focus-visible {
-  outline: 2px solid #3a9cff;
+  outline: 2px solid var(--blue);
   outline-offset: 1px;
 }
 
@@ -62,7 +62,7 @@
 .leftIcon {
   position: absolute;
   left: 10px;
-  color: #9a9a9a;
+  color: var(--black-text);
   pointer-events: none;
 }
 
@@ -73,23 +73,23 @@
   padding: 4px;
   border: none;
   background: transparent;
-  color: #9a9a9a;
+  color: var(--black-text);
   cursor: pointer;
 }
 
 .invalid {
-  border-color: #ef4444;
+  border-color: var(--red);
 }
 
 .error {
   font-size: var(--fs-xs);
-  color: #ef4444;
+  color: var(--red);
 }
 
 .divider {
   height: 1px;
   margin: 2px -30px;
-  background: var(--border);
+  background: var(--line);
 }
 
 @media (max-width: 480px) {

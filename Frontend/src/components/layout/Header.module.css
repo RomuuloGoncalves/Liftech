@@ -6,8 +6,8 @@
   width: 100%;
   box-sizing: border-box;
   padding: 20px 32px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--line);
 }
 
 .title {
@@ -52,9 +52,9 @@
 }
 
 .avatarButton {
-  border-color: var(--active-bg);
-  background: var(--active-bg);
-  color: #fff;
+  border-color: var(--blue);
+  background: var(--blue);
+  color: var(--white);
 }
 
 .popoverAnchor {

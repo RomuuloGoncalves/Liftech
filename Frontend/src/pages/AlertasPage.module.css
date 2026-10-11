@@ -11,9 +11,9 @@
   flex-direction: column;
   gap: 20px;
   padding: 16px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--bg);
 }
 
 .toolbar {
@@ -31,8 +31,8 @@
   margin: 0;
   padding: 4px 8px;
   border-radius: 5px;
-  background: #fde8e8;
-  color: #ef1c1c;
+  background: var(--red-bg);
+  color: var(--red);
   font-size: var(--fs-sm);
   font-weight: 600;
   line-height: 16px;
@@ -42,8 +42,8 @@
   min-width: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: #ef1c1c;
-  color: #fff;
+  background: var(--red);
+  color: var(--white);
   font-size: var(--fs-xs);
   line-height: 14px;
   text-align: center;
@@ -71,12 +71,12 @@
 
 .searchInput {
   width: 260px;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   padding: 0 12px 0 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--bg);
   font: inherit;
   font-size: var(--fs-md);
   color: var(--text-h);
@@ -84,31 +84,31 @@
 }
 
 .searchInput::placeholder {
-  color: #9a9a9a;
+  color: color-mix(in srgb, var(--black-text) 55%, transparent);
 }
 
 .searchInput:hover,
 .period:hover {
-  border-color: rgba(21, 28, 39, 0.22);
+  border-color: color-mix(in srgb, var(--black-text) 35%, transparent);
 }
 
 .searchInput:focus,
 .period:focus-within {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(58, 156, 255, 0.18);
+  box-shadow: 0 0 0 3px var(--blue-bg);
 }
 
 .period {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   padding: 0 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--bg);
   font-size: var(--fs-md);
   color: var(--text);
   transition: border-color 120ms ease, box-shadow 120ms ease;
@@ -120,7 +120,7 @@
 }
 
 .periodSeparator {
-  color: #b5b5b5;
+  color: color-mix(in srgb, var(--black-text) 55%, transparent);
 }
 
 .dateInput {
@@ -147,8 +147,14 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(calc(288 * var(--px, 1px)), 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(calc(240 * var(--px, 1px)), 1fr));
+  justify-content: start;
+  gap: 16px;
+}
+
+.grid > * {
+  width: 100%;
+  max-width: calc(288 * var(--px, 1px));
 }
 
 .empty {
@@ -163,11 +169,19 @@
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .grid > * {
+    max-width: none;
+  }
 }
 
 @media (max-width: 899px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid > * {
+    max-width: none;
   }
 }
 
@@ -186,5 +200,9 @@
 @media (max-width: 639px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .grid > * {
+    max-width: none;
   }
 }

@@ -6,8 +6,8 @@
   box-sizing: border-box;
   padding: 12px;
   border: 0.5px solid var(--border);
-  border-radius: 10px;
-  background: #fff;
+  border-radius: var(--radius-md);
+  background: var(--bg);
 }
 
 .openArea {
@@ -22,18 +22,6 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 0.5px solid var(--border);
-  border-radius: 5px;
-  color: var(--text-h);
 }
 
 .info {
@@ -59,11 +47,11 @@
 }
 
 .allowed {
-  color: #3a9cff;
+  color: var(--blue);
 }
 
 .denied {
-  color: #ef4444;
+  color: var(--red);
 }
 
 .actions {
@@ -88,11 +76,11 @@
 }
 
 .delete {
-  color: #ef4444;
+  color: var(--danger-solid);
 }
 
 .edit {
-  color: #3a9cff;
+  color: var(--blue);
 }
 
 .switch {
@@ -102,12 +90,12 @@
   padding: 0;
   border: none;
   border-radius: 9px;
-  background: #999;
+  background: var(--gray-border);
   cursor: pointer;
 }
 
 .switchOn {
-  background: #3a9cff;
+  background: var(--blue);
 }
 
 .knob {
@@ -117,7 +105,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--white);
   transition: transform 150ms ease;
 }
 

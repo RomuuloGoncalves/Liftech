@@ -240,6 +240,101 @@
     "toastMachinesAdded": "Máquinas adicionadas a \"{{name}}\"",
     "toastMachineRemoved": "{{name}} removida da categoria"
   },
+  "employee": {
+    "sessionBar": {
+      "title": "Sessão em andamento"
+    },
+    "nav": {
+      "overview": "Visão geral",
+      "machines": "Empilhadeiras",
+      "history": "Histórico",
+      "incident": "Ocorrência"
+    },
+    "common": {
+      "available": "Disponível",
+      "inUse": "Em uso",
+      "maintenance": "Manutenção",
+      "offline": "Offline",
+      "sector": "Setor",
+      "dateTime": "Data e Hora",
+      "cancel": "Cancelar",
+      "navigationLabel": "Navegação do funcionário",
+      "alertButton": "Reportar uma ocorrência",
+      "menuButton": "Abrir configurações"
+    },
+    "home": {
+      "title": "Visão geral",
+      "subtitle": "Acompanhe suas últimas atualizações e consulte as máquinas disponíveis para utilização.",
+      "totalTime": "Tempo total",
+      "lastMachine": "Última máquina",
+      "workday": "Jornada de trabalho",
+      "workdaySchedule": "Das 8h às 17h",
+      "workdayDaily": "Jornada diária de 8 horas.",
+      "remaining": "Tempo restante da jornada",
+      "remainingValue": "04 Horas",
+      "availableTitle": "Empilhadeiras disponíveis",
+      "more": "Mais"
+    },
+    "machines": {
+      "title": "Máquinas disponíveis",
+      "subtitle": "Acompanhe suas últimas atualizações e consulte as máquinas disponíveis para utilização.",
+      "searchPlaceholder": "Procurar Máquina ou setor",
+      "searchLabel": "Buscar empilhadeira",
+      "select": "Selecionar",
+      "empty": "Nenhuma empilhadeira disponível encontrada"
+    },
+    "detail": {
+      "title": "Selecionar Máquina",
+      "mac": "Mac",
+      "code": "Código",
+      "sector": "Setor",
+      "deviceName": "Nome Dispositivo",
+      "history": "Histórico de uso",
+      "date": "Date",
+      "periodFrom": "Data inicial",
+      "periodTo": "Data final",
+      "historyEmpty": "Nenhum registro no período",
+      "cancel": "Cancelar",
+      "activate": "Ativar máquina",
+      "activeSessionHint": "Você já tem uma sessão em andamento."
+    },
+    "session": {
+      "description": "O <b>registro do tempo de utilização</b> já está em andamento. Ao finalizar, lembre-se de <b>encerrar a operação</b>.",
+      "timerLabel": "Tempo de sessão",
+      "end": "Encerrar Sessão",
+      "reportIncident": "Reportar uma ocorrência"
+    },
+    "history": {
+      "title": "Histórico",
+      "subtitle": "Consulte seus usos anteriores e filtre por período, horário ou máquina.",
+      "filters": "Filtros",
+      "periodFrom": "Data inicial",
+      "periodTo": "Data final",
+      "startTime": "Hora",
+      "endTime": "Hora final",
+      "searchPlaceholder": "Procurar Máquina",
+      "empty": "Nenhum registro encontrado",
+      "moreDetails": "Mais detalhes"
+    },
+    "incident": {
+      "title": "Reporte uma ocorrência",
+      "employeeName": "Nome funcionário",
+      "sector": "Setor",
+      "machine": "Máquina",
+      "time": "Horário",
+      "employeeNamePlaceholder": "Ex: Alexandre Mattos",
+      "sectorPlaceholder": "Ex: Expedição - Bloco B",
+      "machinePlaceholder": "Ex: Empilhadeira Elétrica Titan-X",
+      "cancel": "Cancelar",
+      "submit": "Enviar ocorrência",
+      "required": "Campo obrigatório",
+      "toastSent": "Ocorrência enviada com sucesso"
+    },
+    "settings": {
+      "title": "Configurações",
+      "close": "Fechar"
+    }
+  },
   "notFound": {
     "description": "A página que você está procurando não existe ou foi movida.",
     "backHome": "Voltar para o início"

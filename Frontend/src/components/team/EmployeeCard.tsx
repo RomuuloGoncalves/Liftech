@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pencil, Trash2, User } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Employee } from '../../data/team'
 import styles from './EmployeeCard.module.css'
@@ -25,9 +25,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onOpen, onToggleA
         aria-label={t('team.openDetails', { name })}
         onClick={() => onOpen(employee)}
       >
-        <span className={styles.avatar}>
-          <User size={22} />
-        </span>
         <span className={styles.info}>
           <span className={styles.name}>{name}</span>
           <span className={styles.code}>{employee.matricula}(ID)</span>

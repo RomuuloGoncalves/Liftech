@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Forklift, MoreVertical } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CategoryKind } from '../../data/fleet'
-import type { Machine, UrgencyLevel } from '../../data/machines'
+import type { Machine, MachineStatus, UrgencyLevel } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
 import styles from './FleetCard.module.css'
 
@@ -35,6 +35,13 @@ const URGENCY_TONE: Record<UrgencyLevel, string> = {
   media: styles.caution,
   alta: styles.warning,
   critica: styles.danger,
+}
+
+const STATUS_HEADER: Record<MachineStatus, string> = {
+  Disponível: styles.statusAvailable,
+  'Em uso': styles.statusInUse,
+  Manutenção: styles.statusMaintenance,
+  Offline: styles.statusOffline,
 }
 
 const FleetCard: React.FC<FleetCardProps> = ({
@@ -84,7 +91,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
     ativas: {
       label: t('fleet.cardSessionTime'),
       value: t('fleet.cardMinutes', { count: machine.tempoSessaoMinutos }),
-      tone: styles.info,
+      tone: styles.session,
     },
     disponiveis: {
       label: t('fleet.cardWeeklyHours'),
@@ -96,6 +103,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
     },
   }
   const highlight = highlights[kind]
+  const headerTone = kind === 'acidentes' ? highlight?.tone : STATUS_HEADER[machine.dispositivoConectado.status]
 
   return (
     <article
@@ -108,10 +116,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
         onDragStart?.(machine.id)
       }}
     >
-      <div className={styles.topRow}>
-        <span className={styles.icon}>
-          <Forklift size={30} />
-        </span>
+      <div className={`${styles.topRow} ${headerTone ?? ''}`}>
         <div className={styles.names}>
           <h3 className={styles.nome}>
             <button
@@ -169,38 +174,40 @@ const FleetCard: React.FC<FleetCardProps> = ({
         )}
       </div>
 
-      <dl className={styles.details}>
-        <div>
-          <dt>{t('fleet.cardSector')}</dt>
-          <dd>{machine.setor || undefinedText}</dd>
-        </div>
-        {kind === 'manutencao' ? (
+      <div className={styles.body}>
+        <dl className={styles.details}>
           <div>
-            <dt>{t('fleet.cardMac')}</dt>
-            <dd>{machine.dispositivoConectado.enderecoMac || undefinedText}</dd>
+            <dt>{t('fleet.cardSector')}</dt>
+            <dd>{machine.setor || undefinedText}</dd>
           </div>
-        ) : (
-          <div>
-            <dt>{t('fleet.cardEmployee')}</dt>
-            <dd>{machine.operadorConectado?.nome || undefinedText}</dd>
-          </div>
-        )}
-      </dl>
-
-      {highlight && (
-        <dl className={styles.bottomRow}>
-          {highlight.left && (
+          {kind === 'manutencao' ? (
+            <div>
+              <dt>{t('fleet.cardMac')}</dt>
+              <dd>{machine.dispositivoConectado.enderecoMac || undefinedText}</dd>
+            </div>
+          ) : (
+            <div>
+              <dt>{t('fleet.cardEmployee')}</dt>
+              <dd>{machine.operadorConectado?.nome || undefinedText}</dd>
+            </div>
+          )}
+          {highlight?.left && (
             <div>
               <dt>{highlight.left.label}</dt>
               <dd>{highlight.left.value}</dd>
             </div>
           )}
-          <div className={styles.highlight}>
-            <dt>{highlight.label}</dt>
-            <dd className={highlight.tone}>{highlight.value}</dd>
-          </div>
         </dl>
-      )}
+
+        {highlight && (
+          <dl className={styles.highlight}>
+            <div>
+              <dt>{highlight.label}</dt>
+              <dd className={highlight.tone}>{highlight.value}</dd>
+            </div>
+          </dl>
+        )}
+      </div>
     </article>
   )
 }

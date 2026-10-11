@@ -73,4 +73,30 @@ describe('EmployeeCard', () => {
     expect(handlers.onOpen).toHaveBeenCalledWith(e)
     expect(handlers.onToggleAccess).not.toHaveBeenCalled()
   })
+
+  it('has no icon box before the name and keeps only the two action icons', () => {
+    const { container } = render(
+      <EmployeeCard
+        employee={employee}
+        onOpen={vi.fn()}
+        onToggleAccess={vi.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    )
+    const open = screen.getByRole('button', { name: 'Ver detalhes de Alexandre Mattos' })
+
+    expect(open.querySelector('svg')).toBeNull()
+    expect(open.firstElementChild?.textContent).toContain('Alexandre Mattos')
+    expect(container.querySelectorAll('svg')).toHaveLength(2)
+  })
+
+  it('keeps the access toggle working in both directions', () => {
+    const { handlers, employee: e } = setup({ acesso: 'Negado' })
+    const toggle = screen.getByRole('switch')
+
+    expect(toggle).toHaveAttribute('aria-checked', 'false')
+    fireEvent.click(toggle)
+    expect(handlers.onToggleAccess).toHaveBeenCalledWith(e)
+  })
 })

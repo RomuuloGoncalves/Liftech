@@ -84,7 +84,7 @@ const FleetRow: React.FC<FleetRowProps> = ({
       }}
     >
       <header className={styles.header}>
-        <span className={styles.label}>
+        <span className={`${styles.label} ${styles[category.kind] ?? ''}`}>
           <span className={styles.labelIcon}>{ICONS[category.kind] ?? <CircleCheck size={12} />}</span>
           <span className={styles.labelText}>{label}</span>
           <span className={styles.count} aria-label={t('fleet.machineCount', { count: total })}>

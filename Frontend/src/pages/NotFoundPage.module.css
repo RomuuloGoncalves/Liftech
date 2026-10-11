@@ -41,7 +41,7 @@
   padding: 10px 20px;
   border-radius: var(--radius-md);
   background: var(--accent);
-  color: #fff;
+  color: var(--white);
   font-weight: 600;
   font-size: var(--fs-base);
   text-decoration: none;

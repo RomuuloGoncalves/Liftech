@@ -9,7 +9,7 @@
   padding: 20px 16px;
   box-sizing: border-box;
   background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--sidebar-line);
   transition: width 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
@@ -98,15 +98,15 @@
   border-radius: var(--radius-md);
   color: var(--text);
   text-decoration: none;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .navLink.active {
-  background: var(--active-bg);
-  color: #fff;
+  background: var(--blue);
+  color: var(--white);
 }
 
 .navIcon {
@@ -138,7 +138,7 @@
   border: none;
   border-radius: var(--radius-sm);
   background: var(--active-bg);
-  color: #fff;
+  color: var(--white);
   font-size: var(--fs-sm);
   font-weight: 500;
   cursor: pointer;

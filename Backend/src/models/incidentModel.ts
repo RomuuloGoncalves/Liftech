@@ -1,4 +1,6 @@
-export class incidentModel {
+import { coreModel } from "../core/coreModel.js";
+
+export class incidentModel extends coreModel {
     private dataIncidente: Date;
     private forcaImpacto: number;
     private status: string;
@@ -6,6 +8,7 @@ export class incidentModel {
     private operadorId: string;
 
     constructor(dataIncidente: Date, forcaImpacto: number, status: string, empilhadeiraId: string, operadorId: string) {
+        super();
         this.dataIncidente = dataIncidente;
         this.forcaImpacto = forcaImpacto;
         this.status = status;

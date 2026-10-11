@@ -15,6 +15,7 @@ const renderPage = (role: RoleLogin) =>
       <Routes>
         <Route path="/login" element={<LoginPage role={role} />} />
         <Route path="/" element={<div>home screen</div>} />
+        <Route path="/funcionario" element={<div>employee screen</div>} />
       </Routes>
     </MemoryRouter>
   )
@@ -50,13 +51,15 @@ describe('LoginPage', () => {
     submit('Email empresarial', 'admin@empresa.com', 'minhasenha')
     expect(await screen.findByText('home screen')).toBeInTheDocument()
     expect(login).toHaveBeenCalledWith('admin', 'admin@empresa.com', 'minhasenha')
+    expect(screen.queryByText('employee screen')).not.toBeInTheDocument()
   })
 
-  it('logs in colaborador', async () => {
+  it('logs in colaborador and navigates to /funcionario', async () => {
     login.mockResolvedValue({ _id: '2', nome: 'João', role: 'colaborador' })
     renderPage('colaborador')
     submit('Usuário', 'joao', 'minhasenha')
-    expect(await screen.findByText('home screen')).toBeInTheDocument()
+    expect(await screen.findByText('employee screen')).toBeInTheDocument()
+    expect(screen.queryByText('home screen')).not.toBeInTheDocument()
     expect(login).toHaveBeenCalledWith('colaborador', 'joao', 'minhasenha')
   })
 

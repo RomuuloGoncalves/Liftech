@@ -32,4 +32,25 @@ describe('App shell visibility', () => {
     expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Boas vindas à Liftech' })).toBeInTheDocument()
   })
+
+  it.each(['/funcionario', '/funcionario/maquinas', '/funcionario/configuracoes'])(
+    'hides the admin Sidebar and Header on %s and shows the employee shell',
+    (path) => {
+      renderAt(path)
+      expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('banner', { name: /./ })).not.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Navegação do funcionário' })).toBeInTheDocument()
+    }
+  )
+
+  it('hides the admin Sidebar on /funcionario and renders the employee shell', () => {
+    renderAt('/funcionario')
+    expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Navegação do funcionário' })).toBeInTheDocument()
+  })
+
+  it('hides the admin Sidebar on a nested /funcionario route', () => {
+    renderAt('/funcionario/maquinas')
+    expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()
+  })
 })

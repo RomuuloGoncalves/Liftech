@@ -1,0 +1,52 @@
+.bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--tabbar-offset) + env(safe-area-inset-bottom) + var(--tabbar-height) + 8px);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 32px);
+  max-width: 480px;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--blue);
+  color: var(--white);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  transform: translateX(-50%);
+}
+
+.bar svg {
+  flex-shrink: 0;
+}
+
+.title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.machine {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.elapsed {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.machine + .elapsed {
+  margin-left: 0;
+}

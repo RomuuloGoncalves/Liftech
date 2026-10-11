@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 7,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "surviving_mutant::assert inclusive range boundaries with dates equal to the bounds not only far outside values",
+      "text": "Assert inclusive range boundaries with dates equal to the bounds, not only far-outside values",
+      "signal": "surviving_mutant",
+      "scope": "fleet-filters",
+      "status": "candidate",
+      "features": [
+        "fleet-kanban"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FilterRow period bounds M8 (fleet-filters)"
+      ],
+      "created": "2026-10-02T12:06:43Z",
+      "last_seen": "2026-10-02T12:06:43Z"
+    },
+    {
+      "id": "L-002",
+      "key": "surviving_mutant::assert the surface background token of every card and section in static css tests not only the tokens and the components whose fill changed",
+      "text": "Assert the surface background token of every card and section in static CSS tests, not only the tokens and the components whose fill changed",
+      "signal": "surviving_mutant",
+      "scope": "frontend-css",
+      "status": "candidate",
+      "features": [
+        "figma-restyle"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M12,M13 (EquipePage.module.css:17, MachineCard.module.css:11) (frontend-css)"
+      ],
+      "created": "2026-10-11T01:14:21Z",
+      "last_seen": "2026-10-11T01:14:21Z"
+    },
+    {
+      "id": "L-003",
+      "key": "spec_precision_gap::write computed style criteria against the element that actually declares the property an element that inherits through transparency cannot be asserted",
+      "text": "Write computed-style criteria against the element that actually declares the property; an element that inherits through transparency cannot be asserted",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "figma-restyle"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "RST-04 AC1 (App.css:17 .app-main) (spec)"
+      ],
+      "created": "2026-10-11T01:14:21Z",
+      "last_seen": "2026-10-11T01:14:21Z"
+    },
+    {
+      "id": "L-004",
+      "key": "surviving_mutant::cover every selector that applies a shared token role such as the primary button color not just the component named in the task",
+      "text": "Cover every selector that applies a shared token role, such as the primary button color, not just the component named in the task",
+      "signal": "surviving_mutant",
+      "scope": "frontend-css",
+      "status": "candidate",
+      "features": [
+        "figma-restyle"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M23 (EquipePage.module.css:57) (frontend-css)"
+      ],
+      "created": "2026-10-11T01:14:21Z",
+      "last_seen": "2026-10-11T01:14:21Z"
+    },
+    {
+      "id": "L-005",
+      "key": "surviving_mutant::give each responsive edge case in the spec a static assertion or drop it from the spec",
+      "text": "Give each responsive edge case in the spec a static assertion, or drop it from the spec",
+      "signal": "surviving_mutant",
+      "scope": "frontend-css",
+      "status": "candidate",
+      "features": [
+        "figma-restyle"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M21 (index.css responsive edge case 640-1279px) (frontend-css)"
+      ],
+      "created": "2026-10-11T01:14:21Z",
+      "last_seen": "2026-10-11T01:14:21Z"
+    },
+    {
+      "id": "L-006",
+      "key": "spec_precision_gap::name the exact token for every state in a spec criterion instead of pointing at the current value so the test asserts the spec and not the implementation",
+      "text": "Name the exact token for every state in a spec criterion instead of pointing at the current value, so the test asserts the spec and not the implementation",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "figma-restyle"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "RST-06 AC1 Offline cinza atual (machines.test.ts:28-31 MachineCard.module.css:178) (spec)"
+      ],
+      "created": "2026-10-11T01:37:25Z",
+      "last_seen": "2026-10-11T01:37:25Z"
+    }
+  ]
+}

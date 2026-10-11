@@ -18,7 +18,7 @@
 }
 
 .input::placeholder {
-  font-family: 'Lexend', var(--sans);
+  font-family: var(--sans);
   font-size: var(--fs-xs);
   font-weight: 300;
   color: #b3b3b3;
