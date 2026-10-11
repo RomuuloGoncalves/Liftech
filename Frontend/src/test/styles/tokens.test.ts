@@ -35,6 +35,7 @@ describe('Style Guide tokens (RST-01)', () => {
     ['urgency-medium', '#ffc415'],
     ['line', '#e3e4e5'],
     ['sidebar-line', '#eeeff0'],
+    ['overlay', 'rgba(245,245,245,0.55)'],
     ['bg-page', 'var(--gray-bg)'],
   ])('declares measured token --%s as %s', (name, value) => {
     expect(token(name)).toBe(value)

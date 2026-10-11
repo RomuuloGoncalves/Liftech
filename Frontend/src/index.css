@@ -21,6 +21,7 @@
   --urgency-medium: #ffc415;
   --line: #e3e4e5;
   --sidebar-line: #eeeff0;
+  --overlay: rgba(245, 245, 245, 0.55);
 
   /* Fundo da página (cinza); --bg continua sendo a superfície branca de cards, modais e inputs. */
   --bg-page: var(--gray-bg);

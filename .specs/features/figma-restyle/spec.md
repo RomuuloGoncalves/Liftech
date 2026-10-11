@@ -36,7 +36,7 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 | Fonte | Host Grotesk (Google Fonts, pesos 400-700) em `--sans` e `--heading`, com `system-ui` de fallback; Lexend e Inter saem do auth | Texto "Host Grotesk fonts" no Figma; resposta do dono | y |
 | Itens novos do Figma | Ignorados | Resposta do dono | y |
 | Cores do guide (valores) | `--blue #3A9CFF`, `--blue-bg rgba(58,156,255,.25)`, `--gray-border rgba(21,28,39,.1)`, `--gray-bg #FAFAFA`, `--white #FFF`, `--red #FF0000`, `--red-bg rgba(255,58,58,.25)`, `--yellow #E5D000`, `--yellow-bg rgba(255,245,139,.25)`, `--green #1E8021`, `--green-bg rgba(74,255,58,.25)`, `--black-title #181818`, `--black-text #4C4C4C` | Lidos no frame "Guide Style" (141:259) | y |
-| Cores fora do guide, medidas nos frames | `--danger-solid #EF4444` (botões Excluir e Cancelar), `--urgency-critical #C84646`, `--urgency-high #D4773F`, `--urgency-medium #FFC415`, `--line #E3E4E5` (divisor do header), `--sidebar-line #EEEFF0` | O guide não cobre; valores são a cor dominante da região nos frames 88:272, 100:21063 e 100:17710 | n |
+| Cores fora do guide, medidas nos frames | `--danger-solid #EF4444` (botões Excluir e Cancelar), `--urgency-critical #C84646`, `--urgency-high #D4773F`, `--urgency-medium #FFC415`, `--line #E3E4E5` (divisor do header), `--sidebar-line #EEEFF0`, `--overlay rgba(245,245,245,.55)` (já existia no `Modal`) | O guide não cobre; valores são a cor dominante da região nos frames 88:272, 100:21063 e 100:17710 | n |
 | Vermelho de texto | Textos de erro/negado seguem `--red` do guide; botões preenchidos usam `--danger-solid` | O Figma usa `#EF4444` nos botões, não o `#FF0000` do guide | n |
 | Fundo de página vs card | `--bg` (branco) continua sendo a superfície de cards, modais e inputs; novo `--bg-page` (`#FAFAFA`) vira o fundo de `body`, `.app-main` e Header | Figma: fundo `#FAFAFA` em todas as telas, cards `#FFF` | y |
 | Status da Visão Geral | Disponível = `--green-bg`/`--green`; Em uso = `--blue-bg`/`--blue`; Manutenção = `--yellow-bg`/`--yellow`; Offline = cinza atual | Figma 35:479; hoje Manutenção é vermelho | n |
@@ -60,7 +60,7 @@ O Figma foi atualizado: o fundo de todas as telas virou `#FAFAFA` com cards bran
 **Acceptance Criteria**:
 
 1. The frontend SHALL declarar em `index.css` os 13 tokens do Style Guide com os valores da tabela de assumptions.
-2. The frontend SHALL declarar em `index.css` os tokens `--danger-solid`, `--urgency-critical`, `--urgency-high`, `--urgency-medium`, `--line`, `--sidebar-line` e `--bg-page`.
+2. The frontend SHALL declarar em `index.css` os tokens `--danger-solid`, `--urgency-critical`, `--urgency-high`, `--urgency-medium`, `--line`, `--sidebar-line`, `--overlay` e `--bg-page`.
 3. The frontend SHALL carregar a fonte Host Grotesk no `index.html` e usá-la como primeira família de `--sans` e `--heading`.
 4. The frontend SHALL NOT declarar cor em hexadecimal em nenhum arquivo `.css` além de `index.css`, `AuthLayout.module.css` e `AuthForm.module.css`.
 5. The frontend SHALL NOT declarar `rgb()`/`rgba()` com canais diferentes de preto ou branco em nenhum `.css` além de `index.css`.
