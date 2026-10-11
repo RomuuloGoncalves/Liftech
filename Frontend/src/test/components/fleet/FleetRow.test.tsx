@@ -170,3 +170,20 @@ describe('FleetRow drop target', () => {
     expect(onDragLeaveRow).toHaveBeenCalledWith('ativas')
   })
 })
+
+describe('FleetRow category chip (RST-07)', () => {
+  const chip = () => screen.getByText('Ativas').parentElement as HTMLElement
+
+  it.each(['acidentes', 'ativas', 'manutencao', 'disponiveis'] as const)('applies the %s chip class', (kind) => {
+    setup(pick('EMP-082'), { category: category({ id: kind, kind }) })
+    expect(chip().className).toContain(kind)
+  })
+
+  it('does not apply a kind chip class to custom categories and keeps --category-color', () => {
+    setup(pick('EMP-082'), { category: category({ id: 'c1', kind: 'custom', cor: '#FF8800' }) })
+    for (const kind of ['acidentes', 'ativas', 'manutencao', 'disponiveis']) {
+      expect(chip().className).not.toContain(kind)
+    }
+    expect(screen.getByRole('region', { name: 'Ativas' }).style.getPropertyValue('--category-color')).toBe('#FF8800')
+  })
+})

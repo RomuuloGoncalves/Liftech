@@ -219,11 +219,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/components/fleet/FleetRow.test.tsx` renderiza cada `kind` e confere a classe do chip (AC RST-07)
-- [ ] Teste `custom` confere que `--category-color` continua aplicado (AC RST-07)
-- [ ] `src/test/styles/fleet.test.ts` confere `--danger-solid` no botão excluir categoria (AC RST-08)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/fleet/FleetRow.test.tsx src/test/styles`
-- [ ] Test count: ≥ 5 testes novos passam, nenhum removido
+- [x] `src/test/components/fleet/FleetRow.test.tsx` renderiza cada `kind` e confere a classe do chip (AC RST-07)
+- [x] Teste `custom` confere que `--category-color` continua aplicado (AC RST-07)
+- [x] `src/test/styles/fleet.test.ts` confere `--danger-solid` no botão excluir categoria (AC RST-08)
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/fleet/FleetRow.test.tsx src/test/styles`
+- [x] Test count: ≥ 5 testes novos passam, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
