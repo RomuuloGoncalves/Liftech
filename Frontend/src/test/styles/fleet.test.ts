@@ -99,7 +99,7 @@ describe('FleetCard status header (RST-12)', () => {
   it('shapes the status header like the accident header (bleeds to the card edge)', () => {
     const shape = rule(css, '.topRow.statusAvailable, .topRow.statusInUse, .topRow.statusMaintenance, .topRow.statusOffline')
     expect(shape).toContain('margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0')
-    expect(shape).toContain('padding: calc(12 * var(--px, 1px))')
+    expect(shape).toContain('padding: calc(8 * var(--px, 1px)) calc(12 * var(--px, 1px))')
   })
 })
 

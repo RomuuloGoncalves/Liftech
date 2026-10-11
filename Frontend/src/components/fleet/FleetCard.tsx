@@ -91,7 +91,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
     ativas: {
       label: t('fleet.cardSessionTime'),
       value: t('fleet.cardMinutes', { count: machine.tempoSessaoMinutos }),
-      tone: styles.info,
+      tone: styles.session,
     },
     disponiveis: {
       label: t('fleet.cardWeeklyHours'),
@@ -174,38 +174,40 @@ const FleetCard: React.FC<FleetCardProps> = ({
         )}
       </div>
 
-      <dl className={styles.details}>
-        <div>
-          <dt>{t('fleet.cardSector')}</dt>
-          <dd>{machine.setor || undefinedText}</dd>
-        </div>
-        {kind === 'manutencao' ? (
+      <div className={styles.body}>
+        <dl className={styles.details}>
           <div>
-            <dt>{t('fleet.cardMac')}</dt>
-            <dd>{machine.dispositivoConectado.enderecoMac || undefinedText}</dd>
+            <dt>{t('fleet.cardSector')}</dt>
+            <dd>{machine.setor || undefinedText}</dd>
           </div>
-        ) : (
-          <div>
-            <dt>{t('fleet.cardEmployee')}</dt>
-            <dd>{machine.operadorConectado?.nome || undefinedText}</dd>
-          </div>
-        )}
-      </dl>
-
-      {highlight && (
-        <dl className={styles.bottomRow}>
-          {highlight.left && (
+          {kind === 'manutencao' ? (
+            <div>
+              <dt>{t('fleet.cardMac')}</dt>
+              <dd>{machine.dispositivoConectado.enderecoMac || undefinedText}</dd>
+            </div>
+          ) : (
+            <div>
+              <dt>{t('fleet.cardEmployee')}</dt>
+              <dd>{machine.operadorConectado?.nome || undefinedText}</dd>
+            </div>
+          )}
+          {highlight?.left && (
             <div>
               <dt>{highlight.left.label}</dt>
               <dd>{highlight.left.value}</dd>
             </div>
           )}
-          <div className={styles.highlight}>
-            <dt>{highlight.label}</dt>
-            <dd className={highlight.tone}>{highlight.value}</dd>
-          </div>
         </dl>
-      )}
+
+        {highlight && (
+          <dl className={styles.highlight}>
+            <div>
+              <dt>{highlight.label}</dt>
+              <dd className={highlight.tone}>{highlight.value}</dd>
+            </div>
+          </dl>
+        )}
+      </div>
     </article>
   )
 }

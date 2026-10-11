@@ -71,7 +71,7 @@
 
 .searchInput {
   width: 260px;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   padding: 0 12px 0 36px;
   border: 1px solid var(--border);
@@ -103,7 +103,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   padding: 0 12px;
   border: 1px solid var(--border);
@@ -147,8 +147,14 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(calc(288 * var(--px, 1px)), 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(calc(240 * var(--px, 1px)), 1fr));
+  justify-content: start;
+  gap: 16px;
+}
+
+.grid > * {
+  width: 100%;
+  max-width: calc(288 * var(--px, 1px));
 }
 
 .empty {
@@ -163,11 +169,19 @@
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .grid > * {
+    max-width: none;
+  }
 }
 
 @media (max-width: 899px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid > * {
+    max-width: none;
   }
 }
 
@@ -186,5 +200,9 @@
 @media (max-width: 639px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .grid > * {
+    max-width: none;
   }
 }
