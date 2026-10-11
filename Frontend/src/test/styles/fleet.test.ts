@@ -79,6 +79,31 @@ describe('FleetCard accident urgency (RST-10, RST-11)', () => {
   })
 })
 
+describe('FleetCard status header (RST-12)', () => {
+  const css = read('FleetCard.module.css')
+
+  it.each([
+    ['statusAvailable', '--green'],
+    ['statusInUse', '--blue'],
+    ['statusMaintenance', '--yellow'],
+    ['statusOffline', '--black-text'],
+  ])('.%s fills the header with var(%s)', (cls, token) => {
+    expect(rule(css, `.topRow.${cls}`)).toContain(`background: var(${token})`)
+  })
+
+  it('writes header text in white, and in --black-title on the yellow Manutenção header', () => {
+    const group = '.topRow.statusAvailable :is(.nome, .code, .menuButton), .topRow.statusInUse :is(.nome, .code, .menuButton), .topRow.statusOffline :is(.nome, .code, .menuButton)'
+    expect(rule(css, group)).toContain('color: var(--white)')
+    expect(rule(css, '.topRow.statusMaintenance :is(.nome, .code, .menuButton)')).toContain('color: var(--black-title)')
+  })
+
+  it('shapes the status header like the accident header (bleeds to the card edge)', () => {
+    const shape = rule(css, '.topRow.statusAvailable, .topRow.statusInUse, .topRow.statusMaintenance, .topRow.statusOffline')
+    expect(shape).toContain('margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0')
+    expect(shape).toContain('padding: calc(12 * var(--px, 1px))')
+  })
+})
+
 const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
 const hexes = (css: string) => strip(css).match(/#[0-9a-f]{3,8}\b/gi) ?? []
 const colouredRgba = (css: string) =>

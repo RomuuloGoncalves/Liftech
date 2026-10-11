@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CategoryKind } from '../../data/fleet'
-import type { Machine, UrgencyLevel } from '../../data/machines'
+import type { Machine, MachineStatus, UrgencyLevel } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
 import styles from './FleetCard.module.css'
 
@@ -35,6 +35,13 @@ const URGENCY_TONE: Record<UrgencyLevel, string> = {
   media: styles.caution,
   alta: styles.warning,
   critica: styles.danger,
+}
+
+const STATUS_HEADER: Record<MachineStatus, string> = {
+  Disponível: styles.statusAvailable,
+  'Em uso': styles.statusInUse,
+  Manutenção: styles.statusMaintenance,
+  Offline: styles.statusOffline,
 }
 
 const FleetCard: React.FC<FleetCardProps> = ({
@@ -96,6 +103,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
     },
   }
   const highlight = highlights[kind]
+  const headerTone = kind === 'acidentes' ? highlight?.tone : STATUS_HEADER[machine.dispositivoConectado.status]
 
   return (
     <article
@@ -108,7 +116,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
         onDragStart?.(machine.id)
       }}
     >
-      <div className={`${styles.topRow} ${kind === 'acidentes' ? highlight?.tone : ''}`}>
+      <div className={`${styles.topRow} ${headerTone ?? ''}`}>
         <div className={styles.names}>
           <h3 className={styles.nome}>
             <button

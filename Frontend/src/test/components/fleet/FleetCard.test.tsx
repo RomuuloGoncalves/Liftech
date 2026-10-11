@@ -186,11 +186,46 @@ describe('FleetCard accident urgency header (RST-10)', () => {
     expect(value().className).toContain('danger')
   })
 
-  it.each(['ativas', 'manutencao', 'disponiveis', 'custom'] as const)('does not fill the %s header', (kind) => {
+  it.each(['ativas', 'manutencao', 'disponiveis', 'custom'] as const)('uses no urgency or column tone on the %s header', (kind) => {
     setup(kind)
     for (const tone of ['danger', 'warning', 'caution', 'info', 'success']) {
       expect(header().className).not.toContain(tone)
     }
+  })
+})
+
+describe('FleetCard header colored by machine status (RST-12)', () => {
+  const header = () => screen.getByRole('heading', { level: 3 }).closest('div[class*="topRow"]') as HTMLElement
+  const withStatus = (status: Machine['dispositivoConectado']['status']): Machine => ({
+    ...machine,
+    dispositivoConectado: { ...machine.dispositivoConectado, status },
+  })
+
+  it.each([
+    ['Disponível', 'statusAvailable'],
+    ['Em uso', 'statusInUse'],
+    ['Manutenção', 'statusMaintenance'],
+    ['Offline', 'statusOffline'],
+  ] as const)('fills the header of a %s machine with %s', (status, cls) => {
+    setup('custom', { machine: withStatus(status) })
+    expect(header().className).toContain(cls)
+  })
+
+  it.each(['ativas', 'manutencao', 'disponiveis', 'custom'] as const)(
+    'keeps the machine status color when the card sits in the %s column',
+    (kind) => {
+      setup(kind, { machine: withStatus('Em uso') })
+      expect(header().className).toContain('statusInUse')
+      for (const other of ['statusAvailable', 'statusMaintenance', 'statusOffline']) {
+        expect(header().className).not.toContain(other)
+      }
+    }
+  )
+
+  it('keeps the urgency tone, not the status color, in the Acidentes column', () => {
+    setup('acidentes', { machine: withStatus('Disponível'), urgency: 'alta' })
+    expect(header().className).toContain('warning')
+    expect(header().className).not.toContain('statusAvailable')
   })
 })
 

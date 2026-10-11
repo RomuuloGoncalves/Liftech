@@ -380,11 +380,11 @@ T11 → T12
 
 **Done when**:
 
-- [ ] `FleetCard.test.tsx` confere a classe do cabeçalho para cada status e a mesma classe com `kind` diferente (AC RST-12.3)
-- [ ] Em Acidentes o cabeçalho segue a urgência (AC RST-12.4)
-- [ ] `fleet.test.ts` confere fundo e texto de cada classe de status (AC RST-12.1, RST-12.2)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/fleet src/test/pages/FrotaPage.test.tsx src/test/pages/AlertasPage.test.tsx src/test/styles/fleet.test.ts`
-- [ ] Test count: ≥ 8 testes novos passam
+- [x] `FleetCard.test.tsx` confere a classe do cabeçalho para cada status e a mesma classe com `kind` diferente (AC RST-12.3)
+- [x] Em Acidentes o cabeçalho segue a urgência (AC RST-12.4)
+- [x] `fleet.test.ts` confere fundo e texto de cada classe de status (AC RST-12.1, RST-12.2)
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/fleet src/test/pages/FrotaPage.test.tsx src/test/pages/AlertasPage.test.tsx src/test/styles/fleet.test.ts`
+- [x] Test count: ≥ 8 testes novos passam
 
 **Tests**: unit
 **Gate**: full

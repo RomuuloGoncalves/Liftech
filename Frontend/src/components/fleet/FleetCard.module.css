@@ -68,6 +68,42 @@
   background: var(--urgency-medium);
 }
 
+.topRow.statusAvailable,
+.topRow.statusInUse,
+.topRow.statusMaintenance,
+.topRow.statusOffline {
+  margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0;
+  padding: calc(12 * var(--px, 1px));
+  border-radius: calc(5 * var(--px, 1px)) calc(5 * var(--px, 1px)) 0 0;
+  color: var(--white);
+}
+
+.topRow.statusAvailable {
+  background: var(--green);
+}
+
+.topRow.statusInUse {
+  background: var(--blue);
+}
+
+.topRow.statusMaintenance {
+  background: var(--yellow);
+}
+
+.topRow.statusOffline {
+  background: var(--black-text);
+}
+
+.topRow.statusAvailable :is(.nome, .code, .menuButton),
+.topRow.statusInUse :is(.nome, .code, .menuButton),
+.topRow.statusOffline :is(.nome, .code, .menuButton) {
+  color: var(--white);
+}
+
+.topRow.statusMaintenance :is(.nome, .code, .menuButton) {
+  color: var(--black-title);
+}
+
 .topRow.danger :is(.nome, .code, .menuButton),
 .topRow.warning :is(.nome, .code, .menuButton),
 .topRow.caution :is(.nome, .code, .menuButton) {
