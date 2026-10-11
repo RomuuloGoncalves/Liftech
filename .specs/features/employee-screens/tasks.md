@@ -169,10 +169,10 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] Título, subtítulo, banner e os dois cards de jornada aparecem com os textos do Figma
-- [ ] A seção lista no máximo 3 cards e "Mais" navega para `/funcionario/maquinas`
-- [ ] "Selecionar" navega para `/funcionario/maquinas/:id`
-- [ ] Gate passa
+- [x] Título, subtítulo, banner e os dois cards de jornada aparecem com os textos do Figma
+- [x] A seção lista no máximo 3 cards e "Mais" navega para `/funcionario/maquinas`
+- [x] "Selecionar" navega para `/funcionario/maquinas/:id`
+- [x] Gate passa
 
 #### T5: Empilhadeiras disponíveis e sheet de detalhe [P]
 
@@ -206,11 +206,11 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] O cronômetro conta a partir do início guardado (teste com `vi.useFakeTimers`) e continua após remontar a página
-- [ ] "Encerrar Sessão" limpa a sessão e navega para `/funcionario`
-- [ ] "Reportar uma ocorrência" abre o sheet sem encerrar a sessão
-- [ ] Sem sessão, redireciona para `/funcionario/maquinas`
-- [ ] Gate passa
+- [x] O cronômetro conta a partir do início guardado (teste com `vi.useFakeTimers`) e continua após remontar a página
+- [x] "Encerrar Sessão" limpa a sessão e navega para `/funcionario`
+- [x] "Reportar uma ocorrência" abre o sheet sem encerrar a sessão
+- [x] Sem sessão, redireciona para `/funcionario/maquinas`
+- [x] Gate passa
 
 #### T7: Histórico [P]
 
