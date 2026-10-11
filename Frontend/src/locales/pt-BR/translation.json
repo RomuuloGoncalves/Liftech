@@ -262,6 +262,7 @@
     "home": {
       "title": "Visão geral",
       "subtitle": "Acompanhe suas últimas atualizações e consulte as máquinas disponíveis para utilização.",
+      "totalTime": "Tempo total",
       "lastMachine": "Última máquina",
       "workday": "Jornada de trabalho",
       "workdaySchedule": "Das 8h às 17h",

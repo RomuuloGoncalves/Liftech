@@ -260,6 +260,7 @@
     "home": {
       "title": "Overview",
       "subtitle": "Follow your latest updates and check the machines available for use.",
+      "totalTime": "Total time",
       "lastMachine": "Last machine",
       "workday": "Work shift",
       "workdaySchedule": "From 8 am to 5 pm",
