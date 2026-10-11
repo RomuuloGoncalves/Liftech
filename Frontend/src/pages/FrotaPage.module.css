@@ -28,7 +28,7 @@
   padding: 10px 16px;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--active-bg);
+  background: var(--blue);
   box-shadow: var(--shadow);
   font-family: inherit;
   line-height: normal;

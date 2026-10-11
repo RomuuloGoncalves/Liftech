@@ -131,7 +131,7 @@
   padding: 12px;
   border: none;
   border-radius: var(--radius-lg);
-  background: var(--active-bg);
+  background: var(--blue);
   color: var(--white);
   font-size: var(--fs-base);
   font-weight: 600;

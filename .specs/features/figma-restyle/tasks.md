@@ -354,11 +354,11 @@ T11 → T12
 
 **Done when**:
 
-- [ ] `.app-main` declara `background: var(--bg-page)` em `App.css` e o teste confere
-- [ ] Teste confere `background: var(--bg)` (ou `--white` em Frota) nas superfícies de Visão Geral, Equipe, Alertas e Frota
-- [ ] Teste confere `var(--blue)` nos botões primários de Visão Geral, Frota, Equipe e `NewMachinePanel`
-- [ ] Gate: `cd Frontend && npx vitest run src/test/styles`
-- [ ] Test count: ≥ 10 testes novos passam
+- [x] `.app-main` declara `background: var(--bg-page)` em `App.css` e o teste confere
+- [x] Teste confere `background: var(--bg)` (ou `--white` em Frota) nas superfícies de Visão Geral, Equipe, Alertas e Frota
+- [x] Teste confere `var(--blue)` nos botões primários de Visão Geral, Frota, Equipe e `NewMachinePanel`
+- [x] Gate: `cd Frontend && npx vitest run src/test/styles`
+- [x] Test count: ≥ 10 testes novos passam
 
 **Tests**: unit
 **Gate**: quick

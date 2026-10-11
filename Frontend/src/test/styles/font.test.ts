@@ -19,5 +19,6 @@ describe('Host Grotesk (RST-02)', () => {
 
   it('keeps system-ui as the fallback so a failed font load does not break layout', () => {
     expect(css).toMatch(/--sans:[^;]*system-ui/)
+    expect(css).toMatch(/--heading:[^;]*system-ui/)
   })
 })
