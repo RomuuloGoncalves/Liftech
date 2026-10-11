@@ -89,10 +89,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/styles/tokens.test.ts` confere os 13 valores do guide e os 7 tokens extras (AC RST-01)
-- [ ] O teste confere `:root` com `background: var(--bg-page)` e `--text-h` = `#181818`, `--text` = `#4c4c4c` (AC RST-05)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/styles`
-- [ ] Test count: ≥ 3 testes novos passam, suíte anterior sem remoções
+- [x] `src/test/styles/tokens.test.ts` confere os 13 valores do guide e os 7 tokens extras (AC RST-01)
+- [x] O teste confere `:root` com `background: var(--bg-page)` e `--text-h` = `#181818`, `--text` = `#4c4c4c` (AC RST-05)
+- [x] Gate: `cd Frontend && npx vitest run src/test/styles`
+- [x] Test count: ≥ 3 testes novos passam, suíte anterior sem remoções
 
 **Tests**: unit
 **Gate**: quick

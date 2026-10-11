@@ -1,22 +1,49 @@
 :root {
-  --text: #4c4c4c;
-  --text-h: #202020;
-  --bg: #fff;
-  --border: rgba(21, 28, 39, 0.1);
+  /* Style Guide do Figma (frame "Guide Style"). */
+  --blue: #3a9cff;
+  --blue-bg: rgba(58, 156, 255, 0.25);
+  --gray-border: rgba(21, 28, 39, 0.1);
+  --gray-bg: #fafafa;
+  --white: #fff;
+  --red: #ff0000;
+  --red-bg: rgba(255, 58, 58, 0.25);
+  --yellow: #e5d000;
+  --yellow-bg: rgba(255, 245, 139, 0.25);
+  --green: #1e8021;
+  --green-bg: rgba(74, 255, 58, 0.25);
+  --black-title: #181818;
+  --black-text: #4c4c4c;
+
+  /* Fora do guide, medidos nos frames do Figma (cor dominante da região). */
+  --danger-solid: #ef4444;
+  --urgency-critical: #c84646;
+  --urgency-high: #d4773f;
+  --urgency-medium: #ffc415;
+  --line: #e3e4e5;
+  --sidebar-line: #eeeff0;
+
+  /* Fundo da página (cinza); --bg continua sendo a superfície branca de cards, modais e inputs. */
+  --bg-page: var(--gray-bg);
+
+  /* Nomes antigos, apontando para os tokens do guide. */
+  --text: var(--black-text);
+  --text-h: var(--black-title);
+  --bg: var(--white);
+  --border: var(--gray-border);
   --code-bg: #f5f5f5;
-  --bg-sidebar: #fafafa;
-  --active-bg: #3a9cff;
+  --bg-sidebar: var(--gray-bg);
+  --active-bg: var(--blue);
   --radius-sm: 5px;
   --radius-md: 8px;
   --radius-lg: 10px;
-  --accent: #3a9cff;
+  --accent: var(--blue);
   --accent-bg: rgba(21, 28, 39, 0.05);
   --accent-border: rgba(58, 156, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Host Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Host Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   /* Escala tipográfica única: todo font-size do app usa um destes passos. */
@@ -33,7 +60,7 @@
   letter-spacing: 0.18px;
   color-scheme: light;
   color: var(--text);
-  background: var(--bg);
+  background: var(--bg-page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
