@@ -322,9 +322,9 @@ T9 → T10
 
 **Done when**:
 
-- [ ] O teste falha ao introduzir um `#abc` num módulo (verificado uma vez e revertido) e passa no código final (AC RST-03)
-- [ ] Gate: `cd Frontend && npm run lint && npm run build && npx vitest run --maxWorkers=4`
-- [ ] Test count: baseline 479 + novos; falhas = só as 3 do baseline
+- [x] O teste falha ao introduzir um `#abc` num módulo (verificado uma vez e revertido) e passa no código final (AC RST-03)
+- [x] Gate: `cd Frontend && npm run lint && npm run build && npx vitest run --maxWorkers=4`
+- [x] Test count: baseline 479 + novos; falhas = só as 3 do baseline
 
 **Tests**: unit
 **Gate**: build
