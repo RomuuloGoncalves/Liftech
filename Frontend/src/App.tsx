@@ -8,9 +8,12 @@ const AUTH_ROUTES = ['/login', '/login/colaborador', '/solicitar-acesso']
 
 function App() {
   const location = useLocation()
-  const isAuthRoute = AUTH_ROUTES.includes(location.pathname)
+  const isStandaloneRoute =
+    AUTH_ROUTES.includes(location.pathname) ||
+    location.pathname === '/funcionario' ||
+    location.pathname.startsWith('/funcionario/')
 
-  if (isAuthRoute) {
+  if (isStandaloneRoute) {
     return <AppRoutes />
   }
 

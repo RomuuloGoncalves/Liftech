@@ -1,0 +1,34 @@
+.bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--gray-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateX(-50%);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--black-text);
+  text-decoration: none;
+}
+
+.active {
+  background: var(--blue);
+  color: var(--white);
+}

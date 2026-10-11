@@ -1,0 +1,24 @@
+.layout {
+  min-height: 100svh;
+  background: var(--bg-page);
+}
+
+.column {
+  width: 100%;
+  max-width: 1120px;
+  min-width: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 16px 112px;
+}
+
+.content {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .column {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}

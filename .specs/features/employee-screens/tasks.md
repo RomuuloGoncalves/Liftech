@@ -67,12 +67,12 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] Em `/funcionario/*` não há Sidebar nem Header do administrador
-- [ ] A aba da rota atual tem o círculo azul preenchido e as outras não
-- [ ] Tocar numa aba navega para a rota dela; o botão de alerta abre `/funcionario/ocorrencia`
-- [ ] O botão azul abre `/funcionario/configuracoes`, mostra X lá e volta para a rota anterior
-- [ ] `BottomSheet` fecha com Escape, toque no fundo e botão cancelar, e prende o foco
-- [ ] Gate passa
+- [x] Em `/funcionario/*` não há Sidebar nem Header do administrador
+- [x] A aba da rota atual tem o círculo azul preenchido e as outras não
+- [x] Tocar numa aba navega para a rota dela; o botão de alerta abre `/funcionario/ocorrencia`
+- [x] O botão azul abre `/funcionario/configuracoes`, mostra X lá e volta para a rota anterior
+- [x] `BottomSheet` fecha com Escape, toque no fundo e botão cancelar, e prende o foco
+- [x] Gate passa
 
 ### Phase 2: Telas (Parallel)
 
@@ -109,11 +109,11 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] `filterAvailableMachines` devolve só "Disponível" e filtra por nome, identificação e setor sem diferenciar maiúsculas
-- [ ] `filterUsageHistory` aplica período, hora inicial, hora final e máquina; período invertido devolve lista vazia
-- [ ] `useWorkSession` inicia, limpa, devolve os segundos decorridos e funciona em memória quando `sessionStorage` lança erro
-- [ ] Chaves `employee.*` existem em pt-BR e en-US
-- [ ] Gate passa
+- [x] `filterAvailableMachines` devolve só "Disponível" e filtra por nome, identificação e setor sem diferenciar maiúsculas
+- [x] `filterUsageHistory` aplica período, hora inicial, hora final e máquina; período invertido devolve lista vazia
+- [x] `useWorkSession` inicia, limpa, devolve os segundos decorridos e funciona em memória quando `sessionStorage` lança erro
+- [x] Chaves `employee.*` existem em pt-BR e en-US
+- [x] Gate passa
 
 #### T2: Layout do funcionário, rotas e bottom sheet
 
@@ -128,12 +128,12 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] Em `/funcionario/*` não há Sidebar nem Header do administrador
-- [ ] A aba da rota atual tem o círculo azul preenchido e as outras não
-- [ ] Tocar numa aba navega para a rota dela; o botão de alerta abre `/funcionario/ocorrencia`
-- [ ] O botão azul abre `/funcionario/configuracoes`, mostra X lá e volta para a rota anterior
-- [ ] `BottomSheet` fecha com Escape, toque no fundo e botão cancelar, e prende o foco
-- [ ] Gate passa
+- [x] Em `/funcionario/*` não há Sidebar nem Header do administrador
+- [x] A aba da rota atual tem o círculo azul preenchido e as outras não
+- [x] Tocar numa aba navega para a rota dela; o botão de alerta abre `/funcionario/ocorrencia`
+- [x] O botão azul abre `/funcionario/configuracoes`, mostra X lá e volta para a rota anterior
+- [x] `BottomSheet` fecha com Escape, toque no fundo e botão cancelar, e prende o foco
+- [x] Gate passa
 
 #### T3: Login do colaborador e atalho temporário
 

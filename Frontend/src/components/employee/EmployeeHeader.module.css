@@ -1,0 +1,45 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alertButton,
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.alertButton {
+  border: 1px solid var(--gray-border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.menuButton {
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+}
