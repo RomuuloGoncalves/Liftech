@@ -187,11 +187,11 @@ T4, T5, T6, T7, T8 → T9
 
 **Done when**:
 
-- [ ] A lista mostra só máquinas "Disponível"; busca filtra; busca sem resultado mostra a mensagem de vazio
-- [ ] Selecionar abre o sheet com nome, MAC, código, setor, dispositivo e histórico
-- [ ] Período filtra o histórico; "Cancelar" fecha o sheet; id inexistente abre só a lista
-- [ ] "Ativar máquina" inicia a sessão e navega para `/funcionario/sessao`; com sessão ativa fica desabilitado
-- [ ] Gate passa
+- [x] A lista mostra só máquinas "Disponível"; busca filtra; busca sem resultado mostra a mensagem de vazio
+- [x] Selecionar abre o sheet com nome, MAC, código, setor, dispositivo e histórico
+- [x] Período filtra o histórico; "Cancelar" fecha o sheet; id inexistente abre só a lista
+- [x] "Ativar máquina" inicia a sessão e navega para `/funcionario/sessao`; com sessão ativa fica desabilitado
+- [x] Gate passa
 
 #### T6: Sessão em andamento [P]
 
