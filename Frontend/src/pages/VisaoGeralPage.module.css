@@ -24,7 +24,7 @@
   border-radius: var(--radius-sm);
   background: var(--active-bg);
   box-shadow: var(--shadow);
-  color: #fff;
+  color: var(--white);
   font-size: var(--fs-base);
   font-weight: 600;
   cursor: pointer;

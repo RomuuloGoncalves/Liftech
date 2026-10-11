@@ -297,10 +297,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `grep -E '#[0-9a-fA-F]{3,8}'` nos `.css` retorna só `index.css`, `AuthLayout.module.css` e `AuthForm.module.css`
-- [ ] Suítes de `pages` e `components/auth` seguem verdes
-- [ ] Gate: `cd Frontend && npx vitest run src/test/pages src/test/components/auth`
-- [ ] Test count: nenhum teste removido; falhas = as 3 do baseline
+- [x] `grep -E '#[0-9a-fA-F]{3,8}'` nos `.css` retorna só `index.css`, `AuthLayout.module.css` e `AuthForm.module.css`
+- [x] Suítes de `pages` e `components/auth` seguem verdes
+- [x] Gate: `cd Frontend && npx vitest run src/test/pages src/test/components/auth`
+- [x] Test count: nenhum teste removido; falhas = as 3 do baseline
 
 **Tests**: unit
 **Gate**: full
