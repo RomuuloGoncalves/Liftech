@@ -1,0 +1,104 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.timeField {
+  width: 120px;
+  max-width: 100%;
+}
+
+.label {
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--gray-bg);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text-h);
+}
+
+.input::placeholder {
+  color: var(--black-text);
+  opacity: 0.55;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--danger-solid);
+}
+
+.timeInput {
+  padding-left: 32px;
+}
+
+.icon {
+  position: absolute;
+  left: 10px;
+  color: var(--black-text);
+  pointer-events: none;
+}
+
+.error {
+  font-size: var(--fs-xs);
+  color: var(--danger-solid);
+}
+
+.button {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--fs-base);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cancel {
+  background: var(--danger-solid);
+  color: var(--white);
+}
+
+.submit {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--text-h);
+  outline-offset: 2px;
+}

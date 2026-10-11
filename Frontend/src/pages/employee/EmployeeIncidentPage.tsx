@@ -1,9 +1,13 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
+import IncidentSheet from '../../components/employee/IncidentSheet'
 
 const EmployeeIncidentPage: React.FC = () => {
-  const { t } = useTranslation()
-  return <h1>{t('employee.incident.title')}</h1>
+  const navigate = useNavigate()
+  const location = useLocation()
+  const goBack = () => (location.key === 'default' ? navigate('/funcionario') : navigate(-1))
+
+  return <IncidentSheet open onClose={goBack} />
 }
 
 export default EmployeeIncidentPage

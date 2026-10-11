@@ -1,0 +1,163 @@
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import App from '../../../App'
+import { ToastProvider } from '../../../components/common/Toast'
+import IncidentSheet from '../../../components/employee/IncidentSheet'
+import { EMPLOYEE_NAME } from '../../../data/employeeArea'
+import { MACHINES } from '../../../data/machines'
+import { SESSION_STORAGE_KEY } from '../../../hooks/useWorkSession'
+
+const machine = MACHINES[0]
+
+const renderSheet = (props: Partial<React.ComponentProps<typeof IncidentSheet>> = {}) => {
+  const onClose = vi.fn()
+  const onSubmitted = vi.fn()
+  render(
+    <ToastProvider>
+      <IncidentSheet open onClose={onClose} onSubmitted={onSubmitted} {...props} />
+    </ToastProvider>
+  )
+  return { onClose, onSubmitted }
+}
+
+const field = (name: string) => screen.getByLabelText(name) as HTMLInputElement
+const footerButton = (name: string) => within(screen.getByRole('dialog')).getAllByRole('button', { name }).at(-1)!
+
+const fillAll = () => {
+  fireEvent.change(field('Nome funcionário'), { target: { value: 'Maria' } })
+  fireEvent.change(field('Setor'), { target: { value: 'Expedição' } })
+  fireEvent.change(field('Máquina'), { target: { value: 'Titan-X' } })
+  fireEvent.change(field('Horário'), { target: { value: '14:30' } })
+}
+
+describe('IncidentSheet', () => {
+  beforeEach(() => sessionStorage.clear())
+  afterEach(() => sessionStorage.clear())
+
+  it('shows the 4 fields, placeholders and both buttons', () => {
+    renderSheet()
+    expect(screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
+    expect(field('Nome funcionário')).toHaveAttribute('placeholder', 'Ex: Alexandre Mattos')
+    expect(field('Setor')).toHaveAttribute('placeholder', 'Ex: Expedição - Bloco B')
+    expect(field('Máquina')).toHaveAttribute('placeholder', 'Ex: Empilhadeira Elétrica Titan-X')
+    expect(field('Horário')).toHaveAttribute('type', 'time')
+    expect(footerButton('Cancelar')).toBeInTheDocument()
+    expect(footerButton('Enviar ocorrência')).toBeInTheDocument()
+  })
+
+  it('does not render when closed', () => {
+    renderSheet({ open: false })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('without a session fills only the employee name', () => {
+    renderSheet()
+    expect(field('Nome funcionário').value).toBe(EMPLOYEE_NAME)
+    expect(field('Setor').value).toBe('')
+    expect(field('Máquina').value).toBe('')
+    expect(field('Horário').value).toBe('')
+  })
+
+  it('with an active session fills sector and machine from the session machine, still editable', () => {
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ machineId: machine.id, startedAt: Date.now() }))
+    renderSheet()
+    expect(field('Setor').value).toBe(machine.setor)
+    expect(field('Máquina').value).toBe(machine.nome)
+    fireEvent.change(field('Setor'), { target: { value: 'Outro' } })
+    expect(field('Setor').value).toBe('Outro')
+  })
+
+  it('shows the required message under every empty field and does not submit', () => {
+    const { onClose, onSubmitted } = renderSheet()
+    fireEvent.change(field('Nome funcionário'), { target: { value: '' } })
+    fireEvent.click(footerButton('Enviar ocorrência'))
+
+    const messages = screen.getAllByText('Campo obrigatório')
+    expect(messages).toHaveLength(4)
+    for (const label of ['Nome funcionário', 'Setor', 'Máquina', 'Horário']) {
+      const input = field(label)
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+      expect(document.getElementById(input.getAttribute('aria-describedby')!)).toHaveTextContent('Campo obrigatório')
+    }
+    expect(onSubmitted).not.toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
+  })
+
+  it('flags only the fields still empty and clears the message when typing', () => {
+    renderSheet()
+    fireEvent.change(field('Setor'), { target: { value: 'Expedição' } })
+    fireEvent.click(footerButton('Enviar ocorrência'))
+    expect(screen.getAllByText('Campo obrigatório')).toHaveLength(2)
+    expect(field('Setor')).toHaveAttribute('aria-invalid', 'false')
+    fireEvent.change(field('Máquina'), { target: { value: 'Titan-X' } })
+    expect(screen.getAllByText('Campo obrigatório')).toHaveLength(1)
+  })
+
+  it('a valid submit calls onSubmitted, closes and shows the toast', () => {
+    const { onClose, onSubmitted } = renderSheet()
+    fillAll()
+    fireEvent.click(footerButton('Enviar ocorrência'))
+    expect(screen.queryByText('Campo obrigatório')).not.toBeInTheDocument()
+    expect(onSubmitted).toHaveBeenCalledTimes(1)
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
+  })
+
+  it('Cancelar closes without submitting', () => {
+    const { onClose, onSubmitted } = renderSheet()
+    fillAll()
+    fireEvent.click(footerButton('Cancelar'))
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(onSubmitted).not.toHaveBeenCalled()
+    expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
+  })
+})
+
+const Path = () => <output data-testid="path">{useLocation().pathname}</output>
+
+describe('Incident route', () => {
+  beforeEach(() => sessionStorage.clear())
+  afterEach(() => sessionStorage.clear())
+
+  const renderRoute = () =>
+    render(
+      <ToastProvider>
+        <MemoryRouter initialEntries={['/funcionario/historico', '/funcionario/ocorrencia']} initialIndex={1}>
+          <App />
+          <Path />
+        </MemoryRouter>
+      </ToastProvider>
+    )
+
+  it('opens the sheet and a valid submit goes back keeping the toast', () => {
+    renderRoute()
+    expect(screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
+    fillAll()
+    fireEvent.click(footerButton('Enviar ocorrência'))
+    expect(screen.getByTestId('path')).toHaveTextContent('/funcionario/historico')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
+  })
+
+  it('Cancelar goes back without a toast', () => {
+    renderRoute()
+    fireEvent.click(footerButton('Cancelar'))
+    expect(screen.getByTestId('path')).toHaveTextContent('/funcionario/historico')
+    expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
+  })
+
+  it('goes to /funcionario when there is no history', () => {
+    render(
+      <ToastProvider>
+        <MemoryRouter initialEntries={['/funcionario/ocorrencia']}>
+          <App />
+          <Path />
+        </MemoryRouter>
+      </ToastProvider>
+    )
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByTestId('path')).toHaveTextContent(/^\/funcionario$/)
+  })
+})
