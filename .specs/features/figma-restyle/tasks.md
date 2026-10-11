@@ -141,10 +141,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/styles/layout.test.ts` confere `.header` com `var(--bg-page)` e `var(--line)`, e a Sidebar com `var(--sidebar-line)` (AC RST-05)
-- [ ] Testes existentes de `components/layout` seguem verdes
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/layout src/test/styles`
-- [ ] Test count: ≥ 2 testes novos passam, nenhum removido
+- [x] `src/test/styles/layout.test.ts` confere `.header` com `var(--bg-page)` e `var(--line)`, e a Sidebar com `var(--sidebar-line)` (AC RST-05)
+- [x] Testes existentes de `components/layout` seguem verdes
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/layout src/test/styles`
+- [x] Test count: ≥ 2 testes novos passam, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
