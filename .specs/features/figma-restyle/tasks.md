@@ -114,10 +114,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/styles/font.test.ts` confere que `index.html` carrega `Host Grotesk` e que `index.css` tem `'Host Grotesk'` como 1ª família de `--sans` e `--heading`
-- [ ] `index.html` não referencia mais Inter nem Lexend
-- [ ] Gate: `cd Frontend && npx vitest run src/test/styles`
-- [ ] Test count: ≥ 2 testes novos passam
+- [x] `src/test/styles/font.test.ts` confere que `index.html` carrega `Host Grotesk` e que `index.css` tem `'Host Grotesk'` como 1ª família de `--sans` e `--heading`
+- [x] `index.html` não referencia mais Inter nem Lexend
+- [x] Gate: `cd Frontend && npx vitest run src/test/styles`
+- [x] Test count: ≥ 2 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
