@@ -5,7 +5,6 @@ import { describe, expect, it } from 'vitest'
 const read = (file: string) => readFileSync(resolve(process.cwd(), `src/components/fleet/${file}`), 'utf8')
 const norm = (v: string) => v.replace(/\s+/g, ' ').trim()
 
-/** Declarations of the first rule whose selector is exactly `selector`. */
 const rule = (source: string, selector: string) => {
   const css = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ')
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

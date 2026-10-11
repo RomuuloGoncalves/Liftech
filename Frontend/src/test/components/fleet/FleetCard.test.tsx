@@ -235,7 +235,6 @@ describe('FleetCard without icon box (RST-11)', () => {
     (kind) => {
       setup(kind)
       expect(screen.getByRole('article').querySelector('[class*="icon"]')).toBeNull()
-      // The only icon left is the ⋮ inside the menu button.
       for (const svg of screen.getByRole('article').querySelectorAll('svg')) expect(svg.closest('button')).not.toBeNull()
     }
   )

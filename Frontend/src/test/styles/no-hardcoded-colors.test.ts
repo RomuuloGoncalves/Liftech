@@ -3,7 +3,6 @@ import { join, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const SRC = resolve(process.cwd(), 'src')
-// Gradientes de auth ficam fora da regra de hex; index.css é a fonte dos tokens.
 const HEX_ALLOWED = new Set(['index.css', 'components/auth/AuthLayout.module.css', 'components/auth/AuthForm.module.css'])
 
 const cssFiles = (dir: string): string[] =>

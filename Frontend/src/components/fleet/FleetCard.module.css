@@ -46,7 +46,6 @@
   gap: calc(8 * var(--px, 1px));
 }
 
-/* Acidentes: o cabeçalho (nome e código) é preenchido com a cor da urgência. */
 .topRow.danger,
 .topRow.warning,
 .topRow.caution {

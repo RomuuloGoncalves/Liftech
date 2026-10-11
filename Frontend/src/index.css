@@ -1,5 +1,4 @@
 :root {
-  /* Style Guide do Figma (frame "Guide Style"). */
   --blue: #3a9cff;
   --blue-bg: rgba(58, 156, 255, 0.25);
   --gray-border: rgba(21, 28, 39, 0.1);
@@ -14,7 +13,6 @@
   --black-title: #181818;
   --black-text: #4c4c4c;
 
-  /* Fora do guide, medidos nos frames do Figma (cor dominante da região). */
   --danger-solid: #ef4444;
   --urgency-critical: #c84646;
   --urgency-high: #d4773f;
@@ -23,10 +21,8 @@
   --sidebar-line: #eeeff0;
   --overlay: rgba(245, 245, 245, 0.55);
 
-  /* Fundo da página (cinza); --bg continua sendo a superfície branca de cards, modais e inputs. */
   --bg-page: var(--gray-bg);
 
-  /* Nomes antigos, apontando para os tokens do guide. */
   --text: var(--black-text);
   --text-h: var(--black-title);
   --bg: var(--white);

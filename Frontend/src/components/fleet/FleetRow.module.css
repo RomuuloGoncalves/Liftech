@@ -25,7 +25,6 @@
   gap: calc(8 * var(--px, 1px));
 }
 
-/* Chip: custom usa a cor escolhida; os tipos fixos sobrescrevem as variáveis com os tokens do guide. */
 .label {
   --chip: var(--category-color);
   --chip-bg: color-mix(in srgb, var(--category-color) 25%, var(--white));
