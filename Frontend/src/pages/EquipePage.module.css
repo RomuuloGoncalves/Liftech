@@ -44,20 +44,20 @@
 .searchInput,
 .select {
   box-sizing: border-box;
-  height: 36px;
+  height: 32px;
 }
 
 .registerButton {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 16px;
+  padding: 0 16px;
   border: none;
   border-radius: 5px;
   background: var(--blue);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
   color: var(--white);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
 }
@@ -80,7 +80,7 @@
 .searchInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 9px 12px 9px 36px;
+  padding: 0 12px 0 36px;
   border: 0.5px solid var(--border);
   border-radius: 5px;
   background: var(--bg);
@@ -90,7 +90,7 @@
 }
 
 .select {
-  padding: 9px 12px;
+  padding: 0 12px;
   border: 0.5px solid var(--border);
   border-radius: 5px;
   background: var(--bg);

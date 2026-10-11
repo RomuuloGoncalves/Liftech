@@ -25,14 +25,16 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  padding: 10px 16px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 16px;
   border: none;
   border-radius: var(--radius-sm);
   background: var(--blue);
   box-shadow: var(--shadow);
   font-family: inherit;
   line-height: normal;
-  font-size: var(--fs-base);
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--white);
   cursor: pointer;
@@ -48,7 +50,7 @@
   align-items: center;
   gap: calc(16 * var(--px, 1px));
   width: 300px;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   padding: 0 calc(14 * var(--px, 1px));
   border: 1px solid var(--line);
@@ -64,7 +66,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: calc(12 * var(--px, 1px));
+  font-size: var(--fs-md);
   color: var(--text-h);
 }
 
@@ -87,12 +89,14 @@
 
 .filter {
   flex-shrink: 0;
-  padding: 10px 12px 10px 36px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px 0 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text);
-  font-size: var(--fs-base);
+  font-size: var(--fs-md);
   cursor: pointer;
 }
 
