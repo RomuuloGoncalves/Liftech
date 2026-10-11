@@ -37,6 +37,7 @@ const TEMP_AUTH_LINKS: { to: string; label: string }[] = [
   { to: '/login', label: 'Login Admin' },
   { to: '/login/colaborador', label: 'Login Colaborador' },
   { to: '/solicitar-acesso', label: 'Solicitar Acesso' },
+  { to: '/funcionario', label: 'Área do Funcionário' },
 ]
 
 function readStoredCollapsed(): boolean {

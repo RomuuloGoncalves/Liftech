@@ -17,6 +17,7 @@
   justify-self: center;
   align-self: center;
   width: 100%;
+  min-width: 0;
   max-width: 374px;
   display: flex;
   flex-direction: column;
@@ -60,8 +61,8 @@
 }
 
 .subtitle {
-  width: 340px;
-  max-width: calc(100vw - 32px);
+  width: min(340px, 100%);
+  max-width: 100%;
   margin: 8px 0 0;
   font-size: var(--fs-md);
   line-height: 16px;
@@ -70,11 +71,13 @@
 
 .tabs {
   display: flex;
+  min-width: 0;
   gap: 6px;
 }
 
 .tab {
   flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,6 +92,8 @@
   color: #3a9cff;
   text-decoration: none;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tabActive {
@@ -112,6 +117,18 @@
 @media (min-width: 900px) {
   .hero {
     display: flex;
+  }
+}
+
+@media (max-width: 359px) {
+  .title {
+    font-size: var(--fs-2xl);
+    white-space: normal;
+  }
+
+  .tab {
+    padding: 0 3px;
+    font-size: var(--fs-xs);
   }
 }
 

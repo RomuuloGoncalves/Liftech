@@ -40,7 +40,7 @@ const LoginPage: React.FC<{ role: RoleLogin }> = ({ role }) => {
     setIsLoading(true)
     try {
       await authService.login(role, value, senha)
-      navigate('/')
+      navigate(role === 'colaborador' ? '/funcionario' : '/')
     } catch (e) {
       if (axios.isAxiosError(e) && e.response?.status === 401) setApiError(t('auth.invalidCredentials'))
       else if (axios.isAxiosError(e) && !e.response) setApiError(t('auth.networkError'))

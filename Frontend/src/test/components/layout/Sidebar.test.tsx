@@ -35,6 +35,11 @@ describe('Sidebar component', () => {
     setViewportWidth(DESKTOP_WIDTH)
   })
 
+  it('shows the temporary Área do Funcionário link pointing to /funcionario', () => {
+    renderSidebarAt('/')
+    expect(screen.getByRole('link', { name: 'Área do Funcionário' })).toHaveAttribute('href', '/funcionario')
+  })
+
   it('renders the Liftech brand name', () => {
     renderSidebarAt('/')
     expect(screen.getByAltText('Liftech')).toBeInTheDocument()
