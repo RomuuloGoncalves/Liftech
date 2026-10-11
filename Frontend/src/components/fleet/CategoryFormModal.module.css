@@ -22,9 +22,9 @@
   width: 44px;
   height: 40px;
   padding: 0;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 5px;
-  background: #fff;
+  background: var(--white);
   cursor: pointer;
 }
 
@@ -44,9 +44,9 @@
   width: 200px;
   padding: 18px 8px 8px;
   box-sizing: border-box;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: #fff;
+  background: var(--white);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   animation: menu-in 120ms ease-out;
   transform: translateX(-40%);
@@ -90,10 +90,10 @@
   gap: 6px;
   height: 14px;
   padding: 8px 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 7px;
   font-size: var(--fs-xs);
-  color: #9a9a9a;
+  color: var(--black-text);
 }
 
 .hex .dot {
@@ -123,25 +123,25 @@
   height: 40px;
   box-sizing: border-box;
   padding: 0 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 3px;
-  background: #f7f7f7;
+  background: var(--bg-page);
   font: inherit;
   font-size: var(--fs-xs);
   color: var(--text-h);
 }
 
 .nameInput::placeholder {
-  color: #b5b5b5;
+  color: var(--black-text);
 }
 
 .nameInput[aria-invalid='true'] {
-  border-color: #ef4444;
+  border-color: var(--danger-solid);
 }
 
 .error {
   font-size: var(--fs-xs);
-  color: #ef4444;
+  color: var(--danger-solid);
 }
 
 @keyframes menu-in {

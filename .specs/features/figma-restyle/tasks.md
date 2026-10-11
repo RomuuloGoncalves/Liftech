@@ -245,10 +245,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `src/test/components/fleet/FleetCard.test.tsx` renderiza Crítica, Alta, Média e sem urgência, e confere a variável de cor do cabeçalho e do rótulo (AC RST-10)
-- [ ] Teste confere que o botão do título e o menu ⋮ continuam acessíveis e que a caixa de ícone não existe (AC RST-11)
-- [ ] Gate: `cd Frontend && npx vitest run src/test/components/fleet src/test/pages/AlertasPage.test.tsx src/test/pages/FrotaPage.test.tsx`
-- [ ] Test count: ≥ 6 testes novos passam, nenhum removido
+- [x] `src/test/components/fleet/FleetCard.test.tsx` renderiza Crítica, Alta, Média e sem urgência, e confere a variável de cor do cabeçalho e do rótulo (AC RST-10)
+- [x] Teste confere que o botão do título e o menu ⋮ continuam acessíveis e que a caixa de ícone não existe (AC RST-11)
+- [x] Gate: `cd Frontend && npx vitest run src/test/components/fleet src/test/pages/AlertasPage.test.tsx src/test/pages/FrotaPage.test.tsx`
+- [x] Test count: ≥ 6 testes novos passam, nenhum removido
 
 **Tests**: unit
 **Gate**: full

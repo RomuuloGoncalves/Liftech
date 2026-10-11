@@ -165,3 +165,56 @@ describe('FleetCard drag feedback', () => {
     expect(screen.getByRole('article')).not.toHaveAttribute('data-arriving')
   })
 })
+
+describe('FleetCard accident urgency header (RST-10)', () => {
+  const header = () => screen.getByRole('heading', { level: 3 }).closest('div[class*="topRow"]') as HTMLElement
+  const value = () => screen.getByText('Nível de urgência').nextElementSibling as HTMLElement
+
+  it.each([
+    ['critica', 'danger'],
+    ['alta', 'warning'],
+    ['media', 'caution'],
+  ] as const)('fills the %s accident header and colours its label with the same tone', (urgency, tone) => {
+    setup('acidentes', { urgency })
+    expect(header().className).toContain(tone)
+    expect(value().className).toContain(tone)
+  })
+
+  it('falls back to the critical tone when the accident card has no urgency', () => {
+    setup('acidentes')
+    expect(header().className).toContain('danger')
+    expect(value().className).toContain('danger')
+  })
+
+  it.each(['ativas', 'manutencao', 'disponiveis', 'custom'] as const)('does not fill the %s header', (kind) => {
+    setup(kind)
+    for (const tone of ['danger', 'warning', 'caution', 'info', 'success']) {
+      expect(header().className).not.toContain(tone)
+    }
+  })
+})
+
+describe('FleetCard without icon box (RST-11)', () => {
+  it.each(['acidentes', 'ativas', 'manutencao', 'disponiveis', 'custom'] as const)(
+    'renders no icon box on %s cards',
+    (kind) => {
+      setup(kind)
+      expect(screen.getByRole('article').querySelector('[class*="icon"]')).toBeNull()
+      // The only icon left is the ⋮ inside the menu button.
+      for (const svg of screen.getByRole('article').querySelectorAll('svg')) expect(svg.closest('button')).not.toBeNull()
+    }
+  )
+
+  it('keeps the title button reachable and opening the details', () => {
+    const { onOpen } = setup('acidentes', { urgency: 'alta' })
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Empilhadeira Elétrica Titan-X' }))
+    expect(onOpen).toHaveBeenCalledWith(machine)
+  })
+
+  it('keeps the ⋮ menu working', () => {
+    const { onRemove } = setup('acidentes', { urgency: 'alta' })
+    fireEvent.click(screen.getByRole('button', { name: 'Mais ações para EMP-084' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Remover da categoria' }))
+    expect(onRemove).toHaveBeenCalledWith('4')
+  })
+})

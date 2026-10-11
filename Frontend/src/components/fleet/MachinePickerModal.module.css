@@ -9,9 +9,9 @@
   min-height: 40px;
   box-sizing: border-box;
   padding: 8px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 3px;
-  background: #f7f7f7;
+  background: var(--bg-page);
 }
 
 .chips ul {
@@ -28,11 +28,11 @@
   align-items: center;
   gap: 6px;
   padding: 2px 4px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 3px;
-  background: #fff;
+  background: var(--white);
   font-size: var(--fs-xs);
-  color: #9a9a9a;
+  color: var(--black-text);
 }
 
 .chipRemove {
@@ -40,7 +40,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #9a9a9a;
+  color: var(--black-text);
   cursor: pointer;
 }
 
@@ -51,7 +51,7 @@
   height: 40px;
   box-sizing: border-box;
   padding: 0 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 3px;
   color: var(--text);
 }
@@ -76,7 +76,7 @@
   margin: 0 0 16px;
   padding: 8px 0 0;
   overflow-y: auto;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 3px;
   list-style: none;
 }
@@ -87,7 +87,7 @@
   justify-content: space-between;
   height: 28px;
   padding: 0 12px;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid var(--gray-border);
   font-size: var(--fs-sm);
   color: var(--text-h);
   cursor: pointer;
@@ -99,7 +99,7 @@
 
 .option:hover,
 .option:focus-visible {
-  background: #f7f7f7;
+  background: var(--bg-page);
   outline: none;
 }
 

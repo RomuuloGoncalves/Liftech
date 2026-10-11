@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Forklift, MoreVertical } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CategoryKind } from '../../data/fleet'
 import type { Machine, UrgencyLevel } from '../../data/machines'
@@ -108,10 +108,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
         onDragStart?.(machine.id)
       }}
     >
-      <div className={styles.topRow}>
-        <span className={styles.icon}>
-          <Forklift size={30} />
-        </span>
+      <div className={`${styles.topRow} ${kind === 'acidentes' ? highlight?.tone : ''}`}>
         <div className={styles.names}>
           <h3 className={styles.nome}>
             <button

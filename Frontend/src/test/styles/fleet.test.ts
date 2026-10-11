@@ -47,3 +47,52 @@ describe('FleetRow danger button (RST-08)', () => {
   })
 })
 
+describe('FleetCard accident urgency (RST-10, RST-11)', () => {
+  const css = read('FleetCard.module.css')
+
+  it.each([
+    ['danger', 'urgency-critical'],
+    ['warning', 'urgency-high'],
+    ['caution', 'urgency-medium'],
+  ])('.%s fills the header with --%s and colours the label with it', (tone, token) => {
+    const header = rule(css, `.topRow.${tone}`)
+    expect(header).toContain(`background: var(--${token})`)
+    expect(rule(css, `.highlight .${tone}`)).toContain(`color: var(--${token})`)
+  })
+
+  it('paints the filled header text white', () => {
+    expect(rule(css, '.topRow.danger, .topRow.warning, .topRow.caution')).toContain('color: var(--white)')
+    expect(rule(css, '.topRow.danger :is(.nome, .code, .menuButton), .topRow.warning :is(.nome, .code, .menuButton), .topRow.caution :is(.nome, .code, .menuButton)')).toContain('color: var(--white)')
+  })
+
+  it('has no icon box rule', () => {
+    expect(css).not.toMatch(/\.icon\s*\{/)
+  })
+
+  it('uses --blue for info and --green for success labels', () => {
+    expect(rule(css, '.highlight .info')).toContain('color: var(--blue)')
+    expect(rule(css, '.highlight .success')).toContain('color: var(--green)')
+  })
+
+  it('falls back to --blue for the arrival highlight', () => {
+    expect(css).toContain('var(--category-color, var(--blue))')
+  })
+})
+
+const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
+const hexes = (css: string) => strip(css).match(/#[0-9a-f]{3,8}\b/gi) ?? []
+const colouredRgba = (css: string) =>
+  (strip(css).match(/rgba?\([^)]*\)/gi) ?? []).filter((c) => !/^rgba?\(\s*(0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255)\s*[,)]/i.test(c))
+
+describe('fleet CSS has no loose colours', () => {
+  it.each([
+    'FleetRow.module.css',
+    'FleetCard.module.css',
+    'CategoryFormModal.module.css',
+    'MachinePickerModal.module.css',
+  ])('%s has no #hex nor coloured rgba', (file) => {
+    const css = read(file)
+    expect(hexes(css)).toEqual([])
+    expect(colouredRgba(css)).toEqual([])
+  })
+})

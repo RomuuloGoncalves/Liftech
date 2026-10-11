@@ -7,9 +7,9 @@
   min-height: calc(184 * var(--px, 1px));
   box-sizing: border-box;
   padding: calc(12 * var(--px, 1px));
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: calc(6 * var(--px, 1px));
-  background: #fff;
+  background: var(--white);
 }
 
 .card[draggable='true'] {
@@ -23,7 +23,7 @@
 /* Arrastando: fica no lugar, esmaecido, para mostrar de onde saiu. */
 .card[data-dragging] {
   border-style: dashed;
-  border-color: #9a9a9a;
+  border-color: var(--black-text);
   opacity: 0.4;
 }
 
@@ -35,8 +35,8 @@
 @keyframes arrive {
   0%,
   40% {
-    border-color: var(--category-color, #3a9cff);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--category-color, #3a9cff) 35%, transparent);
+    border-color: var(--category-color, var(--blue));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--category-color, var(--blue)) 35%, transparent);
   }
 }
 
@@ -46,17 +46,32 @@
   gap: calc(8 * var(--px, 1px));
 }
 
-.icon {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(42 * var(--px, 1px));
-  height: calc(42 * var(--px, 1px));
-  box-sizing: border-box;
-  border: 1px solid #e3e3e3;
-  border-radius: calc(5 * var(--px, 1px));
-  color: var(--text-h);
+/* Acidentes: o cabeçalho (nome e código) é preenchido com a cor da urgência. */
+.topRow.danger,
+.topRow.warning,
+.topRow.caution {
+  margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0;
+  padding: calc(12 * var(--px, 1px));
+  border-radius: calc(5 * var(--px, 1px)) calc(5 * var(--px, 1px)) 0 0;
+  color: var(--white);
+}
+
+.topRow.danger {
+  background: var(--urgency-critical);
+}
+
+.topRow.warning {
+  background: var(--urgency-high);
+}
+
+.topRow.caution {
+  background: var(--urgency-medium);
+}
+
+.topRow.danger :is(.nome, .code, .menuButton),
+.topRow.warning :is(.nome, .code, .menuButton),
+.topRow.caution :is(.nome, .code, .menuButton) {
+  color: var(--white);
 }
 
 .names {
@@ -127,9 +142,9 @@
   flex-direction: column;
   min-width: calc(160 * var(--px, 1px));
   padding: calc(6 * var(--px, 1px));
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: calc(6 * var(--px, 1px));
-  background: #fff;
+  background: var(--white);
   box-shadow: 0 calc(4 * var(--px, 1px)) calc(12 * var(--px, 1px)) rgba(0, 0, 0, 0.08);
   animation: menu-in 120ms ease-out;
 }
@@ -155,14 +170,14 @@
 
 .menuItem:hover,
 .menuItem:focus-visible {
-  background: #f4f4f4;
+  background: var(--bg-page);
 }
 
 .menuRemove {
   margin-top: calc(4 * var(--px, 1px));
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--sidebar-line);
   border-radius: 0 0 calc(4 * var(--px, 1px)) calc(4 * var(--px, 1px));
-  color: #ef4444;
+  color: var(--danger-solid);
 }
 
 .details,
@@ -210,23 +225,23 @@
 }
 
 .highlight .danger {
-  color: #ef1c1c;
+  color: var(--urgency-critical);
 }
 
 .highlight .warning {
-  color: #f97316;
+  color: var(--urgency-high);
 }
 
 .highlight .caution {
-  color: #eab308;
+  color: var(--urgency-medium);
 }
 
 .highlight .info {
-  color: #3a9cff;
+  color: var(--blue);
 }
 
 .highlight .success {
-  color: #2e7d32;
+  color: var(--green);
 }
 
 @keyframes menu-in {
