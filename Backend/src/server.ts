@@ -9,6 +9,7 @@ import userRouter from './feature/user/userRouter.js';
 import authRouter from './feature/auth/authRouter.js';
 import accessRequestRouter from './feature/accessRequest/accessRequestRouter.js';
 import telemetryRouter from './feature/telemetry/telemtryRouter.js';
+import deviceRouter from './feature/device/deviceRouter.js';
 import { seedAdmin } from './scripts/seedAdmin.js';
 
 const app = express();
@@ -51,6 +52,7 @@ app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/access-requests', accessRequestRouter);
 app.use('/api/telemetry', telemetryRouter);
+app.use('/api/devices', deviceRouter);
 
 if (process.argv.includes('--seed')) {
   await seedAdmin();
