@@ -23,13 +23,17 @@ function obterId(req: Request): string | null {
 export async function listar(req: Request, res: Response) {
   try {
     const dispositivoId = req.query.dispositivoId as string;
+    
+    const dataInicial = req.query.dataInicial as string;
+    const dataFinal = req.query.dataFinal as string;
+    
     let registros;
 
     if (dispositivoId) {
        if (!mongooseTypes.ObjectId.isValid(dispositivoId)) {
         return respostaErro(res, StatusCode.BAD_REQUEST, "O dispositivoId fornecido não é válido.");
       }
-      registros = await servicoTelemetry.listarPorDispositivo(dispositivoId);
+      registros = await servicoTelemetry.listarPorDispositivo(dispositivoId, dataInicial, dataFinal);
     } else {
       registros = await servicoTelemetry.listar();
     }
