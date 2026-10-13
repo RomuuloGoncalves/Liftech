@@ -218,7 +218,7 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 | BRF-08 | P1 Sessão inválida: AC1, AC2, AC3, AC4, AC5 | Implementing | Pending |
 | BRF-09 | P1 Textos: AC1, AC2 | Implementing | Pending |
 
-**Coverage:** 9 total, 0 mapped to tasks, 9 unmapped (tasks.md ainda não escrito).
+**Coverage:** 9 total, 9 mapped to tasks, 0 unmapped.
 
 ---
 

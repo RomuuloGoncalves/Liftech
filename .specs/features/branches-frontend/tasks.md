@@ -11,7 +11,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Spec**: `.specs/features/branches-frontend/spec.md` (sem `design.md`: a abordagem está nas Assumptions do spec)
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -300,12 +300,12 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Com usuário na sessão, o seletor aparece entre o logo e a lista de páginas; sem usuário, a Sidebar fica como hoje (AC8 do seletor)
-- [ ] Rodapé mostra o ícone e o nome da empresa (AC1 da empresa); colapsada, só o ícone com `aria-label` e `title` iguais ao nome (AC2); sem usuário, sem a linha (AC3)
-- [ ] A Sidebar colapsada passa `collapsed` ao seletor
-- [ ] Os testes existentes de `Sidebar` e `App` seguem com as mesmas asserções (em especial `getByRole('list')` único)
-- [ ] Gate: Build completo do Frontend (`tsc -b`, `eslint .`, `vitest run`)
-- [ ] Test count: os 941 testes de baseline mais os novos das tarefas anteriores passam, sem remover nenhum
+- [x] Com usuário na sessão, o seletor aparece entre o logo e a lista de páginas; sem usuário, a Sidebar fica como hoje (AC8 do seletor)
+- [x] Rodapé mostra o ícone e o nome da empresa (AC1 da empresa); colapsada, só o ícone com `aria-label` e `title` iguais ao nome (AC2); sem usuário, sem a linha (AC3)
+- [x] A Sidebar colapsada passa `collapsed` ao seletor
+- [x] Os testes existentes de `Sidebar` e `App` seguem com as mesmas asserções (em especial `getByRole('list')` único)
+- [x] Gate: Build completo do Frontend (`tsc -b`, `eslint .`, `vitest run`)
+- [x] Test count: os 941 testes de baseline mais os novos das tarefas anteriores passam, sem remover nenhum
 
 **Tests**: unit
 **Gate**: build
