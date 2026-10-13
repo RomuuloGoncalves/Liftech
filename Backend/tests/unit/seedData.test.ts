@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { seedData } from '../../src/scripts/seedData.js';
+import { seedData, seedEDesconectar } from '../../src/scripts/seedData.js';
 import { seedAdmin } from '../../src/scripts/seedAdmin.js';
 import { Operator } from '../../src/schemas/operator.js';
 import { Device } from '../../src/schemas/device.js';
@@ -173,5 +173,33 @@ describe('seedData', () => {
         for (const trecho of ['8 operadores', '16 dispositivos', '16 empilhadeiras', '80 leituras', '32 incidentes', '11 colaboradores', '2 solicitações']) {
             expect(mensagem).toContain(trecho);
         }
+    });
+});
+
+describe('seedEDesconectar', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockarModelos();
+        delete process.env.SEED_COLABORADOR_SENHA;
+    });
+
+    test('fecha a conexão uma vez depois de um seed bem-sucedido e devolve a contagem', async () => {
+        const desconectar = vi.fn().mockResolvedValue(undefined);
+
+        const contagem = await seedEDesconectar(desconectar);
+
+        expect(desconectar).toHaveBeenCalledTimes(1);
+        expect(contagem.empilhadeiras).toBe(16);
+    });
+
+    test('fecha a conexão também quando o seed falha, e o erro continua subindo', async () => {
+        vi.mocked(Operator.findOneAndUpdate).mockImplementation((() => {
+            throw new Error('falha no banco');
+        }) as any);
+        const desconectar = vi.fn().mockResolvedValue(undefined);
+
+        await expect(seedEDesconectar(desconectar)).rejects.toThrow('falha no banco');
+
+        expect(desconectar).toHaveBeenCalledTimes(1);
     });
 });

@@ -88,8 +88,16 @@ export async function seedData() {
     return contagem;
 }
 
+// Fecha a conexão mesmo se o seed falhar, senão o processo fica preso.
+export async function seedEDesconectar(desconectar: () => Promise<unknown>) {
+    try {
+        return await seedData();
+    } finally {
+        await desconectar();
+    }
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
     const { conn } = await import('../config/conn.js');
-    await seedData();
-    await conn.mongoose.disconnect();
+    await seedEDesconectar(() => conn.mongoose.disconnect());
 }
