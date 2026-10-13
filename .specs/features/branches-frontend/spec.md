@@ -31,6 +31,7 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 | --------------------- | -------------- | --------- | ---------- |
 | Contrato da API | `GET /branches` devolve `[{ _id, nome, matriz }]`; `POST /branches {nome}` 201; `PUT /branches/:id {nome}` 200; `DELETE /branches/:id` 200, ou 409 `{error}` (matriz ou com recursos) e 403 (sem escopo empresa); `GET /machines?filialId=<id>` | Contrato combinado com a feature de backend em paralelo | y |
 | Resposta do login | `user = { _id, nome, role, telefone?, cargo?, empresa: { _id, nome }, escopo, filiais: [{ _id, nome, matriz }] }`, guardada em `localStorage['user']` | Mesmo contrato; `UsuarioLogado` ganha os campos | y |
+| Campos de escopo no tipo | `empresa`, `escopo` e `filiais` são opcionais em `UsuarioLogado`; uma sessão salva antes desta feature (sem eles) conta como sem filiais | O contrato do login sempre os envia, mas `localStorage` pode guardar um usuário antigo | n |
 | Fonte da sessão | `localStorage['user']` é a fonte única; o provider lê a cada renderização, e as mutações de filial reescrevem `filiais` ali | Evita um segundo estado que desalinha após login ou logout | n |
 | Quando a lista de filiais atualiza | Só depois de criar, renomear ou excluir (refaz `GET /branches`); não há busca ao montar | A lista já vem no login; menos requisições | n |
 | Valor da filial ativa | `'todas'` ou o `_id` de uma filial; guardado em `localStorage['liftech.activeBranch']` | Decisão do dono | y |
@@ -207,7 +208,7 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| BRF-01 | P1 Sessão: AC1, AC7 | Tasks | Pending |
+| BRF-01 | P1 Sessão: AC1, AC7 | Implementing | Pending |
 | BRF-02 | P1 Sessão: AC2, AC3, AC4, AC5, AC6, AC8; Edge: JSON inválido | Tasks | Pending |
 | BRF-03 | P1 Seletor: AC1, AC2, AC3, AC4, AC5, AC6, AC8; Edge: lista vazia | Tasks | Pending |
 | BRF-04 | P1 Seletor: AC7; P2 Empresa: AC1, AC2, AC3 | Tasks | Pending |

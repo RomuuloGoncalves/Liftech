@@ -88,11 +88,11 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `getSession()` devolve o usuário de `localStorage['user']`, ou `null` sem ele, com JSON inválido ou com storage que lança (Edge: JSON inválido; AC7 da sessão)
-- [ ] `saveBranches(filiais)` reescreve só `filiais` no usuário salvo e não faz nada sem usuário
-- [ ] Os testes existentes de `authService` seguem com as mesmas asserções
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/authService.test.ts`
-- [ ] Test count: os testes existentes mais ao menos 4 novos passam
+- [x] `getSession()` devolve o usuário de `localStorage['user']`, ou `null` sem ele, com JSON inválido ou com storage que lança (Edge: JSON inválido; AC7 da sessão)
+- [x] `saveBranches(filiais)` reescreve só `filiais` no usuário salvo e não faz nada sem usuário
+- [x] Os testes existentes de `authService` seguem com as mesmas asserções
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/authService.test.ts`
+- [x] Test count: os testes existentes mais ao menos 4 novos passam
 
 **Tests**: unit
 **Gate**: quick

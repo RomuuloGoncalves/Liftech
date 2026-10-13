@@ -50,4 +50,59 @@ describe('authService', () => {
     expect(localStorage.getItem('token')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
   });
+
+  describe('session', () => {
+    const user = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin' as const,
+      empresa: { _id: 'e1', nome: 'Acme' },
+      escopo: 'empresa' as const,
+      filiais: [{ _id: 'f1', nome: 'Filial 01', matriz: true }],
+    };
+
+    it('getSession returns the stored user', () => {
+      localStorage.setItem('user', JSON.stringify(user));
+
+      expect(authService.getSession()).toEqual(user);
+    });
+
+    it('getSession returns null when there is no stored user', () => {
+      expect(authService.getSession()).toBeNull();
+    });
+
+    it('getSession returns null when the stored user is not valid JSON', () => {
+      localStorage.setItem('user', '{oops');
+
+      expect(authService.getSession()).toBeNull();
+    });
+
+    it('getSession returns null when localStorage throws', () => {
+      const spy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('storage disabled');
+      });
+
+      expect(authService.getSession()).toBeNull();
+
+      spy.mockRestore();
+    });
+
+    it('saveBranches rewrites only the branches of the stored user', () => {
+      localStorage.setItem('user', JSON.stringify(user));
+      const filiais = [
+        { _id: 'f1', nome: 'Matriz', matriz: true },
+        { _id: 'f2', nome: 'Filial 02', matriz: false },
+      ];
+
+      authService.saveBranches(filiais);
+
+      expect(authService.getSession()).toEqual({ ...user, filiais });
+    });
+
+    it('saveBranches does nothing without a stored user', () => {
+      authService.saveBranches([{ _id: 'f2', nome: 'Filial 02', matriz: false }]);
+
+      expect(localStorage.getItem('user')).toBeNull();
+    });
+  });
 });
