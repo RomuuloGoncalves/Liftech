@@ -19,7 +19,7 @@ import {
   type Employee,
   type Sector,
 } from '../data/team'
-import PageSkeleton from '../components/common/PageSkeleton'
+import PageSkeleton, { SkeletonBlock, SkeletonCards } from '../components/common/PageSkeleton'
 import { useToast } from '../components/common/Toast'
 import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
 import styles from './EquipePage.module.css'
@@ -107,7 +107,29 @@ const EquipePage: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.page}>
-        <PageSkeleton variant="team" gridClassName={styles.grid} />
+        <PageSkeleton>
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <SkeletonBlock className={styles.titleSkeleton} />
+              <div className={styles.toolbar}>
+                <SkeletonBlock className={styles.employeeButtonSkeleton} />
+                <SkeletonBlock className={styles.searchSkeleton} />
+                <SkeletonBlock className={styles.selectSkeleton} />
+              </div>
+            </div>
+            <SkeletonCards card="employee" className={styles.grid} />
+          </div>
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <SkeletonBlock className={styles.titleSkeleton} />
+              <div className={styles.toolbar}>
+                <SkeletonBlock className={styles.sectorButtonSkeleton} />
+                <SkeletonBlock className={styles.searchSkeleton} />
+              </div>
+            </div>
+            <SkeletonCards card="sector" className={styles.grid} />
+          </div>
+        </PageSkeleton>
       </div>
     )
   }

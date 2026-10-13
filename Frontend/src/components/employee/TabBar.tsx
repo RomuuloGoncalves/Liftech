@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
 import { NavLink, matchPath, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { CircleAlert, Copy, Forklift, History } from 'lucide-react'
+import { Forklift, History, House } from 'lucide-react'
 import styles from './TabBar.module.css'
 
 const TABS = [
-  { to: '/funcionario', labelKey: 'employee.nav.overview', icon: Copy, end: true },
+  { to: '/funcionario', labelKey: 'employee.nav.overview', icon: House, end: true },
   { to: '/funcionario/maquinas', labelKey: 'employee.nav.machines', icon: Forklift, end: false },
   { to: '/funcionario/historico', labelKey: 'employee.nav.history', icon: History, end: false },
-  { to: '/funcionario/ocorrencia', labelKey: 'employee.nav.incident', icon: CircleAlert, end: true },
 ]
 
 const TabBar: React.FC = () => {

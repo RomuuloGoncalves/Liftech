@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../../schemas/user.js";
+import { Company } from "../../schemas/company.js";
+import { carregarEscopo } from "../../core/escopo.js";
 import { env } from "../../config/env.js";
 import { verificarSenha } from "../../utils/senha.js";
 
@@ -26,5 +28,20 @@ export async function login(role: RoleLogin, login: string, senha: string) {
     expiresIn: env.jwt_expires_in as jwt.SignOptions["expiresIn"],
   });
 
-  return { token, user: { _id, nome: usuario.nome, role: usuario.role } };
+  const escopo = await carregarEscopo(usuario);
+  const empresa = usuario.empresaId ? await Company.findById(usuario.empresaId).lean() : null;
+
+  return {
+    token,
+    user: {
+      _id,
+      nome: usuario.nome,
+      role: usuario.role,
+      telefone: usuario.telefone,
+      cargo: usuario.cargo,
+      empresa: empresa && { _id: String(empresa._id), nome: empresa.nome },
+      escopo: escopo.tipo,
+      filiais: escopo.filiais,
+    },
+  };
 }

@@ -50,6 +50,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: RST-06 AC1 Offline cinza atual (machines.test.ts:28-31 MachineCard.module.css:178) (spec)
 - last seen: 2026-10-11T01:37:25Z
 
+### L-007 - Give mock ids a real ObjectId, not a string, when a test asserts that the id is converted to text
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-tests` · harmful: 0
+- features: machines-api
+- evidence: M08 machineService.ts:id (backend-tests)
+- last seen: 2026-10-13T15:22:43Z
+
+### L-008 - Put a script's work and its disconnect in an exported function so a test can assert the connection closes, including on failure
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-scripts` · harmful: 0
+- features: machines-api
+- evidence: M32 seedData.ts:disconnect (backend-scripts)
+- last seen: 2026-10-13T15:22:43Z
+
+### L-009 - Assert new translation values differ from the source language, not only that they are non-empty
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-i18n` · harmful: 0
+- features: machines-api
+- evidence: M25 i18n.test.ts:loadError/retry (frontend-i18n)
+- last seen: 2026-10-13T15:22:43Z
+
+### L-010 - When a body field is validated on both POST and PUT, give the PUT its own non-text test for every validated field
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-tests` · harmful: 0
+- features: employee-nav-settings
+- evidence: B20 userController.ts PUT telefone/cargo (backend-tests)
+- last seen: 2026-10-13T17:09:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

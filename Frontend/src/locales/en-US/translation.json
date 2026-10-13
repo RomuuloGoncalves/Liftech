@@ -8,7 +8,8 @@
     "save": "Save",
     "close": "Close",
     "loading": "Loading...",
-    "closeNotification": "Close notification"
+    "closeNotification": "Close notification",
+    "retry": "Try again"
   },
   "navigation": {
     "overview": "Overview",
@@ -33,6 +34,7 @@
     "operator": "Operator",
     "noOperator": "No operator",
     "emptyState": "No machines found",
+    "loadError": "Could not load the machines.",
     "newMachineTitle": "New Machine",
     "labelId": "ID",
     "labelName": "Name",
@@ -245,8 +247,7 @@
     "nav": {
       "overview": "Overview",
       "machines": "Forklifts",
-      "history": "History",
-      "incident": "Incident"
+      "history": "History"
     },
     "common": {
       "available": "Available",
@@ -330,8 +331,35 @@
     },
     "settings": {
       "title": "Settings",
-      "close": "Close"
+      "close": "Close",
+      "general": "General",
+      "userData": "User data",
+      "name": "Name",
+      "phone": "Phone",
+      "position": "Position",
+      "changeNoticeTitle": "Change request",
+      "changeNotice": "To change your details, ask the supervisor in charge.",
+      "logout": "Log out",
+      "feedbackTitle": "Feedback & Suggestions",
+      "feedbackQuestion": "How was your experience?",
+      "privacy": "Privacy Policy"
     }
+  },
+  "branches": {
+    "label": "Branches",
+    "all": "All branches",
+    "manage": "Manage branches",
+    "doneManaging": "Done",
+    "create": "Create branch",
+    "nameLabel": "Branch name",
+    "confirm": "Confirm",
+    "rename": "Rename {{name}}",
+    "remove": "Delete {{name}}",
+    "deleteTitle": "Delete branch",
+    "deleteMessage": "Delete the branch {{name}}?",
+    "saveError": "Could not save the branch.",
+    "deleteError": "Could not delete the branch.",
+    "deleteBlocked": "Could not delete: the branch is the headquarters or still has resources."
   },
   "notFound": {
     "description": "The page you are looking for does not exist or was moved.",

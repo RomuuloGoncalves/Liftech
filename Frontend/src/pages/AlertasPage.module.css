@@ -145,6 +145,23 @@
   opacity: 1;
 }
 
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.labelSkeleton {
+  width: 122px;
+  height: 24px;
+}
+
+.searchSkeleton {
+  width: 260px;
+  height: 32px;
+}
+
+.periodSkeleton {
+  width: 335px;
+  max-width: 100%;
+  height: 32px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(calc(240 * var(--px, 1px)), 1fr));
@@ -192,7 +209,8 @@
 
   .filters,
   .searchField,
-  .searchInput {
+  .searchInput,
+  .searchSkeleton {
     width: 100%;
   }
 }

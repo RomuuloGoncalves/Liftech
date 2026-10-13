@@ -2,10 +2,21 @@ import api from './api';
 
 export type RoleLogin = 'admin' | 'colaborador';
 
+export interface Filial {
+  _id: string;
+  nome: string;
+  matriz: boolean;
+}
+
 export interface UsuarioLogado {
   _id: string;
   nome: string;
   role: RoleLogin;
+  telefone?: string;
+  cargo?: string;
+  empresa?: { _id: string; nome: string } | null;
+  escopo?: 'empresa' | 'filiais';
+  filiais?: Filial[];
 }
 
 export interface SolicitacaoAcesso {
@@ -24,6 +35,20 @@ export const authService = {
 
   async solicitarAcesso(dados: SolicitacaoAcesso): Promise<void> {
     await api.post('/access-requests', dados);
+  },
+
+  getSession(): UsuarioLogado | null {
+    try {
+      const raw = localStorage.getItem('user');
+      return raw ? (JSON.parse(raw) as UsuarioLogado) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  saveBranches(filiais: Filial[]): void {
+    const user = authService.getSession();
+    if (user) localStorage.setItem('user', JSON.stringify({ ...user, filiais }));
   },
 
   logout(): void {

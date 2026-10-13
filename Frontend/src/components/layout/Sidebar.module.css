@@ -129,6 +129,31 @@
   gap: 12px;
 }
 
+.company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--text-h);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.company svg {
+  flex-shrink: 0;
+}
+
+.companyName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .company {
+  justify-content: center;
+}
+
 .feedbackButton {
   display: flex;
   align-items: center;

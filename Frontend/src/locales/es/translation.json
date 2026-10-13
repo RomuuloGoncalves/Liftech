@@ -8,7 +8,8 @@
     "save": "Guardar",
     "close": "Cerrar",
     "loading": "Cargando...",
-    "closeNotification": "Cerrar aviso"
+    "closeNotification": "Cerrar aviso",
+    "retry": "Intentar de nuevo"
   },
   "navigation": {
     "overview": "Visión General",
@@ -33,6 +34,7 @@
     "operator": "Operador",
     "noOperator": "Sin operador",
     "emptyState": "No se encontraron máquinas",
+    "loadError": "No se pudieron cargar las máquinas.",
     "newMachineTitle": "Nueva Máquina",
     "labelId": "ID",
     "labelName": "Nombre",
@@ -237,6 +239,39 @@
     "toastCategoryDeleted": "Categoría \"{{name}}\" eliminada",
     "toastMachinesAdded": "Máquinas agregadas a \"{{name}}\"",
     "toastMachineRemoved": "{{name}} quitada de la categoría"
+  },
+  "employee": {
+    "settings": {
+      "title": "Configuración",
+      "close": "Cerrar",
+      "general": "General",
+      "userData": "Datos del usuario",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "position": "Cargo",
+      "changeNoticeTitle": "Solicitud de cambio",
+      "changeNotice": "Para cambiar tus datos, pídeselo al supervisor responsable.",
+      "logout": "Cerrar sesión",
+      "feedbackTitle": "Comentarios y sugerencias",
+      "feedbackQuestion": "¿Cómo fue tu experiencia?",
+      "privacy": "Política y privacidad"
+    }
+  },
+  "branches": {
+    "label": "Sucursales",
+    "all": "Todas las sucursales",
+    "manage": "Gestionar sucursales",
+    "doneManaging": "Listo",
+    "create": "Crear sucursal",
+    "nameLabel": "Nombre de la sucursal",
+    "confirm": "Confirmar",
+    "rename": "Renombrar {{name}}",
+    "remove": "Eliminar {{name}}",
+    "deleteTitle": "Eliminar sucursal",
+    "deleteMessage": "¿Eliminar la sucursal {{name}}?",
+    "saveError": "No se pudo guardar la sucursal.",
+    "deleteError": "No se pudo eliminar la sucursal.",
+    "deleteBlocked": "No se pudo eliminar: la sucursal es la matriz o aún tiene recursos."
   },
   "notFound": {
     "description": "La página que buscas no existe o fue movida.",

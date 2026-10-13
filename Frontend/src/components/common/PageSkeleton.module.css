@@ -1,8 +1,6 @@
+/* Casca transparente: a barra e a grade entram no layout da própria página, com o gap dela. */
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: calc(22 * var(--px, 1px));
-  min-width: 0;
+  display: contents;
 }
 
 .srOnly {
@@ -23,51 +21,141 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: calc(14 * var(--px, 1px));
-  padding: calc(14 * var(--px, 1px)) calc(20 * var(--px, 1px)) calc(20 * var(--px, 1px));
+  gap: calc(12 * var(--px, 1px));
+  padding: calc(12 * var(--px, 1px)) calc(20 * var(--px, 1px)) calc(20 * var(--px, 1px));
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--bg);
+  border-radius: calc(8 * var(--px, 1px));
+  background: var(--white);
+}
+
+.panelHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(8 * var(--px, 1px));
+}
+
+.panelTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(10 * var(--px, 1px));
+  margin-left: auto;
+}
+
+.panelSearch {
+  width: calc(240 * var(--px, 1px));
+  height: calc(24 * var(--px, 1px));
+}
+
+.panelPeriod {
+  width: calc(240 * var(--px, 1px));
+  height: calc(27 * var(--px, 1px));
 }
 
 .kanbanCards {
   display: flex;
-  gap: 10px;
+  gap: calc(10 * var(--px, 1px));
+  padding-bottom: calc(4 * var(--px, 1px));
   overflow: hidden;
 }
 
-.kanbanCards .card {
-  flex: 0 0 calc(256 * var(--px, 1px));
-}
-
-.card {
+/* Card de máquina: mesma caixa do MachineCard (155px = 36 + 39 + 38 + 2 gaps + padding + borda). */
+.machine {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: calc(147 * var(--px, 1px));
+  gap: 8px;
+  min-width: 0;
   box-sizing: border-box;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   background: var(--bg);
 }
 
-.compact {
-  min-height: 0;
+/* Card de frota/alerta: mesma caixa do FleetCard (170 = 1 + 47 faixa + 8 + 101 detalhes + 12 + 1), tudo em --px. */
+.fleet {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--px, 1px));
+  flex: 0 0 calc(288 * var(--px, 1px));
+  box-sizing: border-box;
+  padding: calc(12 * var(--px, 1px));
+  border: 1px solid var(--line);
+  border-radius: calc(8 * var(--px, 1px));
+  background: var(--white);
 }
 
-.head {
+.fleetBody {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  flex-direction: column;
+  gap: calc(4 * var(--px, 1px));
 }
 
-.lines {
+.fleetGroup {
   display: flex;
-  flex: 1;
+  flex-direction: column;
+  gap: calc(4 * var(--px, 1px));
+}
+
+.fleetLabel {
+  width: 40%;
+  height: calc(12 * var(--px, 1px));
+}
+
+.fleetValue {
+  width: 70%;
+  height: calc(15 * var(--px, 1px));
+}
+
+.machineNames {
+  display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.machineName {
+  width: 60%;
+  height: 17px;
+}
+
+.machineId {
+  width: 35%;
+  height: 13px;
+}
+
+.machineDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 39px;
+}
+
+.machineLine {
+  width: 85%;
+  height: 12px;
+}
+
+.machineLine:last-child {
+  width: 55%;
+}
+
+.machineFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+}
+
+.machineBadge {
+  width: 64px;
+  height: 22px;
+}
+
+.machineSession {
+  width: 88px;
+  height: 30px;
 }
 
 /* Brilho deslizante; com "reduzir movimento" a regra global de index.css o deixa parado. */
@@ -79,29 +167,99 @@
   animation: shimmer 1.2s ease-in-out infinite;
 }
 
-.icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-}
-
-.line {
-  width: 100%;
-  height: 9px;
-}
-
-.medium {
-  width: 70%;
-}
-
-.short {
-  width: 45%;
+/* Depois de .block, para o raio de cima valer. */
+.fleetStrip {
+  height: calc(47 * var(--px, 1px));
+  margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0;
+  border-radius: calc(7 * var(--px, 1px)) calc(7 * var(--px, 1px)) 0 0;
 }
 
 .label {
   width: calc(158 * var(--px, 1px));
   height: calc(24 * var(--px, 1px));
+}
+
+/* Card de funcionário: mesma caixa do EmployeeCard (81 = 55 + 24 + bordas). */
+.employee {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.employeeInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 55px;
+}
+
+.employeeName {
+  width: 55%;
+  height: 14px;
+}
+
+.employeeLine {
+  width: 40%;
+  height: 11px;
+}
+
+.employeeActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.employeeIcons {
+  display: flex;
+  gap: 8px;
+}
+
+.employeeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.employeeSwitch {
+  width: 34px;
+  height: 18px;
+  border-radius: 9px;
+}
+
+/* Card de setor: mesma caixa do SectorCard, uma linha com 2 botões de 25px (51px). */
+.sector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.sectorName {
+  width: 50%;
+  height: 12px;
+}
+
+.sectorButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.sectorButton {
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
 }
 
 @keyframes shimmer {

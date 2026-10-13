@@ -8,7 +8,8 @@
     "save": "保存",
     "close": "閉じる",
     "loading": "読み込み中...",
-    "closeNotification": "通知を閉じる"
+    "closeNotification": "通知を閉じる",
+    "retry": "もう一度試す"
   },
   "navigation": {
     "overview": "概要",
@@ -33,6 +34,7 @@
     "operator": "オペレーター",
     "noOperator": "オペレーターなし",
     "emptyState": "機械が見つかりません",
+    "loadError": "機械を読み込めませんでした。",
     "newMachineTitle": "新しい機械",
     "labelId": "ID",
     "labelName": "名前",
@@ -237,6 +239,39 @@
     "toastCategoryDeleted": "カテゴリー「{{name}}」を削除しました",
     "toastMachinesAdded": "「{{name}}」に機械を追加しました",
     "toastMachineRemoved": "{{name}} をカテゴリーから外しました"
+  },
+  "employee": {
+    "settings": {
+      "title": "設定",
+      "close": "閉じる",
+      "general": "一般",
+      "userData": "ユーザー情報",
+      "name": "名前",
+      "phone": "電話番号",
+      "position": "役職",
+      "changeNoticeTitle": "変更のリクエスト",
+      "changeNotice": "情報を変更するには、担当の監督者に依頼してください。",
+      "logout": "ログアウト",
+      "feedbackTitle": "フィードバックとご意見",
+      "feedbackQuestion": "ご利用はいかがでしたか？",
+      "privacy": "プライバシーポリシー"
+    }
+  },
+  "branches": {
+    "label": "拠点",
+    "all": "すべての拠点",
+    "manage": "拠点を管理",
+    "doneManaging": "完了",
+    "create": "拠点を作成",
+    "nameLabel": "拠点名",
+    "confirm": "確認",
+    "rename": "{{name}} の名前を変更",
+    "remove": "{{name}} を削除",
+    "deleteTitle": "拠点を削除",
+    "deleteMessage": "拠点「{{name}}」を削除しますか?",
+    "saveError": "拠点を保存できませんでした。",
+    "deleteError": "拠点を削除できませんでした。",
+    "deleteBlocked": "削除できません: 本社であるか、まだリソースがあります。"
   },
   "notFound": {
     "description": "お探しのページは存在しないか、移動しました。",

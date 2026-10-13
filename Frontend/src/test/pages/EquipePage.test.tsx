@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ToastProvider } from '../../components/common/Toast'
 import EquipePage from '../../pages/EquipePage'
+import styles from '../../pages/EquipePage.module.css'
 
 const loading = vi.hoisted(() => ({ value: false }))
 vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
@@ -289,9 +290,22 @@ describe('EquipePage skeleton', () => {
     loading.value = true
     const { container } = render(<EquipePage />)
     expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
-    expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(12)
+    expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(16)
     expect(screen.queryByRole('button', { name: 'Cadastrar Funcionário' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Cadastrar Setor' })).not.toBeInTheDocument()
+  })
+
+  it('mirrors the two sections with the page classes: title, toolbar and an 8-card grid each', () => {
+    loading.value = true
+    const { container } = render(<EquipePage />)
+    const sections = [...container.querySelectorAll(`.${styles.section}`)]
+    expect(sections).toHaveLength(2)
+    const headers = sections.map((section) => section.querySelector(`.${styles.sectionHeader}`)!)
+    expect(headers.map((header) => header.querySelector(`.${styles.toolbar}`)!.children.length)).toEqual([3, 2])
+    const grids = sections.map((section) => section.querySelector(`.${styles.grid}`)!)
+    expect(grids.map((grid) => grid.querySelectorAll('[data-skeleton-card]').length)).toEqual([8, 8])
+    expect(grids[0].querySelectorAll('[data-skeleton-part="switch"]')).toHaveLength(8)
+    expect(grids[1].querySelectorAll('[data-skeleton-part="buttons"]')).toHaveLength(8)
   })
 })
 

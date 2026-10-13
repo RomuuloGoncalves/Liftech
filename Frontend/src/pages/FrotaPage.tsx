@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { CirclePlus, Plus, Search, Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
-import PageSkeleton from '../components/common/PageSkeleton'
+import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
 import { useToast } from '../components/common/Toast'
 import CategoryFormModal from '../components/fleet/CategoryFormModal'
 import FleetCard from '../components/fleet/FleetCard'
@@ -114,8 +114,14 @@ const FrotaPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={styles.page}> 
-        <PageSkeleton variant="kanban" />
+      <div className={styles.page}>
+        <PageSkeleton variant="kanban">
+          <div className={styles.toolbar} data-skeleton-toolbar>
+            <SkeletonBlock className={styles.searchSkeleton} />
+            <SkeletonBlock className={styles.selectSkeleton} />
+            <SkeletonBlock className={styles.buttonSkeleton} />
+          </div>
+        </PageSkeleton>
       </div>
     )
   }

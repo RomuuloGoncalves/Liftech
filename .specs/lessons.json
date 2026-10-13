@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 7,
+  "next_id": 11,
   "lessons": [
     {
       "id": "L-001",
@@ -112,6 +112,78 @@
       ],
       "created": "2026-10-11T01:37:25Z",
       "last_seen": "2026-10-11T01:37:25Z"
+    },
+    {
+      "id": "L-007",
+      "key": "surviving_mutant::give mock ids a real objectid not a string when a test asserts that the id is converted to text",
+      "text": "Give mock ids a real ObjectId, not a string, when a test asserts that the id is converted to text",
+      "signal": "surviving_mutant",
+      "scope": "backend-tests",
+      "status": "candidate",
+      "features": [
+        "machines-api"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M08 machineService.ts:id (backend-tests)"
+      ],
+      "created": "2026-10-13T15:22:43Z",
+      "last_seen": "2026-10-13T15:22:43Z"
+    },
+    {
+      "id": "L-008",
+      "key": "surviving_mutant::put a script s work and its disconnect in an exported function so a test can assert the connection closes including on failure",
+      "text": "Put a script's work and its disconnect in an exported function so a test can assert the connection closes, including on failure",
+      "signal": "surviving_mutant",
+      "scope": "backend-scripts",
+      "status": "candidate",
+      "features": [
+        "machines-api"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M32 seedData.ts:disconnect (backend-scripts)"
+      ],
+      "created": "2026-10-13T15:22:43Z",
+      "last_seen": "2026-10-13T15:22:43Z"
+    },
+    {
+      "id": "L-009",
+      "key": "surviving_mutant::assert new translation values differ from the source language not only that they are non empty",
+      "text": "Assert new translation values differ from the source language, not only that they are non-empty",
+      "signal": "surviving_mutant",
+      "scope": "frontend-i18n",
+      "status": "candidate",
+      "features": [
+        "machines-api"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M25 i18n.test.ts:loadError/retry (frontend-i18n)"
+      ],
+      "created": "2026-10-13T15:22:43Z",
+      "last_seen": "2026-10-13T15:22:43Z"
+    },
+    {
+      "id": "L-010",
+      "key": "surviving_mutant::when a body field is validated on both post and put give the put its own non text test for every validated field",
+      "text": "When a body field is validated on both POST and PUT, give the PUT its own non-text test for every validated field",
+      "signal": "surviving_mutant",
+      "scope": "backend-tests",
+      "status": "candidate",
+      "features": [
+        "employee-nav-settings"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "B20 userController.ts PUT telefone/cargo (backend-tests)"
+      ],
+      "created": "2026-10-13T17:09:14Z",
+      "last_seen": "2026-10-13T17:09:14Z"
     }
   ]
 }

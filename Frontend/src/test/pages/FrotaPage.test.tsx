@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ToastProvider } from '../../components/common/Toast'
 import FrotaPage from '../../pages/FrotaPage'
+import styles from '../../pages/FrotaPage.module.css'
 
 const loading = vi.hoisted(() => ({ value: false }))
 vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
@@ -316,6 +317,17 @@ describe('FrotaPage skeleton', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
     expect(screen.queryByRole('button', { name: 'Cadastrar categoria' })).not.toBeInTheDocument()
     expect(screen.queryAllByRole('region')).toEqual([])
+  })
+
+  it('mirrors the toolbar with the page toolbar class, above 4 category panels', () => {
+    loading.value = true
+    const { container } = render(<FrotaPage />)
+    const toolbar = container.querySelector('[data-skeleton-toolbar]')!
+    expect(toolbar).toHaveClass(styles.toolbar)
+    expect(toolbar.children).toHaveLength(3)
+    const rows = container.querySelectorAll('[data-skeleton-row]')
+    expect(rows).toHaveLength(4)
+    expect(toolbar.compareDocumentPosition(rows[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('shows the board when not loading', () => {

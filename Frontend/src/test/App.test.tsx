@@ -16,6 +16,23 @@ describe('App shell visibility', () => {
     expect(screen.getByRole('navigation', { name: 'Navegação principal' })).toBeInTheDocument()
   })
 
+  it('provides the active branch to the shell: selector and company row for a stored user', () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        _id: 'u1',
+        nome: 'Ana',
+        role: 'admin',
+        empresa: { _id: 'e1', nome: 'Acme Logística' },
+        escopo: 'empresa',
+        filiais: [{ _id: 'f1', nome: 'Filial 01', matriz: true }],
+      })
+    )
+    renderAt('/frota')
+    expect(screen.getByRole('button', { name: /Filiais/ })).toHaveTextContent('Todas as filiais')
+    expect(screen.getByText('Acme Logística')).toBeInTheDocument()
+  })
+
   it('hides Sidebar and Header on /login', () => {
     renderAt('/login')
     expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()

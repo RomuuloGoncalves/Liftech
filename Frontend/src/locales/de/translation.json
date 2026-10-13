@@ -8,7 +8,8 @@
     "save": "Speichern",
     "close": "Schließen",
     "loading": "Wird geladen...",
-    "closeNotification": "Hinweis schließen"
+    "closeNotification": "Hinweis schließen",
+    "retry": "Erneut versuchen"
   },
   "navigation": {
     "overview": "Übersicht",
@@ -33,6 +34,7 @@
     "operator": "Bediener",
     "noOperator": "Kein Bediener",
     "emptyState": "Keine Maschinen gefunden",
+    "loadError": "Die Maschinen konnten nicht geladen werden.",
     "newMachineTitle": "Neue Maschine",
     "labelId": "ID",
     "labelName": "Name",
@@ -237,6 +239,39 @@
     "toastCategoryDeleted": "Kategorie „{{name}}“ gelöscht",
     "toastMachinesAdded": "Maschinen zu „{{name}}“ hinzugefügt",
     "toastMachineRemoved": "{{name}} aus der Kategorie entfernt"
+  },
+  "employee": {
+    "settings": {
+      "title": "Einstellungen",
+      "close": "Schließen",
+      "general": "Allgemein",
+      "userData": "Benutzerdaten",
+      "name": "Name",
+      "phone": "Telefon",
+      "position": "Position",
+      "changeNoticeTitle": "Änderungsanfrage",
+      "changeNotice": "Um Ihre Daten zu ändern, wenden Sie sich an den zuständigen Vorgesetzten.",
+      "logout": "Abmelden",
+      "feedbackTitle": "Feedback & Vorschläge",
+      "feedbackQuestion": "Wie war Ihre Erfahrung?",
+      "privacy": "Datenschutzrichtlinie"
+    }
+  },
+  "branches": {
+    "label": "Filialen",
+    "all": "Alle Filialen",
+    "manage": "Filialen verwalten",
+    "doneManaging": "Fertig",
+    "create": "Filiale anlegen",
+    "nameLabel": "Name der Filiale",
+    "confirm": "Bestätigen",
+    "rename": "{{name}} umbenennen",
+    "remove": "{{name}} löschen",
+    "deleteTitle": "Filiale löschen",
+    "deleteMessage": "Filiale {{name}} löschen?",
+    "saveError": "Die Filiale konnte nicht gespeichert werden.",
+    "deleteError": "Die Filiale konnte nicht gelöscht werden.",
+    "deleteBlocked": "Löschen nicht möglich: Die Filiale ist die Zentrale oder hat noch Ressourcen."
   },
   "notFound": {
     "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",

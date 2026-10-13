@@ -8,7 +8,8 @@
     "save": "Enregistrer",
     "close": "Fermer",
     "loading": "Chargement...",
-    "closeNotification": "Fermer la notification"
+    "closeNotification": "Fermer la notification",
+    "retry": "Réessayer"
   },
   "navigation": {
     "overview": "Aperçu",
@@ -33,6 +34,7 @@
     "operator": "Opérateur",
     "noOperator": "Aucun opérateur",
     "emptyState": "Aucune machine trouvée",
+    "loadError": "Impossible de charger les machines.",
     "newMachineTitle": "Nouvelle Machine",
     "labelId": "ID",
     "labelName": "Nom",
@@ -237,6 +239,39 @@
     "toastCategoryDeleted": "Catégorie « {{name}} » supprimée",
     "toastMachinesAdded": "Machines ajoutées à « {{name}} »",
     "toastMachineRemoved": "{{name}} retirée de la catégorie"
+  },
+  "employee": {
+    "settings": {
+      "title": "Paramètres",
+      "close": "Fermer",
+      "general": "Général",
+      "userData": "Données de l'utilisateur",
+      "name": "Nom",
+      "phone": "Téléphone",
+      "position": "Poste",
+      "changeNoticeTitle": "Demande de modification",
+      "changeNotice": "Pour modifier vos données, adressez-vous au superviseur responsable.",
+      "logout": "Se déconnecter",
+      "feedbackTitle": "Commentaires et suggestions",
+      "feedbackQuestion": "Comment s'est passée votre expérience ?",
+      "privacy": "Politique de confidentialité"
+    }
+  },
+  "branches": {
+    "label": "Filiales",
+    "all": "Toutes les filiales",
+    "manage": "Gérer les filiales",
+    "doneManaging": "Terminé",
+    "create": "Créer une filiale",
+    "nameLabel": "Nom de la filiale",
+    "confirm": "Confirmer",
+    "rename": "Renommer {{name}}",
+    "remove": "Supprimer {{name}}",
+    "deleteTitle": "Supprimer la filiale",
+    "deleteMessage": "Supprimer la filiale {{name}} ?",
+    "saveError": "Impossible d'enregistrer la filiale.",
+    "deleteError": "Impossible de supprimer la filiale.",
+    "deleteBlocked": "Suppression impossible : la filiale est le siège ou possède encore des ressources."
   },
   "notFound": {
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",

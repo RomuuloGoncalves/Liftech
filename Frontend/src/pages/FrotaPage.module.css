@@ -100,6 +100,26 @@
   cursor: pointer;
 }
 
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.searchSkeleton,
+.selectSkeleton,
+.buttonSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.searchSkeleton {
+  width: 300px;
+}
+
+.selectSkeleton {
+  width: 142px;
+}
+
+.buttonSkeleton {
+  width: 175px;
+}
+
 .rows {
   display: flex;
   flex-direction: column;

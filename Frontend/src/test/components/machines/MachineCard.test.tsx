@@ -22,7 +22,7 @@ describe('MachineCard', () => {
     expect(screen.getByText('Expedição - Bloco B')).toBeInTheDocument()
     expect(screen.getByText('A2:C9:9B:1D:F7')).toBeInTheDocument()
     expect(screen.getByText('Disponível')).toBeInTheDocument()
-    expect(screen.getByText('34 min')).toBeInTheDocument()
+    expect(screen.getByText('34 minutos')).toBeInTheDocument()
   })
 
   it('renders a menu button without opening any content', () => {
@@ -31,16 +31,15 @@ describe('MachineCard', () => {
     expect(menuButton).toBeInTheDocument()
   })
 
-  it('renders the operador name when operadorConectado is present', () => {
+  it('does not show the operador on the card, as in the Figma card', () => {
     render(<MachineCard machine={baseMachine} />)
-    expect(screen.getByText('Carlos Silva')).toBeInTheDocument()
+    expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
   })
 
-  it('does not crash and omits operador line when operadorConectado is absent', () => {
+  it('does not crash when operadorConectado is absent', () => {
     const machineWithoutOperador: Machine = { ...baseMachine, operadorConectado: undefined }
     expect(() => render(<MachineCard machine={machineWithoutOperador} />)).not.toThrow()
     expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
-    expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
   })
 
   it('calls onOpen with the machine when the card title button is clicked', () => {

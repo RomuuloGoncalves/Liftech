@@ -1,6 +1,6 @@
 # Estrutura e Arquitetura do Frontend (Liftech)
 
-Este documento descreve as responsabilidades de cada diretório em `Frontend/src/`, as bibliotecas em uso e as convenções que o time já vem seguindo no código. `services/` ainda não existe no projeto, mas ficam mapeados aqui porque a estrutura já foi planejada para crescer nessa direção conforme as próximas páginas passarem a falar com a API.
+Este documento descreve as responsabilidades de cada diretório em `Frontend/src/`, as bibliotecas em uso e as convenções que o time já vem seguindo no código. Hoje só autenticação, solicitação de acesso e a lista de máquinas da Visão Geral falam com a API (`services/`); o resto das telas ainda usa os mocks de `data/`.
 
 ---
 
@@ -14,45 +14,40 @@ src/
 │   ├── fleet/      # Kanban da Frota: FleetRow, FleetCard, CategoryFormModal, MachinePickerModal
 │   ├── layout/     # Casca da aplicação: Sidebar, Header
 │   ├── machines/   # Domínio de máquinas: MachineCard, NewMachinePanel, MachineDetailModal
-│   └── team/       # Domínio de equipe e setores: cards e modais de funcionário e setor
-├── data/           # Módulos de dados mock, um por domínio (machines.ts, team.ts, fleet.ts)
+│   ├── team/       # Domínio de equipe e setores: cards e modais de funcionário e setor
+│   ├── auth/       # Login e solicitação de acesso: AuthLayout, AuthField
+│   └── employee/   # Área do funcionário (mobile): layout, TabBar, sheets, cards
+├── data/           # Módulos de dados mock, um por domínio (machines.ts, team.ts, fleet.ts, employeeArea.ts)
+├── services/       # Chamadas à API com Axios: api.ts (instância), authService.ts, machineService.ts
+├── hooks/          # useFirstVisitLoading, useLanguage, useWorkSession
+├── locales/        # JSON de tradução dos 7 idiomas
+├── config/         # i18n.ts (inicialização do i18next)
+├── types/          # Tipos compartilhados (i18n.ts)
 ├── utils/          # Funções puras (format.ts: data, duração e horas com Intl)
-├── pages/          # Telas da aplicação (uma por rota)
+├── pages/          # Telas da aplicação (uma por rota; employee/ para a área do funcionário)
 ├── routes/         # Definição de rotas com React Router
 ├── test/           # Testes, espelhando a estrutura de src/
 ├── App.tsx          # Shell da aplicação (monta layout + rotas)
 └── main.tsx          # Bootstrap do React e do BrowserRouter
 ```
 
-**Ainda não existem, mas estão reservados para quando a API entrar em jogo:**
-
-| Pasta | Responsabilidade prevista |
-| --- | --- |
-| `src/services/` | Camada Axios de comunicação com o Backend |
-
-**Já existem, criadas pela feature de i18n:**
-
-| Pasta | Conteúdo |
-| --- | --- |
-| `src/config/` | `i18n.ts` — inicialização do i18next (ver [i18n.md](./i18n.md)) |
-| `src/hooks/` | `useLanguage.ts` — hook de troca e persistência de idioma |
-| `src/types/` | `i18n.ts` — constante `VALID_LANGUAGES` e tipo `SupportedLanguage` |
-| `src/locales/` | Arquivos JSON de tradução para os 7 idiomas suportados |
-
 ---
 
 ## Responsabilidades das pastas
 
 ### `src/components/`
-Componentes visuais reutilizáveis da interface, organizados por domínio (hoje só `layout/`, para peças estruturais como a `Sidebar`). Conforme o design system crescer, componentes de UI mais genéricos (botões, cards, modais) devem ganhar sua própria subpasta aqui, no mesmo padrão.
+Componentes visuais reutilizáveis da interface, organizados por domínio (`layout/` para peças estruturais como a `Sidebar`, e os demais por domínio). Conforme o design system crescer, componentes de UI mais genéricos (botões, cards, modais) devem ganhar sua própria subpasta aqui, no mesmo padrão.
 
 Cada componente com CSS Modules leva um `.module.css` ao lado do `.tsx`, com o mesmo nome (ver a seção "Estilização" abaixo).
 
 ### `src/pages/`
-Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e, quando a camada de `services/` existir, as chamadas aos dados. `FrotaPage` (rota `/frota`) é o kanban horizontal da frota: uma linha por categoria, cards arrastáveis entre linhas, criação e exclusão de categorias e inclusão de máquinas sem categoria. `AlertasPage` (rota `/alertas`) lista um card por acidente do mock (reusa o `FleetCard` de acidente, com o nível de urgência derivado da causa via `ACCIDENT_URGENCY`), com busca por nome ou código da máquina, filtro de período e o `MachineDetailModal` na variante `alerts`. `VisaoGeralPage` (rota `/`) mostra o grid de máquinas, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
+Uma página por rota, montada em `routes/appRoutes.tsx`. Uma página orquestra os componentes visuais e as chamadas aos dados (`services/`). `FrotaPage` (rota `/frota`) é o kanban horizontal da frota: uma linha por categoria, cards arrastáveis entre linhas, criação e exclusão de categorias e inclusão de máquinas sem categoria. `AlertasPage` (rota `/alertas`) lista um card por acidente do mock (reusa o `FleetCard` de acidente, com o nível de urgência derivado da causa via `ACCIDENT_URGENCY`), com busca por nome ou código da máquina, filtro de período e o `MachineDetailModal` na variante `alerts`. `VisaoGeralPage` (rota `/`) carrega as máquinas de `machineService.listar()` (estados de carregando, pronto e erro) e mostra o grid, busca, filtro de status, o painel de cadastro e o detalhe da máquina com edição e exclusão. `EquipePage` (rota `/equipe`) tem as seções Funcionários e Setores, com busca, filtro de acesso, cadastro, edição, detalhe e exclusão; tudo sobre estado em memória.
 
 ### `src/data/`
-Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente. `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status), os eventos de histórico (`MACHINE_EVENTS`, `eventsForMachine`) e `filterEvents` (tipo + período). `team.ts` faz o mesmo para `Employee` e `Sector`. `fleet.ts` guarda o modelo do quadro da Frota (`FleetCategory`: id, tipo, nome, cor e a lista ordenada de `machineIds`), a posição inicial (`initialBoard`) e todas as transformações como funções puras que devolvem um novo array (`moveMachine`, `removeMachine`, `addMachines`, `createCategory`, `deleteCategory`), além da validação do nome e da cor. Cada máquina fica em no máximo uma categoria; mover não altera o status da máquina. A ideia é que, quando a API existir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, sem mexer nos componentes que já consomem `Machine`.
+Módulos de dados mock, um por domínio, usados enquanto o `Backend` ainda não expõe o endpoint equivalente (hoje só `/machines` existe; o tipo `Machine` daqui também tipa a resposta dela). `machines.ts` é o primeiro: define o tipo `Machine` espelhando os schemas Mongo de `forklift`, `device` e `operator`, a lista de 16 máquinas de exemplo e a função `filterMachines` (busca por identificação/setor + filtro por status), os eventos de histórico (`MACHINE_EVENTS`, `eventsForMachine`) e `filterEvents` (tipo + período). `team.ts` faz o mesmo para `Employee` e `Sector`. `fleet.ts` guarda o modelo do quadro da Frota (`FleetCategory`: id, tipo, nome, cor e a lista ordenada de `machineIds`), a posição inicial (`initialBoard`) e todas as transformações como funções puras que devolvem um novo array (`moveMachine`, `removeMachine`, `addMachines`, `createCategory`, `deleteCategory`), além da validação do nome e da cor. Cada máquina fica em no máximo uma categoria; mover não altera o status da máquina. A ideia é que, conforme cada endpoint surgir, essa pasta vire uma camada fina de tipos e o `useState` que guarda a lista na página seja trocado por uma chamada em `services/`, como já foi feito com a lista de máquinas.
+
+### `src/services/`
+`api.ts` cria a instância Axios (base `VITE_API_URL`, com padrão `http://localhost:3000/api`) e injeta o token JWT do `localStorage` no cabeçalho `Authorization`. `authService.ts` faz o login (`/auth/login`, guarda token e usuário), a solicitação de acesso (`/access-requests`) e o logout. `machineService.ts` lista as máquinas (`/machines`). Só `LoginPage`, `SolicitarAcessoPage`, `Header` (logout) e `VisaoGeralPage` usam esses serviços; Frota, Equipe, Alertas e a área do funcionário seguem com mock.
 
 ### `src/components/machines/`
 `MachineCard` renderiza um card da Visão Geral com os dados de uma `Machine` (nome, código, setor, endereço MAC, operador quando existir, status e tempo de sessão). `NewMachinePanel` é o formulário de cadastro aberto pelo botão "Cadastrar Máquina": um drawer lateral a partir de 768px e tela cheia abaixo disso, sem chamada de API (o submit só adiciona a máquina à lista em memória da página). Decisão registrada em `.specs/STATE.md` (AD-005). Com a prop `machine`, o mesmo painel vira "Editar Máquina". `MachineDetailModal` abre ao clicar num card (o título do card é um botão esticado sobre ele, para não aninhar botões): mostra status, código, MAC, setor, tempo de uso total, nome do dispositivo e o histórico de acidentes e de manutenção, com abas e filtro de período. O rodapé tem Editar e Excluir; enquanto o drawer de edição ou a confirmação de exclusão está aberto, o modal de detalhe sai da tela e volta ao fechar, para o Escape fechar só a camada de cima.
@@ -86,6 +81,7 @@ Espelha 1:1 a estrutura de `src/` (ex.: `test/components/layout/Sidebar.test.tsx
 | --- | --- | --- |
 | **React 19 + TypeScript** | Base da aplicação | `strict` mode do TS ligado via `tsconfig.app.json` |
 | **Vite** | Build e dev server | `npm run dev`, `npm run build` (roda `tsc -b` antes de empacotar) |
+| **axios** | Chamadas à API | Instância única em `services/api.ts` |
 | **react-router-dom** | Roteamento | Um `<Routes>` central em `routes/appRoutes.tsx`; `BrowserRouter` só em `main.tsx` |
 | **i18next + react-i18next** | Internacionalização | 7 idiomas, recursos inline, persistência em `localStorage`. Ver [i18n.md](./i18n.md) |
 | **lucide-react** | Ícones | Um componente React por ícone (`<FileText />`, `<Truck />` etc.). Só ícones: não inclui componentes de UI nem estilo. Decisão registrada em `.specs/STATE.md` (AD-001), para manter um único sistema de ícones em todo o app |
@@ -110,7 +106,7 @@ Um componente com estilo próprio ganha um arquivo `NomeDoComponente.module.css`
 
 Convenção: todo arquivo de teste espelha o caminho do arquivo testado dentro de `src/test/` (ex.: `src/components/layout/Sidebar.tsx` → `src/test/components/layout/Sidebar.test.tsx`). Os testes usam `@testing-library/react` com `MemoryRouter` para qualquer componente que dependa de rota, e `fireEvent` para simular clique, teclado e resize.
 
-`npm run test` executa a suíte inteira uma vez (sem watch); é o mesmo comando que roda no gate de build/lint antes de qualquer commit.
+`yarn test` (ou `npm run test`) executa a suíte inteira uma vez (sem watch, `vitest run`); é o mesmo comando que roda no gate de build/lint antes de qualquer commit. Os testes não chamam o Backend: os serviços são mocados.
 
 ---
 
