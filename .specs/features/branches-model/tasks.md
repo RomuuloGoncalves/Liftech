@@ -605,16 +605,16 @@ T18 → T19
 
 **Done when**:
 
-- [ ] Chama `garantirEmpresa()` sem extras (Migração AC1)
-- [ ] Admins com `empresaId: null` recebem `empresaId` e `escopo: 'empresa'` (Migração AC2)
-- [ ] Os demais usuários com `empresaId: null` recebem `empresaId`, `escopo: 'filiais'` e `filiaisIds: [<matriz>]` (Migração AC3)
-- [ ] Forklift, device, operator e incident com `filialId: null` recebem o `filialId` da matriz (Migração AC4)
-- [ ] Todos os filtros miram só o campo ausente ou nulo (Migração AC5, AC6, edge usuário já migrado)
-- [ ] Registra e devolve a contagem de documentos alterados por collection (Migração AC7)
-- [ ] Fecha a conexão com sucesso e com erro, e o erro continua subindo (Migração AC8)
-- [ ] `package.json` tem `"migrate:branches": "tsx src/scripts/migrateToBranches.ts"`
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/migrateToBranches.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 8 testes passam, todos com os models mockados
+- [x] Chama `garantirEmpresa()` sem extras (Migração AC1)
+- [x] Admins com `empresaId: null` recebem `empresaId` e `escopo: 'empresa'` (Migração AC2)
+- [x] Os demais usuários com `empresaId: null` recebem `empresaId`, `escopo: 'filiais'` e `filiaisIds: [<matriz>]` (Migração AC3)
+- [x] Forklift, device, operator e incident com `filialId: null` recebem o `filialId` da matriz (Migração AC4)
+- [x] Todos os filtros miram só o campo ausente ou nulo (Migração AC5, AC6, edge usuário já migrado)
+- [x] Registra e devolve a contagem de documentos alterados por collection (Migração AC7)
+- [x] Fecha a conexão com sucesso e com erro, e o erro continua subindo (Migração AC8)
+- [x] `package.json` tem `"migrate:branches": "tsx src/scripts/migrateToBranches.ts"`
+- [x] Gate: `cd Backend && npx vitest run tests/unit/migrateToBranches.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 8 testes passam, todos com os models mockados
 
 **Tests**: unit
 **Gate**: quick
