@@ -61,22 +61,6 @@
   overflow: hidden;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: calc(147 * var(--px, 1px));
-  box-sizing: border-box;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--bg);
-}
-
-.compact {
-  min-height: 0;
-}
-
 /* Card de máquina: mesma caixa do MachineCard (155px = 36 + 39 + 38 + 2 gaps + padding + borda). */
 .machine {
   display: flex;
@@ -174,20 +158,6 @@
   height: 30px;
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.lines {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 6px;
-}
-
 /* Brilho deslizante; com "reduzir movimento" a regra global de index.css o deixa parado. */
 .block {
   display: block;
@@ -204,29 +174,92 @@
   border-radius: calc(7 * var(--px, 1px)) calc(7 * var(--px, 1px)) 0 0;
 }
 
-.icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-}
-
-.line {
-  width: 100%;
-  height: 9px;
-}
-
-.medium {
-  width: 70%;
-}
-
-.short {
-  width: 45%;
-}
-
 .label {
   width: calc(158 * var(--px, 1px));
   height: calc(24 * var(--px, 1px));
+}
+
+/* Card de funcionário: mesma caixa do EmployeeCard (81 = 55 + 24 + bordas). */
+.employee {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.employeeInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 55px;
+}
+
+.employeeName {
+  width: 55%;
+  height: 14px;
+}
+
+.employeeLine {
+  width: 40%;
+  height: 11px;
+}
+
+.employeeActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.employeeIcons {
+  display: flex;
+  gap: 8px;
+}
+
+.employeeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.employeeSwitch {
+  width: 34px;
+  height: 18px;
+  border-radius: 9px;
+}
+
+/* Card de setor: mesma caixa do SectorCard, uma linha com 2 botões de 25px (51px). */
+.sector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.sectorName {
+  width: 50%;
+  height: 12px;
+}
+
+.sectorButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.sectorButton {
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
 }
 
 @keyframes shimmer {

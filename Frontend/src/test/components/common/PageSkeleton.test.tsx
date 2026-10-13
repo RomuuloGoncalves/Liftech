@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import PageSkeleton from '../../../components/common/PageSkeleton'
+import PageSkeleton, { SkeletonCards } from '../../../components/common/PageSkeleton'
 
 const cards = (container: HTMLElement) => container.querySelectorAll('[data-skeleton-card]')
 
@@ -55,12 +55,32 @@ describe('PageSkeleton', () => {
     ).toBeTruthy()
   })
 
-  it('renders 8 employee and 4 sector cards in the team variant', () => {
-    const { container } = render(<PageSkeleton variant="team" />)
-    const sections = container.querySelectorAll('[data-skeleton-row]')
-    expect(sections).toHaveLength(2)
-    expect(sections[0].querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
-    expect(sections[1].querySelectorAll('[data-skeleton-card]')).toHaveLength(4)
+  it('renders only the page content, still announced and busy, when there is no variant', () => {
+    const { container } = render(
+      <PageSkeleton>
+        <div data-testid="page-content" />
+      </PageSkeleton>
+    )
+    expect(screen.getByRole('status').closest('[aria-busy="true"]')).not.toBeNull()
+    expect(screen.getByTestId('page-content').closest('[aria-hidden="true"]')).not.toBeNull()
+    expect(cards(container)).toHaveLength(0)
+  })
+
+  it('employee card has 3 info lines, 2 icon buttons and the access switch', () => {
+    const { container } = render(<SkeletonCards card="employee" count={8} className="page-grid" />)
+    const list = container.querySelector('.page-grid')!.querySelectorAll('[data-skeleton-card]')
+    expect(list).toHaveLength(8)
+    expect(list[0].querySelector('[data-skeleton-part="info"]')!.children).toHaveLength(3)
+    expect(list[0].querySelector('[data-skeleton-part="icons"]')!.children).toHaveLength(2)
+    expect(list[0].querySelectorAll('[data-skeleton-part="switch"]')).toHaveLength(1)
+  })
+
+  it('sector card has a single name line and 2 square buttons', () => {
+    const { container } = render(<SkeletonCards card="sector" count={8} />)
+    const list = cards(container)
+    expect(list).toHaveLength(8)
+    expect(list[0].querySelectorAll('[data-skeleton-part="name"]')).toHaveLength(1)
+    expect(list[0].querySelector('[data-skeleton-part="buttons"]')!.children).toHaveLength(2)
   })
 
   it('hides the placeholder blocks from assistive technology', () => {

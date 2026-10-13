@@ -2,13 +2,16 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './PageSkeleton.module.css'
 
+export type SkeletonCardKind = 'machine' | 'fleet' | 'employee' | 'sector'
+
 interface PageSkeletonProps {
-  variant: 'grid' | 'kanban' | 'team'
+  /** Sem variante, a página monta o corpo com `children`, `SkeletonBlock` e `SkeletonCards`. */
+  variant?: 'grid' | 'kanban'
   count?: number
   /** Classe de grid da página, para o skeleton ocupar o mesmo layout do conteúdo. */
   gridClassName?: string
   /** Card da variante `grid`: um por tipo de card real. */
-  card?: 'machine' | 'fleet'
+  card?: SkeletonCardKind
   /** Placeholder da barra de filtros, montado pela página com as classes dela. */
   children?: React.ReactNode
 }
@@ -48,31 +51,58 @@ const MachineCard: React.FC = () => (
   </div>
 )
 
-const Card: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
-  <div className={`${styles.card} ${compact ? styles.compact : ''}`} data-skeleton-card>
-    <div className={styles.head}>
-      <span className={`${styles.block} ${styles.icon}`} />
-      <div className={styles.lines}>
-        <span className={`${styles.block} ${styles.line}`} />
-        <span className={`${styles.block} ${styles.line} ${styles.short}`} />
-      </div>
+const EmployeeCard: React.FC = () => (
+  <div className={styles.employee} data-skeleton-card>
+    <div className={styles.employeeInfo} data-skeleton-part="info">
+      <SkeletonBlock className={styles.employeeName} />
+      <SkeletonBlock className={styles.employeeLine} />
+      <SkeletonBlock className={styles.employeeLine} />
     </div>
-    {!compact && (
-      <>
-        <span className={`${styles.block} ${styles.line}`} />
-        <span className={`${styles.block} ${styles.line} ${styles.medium}`} />
-        <span className={`${styles.block} ${styles.line} ${styles.short}`} />
-      </>
-    )}
+    <div className={styles.employeeActions}>
+      <div className={styles.employeeIcons} data-skeleton-part="icons">
+        <SkeletonBlock className={styles.employeeIcon} />
+        <SkeletonBlock className={styles.employeeIcon} />
+      </div>
+      <SkeletonBlock className={styles.employeeSwitch} data-skeleton-part="switch" />
+    </div>
   </div>
 )
 
-const cardsOf = (n: number, compact?: boolean) => Array.from({ length: n }, (_, i) => <Card key={i} compact={compact} />)
+const SectorCard: React.FC = () => (
+  <div className={styles.sector} data-skeleton-card>
+    <SkeletonBlock className={styles.sectorName} data-skeleton-part="name" />
+    <div className={styles.sectorButtons} data-skeleton-part="buttons">
+      <SkeletonBlock className={styles.sectorButton} />
+      <SkeletonBlock className={styles.sectorButton} />
+    </div>
+  </div>
+)
 
-const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridClassName, card = 'machine', children }) => {
+const CARDS: Record<SkeletonCardKind, React.FC> = {
+  machine: MachineCard,
+  fleet: FleetCard,
+  employee: EmployeeCard,
+  sector: SectorCard,
+}
+
+/** Grade de cards do skeleton; `className` é a classe de grade da própria página. */
+export const SkeletonCards: React.FC<{ card: SkeletonCardKind; count?: number; className?: string }> = ({
+  card,
+  count = 8,
+  className,
+}) => {
+  const Card = CARDS[card]
+  return (
+    <div className={className ?? styles.grid}>
+      {Array.from({ length: count }, (_, i) => (
+        <Card key={i} />
+      ))}
+    </div>
+  )
+}
+
+const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count, gridClassName, card = 'machine', children }) => {
   const { t } = useTranslation()
-  const grid = gridClassName ?? styles.grid
-  const GridCard = card === 'fleet' ? FleetCard : MachineCard
 
   return (
     <div aria-busy="true" className={styles.wrapper}>
@@ -82,13 +112,7 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridCla
       <div aria-hidden="true" className={styles.wrapper}>
         {children}
 
-        {variant === 'grid' && (
-          <div className={grid}>
-            {Array.from({ length: count }, (_, i) => (
-              <GridCard key={i} />
-            ))}
-          </div>
-        )}
+        {variant === 'grid' && <SkeletonCards card={card} count={count} className={gridClassName} />}
 
         {variant === 'kanban' &&
           [0, 1, 2, 3].map((row) => (
@@ -105,14 +129,6 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridCla
                   <FleetCard key={i} />
                 ))}
               </div>
-            </div>
-          ))}
-
-        {variant === 'team' &&
-          [8, 4].map((n, section) => (
-            <div key={section} className={styles.panel} data-skeleton-row>
-              <span className={`${styles.block} ${styles.label}`} />
-              <div className={grid}>{cardsOf(n, section === 1)}</div>
             </div>
           ))}
       </div>

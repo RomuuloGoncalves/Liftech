@@ -99,7 +99,7 @@ Os skeletons das telas não reproduzem o layout que carregam: quase todos pulam 
 | -------------- | ----- | ----- | ------ |
 | SKL-01 | P1 Admin: AC1, AC2 | Execute | Implementing |
 | SKL-02 | P1 Admin: AC3 | Execute | Implementing |
-| SKL-03 | P1 Admin: AC4 | Execute | Pending |
+| SKL-03 | P1 Admin: AC4 | Execute | Implementing |
 | SKL-04 | P1 Admin: AC5 | Execute | Implementing |
 | SKL-05 | P1 Admin: AC6, AC7, AC8 | Execute | Implementing |
 | SKL-06 | P1 Funcionário: AC1, AC4 | Execute | Pending |

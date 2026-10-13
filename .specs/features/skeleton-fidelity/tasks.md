@@ -157,12 +157,12 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Seção de funcionários: 8 cards `employee` (3 linhas, 2 ícones e interruptor) e barra com botão, busca e seletor (SKL-03 AC4)
-- [ ] Seção de setores: 8 cards `sector` (uma linha e 2 botões de 25px) e barra com botão e busca, sem seletor (SKL-03 AC4, Assumption)
-- [ ] Equipe usa `styles.section`, `styles.sectionHeader`, `styles.toolbar` e `styles.grid` da página (SKL-05 AC8)
-- [ ] Nenhum código ou CSS do card antigo (`.head`, `.icon`, `.lines`, `.compact`, variante `team`) resta no `PageSkeleton`
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/EquipePage.test.tsx`
-- [ ] Test count: 5 tests added to the T1 files (25 in total, 2 old team tests rewritten for the new API), `EquipePage.test.tsx` all pass
+- [x] Seção de funcionários: 8 cards `employee` (3 linhas, 2 ícones e interruptor) e barra com botão, busca e seletor (SKL-03 AC4)
+- [x] Seção de setores: 8 cards `sector` (uma linha e 2 botões de 25px) e barra com botão e busca, sem seletor (SKL-03 AC4, Assumption)
+- [x] Equipe usa `styles.section`, `styles.sectionHeader`, `styles.toolbar` e `styles.grid` da página (SKL-05 AC8)
+- [x] Nenhum código ou CSS do card antigo (`.head`, `.icon`, `.lines`, `.compact`, variante `team`) resta no `PageSkeleton`
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/EquipePage.test.tsx`
+- [x] Test count: `PageSkeleton.test.tsx` 13 (the old `team` test replaced by 3 tests for the no-variant shell and the employee/sector cards), `pageSkeleton.test.ts` 21 (7 new), `EquipePage.test.tsx` 1 new and the old skeleton test updated from 12 to 16 cards; all of `EquipePage.test.tsx` passes
 
 **Tests**: unit
 **Gate**: quick

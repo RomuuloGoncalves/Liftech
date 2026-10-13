@@ -14,6 +14,9 @@ const overview = read('pages/VisaoGeralPage.module.css')
 const alerts = read('pages/AlertasPage.module.css')
 const fleetRow = read('components/fleet/FleetRow.module.css')
 const fleetPage = read('pages/FrotaPage.module.css')
+const employeeCard = read('components/team/EmployeeCard.module.css')
+const sectorCard = read('components/team/SectorCard.module.css')
+const team = read('pages/EquipePage.module.css')
 // Valor em `calc(N * var(--px, 1px))`: devolve N.
 const scaled = (css: string, prop: string) => Number(css.match(new RegExp(`(?:^|[\\s;])${prop}:\\s*calc\\((\\d+) \\* var\\(--px, 1px\\)\\)`))?.[1])
 
@@ -148,5 +151,64 @@ describe('FrotaPage skeleton toolbar styles', () => {
     expect(block(fleetPage, '.buttonSkeleton')).toMatch(/width:\s*175px/)
     expect(block(fleetPage, '.filter')).toMatch(/height:\s*32px/)
     expect(block(fleetPage, '.createButton')).toMatch(/height:\s*32px/)
+  })
+})
+
+describe('PageSkeleton team card styles', () => {
+  const employee = block(skeleton, '.employee')
+  const sector = block(skeleton, '.sector')
+
+  it('employee card has the EmployeeCard box: 12px padding, 0.5px border, radius md', () => {
+    for (const rule of ['padding', 'border', 'border-radius', 'gap']) {
+      expect(employee.match(new RegExp(`${rule}:\\s*([^;]+)`))![1]).toBe(block(employeeCard, '.card').match(new RegExp(`${rule}:\\s*([^;]+)`))![1])
+    }
+    expect(employee).toMatch(/border:\s*0\.5px solid var\(--border\)/)
+  })
+
+  it('employee card is 81px tall: 55px info + 24px padding + 2px borders', () => {
+    expect(px(block(skeleton, '.employeeInfo'), 'height')).toBe(55)
+    expect(55 + 2 * 12 + 2).toBe(81)
+  })
+
+  it('employee info, icons and switch have the real sizes (icons 16, switch 34x18)', () => {
+    expect(block(skeleton, '.employeeSwitch')).toMatch(/width:\s*34px/)
+    expect(block(skeleton, '.employeeSwitch')).toMatch(/height:\s*18px/)
+    expect(block(employeeCard, '.switch')).toMatch(/width:\s*34px/)
+    expect(block(employeeCard, '.switch')).toMatch(/height:\s*18px/)
+    expect(block(skeleton, '.employeeIcon')).toMatch(/width:\s*16px/)
+    expect(block(skeleton, '.employeeIcon')).toMatch(/height:\s*16px/)
+  })
+
+  it('sector card has the SectorCard box and two 25px buttons, so it is one 51px row', () => {
+    for (const rule of ['padding', 'border', 'border-radius', 'gap', 'align-items']) {
+      expect(sector.match(new RegExp(`${rule}:\\s*([^;]+)`))![1]).toBe(block(sectorCard, '.card').match(new RegExp(`${rule}:\\s*([^;]+)`))![1])
+    }
+    expect(block(skeleton, '.sectorButton')).toMatch(/width:\s*25px/)
+    expect(block(skeleton, '.sectorButton')).toMatch(/height:\s*25px/)
+    expect(block(sectorCard, '.iconButton')).toMatch(/width:\s*25px/)
+    expect(25 + 2 * 12 + 2).toBe(51)
+  })
+
+  it('old card classes are gone', () => {
+    for (const selector of ['.head', '.icon', '.lines', '.compact', '.card']) expect(block(skeleton, selector)).toBe('')
+  })
+})
+
+describe('EquipePage skeleton toolbar styles', () => {
+  it('title, register button, search and access select have the real widths and 32px height', () => {
+    expect(block(team, '.titleSkeleton')).toMatch(/width:\s*103px/)
+    expect(block(team, '.titleSkeleton')).toMatch(/height:\s*21px/)
+    expect(block(team, '.employeeButtonSkeleton')).toMatch(/width:\s*195px/)
+    expect(block(team, '.sectorButtonSkeleton')).toMatch(/width:\s*154px/)
+    expect(block(team, '.searchSkeleton')).toMatch(/width:\s*240px/)
+    expect(block(team, '.selectSkeleton')).toMatch(/width:\s*103px/)
+    expect(block(team, '.searchField')).toMatch(/width:\s*240px/)
+    const controls = block(team, '.employeeButtonSkeleton,\n.sectorButtonSkeleton,\n.searchSkeleton,\n.selectSkeleton')
+    expect(controls).toMatch(/height:\s*32px/)
+    expect(block(team, '.registerButton,\n.searchInput,\n.select')).toMatch(/height:\s*32px/)
+  })
+
+  it('search placeholder fills the row on narrow screens, like the real search', () => {
+    expect(team).toMatch(/@media \(max-width: 768px\)[\s\S]*\.searchSkeleton/)
   })
 })
