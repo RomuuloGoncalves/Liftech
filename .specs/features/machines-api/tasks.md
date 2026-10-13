@@ -231,10 +231,10 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Chama `api.get('/machines')` e devolve `data`
-- [ ] A rejeição da API se propaga
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/machineService.test.ts`
-- [ ] Test count: 2 testes passam
+- [x] Chama `api.get('/machines')` e devolve `data`
+- [x] A rejeição da API se propaga
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/machineService.test.ts`
+- [x] Test count: 2 testes passam
 
 **Tests**: unit
 **Gate**: quick
