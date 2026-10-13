@@ -222,21 +222,21 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| BRM-01 | P1 Modelo: AC1, AC2, AC3, AC4 | Tasks | Pending |
-| BRM-02 | P1 Modelo: AC5, AC6, AC7 | Tasks | Pending |
-| BRM-03 | P1 Modelo: AC8 | Tasks | Pending |
-| BRM-04 | P1 Modelo: AC9, AC10, AC11 | Tasks | Pending |
-| BRM-05 | P1 Modelo: AC12, AC13, AC14 | Tasks | Pending |
-| BRM-06 | P1 Escopo: AC1 a AC6; Edge: filial apagada, escopo indefinido | Tasks | Pending |
-| BRM-07 | P1 Escopo: AC7, AC8, AC9 | Tasks | Pending |
-| BRM-08 | P1 CRUD: AC1, AC2, AC13 | Tasks | Pending |
-| BRM-09 | P1 CRUD: AC3, AC4, AC5, AC6, AC7, AC8, AC9; Edge: nome em branco, nome com espaços, matriz no PUT | Tasks | Pending |
-| BRM-10 | P1 CRUD: AC10, AC11, AC12 | Tasks | Pending |
-| BRM-11 | P1 Seeds: AC1, AC2, AC3, AC4, AC5, AC6, AC12 | Tasks | Pending |
-| BRM-12 | P1 Seeds: AC7, AC8, AC9, AC10, AC11 | Tasks | Pending |
-| BRM-13 | P1 Migração: AC1, AC2, AC3, AC4; Edge: usuário já migrado | Tasks | Pending |
-| BRM-14 | P1 Migração: AC5, AC6, AC7, AC8 | Tasks | Pending |
-| BRM-15 | P2 Documentação: AC1, AC2 | Tasks | Pending |
+| BRM-01 | P1 Modelo: AC1, AC2, AC3, AC4 | Tasks | In Tasks |
+| BRM-02 | P1 Modelo: AC5, AC6, AC7 | Tasks | In Tasks |
+| BRM-03 | P1 Modelo: AC8 | Tasks | In Tasks |
+| BRM-04 | P1 Modelo: AC9, AC10, AC11 | Tasks | In Tasks |
+| BRM-05 | P1 Modelo: AC12, AC13, AC14 | Tasks | In Tasks |
+| BRM-06 | P1 Escopo: AC1 a AC6; Edge: filial apagada, escopo indefinido | Tasks | In Tasks |
+| BRM-07 | P1 Escopo: AC7, AC8, AC9 | Tasks | In Tasks |
+| BRM-08 | P1 CRUD: AC1, AC2, AC13 | Tasks | In Tasks |
+| BRM-09 | P1 CRUD: AC3, AC4, AC5, AC6, AC7, AC8, AC9; Edge: nome em branco, nome com espaços, matriz no PUT | Tasks | In Tasks |
+| BRM-10 | P1 CRUD: AC10, AC11, AC12 | Tasks | In Tasks |
+| BRM-11 | P1 Seeds: AC1, AC2, AC3, AC4, AC5, AC6, AC12 | Tasks | In Tasks |
+| BRM-12 | P1 Seeds: AC7, AC8, AC9, AC10, AC11 | Tasks | In Tasks |
+| BRM-13 | P1 Migração: AC1, AC2, AC3, AC4; Edge: usuário já migrado | Tasks | In Tasks |
+| BRM-14 | P1 Migração: AC5, AC6, AC7, AC8 | Tasks | In Tasks |
+| BRM-15 | P2 Documentação: AC1, AC2 | Tasks | In Tasks |
 
 **Coverage:** 15 total, 15 mapped to tasks, 0 unmapped.
 
