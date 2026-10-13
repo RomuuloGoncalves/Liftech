@@ -159,10 +159,10 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Documento com os dois campos vira modelo cujo `obterDados()` os devolve (AC2, AC4)
-- [ ] Documento sem eles (usuário antigo) vira modelo sem erro e sem os campos (AC6)
-- [ ] Gate check passes: `cd Backend && npx vitest run tests/unit/userRepository.test.ts`
-- [ ] Test count: ao menos 2 testes passam
+- [x] Documento com os dois campos vira modelo cujo `obterDados()` os devolve (AC2, AC4)
+- [x] Documento sem eles (usuário antigo) vira modelo sem erro e sem os campos (AC6)
+- [x] Gate check passes: `cd Backend && npx vitest run tests/unit/userRepository.test.ts`
+- [x] Test count: ao menos 2 testes passam
 
 **Tests**: unit
 **Gate**: quick

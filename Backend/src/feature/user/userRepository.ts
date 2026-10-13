@@ -12,6 +12,8 @@ export class UserRepository extends RepositoryBase<userModel> {
         String(documento.nome ?? ""),
         String(documento.role ?? ""),
         documento._id ? String(documento._id) : undefined,
+        documento.telefone as string | undefined,
+        documento.cargo as string | undefined,
      );
  }
 
