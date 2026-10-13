@@ -157,11 +157,11 @@ T9 → T13
 
 **Done when**:
 
-- [ ] `filtroPorFilial` devolve `{ filialId: { $in: <ids das filiais> } }` (Filtro AC9)
-- [ ] Escopo ausente ou sem filiais devolve `{ filialId: { $in: [] } }` (Filtro AC10)
-- [ ] `filtroPorEmpresa` devolve `{ empresaId: { $in: [<empresaId>] } }`, e `$in: []` sem empresa ou sem escopo (Filtro AC11)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/escopo.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 8 testes existentes mais 5 novos passam
+- [x] `filtroPorFilial` devolve `{ filialId: { $in: <ids das filiais> } }` (Filtro AC9)
+- [x] Escopo ausente ou sem filiais devolve `{ filialId: { $in: [] } }` (Filtro AC10)
+- [x] `filtroPorEmpresa` devolve `{ empresaId: { $in: [<empresaId>] } }`, e `$in: []` sem empresa ou sem escopo (Filtro AC11)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/escopo.test.ts && npx tsc --noEmit`
+- [x] Test count: os 8 testes existentes mais 4 novos passam
 
 **Tests**: unit
 **Gate**: quick

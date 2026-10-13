@@ -42,3 +42,12 @@ export async function carregarEscopo(usuario: UsuarioComEscopo): Promise<Escopo>
     filiais: filiais.map((f) => ({ _id: String(f._id), nome: f.nome, matriz: f.matriz })),
   };
 }
+
+// Filtros de escopo para o RepositoryBase. Sem escopo ou sem filiais o `$in` fica vazio e nada casa (falha fechada).
+export const filtroPorFilial = (escopo?: Escopo) => ({
+  filialId: { $in: escopo?.filiais.map((f) => f._id) ?? [] },
+});
+
+export const filtroPorEmpresa = (escopo?: Escopo) => ({
+  empresaId: { $in: escopo?.empresaId ? [escopo.empresaId] : [] },
+});

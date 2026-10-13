@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import mongoose from 'mongoose';
-import { carregarEscopo } from '../../src/core/escopo.js';
+import { carregarEscopo, filtroPorEmpresa, filtroPorFilial, type Escopo } from '../../src/core/escopo.js';
 import { Branch } from '../../src/schemas/branch.js';
 
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { find: vi.fn() } }));
@@ -95,5 +95,31 @@ describe('carregarEscopo', () => {
 
         expect(escopo.tipo).toBe('filiais');
         expect(Branch.find).toHaveBeenCalledWith({ empresaId: EMPRESA, _id: { $in: [CENTRO] } });
+    });
+});
+
+describe('filtros de escopo', () => {
+    const escopo: Escopo = {
+        empresaId: 'e1',
+        tipo: 'filiais',
+        filiais: [{ _id: 'f1', nome: 'Matriz', matriz: true }, { _id: 'f2', nome: 'Unidade Norte', matriz: false }],
+    };
+
+    test('filtroPorFilial: $in com os ids das filiais do escopo', () => {
+        expect(filtroPorFilial(escopo)).toEqual({ filialId: { $in: ['f1', 'f2'] } });
+    });
+
+    test('filtroPorFilial: escopo sem filiais ou ausente devolve $in vazio', () => {
+        expect(filtroPorFilial({ ...escopo, filiais: [] })).toEqual({ filialId: { $in: [] } });
+        expect(filtroPorFilial(undefined)).toEqual({ filialId: { $in: [] } });
+    });
+
+    test('filtroPorEmpresa: $in com a empresa do escopo', () => {
+        expect(filtroPorEmpresa(escopo)).toEqual({ empresaId: { $in: ['e1'] } });
+    });
+
+    test('filtroPorEmpresa: escopo sem empresa ou ausente devolve $in vazio', () => {
+        expect(filtroPorEmpresa({ tipo: 'filiais', filiais: [] })).toEqual({ empresaId: { $in: [] } });
+        expect(filtroPorEmpresa(undefined)).toEqual({ empresaId: { $in: [] } });
     });
 });
