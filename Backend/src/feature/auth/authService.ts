@@ -26,5 +26,5 @@ export async function login(role: RoleLogin, login: string, senha: string) {
     expiresIn: env.jwt_expires_in as jwt.SignOptions["expiresIn"],
   });
 
-  return { token, user: { _id, nome: usuario.nome, role: usuario.role } };
+  return { token, user: { _id, nome: usuario.nome, role: usuario.role, telefone: usuario.telefone, cargo: usuario.cargo } };
 }

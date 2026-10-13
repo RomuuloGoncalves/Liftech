@@ -48,6 +48,22 @@ describe('authService.login', () => {
         expect((jwt.verify(resultado.token, SEGREDO) as jwt.JwtPayload).role).toBe('colaborador');
     });
 
+    test('colaborador com telefone e cargo: o user da resposta traz os dois', async () => {
+        mockarBusca({ _id: ID, nome: 'Bruno', role: 'colaborador', usuario: 'bruno.op', telefone: '+55 99 99999999', cargo: 'Operador', senhaHash: gerarHashSenha('segredo2') });
+
+        const resultado = await login('colaborador', 'bruno.op', 'segredo2');
+
+        expect(resultado.user).toEqual({ _id: ID, nome: 'Bruno', role: 'colaborador', telefone: '+55 99 99999999', cargo: 'Operador' });
+    });
+
+    test('usuário sem telefone nem cargo: login funciona e o user (serializado) não tem os campos', async () => {
+        mockarBusca({ _id: ID, nome: 'Ana', role: 'admin', email: 'ana@empresa.com', senhaHash: gerarHashSenha('segredo1') });
+
+        const resultado = await login('admin', 'ana@empresa.com', 'segredo1');
+
+        expect(Object.keys(JSON.parse(JSON.stringify(resultado.user)))).toEqual(['_id', 'nome', 'role']);
+    });
+
     test('senha errada: lança "Credenciais inválidas."', async () => {
         mockarBusca({ _id: ID, nome: 'Ana', role: 'admin', senhaHash: gerarHashSenha('segredo1') });
         await expect(login('admin', 'ana@empresa.com', 'errada')).rejects.toThrow('Credenciais inválidas.');

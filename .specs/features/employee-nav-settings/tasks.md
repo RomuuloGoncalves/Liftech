@@ -215,10 +215,10 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Usuário com os dois campos: `user` os traz (AC5)
-- [ ] Usuário sem eles: `user` continua `{ _id, nome, role }` sem erro (AC6); os testes antigos de `toEqual` seguem passando
-- [ ] Gate check passes: `cd Backend && npx vitest run tests/unit/authService.test.ts`
-- [ ] Test count: ao menos 9 testes passam
+- [x] Usuário com os dois campos: `user` os traz (AC5)
+- [x] Usuário sem eles: `user` continua `{ _id, nome, role }` sem erro (AC6); os testes antigos de `toEqual` seguem passando
+- [x] Gate check passes: `cd Backend && npx vitest run tests/unit/authService.test.ts`
+- [x] Test count: ao menos 9 testes passam
 
 **Tests**: unit
 **Gate**: build
