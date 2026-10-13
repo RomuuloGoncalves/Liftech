@@ -156,6 +156,34 @@ describe('seedData', () => {
         expect(JSON.stringify(dados)).not.toContain(SENHA);
     });
 
+    test('com SEED_COLABORADOR_SENHA: os 11 colaboradores têm senhaHash que valida a senha', async () => {
+        await seedData();
+
+        const hashes = chamadas(User).map((c) => c[1].$set.senhaHash as string);
+
+        expect(hashes).toHaveLength(11);
+        for (const hash of hashes) expect(verificarSenha(SENHA, hash)).toBe(true);
+    });
+
+    test('rodar duas vezes usa exatamente as mesmas chaves, sem repetir nenhuma dentro de uma execução', async () => {
+        const chaves = () =>
+            Object.fromEntries(
+                Object.entries(MODELOS).map(([nome, m]) => [nome, chamadas(m).map((c) => JSON.stringify(c[0]))])
+            );
+
+        await seedData();
+        const primeira = chaves();
+        vi.clearAllMocks();
+        mockarModelos();
+        await seedData();
+        const segunda = chaves();
+
+        expect(segunda).toEqual(primeira);
+        for (const [nome, lista] of Object.entries(primeira)) {
+            expect(new Set(lista).size, `chaves repetidas em ${nome}`).toBe(lista.length);
+        }
+    });
+
     test('sem SEED_COLABORADOR_SENHA: não cria colaboradores e registra um aviso', async () => {
         delete process.env.SEED_COLABORADOR_SENHA;
 
