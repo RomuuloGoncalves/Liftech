@@ -6,6 +6,7 @@ const forkliftSchema = new Schema({
     nome: String,
     setor: String,
     sessaoIniciadaEm: Date,
+    filialId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch', required: true, index: true },
     dispositivoConectadoId: {
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'device'

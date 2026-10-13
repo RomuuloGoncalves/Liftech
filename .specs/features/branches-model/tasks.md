@@ -192,10 +192,10 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `validateSync()` sem `filialId` falha em `filialId` nos 4 schemas (Modelo AC8)
-- [ ] Os testes de integração de forklift, device, operator e incident criam o documento com `filialId` (não executados aqui)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
-- [ ] Test count: 4 testes novos passam
+- [x] `validateSync()` sem `filialId` falha em `filialId` nos 4 schemas (Modelo AC8)
+- [x] Os testes de integração de forklift, device, operator e incident criam o documento com `filialId` (não executados aqui)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
+- [x] Test count: 4 testes novos passam
 
 **Tests**: unit
 **Gate**: quick

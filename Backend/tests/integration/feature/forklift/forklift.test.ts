@@ -11,7 +11,8 @@ describe('Integração: Mongoose Schema - Forklift', () => {
         const forklift = new Forklift({ 
             identificacao: 'EMP-001',
             dispositivoConectadoId: dispositivoId,
-            operadorConectadoId: operadorId
+            operadorConectadoId: operadorId,
+            filialId: new conn.mongoose.Types.ObjectId()
         });
         const forkliftSalvo = await forklift.save();
 

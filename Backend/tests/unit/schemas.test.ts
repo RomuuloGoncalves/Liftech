@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 import { Company } from '../../src/schemas/company.js';
 import { Branch } from '../../src/schemas/branch.js';
 import { User } from '../../src/schemas/user.js';
+import { Forklift } from '../../src/schemas/forklift.js';
+import { Device } from '../../src/schemas/device.js';
+import { Operator } from '../../src/schemas/operator.js';
+import { Incident } from '../../src/schemas/incident.js';
 
 // Só o mongoose, sem conectar: validate() e schema.indexes() não tocam no banco.
 vi.mock('../../src/config/conn.js', async () => ({ conn: { mongoose: (await import('mongoose')).default } }));
@@ -49,6 +53,18 @@ describe('schema user', () => {
     test('escopo "empresa" e "filiais" são aceitos', async () => {
         expect(await erros(new User({ nome: 'Ana', role: 'admin', empresaId, escopo: 'empresa' }))).toEqual([]);
         expect(await erros(new User({ nome: 'Ana', role: 'admin', empresaId, escopo: 'filiais', filiaisIds: [empresaId] }))).toEqual([]);
+    });
+});
+
+describe('filialId nos recursos', () => {
+    test.each([
+        ['forklift', Forklift],
+        ['device', Device],
+        ['operator', Operator],
+        ['incident', Incident],
+    ])('%s: filialId é obrigatório', async (_nome, Modelo) => {
+        expect(await erros(new Modelo({}))).toEqual(['filialId']);
+        expect(await erros(new Modelo({ filialId: new mongoose.Types.ObjectId() }))).toEqual([]);
     });
 });
 

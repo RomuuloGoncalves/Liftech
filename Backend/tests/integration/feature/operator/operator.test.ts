@@ -6,7 +6,8 @@ describe('Integração: Mongoose Schema - Operator', () => {
     
     test('Criação de operator', async () => {
         const operator = new Operator({ 
-            nome: 'Operador Teste' 
+            nome: 'Operador Teste',
+            filialId: new conn.mongoose.Types.ObjectId()
         });
         const operatorSalvo = await operator.save();
 
