@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { listarMaquinas } from '../../src/feature/machine/machineService.js';
+import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
 
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn() } }));
@@ -19,8 +20,9 @@ function mockarLista(documentos: unknown[]) {
 
 const dispositivo = { _id: 'd1', enderecoMac: 'A2:C9:9B:1D:F7', status: 'Disponível' };
 const operador = { _id: 'o1', nome: 'Carlos Silva' };
+const ID = new Types.ObjectId();
 const base = {
-    _id: 'f1',
+    _id: ID,
     identificacao: 'EMP-081',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
@@ -46,7 +48,7 @@ describe('listarMaquinas', () => {
         const [item] = await listarMaquinas();
 
         expect(item).toEqual({
-            id: 'f1',
+            id: ID.toHexString(),
             identificacao: 'EMP-081',
             nome: 'Empilhadeira Elétrica Titan-X',
             setor: 'Expedição - Bloco B',
