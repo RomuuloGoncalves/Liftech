@@ -157,6 +157,19 @@ describe('ActiveBranchProvider', () => {
     setItem.mockRestore()
   })
 
+  it('setActiveBranch still changes the branch in memory when saving to localStorage throws', () => {
+    login('empresa', [F1, F2])
+    renderProbe()
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('storage disabled')
+    })
+
+    expect(() => fireEvent.click(screen.getByText('set f2'))).not.toThrow()
+    setItem.mockRestore()
+
+    expect(active()).toBe('f2')
+  })
+
   it('shows all and allows managing for an empresa user', () => {
     login('empresa', [F1])
 
