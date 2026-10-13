@@ -13,7 +13,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Spec**: `.specs/features/access-scope/spec.md` (sem `design.md`: a abordagem está nas Assumptions do spec)
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -453,7 +453,7 @@ T9 → T13
 ### T13: App wiring with autenticar
 
 **What**: `app.ts` monta o Express com `autenticar` depois das rotas públicas e antes das protegidas, inclusive `/api/branches`; `server.ts` importa o app, semeia e escuta.
-**Where**: `Backend/src/app.ts`
+**Where**: `Backend/src/app.ts` (e `Backend/src/server.ts`)
 **Depends on**: T6, T9
 **Reuses**: O conteúdo atual de `Backend/src/server.ts`; `branchRouter`
 **Requirement**: SCP-06
@@ -465,12 +465,12 @@ T9 → T13
 
 **Done when**:
 
-- [ ] Sem token, as rotas de `/api/*` respondem 401, incluindo `/api/branches`, `/api/users`, `/api/forklifts`, `/api/telemetry` e `/api/machines` (Autenticar AC9, AC12)
-- [ ] Sem token, `POST /api/auth/login`, `POST /api/access-requests`, `GET /api/health` e `GET /` chegam ao handler (Autenticar AC10)
-- [ ] Com token válido, uma rota protegida chega ao handler com `req.escopo` (Autenticar AC11)
-- [ ] `server.ts` só importa o app, executa o seed com `--seed` e escuta na porta 3000
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/app.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 9 testes passam
+- [x] Sem token, as rotas de `/api/*` respondem 401, incluindo `/api/branches`, `/api/users`, `/api/forklifts`, `/api/telemetry` e `/api/machines` (Autenticar AC9, AC12)
+- [x] Sem token, `POST /api/auth/login`, `POST /api/access-requests`, `GET /api/health` e `GET /` chegam ao handler (Autenticar AC10)
+- [x] Com token válido, uma rota protegida chega ao handler com `req.escopo` (Autenticar AC11)
+- [x] `server.ts` só importa o app, executa o seed com `--seed` e escuta na porta 3000
+- [x] Gate: `cd Backend && npx vitest run tests/unit/app.test.ts && npx tsc --noEmit`
+- [x] Test count: 18 testes passam
 
 **Tests**: unit
 **Gate**: quick
