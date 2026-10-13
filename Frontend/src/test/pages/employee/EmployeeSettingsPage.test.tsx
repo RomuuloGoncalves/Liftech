@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
+import i18n from '../../../config/i18n'
 import EmployeeSettingsPage from '../../../pages/employee/EmployeeSettingsPage'
 
 const Where = () => <output data-testid="where">{useLocation().pathname}</output>
@@ -68,8 +69,20 @@ describe('EmployeeSettingsPage', () => {
 
   it('shows the change-request notice inside the card', () => {
     setup()
-    expect(screen.getByText('Solicitação de alteração')).toBeInTheDocument()
-    expect(screen.getByText(/solicite a mudança ao supervisor responsável/)).toBeInTheDocument()
+    const card = screen.getByRole('heading', { name: 'Dados do usuário' }).closest('section') as HTMLElement
+    expect(within(card).getByText('Solicitação de alteração')).toBeInTheDocument()
+    expect(
+      within(card).getByText('Para alterar seus dados, solicite a mudança ao supervisor responsável.')
+    ).toBeInTheDocument()
+  })
+
+  it('renders the screen translated when the language is en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    setup()
+    expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'User data' })).toBeInTheDocument()
+    expect(screen.getByText('Change request')).toBeInTheDocument()
+    expect(screen.getByText('To change your details, ask the supervisor in charge.')).toBeInTheDocument()
   })
 
   it('"Deslogar-se" clears token and user and goes to the collaborator login', () => {
