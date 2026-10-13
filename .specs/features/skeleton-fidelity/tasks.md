@@ -129,11 +129,11 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] `kanban` renderiza o filho (barra) e 4 painéis, cada um com etiqueta 158x24, busca de ferramentas e cards `fleet` de 288 de largura (SKL-02 AC3)
-- [ ] Painel espelha `FleetRow` (padding 12/20/20, gap 12, raio 8, tudo em `--px`) por CSS
-- [ ] Frota carregando mostra a barra com a classe `toolbar` da página (borda inferior)
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/FrotaPage.test.tsx`
-- [ ] Test count: 4 tests added to the T1 files (20 in total), `FrotaPage.test.tsx` all pass
+- [x] `kanban` renderiza o filho (barra) e 4 painéis, cada um com etiqueta 158x24, busca de ferramentas (o primeiro também o período) e 4 cards `fleet` de 288 de largura (SKL-02 AC3)
+- [x] Painel espelha `FleetRow` (padding 12/20/20, gap 12, raio 8, tudo em `--px`) por CSS
+- [x] Frota carregando mostra a barra com a classe `toolbar` da página (borda inferior)
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/FrotaPage.test.tsx`
+- [x] Test count: 2 tests added to `PageSkeleton.test.tsx` (the old kanban test and the aria-hidden test updated from 3 rows/12 cards to 4 panels/16 cards; 11 in total) and 4 to `pageSkeleton.test.ts` (14 in total), 1 to `FrotaPage.test.tsx`; all of `FrotaPage.test.tsx` passes
 
 **Tests**: unit
 **Gate**: quick

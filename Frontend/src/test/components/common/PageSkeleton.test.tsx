@@ -25,10 +25,34 @@ describe('PageSkeleton', () => {
     expect(container.querySelector('.page-grid')!.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
   })
 
-  it('renders 3 rows of 4 cards in the kanban variant', () => {
+  it('renders 4 category panels of 4 fleet cards in the kanban variant (accidents, active, maintenance, available)', () => {
     const { container } = render(<PageSkeleton variant="kanban" />)
-    expect(container.querySelectorAll('[data-skeleton-row]')).toHaveLength(3)
-    expect(cards(container)).toHaveLength(12)
+    expect(container.querySelectorAll('[data-skeleton-row]')).toHaveLength(4)
+    expect(cards(container)).toHaveLength(16)
+    expect(container.querySelectorAll('[data-skeleton-row] [data-skeleton-part="strip"]')).toHaveLength(16)
+  })
+
+  it('kanban panels have a header with a label and tools; only the first has the period', () => {
+    const { container } = render(<PageSkeleton variant="kanban" />)
+    const rows = [...container.querySelectorAll('[data-skeleton-row]')]
+    for (const row of rows) {
+      const header = row.querySelector('[data-skeleton-part="header"]')!
+      expect(header.querySelector('[data-skeleton-part="label"]')).not.toBeNull()
+      expect(header.querySelector('[data-skeleton-part="tools"]')!.children.length).toBeGreaterThan(0)
+    }
+    expect(rows.map((row) => row.querySelectorAll('[data-skeleton-part="period"]').length)).toEqual([1, 0, 0, 0])
+  })
+
+  it('renders the page toolbar placeholder before the kanban panels', () => {
+    const { container } = render(
+      <PageSkeleton variant="kanban">
+        <div data-testid="bar" />
+      </PageSkeleton>
+    )
+    expect(
+      screen.getByTestId('bar').compareDocumentPosition(container.querySelector('[data-skeleton-row]')!) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('renders 8 employee and 4 sector cards in the team variant', () => {
@@ -43,7 +67,7 @@ describe('PageSkeleton', () => {
     const { container } = render(<PageSkeleton variant="kanban" />)
     const blocks = container.querySelector('[aria-hidden="true"]')
     expect(blocks).not.toBeNull()
-    expect(blocks!.querySelectorAll('[data-skeleton-card]')).toHaveLength(12)
+    expect(blocks!.querySelectorAll('[data-skeleton-card]')).toHaveLength(16)
   })
 
   it('renders the page toolbar placeholder before the grid', () => {

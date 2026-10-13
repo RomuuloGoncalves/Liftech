@@ -12,6 +12,8 @@ const machineCard = read('components/machines/MachineCard.module.css')
 const fleetCard = read('components/fleet/FleetCard.module.css')
 const overview = read('pages/VisaoGeralPage.module.css')
 const alerts = read('pages/AlertasPage.module.css')
+const fleetRow = read('components/fleet/FleetRow.module.css')
+const fleetPage = read('pages/FrotaPage.module.css')
 // Valor em `calc(N * var(--px, 1px))`: devolve N.
 const scaled = (css: string, prop: string) => Number(css.match(new RegExp(`(?:^|[\\s;])${prop}:\\s*calc\\((\\d+) \\* var\\(--px, 1px\\)\\)`))?.[1])
 
@@ -101,5 +103,50 @@ describe('AlertasPage skeleton toolbar styles', () => {
 
   it('search placeholder fills the row on narrow screens, like the real search', () => {
     expect(alerts).toMatch(/@media \(max-width: 767px\)[\s\S]*\.searchSkeleton/)
+  })
+})
+
+describe('PageSkeleton kanban panel styles', () => {
+  const panel = block(skeleton, '.panel')
+
+  it('mirrors the FleetRow box: padding 12/20/20, gap 12 and radius 8, all in --px, 1px line border', () => {
+    expect(panel).toMatch(/padding:\s*calc\(12 \* var\(--px, 1px\)\) calc\(20 \* var\(--px, 1px\)\) calc\(20 \* var\(--px, 1px\)\)/)
+    expect(panel).toMatch(/gap:\s*calc\(12 \* var\(--px, 1px\)\)/)
+    expect(panel).toMatch(/border:\s*1px solid var\(--line\)/)
+    expect(panel).toMatch(/border-radius:\s*calc\(8 \* var\(--px, 1px\)\)/)
+    for (const rule of ['padding', 'gap', 'border', 'border-radius']) {
+      expect(panel.match(new RegExp(`${rule}:\\s*([^;]+)`))![1]).toBe(block(fleetRow, '.row').match(new RegExp(`${rule}:\\s*([^;]+)`))![1])
+    }
+  })
+
+  it('header has the 158x24 label, a 240x24 search and a 240x27 period, in --px', () => {
+    expect(block(skeleton, '.label')).toMatch(/width:\s*calc\(158 \* var\(--px, 1px\)\)/)
+    expect(block(skeleton, '.label')).toMatch(/height:\s*calc\(24 \* var\(--px, 1px\)\)/)
+    expect(scaled(block(skeleton, '.panelSearch'), 'width')).toBe(240)
+    expect(scaled(block(skeleton, '.panelSearch'), 'height')).toBe(24)
+    expect(scaled(block(skeleton, '.panelPeriod'), 'width')).toBe(240)
+    expect(scaled(block(skeleton, '.panelPeriod'), 'height')).toBe(27)
+    expect(scaled(block(fleetRow, '.search'), 'width')).toBe(240)
+    expect(scaled(block(fleetRow, '.search'), 'height')).toBe(24)
+    expect(scaled(block(skeleton, '.panelTools'), 'gap')).toBe(scaled(block(fleetRow, '.tools'), 'gap'))
+  })
+
+  it('card row keeps the FleetRow gap of 10 and 4 of bottom padding', () => {
+    expect(scaled(block(skeleton, '.kanbanCards'), 'gap')).toBe(scaled(block(fleetRow, '.cards'), 'gap'))
+    expect(scaled(block(skeleton, '.kanbanCards'), 'padding-bottom')).toBe(scaled(block(fleetRow, '.cards'), 'padding-bottom'))
+  })
+})
+
+describe('FrotaPage skeleton toolbar styles', () => {
+  it('search 300x32, select 142 and button 175 wide, all 32px tall and not shrinking', () => {
+    expect(block(fleetPage, '.searchSkeleton')).toMatch(/width:\s*300px/)
+    expect(block(fleetPage, '.search')).toMatch(/width:\s*300px/)
+    const controls = block(fleetPage, '.searchSkeleton,\n.selectSkeleton,\n.buttonSkeleton')
+    expect(controls).toMatch(/height:\s*32px/)
+    expect(controls).toMatch(/flex-shrink:\s*0/)
+    expect(block(fleetPage, '.selectSkeleton')).toMatch(/width:\s*142px/)
+    expect(block(fleetPage, '.buttonSkeleton')).toMatch(/width:\s*175px/)
+    expect(block(fleetPage, '.filter')).toMatch(/height:\s*32px/)
+    expect(block(fleetPage, '.createButton')).toMatch(/height:\s*32px/)
   })
 })

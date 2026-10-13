@@ -91,10 +91,20 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridCla
         )}
 
         {variant === 'kanban' &&
-          [0, 1, 2].map((row) => (
+          [0, 1, 2, 3].map((row) => (
             <div key={row} className={styles.panel} data-skeleton-row>
-              <span className={`${styles.block} ${styles.label}`} />
-              <div className={styles.kanbanCards}>{cardsOf(4)}</div>
+              <div className={styles.panelHeader} data-skeleton-part="header">
+                <SkeletonBlock className={styles.label} data-skeleton-part="label" />
+                <div className={styles.panelTools} data-skeleton-part="tools">
+                  <SkeletonBlock className={styles.panelSearch} />
+                  {row === 0 && <SkeletonBlock className={styles.panelPeriod} data-skeleton-part="period" />}
+                </div>
+              </div>
+              <div className={styles.kanbanCards}>
+                {[0, 1, 2, 3].map((i) => (
+                  <FleetCard key={i} />
+                ))}
+              </div>
             </div>
           ))}
 
