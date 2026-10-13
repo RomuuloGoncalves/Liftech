@@ -102,10 +102,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Card `fleet` com faixa de topo e 3 grupos de detalhe; altura `170 * var(--px)` por CSS e largura `288 * var(--px)` (SKL-04 AC5, SKL-02 AC3)
-- [ ] Alertas carregando mostra o painel (`styles.panel`), a etiqueta vermelha, a busca e o período, e os cards na grade `styles.grid` (SKL-04 AC5, SKL-05 AC8)
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/AlertasPage.test.tsx`
-- [ ] Test count: 5 tests added to the T1 files (16 in total), `AlertasPage.test.tsx` all pass
+- [x] Card `fleet` com faixa de topo e 3 grupos de detalhe; altura `170 * var(--px)` por CSS e largura `288 * var(--px)` (SKL-04 AC5, SKL-02 AC3)
+- [x] Alertas carregando mostra o painel (`styles.panel`), a etiqueta vermelha, a busca e o período, e os cards na grade `styles.grid` (SKL-04 AC5, SKL-05 AC8)
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/AlertasPage.test.tsx`
+- [x] Test count: 1 test added to `PageSkeleton.test.tsx` (9 in total) and 5 to `pageSkeleton.test.ts` (10 in total), 1 to `AlertasPage.test.tsx`; all of `AlertasPage.test.tsx` passes
 
 **Tests**: unit
 **Gate**: quick

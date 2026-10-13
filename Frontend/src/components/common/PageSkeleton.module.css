@@ -67,6 +67,41 @@
   background: var(--bg);
 }
 
+/* Card de frota/alerta: mesma caixa do FleetCard (170 = 1 + 47 faixa + 8 + 101 detalhes + 12 + 1), tudo em --px. */
+.fleet {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--px, 1px));
+  flex: 0 0 calc(288 * var(--px, 1px));
+  box-sizing: border-box;
+  padding: calc(12 * var(--px, 1px));
+  border: 1px solid var(--line);
+  border-radius: calc(8 * var(--px, 1px));
+  background: var(--white);
+}
+
+.fleetBody {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--px, 1px));
+}
+
+.fleetGroup {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--px, 1px));
+}
+
+.fleetLabel {
+  width: 40%;
+  height: calc(12 * var(--px, 1px));
+}
+
+.fleetValue {
+  width: 70%;
+  height: calc(15 * var(--px, 1px));
+}
+
 .machineNames {
   display: flex;
   flex-direction: column;
@@ -137,6 +172,13 @@
   background: linear-gradient(90deg, var(--gray-border) 25%, var(--bg-page) 50%, var(--gray-border) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
+}
+
+/* Depois de .block, para o raio de cima valer. */
+.fleetStrip {
+  height: calc(47 * var(--px, 1px));
+  margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0;
+  border-radius: calc(7 * var(--px, 1px)) calc(7 * var(--px, 1px)) 0 0;
 }
 
 .icon {

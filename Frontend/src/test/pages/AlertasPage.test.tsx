@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import AlertasPage from '../../pages/AlertasPage'
+import styles from '../../pages/AlertasPage.module.css'
 
 const loading = vi.hoisted(() => ({ value: false }))
 vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
@@ -159,5 +160,17 @@ describe('AlertasPage skeleton', () => {
     expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
     expect(screen.queryByPlaceholderText('Procurar Máquina')).not.toBeInTheDocument()
     expect(cards()).toEqual([])
+  })
+
+  it('mirrors the panel, label, search and period, with fleet cards in the page grid class', () => {
+    loading.value = true
+    const { container } = render(<AlertasPage />)
+    const panel = container.querySelector(`.${styles.panel}`)!
+    const toolbar = panel.querySelector('[data-skeleton-toolbar]')!
+    expect(toolbar).toHaveClass(styles.toolbar)
+    expect(toolbar.querySelector(`.${styles.filters}`)!.children).toHaveLength(2)
+    const grid = panel.querySelector(`.${styles.grid}`)!
+    expect(grid.querySelectorAll('[data-skeleton-card] [data-skeleton-part="strip"]')).toHaveLength(8)
+    expect(toolbar.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Calendar, Search } from 'lucide-react'
-import PageSkeleton from '../components/common/PageSkeleton'
+import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
 import FleetCard from '../components/fleet/FleetCard'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
@@ -40,7 +40,17 @@ const AlertasPage: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.page}>
-        <PageSkeleton variant="grid" gridClassName={styles.grid} />
+        <div className={styles.panel}>
+          <PageSkeleton variant="grid" card="fleet" gridClassName={styles.grid}>
+            <div className={styles.toolbar} data-skeleton-toolbar>
+              <SkeletonBlock className={styles.labelSkeleton} />
+              <div className={styles.filters}>
+                <SkeletonBlock className={styles.searchSkeleton} />
+                <SkeletonBlock className={styles.periodSkeleton} />
+              </div>
+            </div>
+          </PageSkeleton>
+        </div>
       </div>
     )
   }

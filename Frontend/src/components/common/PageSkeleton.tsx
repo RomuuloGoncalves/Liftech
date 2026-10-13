@@ -7,12 +7,28 @@ interface PageSkeletonProps {
   count?: number
   /** Classe de grid da página, para o skeleton ocupar o mesmo layout do conteúdo. */
   gridClassName?: string
+  /** Card da variante `grid`: um por tipo de card real. */
+  card?: 'machine' | 'fleet'
   /** Placeholder da barra de filtros, montado pela página com as classes dela. */
   children?: React.ReactNode
 }
 
 export const SkeletonBlock: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className = '', ...rest }) => (
   <span className={`${styles.block} ${className}`} {...rest} />
+)
+
+const FleetCard: React.FC = () => (
+  <div className={styles.fleet} data-skeleton-card>
+    <SkeletonBlock className={styles.fleetStrip} data-skeleton-part="strip" />
+    <div className={styles.fleetBody} data-skeleton-part="details">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className={styles.fleetGroup}>
+          <SkeletonBlock className={styles.fleetLabel} />
+          <SkeletonBlock className={styles.fleetValue} />
+        </div>
+      ))}
+    </div>
+  </div>
 )
 
 const MachineCard: React.FC = () => (
@@ -53,9 +69,10 @@ const Card: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
 
 const cardsOf = (n: number, compact?: boolean) => Array.from({ length: n }, (_, i) => <Card key={i} compact={compact} />)
 
-const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridClassName, children }) => {
+const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridClassName, card = 'machine', children }) => {
   const { t } = useTranslation()
   const grid = gridClassName ?? styles.grid
+  const GridCard = card === 'fleet' ? FleetCard : MachineCard
 
   return (
     <div aria-busy="true" className={styles.wrapper}>
@@ -68,7 +85,7 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridCla
         {variant === 'grid' && (
           <div className={grid}>
             {Array.from({ length: count }, (_, i) => (
-              <MachineCard key={i} />
+              <GridCard key={i} />
             ))}
           </div>
         )}

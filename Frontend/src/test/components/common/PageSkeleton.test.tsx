@@ -65,4 +65,13 @@ describe('PageSkeleton', () => {
     expect(card.querySelector('[data-skeleton-part="details"]')!.children).toHaveLength(2)
     expect(card.querySelector('[data-skeleton-part="footer"]')!.children).toHaveLength(2)
   })
+
+  it('fleet card mirrors FleetCard: top strip and 3 detail groups, in the grid variant', () => {
+    const { container } = render(<PageSkeleton variant="grid" card="fleet" count={2} gridClassName="page-grid" />)
+    const list = container.querySelector('.page-grid')!.querySelectorAll('[data-skeleton-card]')
+    expect(list).toHaveLength(2)
+    expect(list[0].querySelectorAll('[data-skeleton-part="strip"]')).toHaveLength(1)
+    expect(list[0].querySelector('[data-skeleton-part="details"]')!.children).toHaveLength(3)
+    expect(list[0].querySelector('[data-skeleton-part="footer"]')).toBeNull()
+  })
 })
