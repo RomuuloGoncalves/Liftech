@@ -217,10 +217,10 @@ T9 → T13
 
 **Done when**:
 
-- [ ] Corpo com chave `$set`, `$where` ou outra com `$` lança `ErroHttp` 400 nomeando a chave (Filtro AC12)
-- [ ] Corpo sem chave com `$` não lança, mesmo com `$` no meio de uma chave ou nos valores
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/corpo.test.ts && npx tsc --noEmit`
-- [ ] Test count: 3 testes novos passam
+- [x] Corpo com chave `$set`, `$where` ou outra com `$` lança `ErroHttp` 400 nomeando a chave (Filtro AC12)
+- [x] Corpo sem chave com `$` não lança, mesmo com `$` no meio de uma chave ou nos valores
+- [x] Gate: `cd Backend && npx vitest run tests/unit/corpo.test.ts && npx tsc --noEmit`
+- [x] Test count: 4 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
