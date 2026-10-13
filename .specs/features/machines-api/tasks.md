@@ -111,13 +111,13 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Item com `{ id, identificacao, nome, setor, dispositivoConectado, operadorConectado?, tempoSessaoMinutos }` (AC2)
-- [ ] `operadorConectado` presente só com operador existente (AC3, AC4, edge operador apagado)
-- [ ] `tempoSessaoMinutos` em minutos inteiros, 0 sem data ou com data futura (AC5, AC6, edge)
-- [ ] Sem dispositivo, `{ enderecoMac: '', status: 'Offline' }` (AC7)
-- [ ] Ordenado por `identificacao` crescente (AC8)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/machineService.test.ts`
-- [ ] Test count: ao menos 8 testes passam
+- [x] Item com `{ id, identificacao, nome, setor, dispositivoConectado, operadorConectado?, tempoSessaoMinutos }` (AC2)
+- [x] `operadorConectado` presente só com operador existente (AC3, AC4, edge operador apagado)
+- [x] `tempoSessaoMinutos` em minutos inteiros, 0 sem data ou com data futura (AC5, AC6, edge)
+- [x] Sem dispositivo, `{ enderecoMac: '', status: 'Offline' }` (AC7)
+- [x] Ordenado por `identificacao` crescente (AC8)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/machineService.test.ts`
+- [x] Test count: ao menos 8 testes passam
 
 **Tests**: unit
 **Gate**: quick
