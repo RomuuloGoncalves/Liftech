@@ -308,14 +308,14 @@ T9 → T13
 
 **Done when**:
 
-- [ ] `Forklift.find` recebe `{ filialId: { $in: <ids do escopo> } }` (Máquinas/Telemetria AC1)
-- [ ] O item inclui `filialId` em texto (Máquinas/Telemetria AC2)
-- [ ] Com `filialId` do escopo, o `$in` fica só com ele (Máquinas/Telemetria AC3)
-- [ ] Com `filialId` fora do escopo, o `$in` fica vazio e a lista é vazia (Máquinas/Telemetria AC4)
-- [ ] Escopo sem filiais consulta com `$in: []` (Máquinas/Telemetria AC6)
-- [ ] Os testes existentes de `machineService.test.ts` passam chamando com um escopo, e o item esperado ganha `filialId` (comportamento mudou pelo spec)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/machineService.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 9 testes existentes mais ao menos 4 novos passam
+- [x] `Forklift.find` recebe `{ filialId: { $in: <ids do escopo> } }` (Máquinas/Telemetria AC1)
+- [x] O item inclui `filialId` em texto (Máquinas/Telemetria AC2)
+- [x] Com `filialId` do escopo, o `$in` fica só com ele (Máquinas/Telemetria AC3)
+- [x] Com `filialId` fora do escopo, o `$in` fica vazio e a lista é vazia (Máquinas/Telemetria AC4)
+- [x] Escopo sem filiais consulta com `$in: []` (Máquinas/Telemetria AC6)
+- [x] Os testes existentes de `machineService.test.ts` passam chamando com um escopo, e o item esperado ganha `filialId` (comportamento mudou pelo spec)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/machineService.test.ts && npx tsc --noEmit`
+- [x] Test count: os 10 testes existentes mais 5 novos passam
 
 **Tests**: unit
 **Gate**: quick
