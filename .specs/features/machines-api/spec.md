@@ -35,7 +35,7 @@ A Visão Geral das Máquinas lê `MACHINES`, um mock em `Frontend/src/data/machi
 | Empilhadeira sem dispositivo | `dispositivoConectado` vira `{ enderecoMac: '', status: 'Offline' }` | O tipo `Machine` exige o campo; Offline é o estado honesto | n |
 | Ordem da lista | Por `identificacao` crescente | `find()` sem ordem não tem ordem garantida | n |
 | Auth na rota | Sem token, igual às demais rotas atuais | Proteção de rotas é a feature C | y |
-| Quem roda o seed | O dono; o agente escreve o script e os testes com mocks e nunca o executa | Regra global: nunca acessar o banco | y |
+| Quem roda o seed | O dono; o script é escrito e testado com mocks, sem ser executado durante o desenvolvimento | Regra global: nunca acessar o banco | y |
 | Comando do seed | `yarn seed:data`, que também chama o `seedAdmin` existente | Um comando só; `seedAdmin` já é idempotente e depende de env | n |
 | Dados do seed | Os 16 itens de `BASE_MACHINES` do mock (EMP-081 a EMP-096), seus operadores e MACs | O front continua com a mesma aparência | n |
 | Operadores | Os nomes que aparecem no mock: operadores das máquinas e dos eventos | Evita operador sem uso | n |
