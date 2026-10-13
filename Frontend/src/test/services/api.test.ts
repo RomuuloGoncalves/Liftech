@@ -43,6 +43,18 @@ describe('api 401 handling', () => {
     expect(window.location.pathname).toBe('/login')
   })
 
+  it('a 401 announces the navigation with a popstate event after pushing /login', async () => {
+    failWith(401)
+    const paths: string[] = []
+    const onPopState = () => paths.push(window.location.pathname)
+    window.addEventListener('popstate', onPopState)
+
+    await expect(api.get('/machines')).rejects.toBeInstanceOf(AxiosError)
+    window.removeEventListener('popstate', onPopState)
+
+    expect(paths).toEqual(['/login'])
+  })
+
   it('a 401 on the login request keeps the session and the route', async () => {
     failWith(401)
 
