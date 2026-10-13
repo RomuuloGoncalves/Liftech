@@ -100,6 +100,15 @@ describe('employee screens skeleton', () => {
     expect(screen.getByText('redirected')).toBeInTheDocument()
   })
 
+  it('settings first visit shows the settings skeleton (3 data fields, 2 buttons) instead of the form', () => {
+    at('/funcionario/configuracoes', <EmployeeSettingsPage />)
+    expect(busy()!.querySelectorAll('[data-skeleton-field]')).toHaveLength(3)
+    expect(busy()!.querySelectorAll('[data-skeleton-button]')).toHaveLength(2)
+    expect(screen.queryByLabelText('Nome')).not.toBeInTheDocument()
+    finishLoading()
+    expect(screen.getByLabelText('Nome')).toBeInTheDocument()
+  })
+
   it('machine detail sheet opens normally after the first load', () => {
     at(`/funcionario/maquinas/${MACHINES[0].id}`, <EmployeeMachinesPage />, '/funcionario/maquinas/:id?')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

@@ -11,7 +11,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Spec**: `.specs/features/employee-nav-settings/spec.md` (sem `design.md`: a abordagem está nas Assumptions do spec)
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -351,18 +351,18 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Título "Configurações", seção "Geral", card "Dados do usuário" com Nome, Telefone e Cargo (AC1)
-- [ ] Os 3 campos são `readOnly` e têm rótulo associado (AC2)
-- [ ] Nome vem de `localStorage['user'].nome`; `—` sem usuário, sem `nome` ou com JSON inválido, sem erro (AC3, AC4, edge)
-- [ ] Telefone e Cargo mostram o valor gravado, `—` quando ausente (AC5)
-- [ ] Aviso "Solicitação de alteração" no card (AC6)
-- [ ] "Deslogar-se" remove `token` e `user` do `localStorage` e navega para `/login/colaborador` (AC7)
-- [ ] "Feedback & Sugestões" com "Como foi sua experiência?" e textarea editável sem botão de envio; o texto é descartado ao sair (AC8, edge)
-- [ ] "Política e Privacidade" não altera a rota (AC9)
-- [ ] Primeira visita mostra o skeleton `settings` com `aria-busy="true"`, a volta mostra o conteúdo (AC10, AC11)
-- [ ] CSS Module só com tokens, sem cores hex
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/pages/employee src/test/styles`
-- [ ] Test count: os testes antigos passam (o caso de `EmployeeSkeletonPages` segue válido) e os novos cobrem cada AC acima
+- [x] Título "Configurações", seção "Geral", card "Dados do usuário" com Nome, Telefone e Cargo (AC1)
+- [x] Os 3 campos são `readOnly` e têm rótulo associado (AC2)
+- [x] Nome vem de `localStorage['user'].nome`; `—` sem usuário, sem `nome` ou com JSON inválido, sem erro (AC3, AC4, edge)
+- [x] Telefone e Cargo mostram o valor gravado, `—` quando ausente (AC5)
+- [x] Aviso "Solicitação de alteração" no card (AC6)
+- [x] "Deslogar-se" remove `token` e `user` do `localStorage` e navega para `/login/colaborador` (AC7)
+- [x] "Feedback & Sugestões" com "Como foi sua experiência?" e textarea editável sem botão de envio; o texto é descartado ao sair (AC8, edge)
+- [x] "Política e Privacidade" não altera a rota (AC9)
+- [x] Primeira visita mostra o skeleton `settings` com `aria-busy="true"`, a volta mostra o conteúdo (AC10, AC11)
+- [x] CSS Module só com tokens, sem cores hex
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/pages/employee src/test/styles`
+- [x] Test count: os testes antigos passam (o caso de `EmployeeSkeletonPages` segue válido) e os novos cobrem cada AC acima
 
 **Tests**: unit
 **Gate**: build
