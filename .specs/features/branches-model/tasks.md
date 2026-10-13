@@ -418,14 +418,14 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `criar` grava `{ nome, empresaId }` do chamador com `matriz: false` e devolve `{ _id, nome, matriz }` (CRUD AC3, AC4)
-- [ ] Nome repetido na empresa (erro 11000 do Mongo) vira `ErroHttp` 409 em `criar` e `renomear` (CRUD AC6)
-- [ ] `renomear` atualiza só `nome` na filial da empresa e devolve `{ _id, nome, matriz }`; sem filial, `ErroHttp` 404 (CRUD AC7, AC9, edge matriz no PUT)
-- [ ] `excluir` apaga a filial sem vínculos e devolve `{ _id, message }` (CRUD AC10)
-- [ ] `excluir` de filial inexistente ou de outra empresa lança 404; da matriz lança 409; com forklift, device, operator ou incident lança 409, sem apagar (CRUD AC9, AC11, AC12)
-- [ ] Outros erros do banco se propagam sem virar `ErroHttp` (CRUD AC13)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/branchService.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 12 testes passam
+- [x] `criar` grava `{ nome, empresaId }` do chamador com `matriz: false` e devolve `{ _id, nome, matriz }` (CRUD AC3, AC4)
+- [x] Nome repetido na empresa (erro 11000 do Mongo) vira `ErroHttp` 409 em `criar` e `renomear` (CRUD AC6)
+- [x] `renomear` atualiza só `nome` na filial da empresa e devolve `{ _id, nome, matriz }`; sem filial, `ErroHttp` 404 (CRUD AC7, AC9, edge matriz no PUT)
+- [x] `excluir` apaga a filial sem vínculos e devolve `{ _id, message }` (CRUD AC10)
+- [x] `excluir` de filial inexistente ou de outra empresa lança 404; da matriz lança 409; com forklift, device, operator ou incident lança 409, sem apagar (CRUD AC9, AC11, AC12)
+- [x] Outros erros do banco se propagam sem virar `ErroHttp` (CRUD AC13)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/branchService.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 12 testes passam
 
 **Tests**: unit
 **Gate**: quick

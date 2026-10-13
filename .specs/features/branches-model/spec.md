@@ -230,8 +230,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BRM-06 | P1 Escopo: AC1 a AC6; Edge: filial apagada, escopo indefinido | Tasks | Implementing |
 | BRM-07 | P1 Escopo: AC7, AC8, AC9 | Tasks | Implementing |
 | BRM-08 | P1 CRUD: AC1, AC2, AC13 | Tasks | Implementing |
-| BRM-09 | P1 CRUD: AC3, AC4, AC5, AC6, AC7, AC8, AC9; Edge: nome em branco, nome com espaços, matriz no PUT | Tasks | In Tasks |
-| BRM-10 | P1 CRUD: AC10, AC11, AC12 | Tasks | In Tasks |
+| BRM-09 | P1 CRUD: AC3, AC4, AC5, AC6, AC7, AC8, AC9; Edge: nome em branco, nome com espaços, matriz no PUT | Tasks | Implementing |
+| BRM-10 | P1 CRUD: AC10, AC11, AC12 | Tasks | Implementing |
 | BRM-11 | P1 Seeds: AC1, AC2, AC3, AC4, AC5, AC6, AC12 | Tasks | In Tasks |
 | BRM-12 | P1 Seeds: AC7, AC8, AC9, AC10, AC11 | Tasks | In Tasks |
 | BRM-13 | P1 Migração: AC1, AC2, AC3, AC4; Edge: usuário já migrado | Tasks | In Tasks |
