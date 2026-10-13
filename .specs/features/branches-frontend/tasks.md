@@ -266,17 +266,17 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Botão com o rótulo "Filiais" e o nome da filial ativa; abre `listbox` com uma opção por filial e a ativa com `aria-selected="true"` (AC1, AC2 do seletor)
-- [ ] "Todas as filiais" aparece só com `showAll` (AC3, AC4); clicar numa opção chama `setActiveBranch` e fecha (AC5)
-- [ ] Escape e clique fora fecham (AC6); sem usuário nada é renderizado (AC8); lista vazia abre sem erro (Edge)
-- [ ] Colapsado: só a inicial do nome, com `aria-label` e `title` com o nome (AC7)
-- [ ] "Gerenciar Filiais" e "Criar Filial" só com `canManage` (AC1, AC2 de gerenciar)
-- [ ] Criar: campo "Nome da filial" com "Confirmar" (desabilitado se vazio) e "Cancelar"; confirmar chama `createBranch` com o nome cortado; cancelar não chama (AC3 a AC6, Edge)
-- [ ] Gerenciar: por filial "Renomear <nome>" (campo preenchido, `renameBranch`) e "Excluir <nome>" (`ConfirmDialog`, `removeBranch`) (AC7 a AC10)
-- [ ] 409 mostra o aviso de matriz/recursos, criar ou renomear com erro mostra o aviso de salvar e mantém o campo, outro erro de exclusão mostra o aviso de excluir (AC11 a AC13)
-- [ ] Em en-US o rótulo é "Branches" e a opção "All branches" (BRF-09 AC2)
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/components/layout/BranchSelector.test.tsx`
-- [ ] Test count: ao menos 22 testes passam
+- [x] Botão com o rótulo "Filiais" e o nome da filial ativa; abre `listbox` com uma opção por filial e a ativa com `aria-selected="true"` (AC1, AC2 do seletor)
+- [x] "Todas as filiais" aparece só com `showAll` (AC3, AC4); clicar numa opção chama `setActiveBranch` e fecha (AC5)
+- [x] Escape e clique fora fecham (AC6); sem usuário nada é renderizado (AC8); lista vazia abre sem erro (Edge)
+- [x] Colapsado: só a inicial do nome, com `aria-label` e `title` com o nome (AC7)
+- [x] "Gerenciar Filiais" e "Criar Filial" só com `canManage` (AC1, AC2 de gerenciar)
+- [x] Criar: campo "Nome da filial" com "Confirmar" (desabilitado se vazio) e "Cancelar"; confirmar chama `createBranch` com o nome cortado; cancelar não chama (AC3 a AC6, Edge)
+- [x] Gerenciar: por filial "Renomear <nome>" (campo preenchido, `renameBranch`) e "Excluir <nome>" (`ConfirmDialog`, `removeBranch`) (AC7 a AC10)
+- [x] 409 mostra o aviso de matriz/recursos, criar ou renomear com erro mostra o aviso de salvar e mantém o campo, outro erro de exclusão mostra o aviso de excluir (AC11 a AC13)
+- [x] Em en-US o rótulo é "Branches" e a opção "All branches" (BRF-09 AC2)
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/components/layout/BranchSelector.test.tsx`
+- [x] Test count: ao menos 22 testes passam
 
 **Tests**: unit
 **Gate**: quick
