@@ -132,10 +132,10 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Ausente (`undefined`) é válido (AC6)
-- [ ] Texto é válido; número, objeto e `null` geram erro de validação (AC3)
-- [ ] Gate check passes: `cd Backend && npx vitest run tests/unit/userRules.test.ts`
-- [ ] Test count: ao menos 6 testes passam
+- [x] Ausente (chave fora do objeto verificado) é válido (AC6)
+- [x] Texto é válido; número, objeto e `null` geram erro de validação (AC3)
+- [x] Gate check passes: `cd Backend && npx vitest run tests/unit/userRules.test.ts`
+- [x] Test count: ao menos 6 testes passam
 
 **Tests**: unit
 **Gate**: quick
