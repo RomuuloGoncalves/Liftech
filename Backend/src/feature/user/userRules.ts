@@ -13,16 +13,11 @@ regras.addRules("nome", [{
 }]);
 
 regras.addRules("role", [{
-  validator: (role: string) => isness.string(role) && role.trim().length > 0,
-  message: "O campo 'role' é obrigatório e deve ser texto válido.",
+  validator: (role: string) => role === "admin" || role === "colaborador",
+  message: "O campo 'role' deve ser 'admin' ou 'colaborador'.",
 }]);
 
 const objectIdTexto = (valor: unknown) => isness.string(valor) && Types.ObjectId.isValid(valor as string);
-
-regras.addRules("empresaId", [{
-  validator: objectIdTexto,
-  message: "O campo 'empresaId' é obrigatório e deve ser um ObjectId válido do MongoDB.",
-}]);
 
 regras.addRules("escopo", [{
   validator: (escopo: string) => escopo === "empresa" || escopo === "filiais",

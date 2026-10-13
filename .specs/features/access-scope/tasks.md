@@ -400,16 +400,16 @@ T9 → T13
 
 **Done when**:
 
-- [ ] listar, buscar e deletar passam `filtroPorEmpresa(req.escopo)`; usuário de outra empresa responde 404 (Usuários AC1, AC2)
-- [ ] criar grava o `empresaId` do escopo e ignora o do corpo; escopo sem empresa responde 403 (Usuários AC3, AC4)
-- [ ] `role` que não é `admin` nem `colaborador` responde 400 (Usuários AC5); nome e role inválidos juntos listam os dois campos (Usuários AC6)
-- [ ] `escopo` ou `filiaisIds` inválidos respondem 400 (Usuários AC7)
-- [ ] Chamador sem `tipo: 'empresa'` com `escopo`, `filiaisIds` ou `role: 'admin'` no corpo responde 403 (Usuários AC8)
-- [ ] `filiaisIds` com filial fora das filiais do chamador responde 403 (Usuários AC9)
-- [ ] A regra `empresaId` do `userRules` sai; a regra `role` passa a exigir `admin` ou `colaborador`
-- [ ] Os testes de `userController.test.ts` da feature anterior (empresaId vindo do corpo) mudam para o contrato novo (comportamento mudou pelo spec)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/userController.test.ts tests/unit/userService.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 14 testes no `userController.test.ts` e os de `userService` seguem
+- [x] listar, buscar e deletar passam `filtroPorEmpresa(req.escopo)`; usuário de outra empresa responde 404 (Usuários AC1, AC2)
+- [x] criar grava o `empresaId` do escopo e ignora o do corpo; escopo sem empresa responde 403 (Usuários AC3, AC4)
+- [x] `role` que não é `admin` nem `colaborador` responde 400 (Usuários AC5); nome e role inválidos juntos listam os dois campos (Usuários AC6)
+- [x] `escopo` ou `filiaisIds` inválidos respondem 400 (Usuários AC7)
+- [x] Chamador sem `tipo: 'empresa'` com `escopo`, `filiaisIds` ou `role: 'admin'` no corpo responde 403 (Usuários AC8)
+- [x] `filiaisIds` com filial fora das filiais do chamador responde 403 (Usuários AC9)
+- [x] A regra `empresaId` do `userRules` sai; a regra `role` passa a exigir `admin` ou `colaborador`
+- [x] Os testes de `userController.test.ts` da feature anterior (empresaId vindo do corpo) mudam para o contrato novo (comportamento mudou pelo spec)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/userController.test.ts tests/unit/userService.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 14 testes no `userController.test.ts` e os de `userService` seguem
 
 **Tests**: unit
 **Gate**: quick

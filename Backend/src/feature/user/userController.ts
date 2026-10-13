@@ -4,7 +4,8 @@ import { User } from "../../schemas/user.js";
 import { userModel } from "../../models/userModel.js";
 import { UserRepository } from "./userRepository.js";
 import { UserService } from "./userService.js";
-import { StatusCode, respostaSucesso, respostaErro } from "../../utils/responseHandler.js";
+import { ErroHttp, StatusCode, respostaSucesso, respostaErro, responderErro } from "../../utils/responseHandler.js";
+import { exigirEmpresa, filtroPorEmpresa } from "../../core/escopo.js";
 import regras from "./userRules.js";
 
 export const repositorioUser = new UserRepository(User);
@@ -20,12 +21,22 @@ function obterIdUsuario(req: Request): string | null {
   return null;
 }
 
-export async function listar(_req: Request, res: Response) {
+const SO_EMPRESA = "Apenas o escopo de empresa pode definir papel de admin, escopo e filiais.";
+
+// Toda filial citada precisa ser visível ao chamador (para o escopo de empresa, todas as da empresa).
+function exigirFiliaisVisiveis(req: Request, filiaisIds: string[]) {
+  const visiveis = req.escopo.filiais.map((f) => f._id);
+  if (!filiaisIds.every((id) => visiveis.includes(id))) {
+    throw new ErroHttp(StatusCode.FORBIDDEN, "Há filial fora do seu escopo.");
+  }
+}
+
+export async function listar(req: Request, res: Response) {
   try {
-    const usuarios = await servicoUser.listar();
+    const usuarios = await servicoUser.listar(filtroPorEmpresa(req.escopo));
     return respostaSucesso(res, StatusCode.OK, usuarios.map(u => u.obterDados()));
   } catch (error: any) {
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -38,33 +49,42 @@ export async function buscar(req: Request, res: Response) {
     if (!mongooseTypes.ObjectId.isValid(id)) {
       return respostaErro(res, StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
     }
-    const usuario = await servicoUser.obterPorId(id);
+    const usuario = await servicoUser.obterPorId(id, filtroPorEmpresa(req.escopo));
     return respostaSucesso(res, StatusCode.OK, usuario.obterDados());
   } catch (error: any) {
     if (error.message === "Usuário não encontrado(a).") {
       return respostaErro(res, StatusCode.NOT_FOUND, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
 export async function criar(req: Request, res: Response) {
   try {
-    const corpo = req.body;
+    const corpo = req.body ?? {};
+    if (!req.escopo.empresaId) {
+      throw new ErroHttp(StatusCode.FORBIDDEN, "Usuário sem empresa não pode criar usuários.");
+    }
 
-    const erros = regras.check({
-      nome: corpo.nome,
-      role: corpo.role
-    }, { empresaId: corpo.empresaId },
-    { escopo: corpo.escopo, isRequiredField: false },
-    { filiaisIds: corpo.filiaisIds, isRequiredField: false });
+    // request-check lê só a primeira chave de cada objeto: um objeto por campo.
+    const erros = regras.check(
+      { nome: corpo.nome },
+      { role: corpo.role },
+      { escopo: corpo.escopo, isRequiredField: false },
+      { filiaisIds: corpo.filiaisIds, isRequiredField: false }
+    );
 
     if (erros) {
         return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
+    if (corpo.escopo !== undefined || corpo.filiaisIds !== undefined || corpo.role === "admin") {
+      exigirEmpresa(req.escopo, SO_EMPRESA);
+    }
+    if (corpo.filiaisIds !== undefined) exigirFiliaisVisiveis(req, corpo.filiaisIds);
+
     const usuario = new userModel(corpo.nome, corpo.role, undefined, {
-      empresaId: corpo.empresaId,
+      empresaId: req.escopo.empresaId,
       escopo: corpo.escopo,
       filiaisIds: corpo.filiaisIds,
     });
@@ -75,7 +95,7 @@ export async function criar(req: Request, res: Response) {
     if (error.message.includes("Já existe")) {
       return respostaErro(res, StatusCode.CONFLICT, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -89,13 +109,13 @@ export async function deletar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
     }
 
-    const deletado = await servicoUser.deletar(id);
+    const deletado = await servicoUser.deletar(id, filtroPorEmpresa(req.escopo));
     return respostaSucesso(res, StatusCode.OK, { _id: deletado.getID(), message: "Usuário excluído com sucesso." });
   } catch (error: any) {
     if (error.message === "Usuário não encontrado(a).") {
       return respostaErro(res, StatusCode.NOT_FOUND, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -118,6 +138,6 @@ export async function atualizar(req: Request, res: Response) {
     if (error.message === "Usuário não encontrado(a).") {
       return respostaErro(res, StatusCode.NOT_FOUND, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
