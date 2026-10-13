@@ -59,4 +59,34 @@ describe('EmployeeSkeleton', () => {
     expect(count(container, 'data-skeleton-card') + count(container, 'data-skeleton-field')).toBe(0)
     expect(container.querySelector('[aria-hidden="true"]')!.children).toHaveLength(1)
   })
+
+  it('home shows the last machine card between the banner and the two boxes', () => {
+    const { container } = render(<EmployeeSkeleton variant="home" />)
+    const last = container.querySelector('[data-skeleton-last]')!
+    const box = container.querySelector('[data-skeleton-box]')!
+    const firstCard = container.querySelector('[data-skeleton-card]')!
+    expect(last.children.length).toBeGreaterThanOrEqual(2)
+    expect(last.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(box.compareDocumentPosition(firstCard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('home cards mirror MachineListCard without date and time: top, divider and a bottom with one field and the action', () => {
+    const { container } = render(<EmployeeSkeleton variant="home" />)
+    for (const card of container.querySelectorAll('[data-skeleton-card]')) {
+      expect(card.querySelector('[data-skeleton-part="top"]')!.children).toHaveLength(2)
+      expect(card.querySelectorAll('[data-skeleton-part="divider"]')).toHaveLength(1)
+      const bottom = card.querySelector('[data-skeleton-part="bottom"]')!
+      expect(bottom.querySelectorAll('[data-skeleton-part="field"]')).toHaveLength(1)
+      expect(bottom.querySelectorAll('[data-skeleton-part="action"]')).toHaveLength(1)
+    }
+  })
+
+  it('shows the screen title and a two-line subtitle in the home and list headers', () => {
+    for (const variant of ['home', 'list'] as const) {
+      const { container, unmount } = render(<EmployeeSkeleton variant={variant} />)
+      expect(container.querySelectorAll('[data-skeleton-part="title"]')).toHaveLength(1)
+      expect(container.querySelector('[data-skeleton-part="subtitle"]')!.children).toHaveLength(2)
+      unmount()
+    }
+  })
 })

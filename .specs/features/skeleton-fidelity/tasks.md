@@ -186,10 +186,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] `home` mostra a faixa, o card da última máquina (`data-skeleton-last`), os 2 quadros e 3 cards (SKL-06 AC1)
-- [ ] Cards da `home` têm 122px (SKL-06 AC4)
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHomePage.test.tsx`
-- [ ] Test count: 3 tests added (and the old 3 keep passing), `EmployeeHomePage.test.tsx` all pass
+- [x] `home` mostra a faixa, o card da última máquina (`data-skeleton-last`), os 2 quadros e 3 cards (SKL-06 AC1)
+- [x] Cards da `home` têm 122px (SKL-06 AC4)
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHomePage.test.tsx`
+- [x] Test count: 3 tests added to `EmployeeSkeleton.test.tsx` and 6 to `employeeSkeleton.test.ts`; the old card style test changed its `min-height: 120px` line to `gap: 8px` because the card height now comes from its parts (122px); `EmployeeHomePage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick

@@ -25,6 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 17px;
 }
 
 .list {
@@ -34,11 +35,75 @@
   min-width: 0;
 }
 
-.card {
+.header {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 120px;
+  gap: 4px;
+}
+
+.headerTitle {
+  width: 55%;
+  height: 28px;
+  margin-block: 3.4px;
+}
+
+.subtitleLine {
+  width: 85%;
+  height: 17px;
+  margin-block: 1px;
+}
+
+.last {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lastCard {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 60px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.lastCol {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 35%;
+}
+
+.lastCol:last-child {
+  align-items: flex-end;
+}
+
+.lastName {
+  width: 100%;
+  height: 12px;
+}
+
+.lastSub {
+  width: 60%;
+  height: 10px;
+}
+
+.available {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.card {
+  /* Mesma caixa do MachineListCard: 122 = 37 + 1 + 42 + 2 gaps + padding + bordas. */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   box-sizing: border-box;
   padding: 12px;
   border: 1px solid var(--line);
@@ -46,9 +111,82 @@
   background: var(--white);
 }
 
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  height: 37px;
+}
+
+.cardNames {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardName {
+  width: 60%;
+  height: 15px;
+}
+
+.cardId {
+  width: 35%;
+  height: 12px;
+}
+
+.cardChip {
+  width: 64px;
+  height: 20px;
+}
+
+.cardDivider {
+  border-top: 1px solid var(--line);
+}
+
+.cardBottom {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  box-sizing: border-box;
+  height: 42px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.cardField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cardLabel {
+  width: 50px;
+  height: 10px;
+}
+
+.cardValue {
+  width: 80px;
+  height: 12px;
+}
+
+.cardAction {
+  width: 96px;
+  height: 28px;
+  margin-left: auto;
+  border-radius: 5px;
+}
+
 .box {
-  min-height: 0;
-  height: 76px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 82px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
 }
 
 .field {
@@ -105,7 +243,7 @@
 
 .sectionLabel {
   width: 40%;
-  height: 20px;
+  height: 17px;
 }
 
 .sectionLink {
@@ -149,6 +287,12 @@
   gap: 12px;
   width: 100%;
   margin-top: 16px;
+}
+
+@media (min-width: 600px) {
+  .subtitleSecond {
+    display: none;
+  }
 }
 
 @media (min-width: 768px) {
