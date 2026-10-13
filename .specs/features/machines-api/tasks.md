@@ -141,11 +141,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] 200 com o array do service (AC2)
-- [ ] 500 com `{ error: <mensagem> }` quando o service lança (AC9)
-- [ ] `machineRouter.ts` expõe `GET /` e `server.ts` monta `/api/machines`
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/machineController.test.ts`
-- [ ] Test count: 2 testes passam
+- [x] 200 com o array do service (AC2)
+- [x] 500 com `{ error: <mensagem> }` quando o service lança (AC9)
+- [x] `machineRouter.ts` expõe `GET /` e `server.ts` monta `/api/machines`
+- [x] Gate: `cd Backend && npx vitest run tests/unit/machineController.test.ts`
+- [x] Test count: 2 testes passam
 
 **Tests**: unit
 **Gate**: quick
