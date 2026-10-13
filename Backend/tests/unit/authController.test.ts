@@ -4,6 +4,8 @@ import { login } from '../../src/feature/auth/authController.js';
 import * as servicoAuth from '../../src/feature/auth/authService.js';
 
 vi.mock('../../src/schemas/user.js', () => ({ User: {} }));
+vi.mock('../../src/schemas/company.js', () => ({ Company: {} }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
 vi.mock('../../src/feature/auth/authService.js', async (importOriginal) => ({
     ...(await importOriginal<typeof servicoAuth>()),
     login: vi.fn(),
@@ -24,7 +26,7 @@ describe('AuthController.login', () => {
     });
 
     test('200 com o payload do serviço quando as credenciais são válidas', async () => {
-        const resultado = { token: 'tok', user: { _id: '1', nome: 'Ana', role: 'admin' } };
+        const resultado = { token: 'tok', user: { _id: '1', nome: 'Ana', role: 'admin', empresa: null, escopo: 'filiais' as const, filiais: [] } };
         vi.mocked(servicoAuth.login).mockResolvedValue(resultado);
 
         await chamar({ role: 'admin', login: 'ana@empresa.com', senha: 'segredo1' });

@@ -389,12 +389,12 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `user` inclui `empresa: { _id, nome }`, `escopo` e `filiais` além de `_id`, `nome` e `role` (Escopo AC7)
-- [ ] Sem `empresaId`: `empresa: null`, `escopo: 'filiais'`, `filiais: []` (Escopo AC8)
-- [ ] O payload do JWT tem `sub` e `role` e nenhum dado de escopo (Escopo AC9)
-- [ ] Os testes existentes de `authService.test.ts` passam com os models de empresa e filial mockados e `user` com os campos novos (comportamento mudou pelo spec)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/authService.test.ts tests/unit/authController.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 7 testes existentes de `authService` mais ao menos 3 novos passam; os 5 (com `test.each`) de `authController` seguem passando
+- [x] `user` inclui `empresa: { _id, nome }`, `escopo` e `filiais` além de `_id`, `nome` e `role` (Escopo AC7)
+- [x] Sem `empresaId`: `empresa: null`, `escopo: 'filiais'`, `filiais: []` (Escopo AC8)
+- [x] O payload do JWT tem `sub` e `role` e nenhum dado de escopo (Escopo AC9)
+- [x] Os testes existentes de `authService.test.ts` passam com os models de empresa e filial mockados e `user` com os campos novos (comportamento mudou pelo spec)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/authService.test.ts tests/unit/authController.test.ts && npx tsc --noEmit`
+- [x] Test count: os 7 testes existentes de `authService` mais 4 novos passam; os 9 de `authController` seguem passando (os models de empresa e filial ficam mockados lá também)
 
 **Tests**: unit
 **Gate**: quick

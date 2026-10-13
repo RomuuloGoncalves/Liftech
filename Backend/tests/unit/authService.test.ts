@@ -2,13 +2,26 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 import { login } from '../../src/feature/auth/authService.js';
 import { User } from '../../src/schemas/user.js';
+import { Company } from '../../src/schemas/company.js';
+import { Branch } from '../../src/schemas/branch.js';
 import { env } from '../../src/config/env.js';
 import { gerarHashSenha } from '../../src/utils/senha.js';
 
 vi.mock('../../src/schemas/user.js', () => ({ User: { findOne: vi.fn() } }));
+vi.mock('../../src/schemas/company.js', () => ({ Company: { findById: vi.fn() } }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: { find: vi.fn() } }));
 
 const SEGREDO = 'segredo-de-teste';
 const ID = '665f1c2b9a1e4b0012345678';
+const EMPRESA = '665f1c2b9a1e4b00123456a0';
+const MATRIZ = '665f1c2b9a1e4b00123456b1';
+const CENTRO = '665f1c2b9a1e4b00123456b2';
+
+function mockarEmpresa(nome: string | null, filiais: unknown[]) {
+    vi.mocked(Company.findById).mockReturnValue({ lean: vi.fn().mockResolvedValue(nome && { _id: EMPRESA, nome }) } as any);
+    const sort = vi.fn().mockReturnValue({ lean: vi.fn().mockResolvedValue(filiais) });
+    vi.mocked(Branch.find).mockReturnValue({ sort } as any);
+}
 
 function mockarBusca(documento: Record<string, unknown> | null) {
     const lean = vi.fn().mockResolvedValue(documento);
@@ -31,7 +44,7 @@ describe('authService.login', () => {
 
         expect(User.findOne).toHaveBeenCalledWith({ role: 'admin', email: 'ana@empresa.com' });
         expect(select).toHaveBeenCalledWith('+senhaHash');
-        expect(resultado.user).toEqual({ _id: ID, nome: 'Ana', role: 'admin' });
+        expect(resultado.user).toEqual({ _id: ID, nome: 'Ana', role: 'admin', empresa: null, escopo: 'filiais', filiais: [] });
         expect(resultado).not.toHaveProperty('user.senhaHash');
         const payload = jwt.verify(resultado.token, SEGREDO) as jwt.JwtPayload;
         expect(payload.sub).toBe(ID);
@@ -44,8 +57,55 @@ describe('authService.login', () => {
         const resultado = await login('colaborador', 'bruno.op', 'segredo2');
 
         expect(User.findOne).toHaveBeenCalledWith({ role: 'colaborador', usuario: 'bruno.op' });
-        expect(resultado.user).toEqual({ _id: ID, nome: 'Bruno', role: 'colaborador' });
+        expect(resultado.user).toEqual({ _id: ID, nome: 'Bruno', role: 'colaborador', empresa: null, escopo: 'filiais', filiais: [] });
         expect((jwt.verify(resultado.token, SEGREDO) as jwt.JwtPayload).role).toBe('colaborador');
+    });
+
+    test('admin de escopo empresa: user traz empresa, escopo e todas as filiais', async () => {
+        mockarBusca({ _id: ID, nome: 'Ana', role: 'admin', empresaId: EMPRESA, escopo: 'empresa', filiaisIds: [], senhaHash: gerarHashSenha('segredo1') });
+        mockarEmpresa('Liftech Logística', [{ _id: MATRIZ, nome: 'Matriz', matriz: true }, { _id: CENTRO, nome: 'Unidade Centro', matriz: false }]);
+
+        const { user } = await login('admin', 'ana@empresa.com', 'segredo1');
+
+        expect(Company.findById).toHaveBeenCalledWith(EMPRESA);
+        expect(user).toEqual({
+            _id: ID,
+            nome: 'Ana',
+            role: 'admin',
+            empresa: { _id: EMPRESA, nome: 'Liftech Logística' },
+            escopo: 'empresa',
+            filiais: [{ _id: MATRIZ, nome: 'Matriz', matriz: true }, { _id: CENTRO, nome: 'Unidade Centro', matriz: false }],
+        });
+    });
+
+    test('colaborador com uma filial: user traz só essa filial e escopo filiais', async () => {
+        mockarBusca({ _id: ID, nome: 'Bruno', role: 'colaborador', empresaId: EMPRESA, escopo: 'filiais', filiaisIds: [CENTRO], senhaHash: gerarHashSenha('segredo2') });
+        mockarEmpresa('Liftech Logística', [{ _id: CENTRO, nome: 'Unidade Centro', matriz: false }]);
+
+        const { user } = await login('colaborador', 'bruno.op', 'segredo2');
+
+        expect(user.escopo).toBe('filiais');
+        expect(user.filiais).toEqual([{ _id: CENTRO, nome: 'Unidade Centro', matriz: false }]);
+        expect(user.empresa).toEqual({ _id: EMPRESA, nome: 'Liftech Logística' });
+    });
+
+    test('usuário sem empresaId: empresa null, escopo filiais, filiais vazio e nenhuma consulta de empresa ou filial', async () => {
+        mockarBusca({ _id: ID, nome: 'Ana', role: 'admin', senhaHash: gerarHashSenha('segredo1') });
+
+        const { user } = await login('admin', 'ana@empresa.com', 'segredo1');
+
+        expect(user).toMatchObject({ empresa: null, escopo: 'filiais', filiais: [] });
+        expect(Company.findById).not.toHaveBeenCalled();
+        expect(Branch.find).not.toHaveBeenCalled();
+    });
+
+    test('o JWT só leva sub e role (mais iat e exp), sem dados de escopo', async () => {
+        mockarBusca({ _id: ID, nome: 'Ana', role: 'admin', empresaId: EMPRESA, escopo: 'empresa', senhaHash: gerarHashSenha('segredo1') });
+        mockarEmpresa('Liftech Logística', [{ _id: MATRIZ, nome: 'Matriz', matriz: true }]);
+
+        const { token } = await login('admin', 'ana@empresa.com', 'segredo1');
+
+        expect(Object.keys(jwt.verify(token, SEGREDO) as jwt.JwtPayload).sort()).toEqual(['exp', 'iat', 'role', 'sub']);
     });
 
     test('senha errada: lança "Credenciais inválidas."', async () => {
