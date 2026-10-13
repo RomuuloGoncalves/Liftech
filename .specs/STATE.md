@@ -112,8 +112,21 @@
   - A Visão Geral busca as máquinas com skeleton, erro e nova tentativa; cadastrar, editar e excluir seguem só em memória; o histórico do detalhe segue mock, casado pela `identificacao`.
   - Frota, Equipe, Alertas e as telas do funcionário seguem em mock.
 
+### AD-010: Filiais, escopo de acesso, skeletons e área do funcionário implementados
+- **Date**: 2026-10-13
+- **Status**: Implementado na branch `feature/visao-geral-api-e-seeds`; verificação independente **incompleta** (ver Handoff)
+- **Decision**:
+  - Implementados conforme AD-008: `branches-model` e `access-scope` (Backend), `branches-frontend`, `employee-nav-settings` e `skeleton-fidelity` (Frontend); specs em `.specs/features/<feature>/`.
+  - Todas as rotas `/api/*` exigem `Authorization: Bearer`, exceto `POST /api/auth/login`, `POST /api/access-requests`, `GET /api/health` e `GET /`; o escopo vem do usuário relido do banco a cada requisição.
+  - `PUT /api/users/:id` aceita só campos permitidos (sem `senhaHash`, `email`, `usuario`, chaves `$`).
+  - `yarn test` no Backend roda só os testes unitários; `yarn test:integration` toca o banco.
+  - Reverte o Out of Scope "Proteção de rotas" da spec `auth-login`.
+
 ## Handoff Snapshot
-- **Branch**: `feature/visao-geral-api-e-seeds` (local, nada enviado ao remoto), a partir da `main`.
-- **Concluído**: feature `machines-api` (T1 a T8) e as correções da verificação; Backend com testes unitários passando e Frontend com os mesmos 3 testes antigos de "N min" falhando; `validate_state.py machines-api` passa.
-- **Próximo (não iniciado)**: rodar `yarn seed:data` (dono) e conferir `GET /api/machines`; depois as features `employee-nav-settings` e `skeleton-fidelity` (specs prontos, sem tasks) e as features B, C e D do plano de filiais (AD-008, specs ainda não escritos).
-- **Pendências conhecidas**: `Backend` sem `jsonwebtoken` e `@types/cors` instalados neste ambiente (2 arquivos de teste e 2 erros de `tsc` antigos); o mount de `/api/machines` em `server.ts` não tem teste unitário.
+- **Branch**: `feature/visao-geral-api-e-seeds` (local, nada enviado ao remoto, sem PR), a partir da `main`.
+- **Gate final**: Frontend `tsc -b` e `eslint .` limpos, 1133 testes passando; Backend 372 testes unitários passando e `tsc --noEmit` limpo.
+- **Verificadas (validation.md com PASS)**: `machines-api`, `employee-nav-settings`.
+- **Implementadas mas SEM validation.md aprovado**: `branches-model`, `access-scope` (verificação interrompida antes de terminar), `skeleton-fidelity` (verificação interrompida; medição no navegador a 1024px e 375px ainda por fazer por um verificador independente) e `branches-frontend` (verificador deu FAIL só por força de teste: ver `.specs/features/branches-frontend/validation.md`).
+- **Pendente em `branches-frontend`**: tratar a falha do `GET /branches` depois de criar, renomear ou excluir com sucesso (hoje mostra erro de salvar com o formulário aberto); a correção estava em andamento e não entrou.
+- **Pendente para o dono**: rodar `yarn migrate:branches` e `yarn seed:data` (com `SEED_COLABORADOR_SENHA`); conferir os índices de `users` no banco; `POST /api/telemetry` agora exige token, então dispositivos IoT precisam de um canal próprio.
+- **Achados dos revisores ainda não tratados**: traduções do namespace `employee.*` só em pt-BR e en-US (es, fr, ja, de e ru caem no fallback); formas plurais de `fleet.*` (ru principalmente); contraste do azul principal, foco nos campos de busca do funcionário e links da Sidebar recolhida sem nome; confirmação ao encerrar sessão; limpeza de cerca de 250 linhas de testes duplicados.
