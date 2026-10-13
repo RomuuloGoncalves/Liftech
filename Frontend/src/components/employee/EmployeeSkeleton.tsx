@@ -137,7 +137,7 @@ const Visual: React.FC<EmployeeSkeletonProps> = ({ variant, count = 6, buttons =
       return (
         <>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className={styles.field} data-skeleton-field>
+            <div key={i} className={`${styles.field} ${i === 3 ? styles.timeField : ''}`} data-skeleton-field>
               <Block className={styles.fieldLabel} />
               <Block className={styles.input} />
             </div>

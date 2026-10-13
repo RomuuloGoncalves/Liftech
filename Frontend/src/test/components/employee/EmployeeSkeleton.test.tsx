@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import EmployeeSkeleton from '../../../components/employee/EmployeeSkeleton'
+import styles from '../../../components/employee/EmployeeSkeleton.module.css'
 
 const count = (container: HTMLElement, attr: string) => container.querySelectorAll(`[${attr}]`).length
 
@@ -119,5 +120,11 @@ describe('EmployeeSkeleton', () => {
     expect(count(container, 'data-skeleton-part="description"')).toBe(1)
     expect(count(container, 'data-skeleton-filters')).toBe(0)
     expect(count(container, 'data-skeleton-field')).toBe(0)
+  })
+
+  it('form makes only the last field (time) the short 120px one', () => {
+    const { container } = render(<EmployeeSkeleton variant="form" buttons={false} />)
+    const fields = [...container.querySelectorAll('[data-skeleton-field]')]
+    expect(fields.map((field) => field.classList.contains(styles.timeField))).toEqual([false, false, false, true])
   })
 })

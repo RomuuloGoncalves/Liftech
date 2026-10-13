@@ -269,10 +269,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] 4 campos de 65px (rótulo + 6px + entrada de 40px) por CSS (SKL-09 AC6)
-- [ ] O quarto campo com 120px de largura e `max-width: 100%` (SKL-09 AC6)
-- [ ] Gate check passes (Build): `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH sh -c 'npx tsc -b && npx eslint . && npx vitest run'` (only the 3 old failures)
-- [ ] Test count: 2 tests added; total Frontend = 938 + the new tests, 3 old failures
+- [x] 4 campos de 65px (rótulo + 6px + entrada de 40px) por CSS (SKL-09 AC6)
+- [x] O quarto campo com 120px de largura e `max-width: 100%` (SKL-09 AC6)
+- [x] Gate check passes (Build): `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH sh -c 'npx tsc -b && npx eslint . && npx vitest run'` (only the 3 old failures)
+- [x] Test count: 1 test added to `EmployeeSkeleton.test.tsx` and 2 to `employeeSkeleton.test.ts`; full Frontend suite has only the 3 old failures
 
 **Tests**: unit
 **Gate**: build

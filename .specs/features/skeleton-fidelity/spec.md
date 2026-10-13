@@ -105,7 +105,7 @@ Os skeletons das telas não reproduzem o layout que carregam: quase todos pulam 
 | SKL-06 | P1 Funcionário: AC1, AC4 | Execute | Implementing |
 | SKL-07 | P1 Funcionário: AC2, AC3 | Execute | Implementing |
 | SKL-08 | P1 Funcionário: AC5 | Execute | Implementing |
-| SKL-09 | P1 Funcionário: AC6, AC8 | Execute | Pending |
+| SKL-09 | P1 Funcionário: AC6, AC8 | Execute | Implementing |
 | SKL-10 | P1 Funcionário: AC7, AC9; Edge: 375px, `aria-busy`, Sessão | Execute | Implementing |
 
 ---

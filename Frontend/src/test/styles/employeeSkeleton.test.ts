@@ -125,3 +125,19 @@ describe('EmployeeSkeleton session styles', () => {
     expect(num(block(skeleton, '.timer'), 'height')).toBe(53)
   })
 })
+
+describe('EmployeeSkeleton form styles', () => {
+  const incident = read('components/employee/IncidentSheet.module.css')
+
+  it('each field is 65px: 19px label + 6px gap + 40px input, like the incident form', () => {
+    expect(num(block(skeleton, '.fieldLabel'), 'height') + num(block(skeleton, '.field'), 'gap') + num(block(skeleton, '.input'), 'height')).toBe(65)
+    expect(num(block(skeleton, '.field'), 'gap')).toBe(num(block(incident, '.field'), 'gap'))
+    expect(num(block(skeleton, '.input'), 'height')).toBe(num(block(incident, '.input'), 'height'))
+  })
+
+  it('last field (time) is 120px wide at most, like the real time field', () => {
+    expect(block(skeleton, '.timeField')).toMatch(/width:\s*120px/)
+    expect(block(skeleton, '.timeField')).toMatch(/max-width:\s*100%/)
+    expect(block(incident, '.timeField')).toMatch(/width:\s*120px/)
+  })
+})
