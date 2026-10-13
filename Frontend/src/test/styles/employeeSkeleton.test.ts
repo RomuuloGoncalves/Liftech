@@ -110,3 +110,18 @@ describe('EmployeeSkeleton list and history styles', () => {
     expect(num(title, 'height') + num(title, 'margin-top') + num(title, 'margin-bottom')).toBeCloseTo(4 + 15.3, 1)
   })
 })
+
+describe('EmployeeSkeleton session styles', () => {
+  const session = read('pages/employee/EmployeeSessionPage.module.css')
+
+  it('description is one 38px bar: the two 18.85px lines of the real text', () => {
+    expect(num(block(skeleton, '.description'), 'height')).toBe(38)
+    expect(block(session, '.description')).toMatch(/line-height:\s*1\.45/)
+  })
+
+  it('timer is 210px wide, shrinking with its container, as the 48px timer text', () => {
+    expect(block(skeleton, '.timer')).toMatch(/width:\s*210px/)
+    expect(block(skeleton, '.timer')).toMatch(/max-width:\s*100%/)
+    expect(num(block(skeleton, '.timer'), 'height')).toBe(53)
+  })
+})

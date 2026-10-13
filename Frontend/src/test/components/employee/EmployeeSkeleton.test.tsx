@@ -113,4 +113,11 @@ describe('EmployeeSkeleton', () => {
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
   })
+
+  it('session shows the description as a single bar and no filter bar', () => {
+    const { container } = render(<EmployeeSkeleton variant="session" />)
+    expect(count(container, 'data-skeleton-part="description"')).toBe(1)
+    expect(count(container, 'data-skeleton-filters')).toBe(0)
+    expect(count(container, 'data-skeleton-field')).toBe(0)
+  })
 })

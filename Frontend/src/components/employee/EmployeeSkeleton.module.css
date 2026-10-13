@@ -309,8 +309,13 @@
   height: 105px;
 }
 
+.description {
+  width: 90%;
+  height: 38px;
+}
+
 .timer {
-  width: 200px;
+  width: 210px;
   max-width: 100%;
   height: 53px;
 }

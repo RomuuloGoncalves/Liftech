@@ -242,10 +242,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] `session` tem uma única barra de descrição de 38px e nenhuma barra de filtros (Edge Sessão) (SKL-08 AC5)
-- [ ] Cronômetro com 210px de largura (SKL-08 AC5)
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts`
-- [ ] Test count: 2 tests added
+- [x] `session` tem uma única barra de descrição de 38px e nenhuma barra de filtros (Edge Sessão) (SKL-08 AC5)
+- [x] Cronômetro com 210px de largura (SKL-08 AC5)
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts`
+- [x] Test count: 1 test added to `EmployeeSkeleton.test.tsx` and 2 to `employeeSkeleton.test.ts`
 
 **Tests**: unit
 **Gate**: quick

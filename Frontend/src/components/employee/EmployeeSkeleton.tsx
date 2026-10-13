@@ -125,8 +125,7 @@ const Visual: React.FC<EmployeeSkeletonProps> = ({ variant, count = 6, buttons =
       return (
         <>
           <Block className={styles.illustration} />
-          <Block className={`${styles.line} ${styles.medium}`} />
-          <Block className={`${styles.line} ${styles.short}`} />
+          <Block className={styles.description} data-skeleton-part="description" />
           <Block className={styles.timer} />
           <div className={styles.actions}>
             <span className={`${base.block} ${styles.button}`} data-skeleton-button />
