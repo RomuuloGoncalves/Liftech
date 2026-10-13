@@ -212,7 +212,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | SCP-01 | P1 Filtro: AC1, AC2, AC3, AC4, AC5, AC6 | Tasks | Implementing |
-| SCP-02 | P1 Filtro: AC7, AC8 | Tasks | In Tasks |
+| SCP-02 | P1 Filtro: AC7, AC8 | Tasks | Implementing |
 | SCP-03 | P1 Filtro: AC9, AC10, AC11 | Tasks | In Tasks |
 | SCP-04 | P1 Filtro: AC12; Forklift: AC11; Telemetria: AC12 | Tasks | In Tasks |
 | SCP-05 | P1 Autenticar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: bearer minúsculo | Tasks | In Tasks |

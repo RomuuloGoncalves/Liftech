@@ -129,11 +129,11 @@ T9 → T13
 
 **Done when**:
 
-- [ ] Cada método repassa o filtro ao repository na posição certa (Filtro AC7)
-- [ ] Repository que devolve `null` faz o service lançar `<Entidade> não encontrado(a).` como hoje (Filtro AC8)
-- [ ] Sem filtro, os testes existentes de `forkliftService.test.ts` e `userService.test.ts` seguem passando
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/coreService.test.ts tests/unit/forkliftService.test.ts tests/unit/userService.test.ts && npx tsc --noEmit`
-- [ ] Test count: 5 testes novos passam e os existentes de forkliftService e userService seguem
+- [x] Cada método repassa o filtro ao repository na posição certa (Filtro AC7)
+- [x] Repository que devolve `null` faz o service lançar `<Entidade> não encontrado(a).` como hoje (Filtro AC8)
+- [x] Sem filtro, os testes existentes de `forkliftService.test.ts` e `userService.test.ts` seguem passando
+- [x] Gate: `cd Backend && npx vitest run tests/unit/coreService.test.ts tests/unit/forkliftService.test.ts tests/unit/userService.test.ts && npx tsc --noEmit`
+- [x] Test count: 5 testes novos passam e os existentes de forkliftService e userService seguem
 
 **Tests**: unit
 **Gate**: quick
