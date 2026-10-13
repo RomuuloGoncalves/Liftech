@@ -244,16 +244,16 @@ T9 → T13
 
 **Done when**:
 
-- [ ] Token válido de usuário existente chama `next` e define `req.escopo` com o resultado de `carregarEscopo` (Autenticar AC1)
-- [ ] Duas requisições seguidas leem o usuário duas vezes e a segunda reflete o dado novo (Autenticar AC2)
-- [ ] Sem cabeçalho, sem `Bearer ` (incluindo `bearer` em minúsculas) ou sem token: 401 `{ error: 'Não autenticado.' }` sem consultar o banco (Autenticar AC3, edge bearer minúsculo)
-- [ ] Assinatura inválida, token malformado, token expirado e token assinado com `HS512`: 401 (Autenticar AC4)
-- [ ] `sub` que não é ObjectId: 401 sem consultar o banco (Autenticar AC5)
-- [ ] Usuário inexistente: 401 (Autenticar AC6)
-- [ ] Falha do banco ao ler o usuário ou o escopo: 500 com `{ error: <mensagem> }`, não 401 (Autenticar AC7)
-- [ ] Sem `JWT_SECRET`: 500 `{ error: 'JWT_SECRET não configurado.' }` (Autenticar AC8)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/autenticar.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 11 testes passam
+- [x] Token válido de usuário existente chama `next` e define `req.escopo` com o resultado de `carregarEscopo` (Autenticar AC1)
+- [x] Duas requisições seguidas leem o usuário duas vezes e a segunda reflete o dado novo (Autenticar AC2)
+- [x] Sem cabeçalho, sem `Bearer ` (incluindo `bearer` em minúsculas) ou sem token: 401 `{ error: 'Não autenticado.' }` sem consultar o banco (Autenticar AC3, edge bearer minúsculo)
+- [x] Assinatura inválida, token malformado, token expirado e token assinado com `HS512`: 401 (Autenticar AC4)
+- [x] `sub` que não é ObjectId: 401 sem consultar o banco (Autenticar AC5)
+- [x] Usuário inexistente: 401 (Autenticar AC6)
+- [x] Falha do banco ao ler o usuário ou o escopo: 500 com `{ error: <mensagem> }`, não 401 (Autenticar AC7)
+- [x] Sem `JWT_SECRET`: 500 `{ error: 'JWT_SECRET não configurado.' }` (Autenticar AC8)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/autenticar.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 11 testes passam
 
 **Tests**: unit
 **Gate**: quick
