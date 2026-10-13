@@ -14,13 +14,19 @@ const renderAt = (path: string) =>
     </MemoryRouter>
   )
 
-const TABS = ['Visão geral', 'Empilhadeiras', 'Histórico', 'Ocorrência']
+const TABS = ['Visão geral', 'Empilhadeiras', 'Histórico']
 
 describe('TabBar', () => {
-  it('renders the 4 tabs in order', () => {
+  it('renders the 3 tabs in order', () => {
     renderAt('/funcionario')
     const links = screen.getAllByRole('link')
     expect(links.map((link) => link.getAttribute('aria-label'))).toEqual(TABS)
+  })
+
+  it('uses the House icon on the first tab and has no link to the incident route', () => {
+    const { container } = renderAt('/funcionario')
+    expect(screen.getByRole('link', { name: 'Visão geral' }).querySelector('svg')).toHaveClass('lucide-house')
+    expect(container.querySelector('a[href="/funcionario/ocorrencia"]')).toBeNull()
   })
 
   it.each([
@@ -28,7 +34,6 @@ describe('TabBar', () => {
     ['/funcionario/maquinas', 'Empilhadeiras'],
     ['/funcionario/maquinas/3', 'Empilhadeiras'],
     ['/funcionario/historico', 'Histórico'],
-    ['/funcionario/ocorrencia', 'Ocorrência'],
   ])('at %s only "%s" is active', (path, active) => {
     renderAt(path)
     for (const name of TABS) {
@@ -43,7 +48,6 @@ describe('TabBar', () => {
     ['/funcionario/maquinas', 'Empilhadeiras', '1'],
     ['/funcionario/maquinas/3', 'Empilhadeiras', '1'],
     ['/funcionario/historico', 'Histórico', '2'],
-    ['/funcionario/ocorrencia', 'Ocorrência', '3'],
   ])('at %s the single indicator sits at the "%s" tab (index %s)', (path, name, index) => {
     renderAt(path)
     expect(screen.getAllByTestId('tab-indicator')).toHaveLength(1)
@@ -54,7 +58,7 @@ describe('TabBar', () => {
     expect(screen.getByRole('link', { name })).toHaveAttribute('aria-current', 'page')
   })
 
-  it.each(['/funcionario/sessao', '/funcionario/configuracoes'])(
+  it.each(['/funcionario/ocorrencia', '/funcionario/sessao', '/funcionario/configuracoes'])(
     'indicator is hidden at %s and no tab has aria-current',
     (path) => {
       renderAt(path)
@@ -81,7 +85,6 @@ describe('TabBar', () => {
     const targets: Array<[string, string]> = [
       ['Empilhadeiras', '/funcionario/maquinas'],
       ['Histórico', '/funcionario/historico'],
-      ['Ocorrência', '/funcionario/ocorrencia'],
       ['Visão geral', '/funcionario'],
     ]
     for (const [name, path] of targets) {

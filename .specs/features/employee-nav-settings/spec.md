@@ -124,9 +124,9 @@ A barra inferior do funcionário tem 4 ícones e o Figma tem 3: o ícone de ocor
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| TAB-01 | P1 Menu: AC1, AC2, AC3 | Execute | Pending |
-| TAB-02 | P1 Menu: AC4 | Execute | Pending |
-| TAB-03 | P1 Menu: AC5, AC6 | Execute | Pending |
+| TAB-01 | P1 Menu: AC1, AC2, AC3 | Execute | Implementing |
+| TAB-02 | P1 Menu: AC4 | Execute | Implementing |
+| TAB-03 | P1 Menu: AC5, AC6 | Execute | Implementing |
 | SET-01 | P1 Config: AC1, AC2 | Execute | Pending |
 | SET-02 | P1 Config: AC3, AC4, AC5; Edge: JSON inválido | Execute | Pending |
 | USR-01 | P1 Usuário: AC1, AC6 | Execute | Implementing |

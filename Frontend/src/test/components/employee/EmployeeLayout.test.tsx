@@ -25,17 +25,17 @@ describe('Employee layout', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Visão geral' })).toBeInTheDocument()
   })
 
-  it('shows 4 tabs with their labels', () => {
+  it('shows 3 tabs with their labels', () => {
     renderAt('/funcionario')
-    const labels = ['Visão geral', 'Empilhadeiras', 'Histórico', 'Ocorrência']
+    const labels = ['Visão geral', 'Empilhadeiras', 'Histórico']
     labels.forEach((l) => expect(tab(l)).toBeInTheDocument())
-    expect(tabs().querySelectorAll('a')).toHaveLength(4)
+    expect(tabs().querySelectorAll('a')).toHaveLength(3)
   })
 
   it('marks only the current route tab with aria-current', () => {
     renderAt('/funcionario/historico')
     expect(tab('Histórico')).toHaveAttribute('aria-current', 'page')
-    for (const l of ['Visão geral', 'Empilhadeiras', 'Ocorrência']) {
+    for (const l of ['Visão geral', 'Empilhadeiras']) {
       expect(tab(l)).not.toHaveAttribute('aria-current')
     }
   })

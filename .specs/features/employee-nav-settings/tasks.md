@@ -242,12 +242,12 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] 3 links nesta ordem: Visão geral, Empilhadeiras, Histórico; nenhum para `/funcionario/ocorrencia` (AC1, AC3)
-- [ ] O ícone de Visão geral é o `House` (AC2)
-- [ ] Em `/funcionario/ocorrencia`, `/funcionario/sessao` e `/funcionario/configuracoes` o indicador fica oculto e nenhum link tem `aria-current` (AC4)
-- [ ] O alerta do header navega para `/funcionario/ocorrencia` e o hambúrguer para `/funcionario/configuracoes` (AC5, AC6; `EmployeeLayout.test.tsx` já cobre, segue passando)
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/TabBar.test.tsx src/test/components/employee/EmployeeLayout.test.tsx src/test/styles/employeeShell.test.ts`
-- [ ] Test count: os testes antigos reescritos para 3 abas passam, sem remoções além das da aba de ocorrência
+- [x] 3 links nesta ordem: Visão geral, Empilhadeiras, Histórico; nenhum para `/funcionario/ocorrencia` (AC1, AC3)
+- [x] O ícone de Visão geral é o `House` (AC2)
+- [x] Em `/funcionario/ocorrencia`, `/funcionario/sessao` e `/funcionario/configuracoes` o indicador fica oculto e nenhum link tem `aria-current` (AC4)
+- [x] O alerta do header navega para `/funcionario/ocorrencia` e o hambúrguer para `/funcionario/configuracoes` (AC5, AC6; `EmployeeLayout.test.tsx` já cobre, segue passando)
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/TabBar.test.tsx src/test/components/employee/EmployeeLayout.test.tsx src/test/styles/employeeShell.test.ts`
+- [x] Test count: os testes antigos reescritos para 3 abas passam, sem remoções além das da aba de ocorrência
 
 **Tests**: unit
 **Gate**: quick
