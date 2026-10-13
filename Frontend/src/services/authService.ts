@@ -14,7 +14,7 @@ export interface UsuarioLogado {
   role: RoleLogin;
   telefone?: string;
   cargo?: string;
-  empresa?: { _id: string; nome: string };
+  empresa?: { _id: string; nome: string } | null;
   escopo?: 'empresa' | 'filiais';
   filiais?: Filial[];
 }
