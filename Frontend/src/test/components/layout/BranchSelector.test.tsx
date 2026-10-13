@@ -310,6 +310,20 @@ describe('BranchSelector: managing branches', () => {
     expect(screen.getByRole('button', { name: 'Excluir Filial 02' })).toBeInTheDocument()
   })
 
+  it('goes back to the options when Concluir is clicked in manage mode', () => {
+    login('empresa', [F1, F2])
+    renderSelector()
+    open()
+    fireEvent.click(screen.getByRole('button', { name: 'Gerenciar Filiais' }))
+    expect(screen.queryByRole('button', { name: 'Gerenciar Filiais' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Concluir' }))
+
+    expect(screen.getAllByRole('option')).toHaveLength(3)
+    expect(screen.queryByRole('button', { name: 'Renomear Filial 01' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Gerenciar Filiais' })).toBeInTheDocument()
+  })
+
   it('renames a branch from a prefilled field and shows the new name', async () => {
     login('empresa', [F1, F2])
     renomear.mockResolvedValue({ ...F2, nome: 'Galpão Sul' })

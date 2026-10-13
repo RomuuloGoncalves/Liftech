@@ -141,6 +141,7 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 11. IF `DELETE /branches/<id>` responde 409 THEN the Sidebar SHALL fechar o diálogo e exibir o aviso "Não foi possível excluir: a filial é a matriz ou ainda tem recursos." com `role="alert"`.
 12. IF criar ou renomear falha THEN the Sidebar SHALL exibir o aviso "Não foi possível salvar a filial." com `role="alert"` e manter o campo.
 13. IF excluir falha com outro erro THEN the Sidebar SHALL exibir o aviso "Não foi possível excluir a filial." com `role="alert"`.
+14. WHEN o usuário clica em "Concluir" no modo de gerenciamento THEN the lista SHALL voltar a mostrar as opções de filial e o botão "Gerenciar Filiais".
 
 **Independent Test**: Logado como empresa, criar "Filial 03" faz `POST /branches` e a opção aparece; excluir a matriz mostra o aviso de 409.
 
@@ -213,7 +214,7 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 | BRF-03 | P1 Seletor: AC1, AC2, AC3, AC4, AC5, AC6, AC8; Edge: lista vazia | Implementing | Pending |
 | BRF-04 | P1 Seletor: AC7; P2 Empresa: AC1, AC2, AC3 | Implementing | Pending |
 | BRF-05 | P1 Visão Geral: AC1, AC2, AC3, AC4, AC5, AC6, AC7 | Implementing | Pending |
-| BRF-06 | P2 Gerenciar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: espaços | Implementing | Pending |
+| BRF-06 | P2 Gerenciar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8, AC14; Edge: espaços | Implementing | Pending |
 | BRF-07 | P2 Gerenciar: AC9, AC10, AC11, AC12, AC13; Edge: excluir a ativa | Implementing | Pending |
 | BRF-08 | P1 Sessão inválida: AC1, AC2, AC3, AC4, AC5 | Implementing | Pending |
 | BRF-09 | P1 Textos: AC1, AC2 | Implementing | Pending |
