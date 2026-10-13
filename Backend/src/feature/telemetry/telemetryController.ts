@@ -4,7 +4,10 @@ import { telemetryModel } from "../../models/telemetryModel.js";
 import { Telemetry } from "../../schemas/telemetry.js";
 import { TelemetryRepository } from "./telemetryRepository.js";
 import { TelemetryService } from "./telemetryService.js";
-import { StatusCode, respostaSucesso, respostaErro } from "../../utils/responseHandler.js";
+import { ErroHttp, StatusCode, respostaSucesso, respostaErro, responderErro } from "../../utils/responseHandler.js";
+import { Device } from "../../schemas/device.js";
+import { filtroPorFilial } from "../../core/escopo.js";
+import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./telemetryRules.js";
 
 export const repositorioTelemetry = new TelemetryRepository(Telemetry);
@@ -20,23 +23,31 @@ function obterId(req: Request): string | null {
   return null;
 }
 
+// A telemetria não tem filial: ela é isolada pelos dispositivos que estão nas filiais do escopo.
+async function idsDosDispositivos(req: Request): Promise<string[]> {
+  return (await Device.find(filtroPorFilial(req.escopo)).distinct("_id")).map(String);
+}
+
+const filtroDosDispositivos = (ids: string[]) => ({ dispositivoId: { $in: ids } });
+
 export async function listar(req: Request, res: Response) {
   try {
     const dispositivoId = req.query.dispositivoId as string;
+    const ids = await idsDosDispositivos(req);
     let registros;
 
     if (dispositivoId) {
        if (!mongooseTypes.ObjectId.isValid(dispositivoId)) {
         return respostaErro(res, StatusCode.BAD_REQUEST, "O dispositivoId fornecido não é válido.");
       }
-      registros = await servicoTelemetry.listarPorDispositivo(dispositivoId);
+      registros = ids.includes(dispositivoId) ? await servicoTelemetry.listarPorDispositivo(dispositivoId) : [];
     } else {
-      registros = await servicoTelemetry.listar();
+      registros = await servicoTelemetry.listar(filtroDosDispositivos(ids));
     }
     
     return respostaSucesso(res, StatusCode.OK, registros.map(r => r.obterDados()));
   } catch (error: any) {
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -50,13 +61,13 @@ export async function buscar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
     }
     
-    const registro = await servicoTelemetry.obterPorId(id);
+    const registro = await servicoTelemetry.obterPorId(id, filtroDosDispositivos(await idsDosDispositivos(req)));
     return respostaSucesso(res, StatusCode.CREATED, registro.obterDados());
   } catch (error: any) {
     if (error.message === "Telemetria não encontrado(a)." || error.message.includes("não encontrado")) {
       return respostaErro(res, StatusCode.NOT_FOUND, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -73,6 +84,10 @@ export async function criar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
+    if (!(await idsDosDispositivos(req)).includes(String(corpo.dispositivoId))) {
+      throw new ErroHttp(StatusCode.NOT_FOUND, "Dispositivo não encontrado(a).");
+    }
+
     const telemetria = new telemetryModel(
       new Date(corpo.dataDados),
       corpo.dispositivoId
@@ -81,7 +96,7 @@ export async function criar(req: Request, res: Response) {
     const criado = await servicoTelemetry.criar(telemetria);
     return respostaSucesso(res, StatusCode.CREATED, criado.obterDados());
   } catch (error: any) {
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -95,13 +110,13 @@ export async function deletar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
     }
 
-    const deletado = await servicoTelemetry.deletar(id);
+    const deletado = await servicoTelemetry.deletar(id, filtroDosDispositivos(await idsDosDispositivos(req)));
     return respostaSucesso(res, StatusCode.CREATED, deletado.obterDados());
   } catch (error: any) {
     if (error.message.includes("não encontrado")) {
       return respostaErro(res, StatusCode.NOT_FOUND, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
@@ -115,7 +130,12 @@ export async function atualizar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
     }
 
-    const corpo = req.body as Partial<Record<string, unknown>>;
+    const corpo = (req.body ?? {}) as Partial<Record<string, unknown>>;
+    exigirSemOperadores(corpo);
+    const ids = await idsDosDispositivos(req);
+    if (corpo.dispositivoId !== undefined && !ids.includes(String(corpo.dispositivoId))) {
+      throw new ErroHttp(StatusCode.NOT_FOUND, "Dispositivo não encontrado(a).");
+    }
     delete corpo._id;
     delete corpo.id;
     
@@ -123,12 +143,12 @@ export async function atualizar(req: Request, res: Response) {
        corpo.dataDados = new Date(corpo.dataDados as string);
     }
 
-    const atualizado = await servicoTelemetry.atualizar(id, corpo);
+    const atualizado = await servicoTelemetry.atualizar(id, corpo, filtroDosDispositivos(ids));
     return respostaSucesso(res, StatusCode.CREATED, atualizado.obterDados());
   } catch (error: any) {
     if (error.message.includes("não encontrado")) {
       return respostaErro(res, StatusCode.NOT_FOUND, error.message);
     }
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }

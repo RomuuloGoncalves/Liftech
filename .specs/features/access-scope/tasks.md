@@ -368,15 +368,15 @@ T9 → T13
 
 **Done when**:
 
-- [ ] Os dispositivos do escopo vêm de `Device.find(filtroPorFilial(req.escopo)).distinct('_id')`
-- [ ] listar sem `dispositivoId` passa `{ dispositivoId: { $in: <dispositivos> } }` ao service (Máquinas/Telemetria AC7)
-- [ ] listar com `?dispositivoId=` de fora do escopo responde 200 `[]` sem consultar a telemetria; de dentro, lista as leituras dele (Máquinas/Telemetria AC8)
-- [ ] buscar, atualizar e deletar passam o mesmo filtro, e leitura de fora responde 404 (Máquinas/Telemetria AC9)
-- [ ] criar com `dispositivoId` de fora responde 404 sem criar (Máquinas/Telemetria AC10)
-- [ ] atualizar com `dispositivoId` de fora responde 404 (Máquinas/Telemetria AC11)
-- [ ] atualizar com chave `$...` responde 400 (Máquinas/Telemetria AC12)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/telemetryController.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 12 testes passam
+- [x] Os dispositivos do escopo vêm de `Device.find(filtroPorFilial(req.escopo)).distinct('_id')`
+- [x] listar sem `dispositivoId` passa `{ dispositivoId: { $in: <dispositivos> } }` ao service (Máquinas/Telemetria AC7)
+- [x] listar com `?dispositivoId=` de fora do escopo responde 200 `[]` sem consultar a telemetria; de dentro, lista as leituras dele (Máquinas/Telemetria AC8)
+- [x] buscar, atualizar e deletar passam o mesmo filtro, e leitura de fora responde 404 (Máquinas/Telemetria AC9)
+- [x] criar com `dispositivoId` de fora responde 404 sem criar (Máquinas/Telemetria AC10)
+- [x] atualizar com `dispositivoId` de fora responde 404 (Máquinas/Telemetria AC11)
+- [x] atualizar com chave `$...` responde 400 (Máquinas/Telemetria AC12)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/telemetryController.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 12 testes passam
 
 **Tests**: unit
 **Gate**: quick
