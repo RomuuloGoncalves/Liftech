@@ -86,8 +86,8 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Os três campos existem, opcionais, com os tipos acima
-- [ ] `npx tsc --noEmit` não ganha erros além dos 2 antigos
+- [x] Os três campos existem, opcionais, com os tipos acima
+- [x] `npx tsc --noEmit` não ganha erros além dos 2 antigos
 
 **Tests**: none
 **Gate**: build

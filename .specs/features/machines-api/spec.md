@@ -133,7 +133,7 @@ A Visão Geral das Máquinas lê `MACHINES`, um mock em `Frontend/src/data/machi
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| MCH-01 | P1 Rota: AC1 | Execute | Pending |
+| MCH-01 | P1 Rota: AC1 | Execute | Implementing |
 | MCH-02 | P1 Rota: AC2, AC3, AC4, AC8; Edge: operador apagado | Execute | Pending |
 | MCH-03 | P1 Rota: AC5, AC6; Edge: data futura | Execute | Pending |
 | MCH-04 | P1 Rota: AC7, AC9 | Execute | Pending |

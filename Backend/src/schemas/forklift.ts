@@ -3,6 +3,9 @@ const { Schema } = conn.mongoose
 
 const forkliftSchema = new Schema({
     identificacao: String,
+    nome: String,
+    setor: String,
+    sessaoIniciadaEm: Date,
     dispositivoConectadoId: {
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'device'
