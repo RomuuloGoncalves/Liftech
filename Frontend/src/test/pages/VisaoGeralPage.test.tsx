@@ -112,7 +112,7 @@ describe('VisaoGeralPage', () => {
     const newCard = screen.getByText('EMP-999(ID)').closest('article') as HTMLElement
     expect(newCard).not.toBeNull()
     expect(within(newCard).getByText('Disponível')).toBeInTheDocument()
-    expect(within(newCard).getByText('0 min')).toBeInTheDocument()
+    expect(within(newCard).getByText('0 minutos')).toBeInTheDocument()
   })
 
   it('does not add a card and closes the panel when Cancelar is clicked', async () => {
