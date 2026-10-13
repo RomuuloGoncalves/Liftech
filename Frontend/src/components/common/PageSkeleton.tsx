@@ -7,7 +7,30 @@ interface PageSkeletonProps {
   count?: number
   /** Classe de grid da página, para o skeleton ocupar o mesmo layout do conteúdo. */
   gridClassName?: string
+  /** Placeholder da barra de filtros, montado pela página com as classes dela. */
+  children?: React.ReactNode
 }
+
+export const SkeletonBlock: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className = '', ...rest }) => (
+  <span className={`${styles.block} ${className}`} {...rest} />
+)
+
+const MachineCard: React.FC = () => (
+  <div className={styles.machine} data-skeleton-card>
+    <div className={styles.machineNames} data-skeleton-part="top">
+      <SkeletonBlock className={styles.machineName} />
+      <SkeletonBlock className={styles.machineId} />
+    </div>
+    <div className={styles.machineDetails} data-skeleton-part="details">
+      <SkeletonBlock className={styles.machineLine} />
+      <SkeletonBlock className={styles.machineLine} />
+    </div>
+    <div className={styles.machineFooter} data-skeleton-part="footer">
+      <SkeletonBlock className={styles.machineBadge} />
+      <SkeletonBlock className={styles.machineSession} />
+    </div>
+  </div>
+)
 
 const Card: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
   <div className={`${styles.card} ${compact ? styles.compact : ''}`} data-skeleton-card>
@@ -30,7 +53,7 @@ const Card: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
 
 const cardsOf = (n: number, compact?: boolean) => Array.from({ length: n }, (_, i) => <Card key={i} compact={compact} />)
 
-const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridClassName }) => {
+const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridClassName, children }) => {
   const { t } = useTranslation()
   const grid = gridClassName ?? styles.grid
 
@@ -40,7 +63,15 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ variant, count = 8, gridCla
         {t('common.loading')}
       </span>
       <div aria-hidden="true" className={styles.wrapper}>
-        {variant === 'grid' && <div className={grid}>{cardsOf(count)}</div>}
+        {children}
+
+        {variant === 'grid' && (
+          <div className={grid}>
+            {Array.from({ length: count }, (_, i) => (
+              <MachineCard key={i} />
+            ))}
+          </div>
+        )}
 
         {variant === 'kanban' &&
           [0, 1, 2].map((row) => (

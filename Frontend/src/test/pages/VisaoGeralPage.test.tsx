@@ -5,6 +5,7 @@ import { ToastProvider } from '../../components/common/Toast'
 import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext'
 import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
+import styles from '../../pages/VisaoGeralPage.module.css'
 import { machineService } from '../../services/machineService'
 import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
 
@@ -265,6 +266,17 @@ describe('VisaoGeralPage skeleton', () => {
     expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
     expect(screen.queryByRole('button', { name: /cadastrar máquina/i })).not.toBeInTheDocument()
     expect(screen.queryAllByRole('article')).toEqual([])
+  })
+
+  it('mirrors the toolbar (search, select, button) above the page grid class while the request is pending', () => {
+    listar.mockReturnValue(new Promise(() => {}))
+    const { container } = render(<VisaoGeralPage />)
+    const toolbar = container.querySelector('[data-skeleton-toolbar]')!
+    expect(toolbar).toHaveClass(styles.toolbar)
+    expect(toolbar.children).toHaveLength(3)
+    const grid = container.querySelector(`.${styles.grid}`)!
+    expect(grid.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
+    expect(toolbar.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })
 

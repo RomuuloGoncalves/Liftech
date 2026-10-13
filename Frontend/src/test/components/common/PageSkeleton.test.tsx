@@ -45,4 +45,24 @@ describe('PageSkeleton', () => {
     expect(blocks).not.toBeNull()
     expect(blocks!.querySelectorAll('[data-skeleton-card]')).toHaveLength(12)
   })
+
+  it('renders the page toolbar placeholder before the grid', () => {
+    const { container } = render(
+      <PageSkeleton variant="grid" gridClassName="page-grid">
+        <div data-testid="bar" />
+      </PageSkeleton>
+    )
+    const bar = screen.getByTestId('bar')
+    const grid = container.querySelector('.page-grid')!
+    expect(bar.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(bar.closest('[aria-hidden="true"]')).not.toBeNull()
+  })
+
+  it('machine card mirrors MachineCard: name and id, 2 detail lines, footer with badge and session time', () => {
+    const { container } = render(<PageSkeleton variant="grid" count={1} />)
+    const card = cards(container)[0]
+    expect(card.querySelector('[data-skeleton-part="top"]')!.children).toHaveLength(2)
+    expect(card.querySelector('[data-skeleton-part="details"]')!.children).toHaveLength(2)
+    expect(card.querySelector('[data-skeleton-part="footer"]')!.children).toHaveLength(2)
+  })
 })

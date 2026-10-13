@@ -99,6 +99,27 @@
   cursor: pointer;
 }
 
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.searchSkeleton {
+  flex: 0 1 300px;
+  min-width: 160px;
+  height: 32px;
+}
+
+.selectSkeleton,
+.buttonSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.selectSkeleton {
+  width: 165px;
+}
+
+.buttonSkeleton {
+  width: 173px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

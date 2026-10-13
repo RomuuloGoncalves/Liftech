@@ -78,7 +78,7 @@ T5 → T6 → T7 → T8
 - [x] Card de máquina com nome e identificação, 2 linhas de detalhe, selo e tempo; altura 155px por CSS (36 + 39 + 38 + 2 gaps de 8 + padding 12 + borda 1) (SKL-01 AC2)
 - [x] Visão Geral carregando mostra a barra (busca 300x32, seletor, botão) acima da grade, e a grade usa `styles.grid` da página (SKL-01 AC1, SKL-05 AC8)
 - [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/VisaoGeralPage.test.tsx`
-- [x] Test count: 11 tests in the two new/updated skeleton files pass, `VisaoGeralPage.test.tsx` keeps its baseline failure only
+- [x] Test count: 8 tests in `PageSkeleton.test.tsx` (2 new) and 5 in `pageSkeleton.test.ts` pass; `VisaoGeralPage.test.tsx` has 1 new test and keeps its baseline failure only
 
 **Tests**: unit
 **Gate**: quick
@@ -102,10 +102,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] Card `fleet` com faixa de topo e 3 grupos de detalhe; altura `170 * var(--px)` por CSS e largura `288 * var(--px)` (SKL-04 AC5, SKL-02 AC3)
-- [x] Alertas carregando mostra o painel (`styles.panel`), a etiqueta vermelha, a busca e o período, e os cards na grade `styles.grid` (SKL-04 AC5, SKL-05 AC8)
-- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/AlertasPage.test.tsx`
-- [x] Test count: 5 tests added to the T1 files (16 in total), `AlertasPage.test.tsx` all pass
+- [ ] Card `fleet` com faixa de topo e 3 grupos de detalhe; altura `170 * var(--px)` por CSS e largura `288 * var(--px)` (SKL-04 AC5, SKL-02 AC3)
+- [ ] Alertas carregando mostra o painel (`styles.panel`), a etiqueta vermelha, a busca e o período, e os cards na grade `styles.grid` (SKL-04 AC5, SKL-05 AC8)
+- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/AlertasPage.test.tsx`
+- [ ] Test count: 5 tests added to the T1 files (16 in total), `AlertasPage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick
@@ -129,11 +129,11 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] `kanban` renderiza o filho (barra) e 4 painéis, cada um com etiqueta 158x24, busca de ferramentas e cards `fleet` de 288 de largura (SKL-02 AC3)
-- [x] Painel espelha `FleetRow` (padding 12/20/20, gap 12, raio 8, tudo em `--px`) por CSS
-- [x] Frota carregando mostra a barra com a classe `toolbar` da página (borda inferior)
-- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/FrotaPage.test.tsx`
-- [x] Test count: 4 tests added to the T1 files (20 in total), `FrotaPage.test.tsx` all pass
+- [ ] `kanban` renderiza o filho (barra) e 4 painéis, cada um com etiqueta 158x24, busca de ferramentas e cards `fleet` de 288 de largura (SKL-02 AC3)
+- [ ] Painel espelha `FleetRow` (padding 12/20/20, gap 12, raio 8, tudo em `--px`) por CSS
+- [ ] Frota carregando mostra a barra com a classe `toolbar` da página (borda inferior)
+- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/FrotaPage.test.tsx`
+- [ ] Test count: 4 tests added to the T1 files (20 in total), `FrotaPage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick
@@ -157,12 +157,12 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] Seção de funcionários: 8 cards `employee` (3 linhas, 2 ícones e interruptor) e barra com botão, busca e seletor (SKL-03 AC4)
-- [x] Seção de setores: 8 cards `sector` (uma linha e 2 botões de 25px) e barra com botão e busca, sem seletor (SKL-03 AC4, Assumption)
-- [x] Equipe usa `styles.section`, `styles.sectionHeader`, `styles.toolbar` e `styles.grid` da página (SKL-05 AC8)
-- [x] Nenhum código ou CSS do card antigo (`.head`, `.icon`, `.lines`, `.compact`, variante `team`) resta no `PageSkeleton`
-- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/EquipePage.test.tsx`
-- [x] Test count: 5 tests added to the T1 files (25 in total, 2 old team tests rewritten for the new API), `EquipePage.test.tsx` all pass
+- [ ] Seção de funcionários: 8 cards `employee` (3 linhas, 2 ícones e interruptor) e barra com botão, busca e seletor (SKL-03 AC4)
+- [ ] Seção de setores: 8 cards `sector` (uma linha e 2 botões de 25px) e barra com botão e busca, sem seletor (SKL-03 AC4, Assumption)
+- [ ] Equipe usa `styles.section`, `styles.sectionHeader`, `styles.toolbar` e `styles.grid` da página (SKL-05 AC8)
+- [ ] Nenhum código ou CSS do card antigo (`.head`, `.icon`, `.lines`, `.compact`, variante `team`) resta no `PageSkeleton`
+- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/common/PageSkeleton.test.tsx src/test/styles/pageSkeleton.test.ts src/test/pages/EquipePage.test.tsx`
+- [ ] Test count: 5 tests added to the T1 files (25 in total, 2 old team tests rewritten for the new API), `EquipePage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick
@@ -186,10 +186,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] `home` mostra a faixa, o card da última máquina (`data-skeleton-last`), os 2 quadros e 3 cards (SKL-06 AC1)
-- [x] Cards da `home` têm 122px (SKL-06 AC4)
-- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHomePage.test.tsx`
-- [x] Test count: 3 tests added (and the old 3 keep passing), `EmployeeHomePage.test.tsx` all pass
+- [ ] `home` mostra a faixa, o card da última máquina (`data-skeleton-last`), os 2 quadros e 3 cards (SKL-06 AC1)
+- [ ] Cards da `home` têm 122px (SKL-06 AC4)
+- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHomePage.test.tsx`
+- [ ] Test count: 3 tests added (and the old 3 keep passing), `EmployeeHomePage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick
@@ -213,12 +213,12 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] Cards de `list` e `history` com 140px (SKL-07 AC3)
-- [x] `history` mostra título, subtítulo, "Filtros" e 3 linhas de campo de 36px, a segunda com 2 campos lado a lado (SKL-07 AC2)
-- [x] O Histórico carregando usa a variante `history`
-- [x] `prefers-reduced-motion` global mantém o brilho parado (SKL-10, AC9 já coberto por `employeeMotion.test.ts`)
-- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHistoryPage.test.tsx`
-- [x] Test count: 5 tests added, `EmployeeHistoryPage.test.tsx` all pass
+- [ ] Cards de `list` e `history` com 140px (SKL-07 AC3)
+- [ ] `history` mostra título, subtítulo, "Filtros" e 3 linhas de campo de 36px, a segunda com 2 campos lado a lado (SKL-07 AC2)
+- [ ] O Histórico carregando usa a variante `history`
+- [ ] `prefers-reduced-motion` global mantém o brilho parado (SKL-10, AC9 já coberto por `employeeMotion.test.ts`)
+- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHistoryPage.test.tsx`
+- [ ] Test count: 5 tests added, `EmployeeHistoryPage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick
@@ -242,10 +242,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] `session` tem uma única barra de descrição de 38px e nenhuma barra de filtros (Edge Sessão) (SKL-08 AC5)
-- [x] Cronômetro com 210px de largura (SKL-08 AC5)
-- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts`
-- [x] Test count: 2 tests added
+- [ ] `session` tem uma única barra de descrição de 38px e nenhuma barra de filtros (Edge Sessão) (SKL-08 AC5)
+- [ ] Cronômetro com 210px de largura (SKL-08 AC5)
+- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts`
+- [ ] Test count: 2 tests added
 
 **Tests**: unit
 **Gate**: quick
@@ -269,10 +269,10 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [x] 4 campos de 65px (rótulo + 6px + entrada de 40px) por CSS (SKL-09 AC6)
-- [x] O quarto campo com 120px de largura e `max-width: 100%` (SKL-09 AC6)
-- [x] Gate check passes (Build): `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH sh -c 'npx tsc -b && npx eslint . && npx vitest run'` (only the 3 old failures)
-- [x] Test count: 2 tests added; total Frontend = 938 + the new tests, 3 old failures
+- [ ] 4 campos de 65px (rótulo + 6px + entrada de 40px) por CSS (SKL-09 AC6)
+- [ ] O quarto campo com 120px de largura e `max-width: 100%` (SKL-09 AC6)
+- [ ] Gate check passes (Build): `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH sh -c 'npx tsc -b && npx eslint . && npx vitest run'` (only the 3 old failures)
+- [ ] Test count: 2 tests added; total Frontend = 938 + the new tests, 3 old failures
 
 **Tests**: unit
 **Gate**: build

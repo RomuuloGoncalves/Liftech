@@ -1,8 +1,6 @@
+/* Casca transparente: a barra e a grade entram no layout da própria página, com o gap dela. */
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: calc(22 * var(--px, 1px));
-  min-width: 0;
+  display: contents;
 }
 
 .srOnly {
@@ -54,6 +52,68 @@
 
 .compact {
   min-height: 0;
+}
+
+/* Card de máquina: mesma caixa do MachineCard (155px = 36 + 39 + 38 + 2 gaps + padding + borda). */
+.machine {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.machineNames {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.machineName {
+  width: 60%;
+  height: 17px;
+}
+
+.machineId {
+  width: 35%;
+  height: 13px;
+}
+
+.machineDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 39px;
+}
+
+.machineLine {
+  width: 85%;
+  height: 12px;
+}
+
+.machineLine:last-child {
+  width: 55%;
+}
+
+.machineFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+}
+
+.machineBadge {
+  width: 64px;
+  height: 22px;
+}
+
+.machineSession {
+  width: 88px;
+  height: 30px;
 }
 
 .head {

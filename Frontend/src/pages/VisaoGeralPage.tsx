@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Plus, Search, Copy } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
 import ConfirmDialog from '../components/common/ConfirmDialog'
-import PageSkeleton from '../components/common/PageSkeleton'
+import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
 import { useToast } from '../components/common/Toast'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
@@ -133,7 +133,13 @@ const VisaoGeralPage: React.FC = () => {
   if (loadState === 'loading') {
     return (
       <div className={styles.page}>
-        <PageSkeleton variant="grid" gridClassName={styles.grid} />
+        <PageSkeleton variant="grid" gridClassName={styles.grid}>
+          <div className={styles.toolbar} data-skeleton-toolbar>
+            <SkeletonBlock className={styles.searchSkeleton} />
+            <SkeletonBlock className={styles.selectSkeleton} />
+            <SkeletonBlock className={styles.buttonSkeleton} />
+          </div>
+        </PageSkeleton>
       </div>
     )
   }
