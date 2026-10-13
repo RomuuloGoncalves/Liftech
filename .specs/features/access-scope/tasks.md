@@ -277,14 +277,14 @@ T9 → T13
 
 **Done when**:
 
-- [ ] listar, buscar, atualizar e deletar passam `filtroPorFilial(req.escopo)` ao service (Forklift AC1, AC2)
-- [ ] Empilhadeira fora do escopo (o service lança "não encontrado(a)") responde 404 em buscar, atualizar e deletar (Forklift AC2)
-- [ ] criar usa a filial de `resolverFilial` e a envia no model; 403 para filial de fora, 400 para inválida, default de uma filial, 400 nos demais casos sem `filialId` (Forklift AC3, AC4, AC5, AC6, AC7)
-- [ ] atualizar com `filialId`: move para a filial do escopo se o chamador é de empresa; 403 se não é de empresa ou a filial é de fora; 400 se inválido (Forklift AC8, AC9, AC10)
-- [ ] atualizar com chave `$...` no corpo responde 400 e não chama o service (Forklift AC11)
-- [ ] Os testes de `forkliftController.test.ts` (unit) e do `tests/integration/forkliftController.test.ts` (só mocks, não executado aqui) passam a mandar `req.escopo` (parâmetro novo do contrato)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/forkliftController.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 4 testes existentes (adaptados) mais ao menos 14 novos passam
+- [x] listar, buscar, atualizar e deletar passam `filtroPorFilial(req.escopo)` ao service (Forklift AC1, AC2)
+- [x] Empilhadeira fora do escopo (o service lança "não encontrado(a)") responde 404 em buscar, atualizar e deletar (Forklift AC2)
+- [x] criar usa a filial de `resolverFilial` e a envia no model; 403 para filial de fora, 400 para inválida, default de uma filial, 400 nos demais casos sem `filialId` (Forklift AC3, AC4, AC5, AC6, AC7)
+- [x] atualizar com `filialId`: move para a filial do escopo se o chamador é de empresa; 403 se não é de empresa ou a filial é de fora; 400 se inválido (Forklift AC8, AC9, AC10)
+- [x] atualizar com chave `$...` no corpo responde 400 e não chama o service (Forklift AC11)
+- [x] Os testes de `forkliftController.test.ts` (unit) e do `tests/integration/forkliftController.test.ts` (só mocks, não executado aqui) passam a mandar `req.escopo` (parâmetro novo do contrato)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/forkliftController.test.ts && npx tsc --noEmit`
+- [x] Test count: os 4 testes existentes (adaptados) mais ao menos 14 novos passam
 
 **Tests**: unit
 **Gate**: quick

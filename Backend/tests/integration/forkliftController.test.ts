@@ -5,6 +5,7 @@ import { forkliftModel } from '../../src/models/forkliftModel.js';
 
 vi.mock('../../src/feature/forklift/forkliftService.js');
 vi.mock('../../src/schemas/forklift.js');
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
 
 describe('ForkliftController', () => {
     let mockReq: Partial<Request>;
@@ -18,7 +19,12 @@ describe('ForkliftController', () => {
         
         mockReq = {
             params: {},
-            body: {}
+            body: {},
+            escopo: {
+                empresaId: 'e1',
+                tipo: 'filiais',
+                filiais: [{ _id: '507f1f77bcf86cd799439020', nome: 'Matriz', matriz: true }]
+            }
         };
         
         mockRes = {
