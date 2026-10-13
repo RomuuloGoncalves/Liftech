@@ -286,15 +286,15 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Um card por máquina devolvida pelo `machineService` (AC1); lista vazia mostra "Nenhuma máquina encontrada" (AC5)
-- [ ] Skeleton com `aria-busy="true"` enquanto a requisição está pendente (AC2)
-- [ ] Falha mostra a mensagem e o botão; clicar chama o service de novo e volta ao skeleton (AC3, AC4, AC9)
-- [ ] Busca e filtro de status filtram a lista carregada (AC6)
-- [ ] Cadastrar, editar e excluir não chamam o service de novo (AC7)
-- [ ] Detalhe mostra os eventos do mock da máquina com a mesma `identificacao`, ou lista vazia (AC8); status desconhecido aparece sob "Todos" (edge)
-- [ ] `useFirstVisitLoading('visao-geral')` removido da página; os testes existentes continuam com as mesmas asserções, agora aguardando a carga
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/pages/VisaoGeralPage.test.tsx`; depois o Build gate completo do Frontend (última tarefa)
-- [ ] Test count: os testes existentes da página mais os novos passam, sem remover nenhum
+- [x] Um card por máquina devolvida pelo `machineService` (AC1); lista vazia mostra "Nenhuma máquina encontrada" (AC5)
+- [x] Skeleton com `aria-busy="true"` enquanto a requisição está pendente (AC2)
+- [x] Falha mostra a mensagem e o botão; clicar chama o service de novo e volta ao skeleton (AC3, AC4, AC9)
+- [x] Busca e filtro de status filtram a lista carregada (AC6)
+- [x] Cadastrar, editar e excluir não chamam o service de novo (AC7)
+- [x] Detalhe mostra os eventos do mock da máquina com a mesma `identificacao`, ou lista vazia (AC8); status desconhecido aparece sob "Todos" (edge)
+- [x] `useFirstVisitLoading('visao-geral')` removido da página; os testes existentes continuam com as mesmas asserções, agora aguardando a carga
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/pages/VisaoGeralPage.test.tsx`; depois o Build gate completo do Frontend (última tarefa)
+- [x] Test count: os testes existentes da página mais os novos passam, sem remover nenhum
 
 **Tests**: unit
 **Gate**: build

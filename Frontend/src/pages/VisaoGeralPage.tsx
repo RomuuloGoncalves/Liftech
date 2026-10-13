@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Plus, Search, Copy } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
@@ -7,7 +7,7 @@ import PageSkeleton from '../components/common/PageSkeleton'
 import { useToast } from '../components/common/Toast'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
-import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
+import { machineService } from '../services/machineService'
 import {
   MACHINES,
   MACHINE_STATUSES,
@@ -19,19 +19,45 @@ import {
 import styles from './VisaoGeralPage.module.css'
 
 type StatusFilter = MachineStatus | 'Todos'
+type LoadState = 'loading' | 'ready' | 'error'
+
+// ponytail: o histórico do detalhe ainda é mock (não há rota de incident); casa pela identificacao porque os ids da API são ObjectId.
+const mockEventsFor = (machine: Machine) =>
+  eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
 let nextMachineId = MACHINES.length + 1
 
 const VisaoGeralPage: React.FC = () => {
   const { t } = useTranslation()
-  const [allMachines, setAllMachines] = useState<Machine[]>(MACHINES)
+  const [allMachines, setAllMachines] = useState<Machine[]>([])
+  const [loadState, setLoadState] = useState<LoadState>('loading')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('Todos')
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
-  const loading = useFirstVisitLoading('visao-geral')
   const { show } = useToast()
+
+  const fetchMachines = useCallback(
+    () =>
+      machineService.listar().then(
+        (machines) => {
+          setAllMachines(machines)
+          setLoadState('ready')
+        },
+        () => setLoadState('error')
+      ),
+    []
+  )
+
+  useEffect(() => {
+    fetchMachines()
+  }, [fetchMachines])
+
+  const retry = () => {
+    setLoadState('loading')
+    fetchMachines()
+  }
 
   const detailMachine = allMachines.find((machine) => machine.id === detailId)
 
@@ -92,10 +118,23 @@ const VisaoGeralPage: React.FC = () => {
     if (detailMachine) show(t('machines.toastDeleted', { name: detailMachine.identificacao }))
   }
 
-  if (loading) {
+  if (loadState === 'loading') {
     return (
       <div className={styles.page}>
         <PageSkeleton variant="grid" gridClassName={styles.grid} />
+      </div>
+    )
+  }
+
+  if (loadState === 'error') {
+    return (
+      <div className={styles.page}>
+        <div role="alert" className={styles.errorState}>
+          <p>{t('machines.loadError')}</p>
+          <button type="button" className={styles.registerButton} onClick={retry}>
+            {t('common.retry')}
+          </button>
+        </div>
       </div>
     )
   }
@@ -157,7 +196,7 @@ const VisaoGeralPage: React.FC = () => {
       {detailMachine && subDialog === null && (
         <MachineDetailModal
           machine={detailMachine}
-          events={eventsForMachine(detailMachine.id)}
+          events={mockEventsFor(detailMachine)}
           onEdit={() => setSubDialog('edit')}
           onDelete={() => setSubDialog('delete')}
           onClose={() => setDetailId(null)}

@@ -1,26 +1,40 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ToastProvider } from '../../components/common/Toast'
+import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
+import { machineService } from '../../services/machineService'
+import { MACHINES, type Machine } from '../../data/machines'
 
-const loading = vi.hoisted(() => ({ value: false }))
-vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
-import { MACHINES } from '../../data/machines'
+vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.fn() } }))
+
+const listar = vi.mocked(machineService.listar)
+
+beforeEach(() => {
+  listar.mockReset()
+  listar.mockResolvedValue(MACHINES)
+})
+
+const renderLoaded = async () => {
+  const view = render(<VisaoGeralPage />)
+  await screen.findAllByRole('article')
+  return view
+}
 
 describe('VisaoGeralPage', () => {
-  it('renders one card per machine in the mock dataset', () => {
-    render(<VisaoGeralPage />)
+  it('renders one card per machine in the mock dataset', async () => {
+    await renderLoaded()
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
   })
 
-  it('renders the Cadastrar Máquina button and the search field', () => {
-    render(<VisaoGeralPage />)
+  it('renders the Cadastrar Máquina button and the search field', async () => {
+    await renderLoaded()
     expect(screen.getByRole('button', { name: /cadastrar máquina/i })).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument()
   })
 
-  it('filters cards by identificação/setor as the user types in the search field', () => {
-    render(<VisaoGeralPage />)
+  it('filters cards by identificação/setor as the user types in the search field', async () => {
+    await renderLoaded()
     const search = screen.getByPlaceholderText('Search...')
 
     fireEvent.change(search, { target: { value: 'EMP-084' } })
@@ -29,8 +43,8 @@ describe('VisaoGeralPage', () => {
     expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
   })
 
-  it('shows all machines again after the search field is cleared', () => {
-    render(<VisaoGeralPage />)
+  it('shows all machines again after the search field is cleared', async () => {
+    await renderLoaded()
     const search = screen.getByPlaceholderText('Search...')
 
     fireEvent.change(search, { target: { value: 'EMP-084' } })
@@ -40,8 +54,8 @@ describe('VisaoGeralPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
   })
 
-  it('keeps the active status filter applied after the search field is cleared', () => {
-    render(<VisaoGeralPage />)
+  it('keeps the active status filter applied after the search field is cleared', async () => {
+    await renderLoaded()
     const search = screen.getByPlaceholderText('Search...')
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
 
@@ -57,8 +71,8 @@ describe('VisaoGeralPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
   })
 
-  it('filters cards by status when a status is selected in the filter', () => {
-    render(<VisaoGeralPage />)
+  it('filters cards by status when a status is selected in the filter', async () => {
+    await renderLoaded()
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
 
     fireEvent.change(select, { target: { value: 'Manutenção' } })
@@ -69,8 +83,8 @@ describe('VisaoGeralPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
   })
 
-  it('shows the empty state message when search + filter match nothing', () => {
-    render(<VisaoGeralPage />)
+  it('shows the empty state message when search + filter match nothing', async () => {
+    await renderLoaded()
     const search = screen.getByPlaceholderText('Search...')
 
     fireEvent.change(search, { target: { value: 'inexistente-xyz' } })
@@ -79,14 +93,14 @@ describe('VisaoGeralPage', () => {
     expect(screen.getByText('Nenhuma máquina encontrada')).toBeInTheDocument()
   })
 
-  it('opens the Nova Máquina panel when Cadastrar Máquina is clicked', () => {
-    render(<VisaoGeralPage />)
+  it('opens the Nova Máquina panel when Cadastrar Máquina is clicked', async () => {
+    await renderLoaded()
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
     expect(screen.getByRole('dialog', { name: 'Nova Máquina' })).toBeInTheDocument()
   })
 
-  it('adds a new card to the grid with status Disponível and 0 minutos after a successful submit, and closes the panel', () => {
-    render(<VisaoGeralPage />)
+  it('adds a new card to the grid with status Disponível and 0 minutos after a successful submit, and closes the panel', async () => {
+    await renderLoaded()
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
 
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
@@ -101,8 +115,8 @@ describe('VisaoGeralPage', () => {
     expect(within(newCard).getByText('0 min')).toBeInTheDocument()
   })
 
-  it('does not add a card and closes the panel when Cancelar is clicked', () => {
-    render(<VisaoGeralPage />)
+  it('does not add a card and closes the panel when Cancelar is clicked', async () => {
+    await renderLoaded()
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
 
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Descartada' } })
@@ -112,8 +126,8 @@ describe('VisaoGeralPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
   })
 
-  it('keeps the active search and status filter after opening and closing the panel', () => {
-    render(<VisaoGeralPage />)
+  it('keeps the active search and status filter after opening and closing the panel', async () => {
+    await renderLoaded()
     const search = screen.getByPlaceholderText('Search...')
     fireEvent.change(search, { target: { value: 'EMP-084' } })
 
@@ -135,8 +149,8 @@ function openDetail(code: string) {
 }
 
 describe('VisaoGeralPage: machine detail', () => {
-  it('opens the detail modal with the machine data when a card is clicked', () => {
-    render(<VisaoGeralPage />)
+  it('opens the detail modal with the machine data when a card is clicked', async () => {
+    await renderLoaded()
 
     openDetail('EMP-084')
     const dialog = screen.getByRole('dialog', { name: 'Empilhadeira Elétrica Titan-X' })
@@ -145,16 +159,16 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(within(dialog).getByRole('tab', { name: 'Histórico de acidentes' })).toHaveAttribute('aria-selected', 'true')
   })
 
-  it('closes the detail modal with Escape', () => {
-    render(<VisaoGeralPage />)
+  it('closes the detail modal with Escape', async () => {
+    await renderLoaded()
 
     openDetail('EMP-084')
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('edits the machine: the drawer opens filled in and the card shows the new setor', () => {
-    render(<VisaoGeralPage />)
+  it('edits the machine: the drawer opens filled in and the card shows the new setor', async () => {
+    await renderLoaded()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
@@ -169,8 +183,8 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(within(screen.getByRole('dialog')).getByText('Doca Nova')).toBeInTheDocument()
   })
 
-  it('keeps the machine unchanged when the edit is cancelled', () => {
-    render(<VisaoGeralPage />)
+  it('keeps the machine unchanged when the edit is cancelled', async () => {
+    await renderLoaded()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
@@ -181,8 +195,8 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(within(card).queryByText('Doca Nova')).not.toBeInTheDocument()
   })
 
-  it('keeps the active search after editing', () => {
-    render(<VisaoGeralPage />)
+  it('keeps the active search after editing', async () => {
+    await renderLoaded()
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'emp-084' } })
     openDetail('EMP-084')
@@ -195,8 +209,8 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(screen.getByRole('searchbox')).toHaveValue('emp-084')
   })
 
-  it('deletes the machine after confirming, closing every dialog', () => {
-    render(<VisaoGeralPage />)
+  it('deletes the machine after confirming, closing every dialog', async () => {
+    await renderLoaded()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
@@ -209,8 +223,8 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length - 1)
   })
 
-  it('keeps the machine and returns to the detail modal when the delete is cancelled', () => {
-    render(<VisaoGeralPage />)
+  it('keeps the machine and returns to the detail modal when the delete is cancelled', async () => {
+    await renderLoaded()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
@@ -220,15 +234,15 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
   })
 
-  it('does not open the detail when the menu button of a card is clicked', () => {
-    render(<VisaoGeralPage />)
+  it('does not open the detail when the menu button of a card is clicked', async () => {
+    await renderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: /mais ações para emp-084/i }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('shows an empty history for a machine created in the UI', () => {
-    render(<VisaoGeralPage />)
+  it('shows an empty history for a machine created in the UI', async () => {
+    await renderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
@@ -241,14 +255,11 @@ describe('VisaoGeralPage: machine detail', () => {
 })
 
 describe('VisaoGeralPage skeleton', () => {
-  afterEach(() => {
-    loading.value = false
-  })
-
-  it('shows the grid skeleton without toolbar while loading', () => {
-    loading.value = true
+  it('shows the grid skeleton without toolbar while the request is pending', () => {
+    listar.mockReturnValue(new Promise(() => {}))
     const { container } = render(<VisaoGeralPage />)
     expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull()
     expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
     expect(screen.queryByRole('button', { name: /cadastrar máquina/i })).not.toBeInTheDocument()
     expect(screen.queryAllByRole('article')).toEqual([])
@@ -256,12 +267,14 @@ describe('VisaoGeralPage skeleton', () => {
 })
 
 describe('VisaoGeralPage notifications', () => {
-  const renderWithToasts = () =>
+  const renderWithToasts = async () => {
     render(
       <ToastProvider>
         <VisaoGeralPage />
       </ToastProvider>
     )
+    await screen.findAllByRole('article')
+  }
   const toastTexts = () =>
     within(screen.getByRole('status'))
       .queryAllByRole('listitem')
@@ -271,8 +284,8 @@ describe('VisaoGeralPage notifications', () => {
       within(screen.getByText(`${code}(ID)`).closest('article') as HTMLElement).getByRole('button', { name: /Ver detalhes/ })
     )
 
-  it('announces a registered machine', () => {
-    renderWithToasts()
+  it('announces a registered machine', async () => {
+    await renderWithToasts()
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
@@ -280,8 +293,8 @@ describe('VisaoGeralPage notifications', () => {
     expect(toastTexts()).toEqual(['Máquina "EMP-999" cadastrada'])
   })
 
-  it('announces a saved machine', () => {
-    renderWithToasts()
+  it('announces a saved machine', async () => {
+    await renderWithToasts()
     open('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
@@ -289,11 +302,137 @@ describe('VisaoGeralPage notifications', () => {
     expect(toastTexts()).toEqual(['Máquina "EMP-084" salva'])
   })
 
-  it('announces a deleted machine', () => {
-    renderWithToasts()
+  it('announces a deleted machine', async () => {
+    await renderWithToasts()
     open('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
     expect(toastTexts()).toEqual(['Máquina "EMP-084" excluída'])
+  })
+})
+
+const apiMachine = (over: Partial<Machine> = {}): Machine => ({
+  id: '66f0c0ffee0000000000a001',
+  identificacao: 'EMP-084',
+  nome: 'Empilhadeira Elétrica Titan-X',
+  setor: 'Expedição - Bloco B',
+  dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA', status: 'Manutenção' },
+  tempoSessaoMinutos: 5,
+  ...over,
+})
+
+describe('VisaoGeralPage: API', () => {
+  it('requests the machines once on open and renders one card per machine returned', async () => {
+    listar.mockResolvedValue([
+      apiMachine(),
+      apiMachine({ id: '66f0c0ffee0000000000a002', identificacao: 'EMP-085', nome: 'Empilhadeira a Combustão Atlas-S' }),
+    ])
+
+    render(<VisaoGeralPage />)
+
+    expect(await screen.findAllByRole('article')).toHaveLength(2)
+    expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
+    expect(screen.getByText('EMP-085(ID)')).toBeInTheDocument()
+    expect(listar).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the load error message and the retry button when the request fails', async () => {
+    listar.mockRejectedValue(new Error('Network Error'))
+
+    render(<VisaoGeralPage />)
+
+    expect(await screen.findByText('Não foi possível carregar as máquinas.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument()
+    expect(screen.queryAllByRole('article')).toEqual([])
+  })
+
+  it('requests again when "Tentar novamente" is clicked, going back to the skeleton and then to the cards', async () => {
+    listar.mockRejectedValueOnce(new Error('Network Error'))
+    let resolve!: (machines: Machine[]) => void
+    listar.mockReturnValueOnce(new Promise<Machine[]>((r) => (resolve = r)))
+
+    const { container } = render(<VisaoGeralPage />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Tentar novamente' }))
+
+    expect(listar).toHaveBeenCalledTimes(2)
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull()
+    expect(screen.queryByText('Não foi possível carregar as máquinas.')).not.toBeInTheDocument()
+
+    resolve([apiMachine()])
+    expect(await screen.findAllByRole('article')).toHaveLength(1)
+  })
+
+  it('shows the empty state when the API returns no machines', async () => {
+    listar.mockResolvedValue([])
+
+    render(<VisaoGeralPage />)
+
+    expect(await screen.findByText('Nenhuma máquina encontrada')).toBeInTheDocument()
+    expect(screen.queryAllByRole('article')).toEqual([])
+  })
+
+  it('does not call the API again when a machine is registered, edited or deleted', async () => {
+    await renderLoaded()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    openDetail('EMP-200')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(screen.queryByText('EMP-200(ID)')).not.toBeInTheDocument()
+    expect(listar).toHaveBeenCalledTimes(1)
+  })
+
+  it('detail history shows the mock events of the machine with the same identificacao, even with an API id', async () => {
+    const listItemsInDetail = async (machine: Machine) => {
+      listar.mockResolvedValue([machine])
+      const { unmount } = render(<VisaoGeralPage />)
+      await screen.findAllByRole('article')
+      openDetail(machine.identificacao)
+      const count = within(screen.getByRole('dialog')).getAllByRole('listitem').length
+      unmount()
+      return count
+    }
+
+    const withMockHistory = await listItemsInDetail(apiMachine())
+    const withoutHistory = await listItemsInDetail(apiMachine({ identificacao: 'EMP-777' }))
+
+    expect(withMockHistory).toBeGreaterThan(withoutHistory)
+  })
+
+  it('detail history is empty for a machine whose identificacao is not in the mock', async () => {
+    listar.mockResolvedValue([apiMachine({ identificacao: 'EMP-777' })])
+
+    render(<VisaoGeralPage />)
+    await screen.findAllByRole('article')
+    openDetail('EMP-777')
+
+    expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+  })
+
+  it('shows a machine with an unknown status under "Todos" and hides it under another status filter', async () => {
+    listar.mockResolvedValue([apiMachine({ dispositivoConectado: { enderecoMac: 'X', status: 'Desconhecido' as never } })])
+
+    render(<VisaoGeralPage />)
+
+    expect(await screen.findAllByRole('article')).toHaveLength(1)
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar máquinas por status/i }), { target: { value: 'Manutenção' } })
+    expect(screen.queryAllByRole('article')).toEqual([])
+  })
+
+  it('shows the error message and the retry button in English when the language is en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    listar.mockRejectedValue(new Error('Network Error'))
+
+    render(<VisaoGeralPage />)
+
+    expect(await screen.findByText('Could not load the machines.')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument())
   })
 })
