@@ -206,14 +206,14 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `listar()` chama `api.get('/machines')` sem segundo argumento e `listar('f2')` chama com `{ params: { filialId: 'f2' } }` (AC1, AC2 da Visão Geral)
-- [ ] Com `'todas'` ativa a página chama `listar(undefined)`; com id ativo chama `listar(id)` (AC3, AC4)
-- [ ] Ao mudar a filial ativa, a página mostra o skeleton com `aria-busy="true"` e chama `listar` com o novo id (AC5)
-- [ ] Resposta lenta de uma filial anterior não substitui a da filial atual (AC6)
-- [ ] Erro e "Tentar novamente" seguem funcionando, e usam a filial ativa (AC7)
-- [ ] Os testes existentes de `VisaoGeralPage` e `machineService` seguem com as mesmas asserções
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/pages/VisaoGeralPage.test.tsx src/test/services/machineService.test.ts`
-- [ ] Test count: os testes existentes mais ao menos 5 novos passam
+- [x] `listar()` chama `api.get('/machines')` sem segundo argumento e `listar('f2')` chama com `{ params: { filialId: 'f2' } }` (AC1, AC2 da Visão Geral)
+- [x] Com `'todas'` ativa a página chama `listar(undefined)`; com id ativo chama `listar(id)` (AC3, AC4)
+- [x] Ao mudar a filial ativa, a página mostra o skeleton com `aria-busy="true"` e chama `listar` com o novo id (AC5)
+- [x] Resposta lenta de uma filial anterior não substitui a da filial atual (AC6)
+- [x] Erro e "Tentar novamente" seguem funcionando, e usam a filial ativa (AC7)
+- [x] Os testes existentes de `VisaoGeralPage` e `machineService` seguem com as mesmas asserções
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/pages/VisaoGeralPage.test.tsx src/test/services/machineService.test.ts`
+- [x] Test count: os testes existentes mais ao menos 5 novos passam
 
 **Tests**: unit
 **Gate**: quick

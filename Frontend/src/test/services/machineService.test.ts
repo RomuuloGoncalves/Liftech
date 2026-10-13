@@ -30,6 +30,16 @@ describe('machineService', () => {
     expect(result).toEqual(machines);
   });
 
+  it('listar(filialId) sends the filialId as a query param and returns the response body', async () => {
+    const machines = [{ id: 'f1', identificacao: 'EMP-081' }];
+    get.mockResolvedValue({ data: machines });
+
+    const result = await machineService.listar('f2');
+
+    expect(get).toHaveBeenCalledWith('/machines', { params: { filialId: 'f2' } });
+    expect(result).toEqual(machines);
+  });
+
   it('listar propagates the API rejection', async () => {
     const err = new Error('Network Error');
     get.mockRejectedValue(err);

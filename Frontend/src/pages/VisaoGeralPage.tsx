@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Plus, Search, Copy } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
@@ -7,6 +7,7 @@ import PageSkeleton from '../components/common/PageSkeleton'
 import { useToast } from '../components/common/Toast'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
+import { useActiveBranch } from '../context/ActiveBranchContext'
 import { machineService } from '../services/machineService'
 import {
   MACHINES,
@@ -37,26 +38,37 @@ const VisaoGeralPage: React.FC = () => {
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
   const { show } = useToast()
+  const { activeBranch } = useActiveBranch()
+  const filialId = activeBranch === 'todas' ? undefined : activeBranch
+  const [loadedFilialId, setLoadedFilialId] = useState(filialId)
+  const [attempt, setAttempt] = useState(0)
 
-  const fetchMachines = useCallback(
-    () =>
-      machineService.listar().then(
-        (machines) => {
-          setAllMachines(machines)
-          setLoadState('ready')
-        },
-        () => setLoadState('error')
-      ),
-    []
-  )
+  // A different active branch goes back to the skeleton before the effect refetches.
+  if (loadedFilialId !== filialId) {
+    setLoadedFilialId(filialId)
+    setLoadState('loading')
+  }
 
   useEffect(() => {
-    fetchMachines()
-  }, [fetchMachines])
+    let stale = false
+    machineService.listar(filialId).then(
+      (machines) => {
+        if (stale) return
+        setAllMachines(machines)
+        setLoadState('ready')
+      },
+      () => {
+        if (!stale) setLoadState('error')
+      }
+    )
+    return () => {
+      stale = true
+    }
+  }, [filialId, attempt])
 
   const retry = () => {
     setLoadState('loading')
-    fetchMachines()
+    setAttempt((value) => value + 1)
   }
 
   const detailMachine = allMachines.find((machine) => machine.id === detailId)

@@ -1,6 +1,8 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { ToastProvider } from '../../components/common/Toast'
+import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext'
 import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
 import { machineService } from '../../services/machineService'
@@ -436,5 +438,109 @@ describe('VisaoGeralPage: API', () => {
 
     expect(await screen.findByText('Could not load the machines.')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument())
+  })
+})
+
+describe('VisaoGeralPage: active branch', () => {
+  const user = {
+    _id: 'u1',
+    nome: 'Ana',
+    role: 'admin',
+    empresa: { _id: 'e1', nome: 'Acme' },
+    escopo: 'empresa',
+    filiais: [
+      { _id: 'f1', nome: 'Filial 01', matriz: true },
+      { _id: 'f2', nome: 'Filial 02', matriz: false },
+    ],
+  }
+
+  const SwitchTo = ({ id }: { id: string }) => {
+    const { setActiveBranch } = useActiveBranch()
+    return <button onClick={() => setActiveBranch(id)}>switch to {id}</button>
+  }
+
+  const renderWithBranches = () =>
+    render(
+      <MemoryRouter>
+        <ActiveBranchProvider>
+          <SwitchTo id="f2" />
+          <SwitchTo id="todas" />
+          <VisaoGeralPage />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+
+  beforeEach(() => {
+    localStorage.setItem('user', JSON.stringify(user))
+  })
+
+  it('requests without a branch when the active branch is todas', async () => {
+    listar.mockResolvedValue([apiMachine()])
+
+    renderWithBranches()
+
+    await screen.findAllByRole('article')
+    expect(listar).toHaveBeenCalledTimes(1)
+    expect(listar).toHaveBeenCalledWith(undefined)
+  })
+
+  it('requests with the id of the stored active branch', async () => {
+    localStorage.setItem('liftech.activeBranch', 'f2')
+    listar.mockResolvedValue([apiMachine()])
+
+    renderWithBranches()
+
+    await screen.findAllByRole('article')
+    expect(listar).toHaveBeenCalledTimes(1)
+    expect(listar).toHaveBeenCalledWith('f2')
+  })
+
+  it('goes back to the skeleton and requests again with the new branch when the active branch changes', async () => {
+    listar.mockResolvedValueOnce([apiMachine()])
+    let resolve!: (machines: Machine[]) => void
+    listar.mockReturnValueOnce(new Promise<Machine[]>((r) => (resolve = r)))
+
+    const { container } = renderWithBranches()
+    await screen.findAllByRole('article')
+
+    fireEvent.click(screen.getByText('switch to f2'))
+
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull()
+    expect(listar).toHaveBeenLastCalledWith('f2')
+    expect(listar).toHaveBeenCalledTimes(2)
+
+    resolve([apiMachine({ id: 'b2', identificacao: 'EMP-099' })])
+    expect(await screen.findByText('EMP-099(ID)')).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(1)
+  })
+
+  it('discards the answer of a previous branch that arrives after the switch', async () => {
+    let resolveOld!: (machines: Machine[]) => void
+    listar.mockReturnValueOnce(new Promise<Machine[]>((r) => (resolveOld = r)))
+    listar.mockResolvedValueOnce([apiMachine({ id: 'b2', identificacao: 'EMP-099' })])
+
+    renderWithBranches()
+    fireEvent.click(screen.getByText('switch to f2'))
+    expect(await screen.findByText('EMP-099(ID)')).toBeInTheDocument()
+
+    await act(async () => {
+      resolveOld([apiMachine({ id: 'a1', identificacao: 'EMP-001' }), apiMachine({ id: 'a2', identificacao: 'EMP-002' })])
+    })
+
+    expect(screen.queryByText('EMP-001(ID)')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(1)
+  })
+
+  it('retries with the active branch after a failure', async () => {
+    localStorage.setItem('liftech.activeBranch', 'f2')
+    listar.mockRejectedValueOnce(new Error('Network Error'))
+    listar.mockResolvedValueOnce([apiMachine()])
+
+    renderWithBranches()
+    fireEvent.click(await screen.findByRole('button', { name: 'Tentar novamente' }))
+
+    await screen.findAllByRole('article')
+    expect(listar).toHaveBeenCalledTimes(2)
+    expect(listar).toHaveBeenLastCalledWith('f2')
   })
 })
