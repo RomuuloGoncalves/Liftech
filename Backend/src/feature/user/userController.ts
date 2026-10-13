@@ -6,6 +6,7 @@ import { UserRepository } from "./userRepository.js";
 import { UserService } from "./userService.js";
 import { ErroHttp, StatusCode, respostaSucesso, respostaErro, responderErro } from "../../utils/responseHandler.js";
 import { exigirEmpresa, filtroPorEmpresa } from "../../core/escopo.js";
+import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./userRules.js";
 
 export const repositorioUser = new UserRepository(User);
@@ -119,6 +120,32 @@ export async function deletar(req: Request, res: Response) {
   }
 }
 
+const CAMPOS_LIVRES = ["nome", "telefone", "cargo"];
+const CAMPOS_DE_EMPRESA = ["role", "escopo", "filiaisIds"];
+
+// Atribuição em massa: só chegam ao banco os campos permitidos, validados; papel, escopo e filiais só pelo escopo de empresa.
+function corpoDeAtualizacao(req: Request): Record<string, unknown> {
+  const corpo = { ...(req.body ?? {}) } as Record<string, unknown>;
+  delete corpo._id;
+  delete corpo.id;
+  exigirSemOperadores(corpo);
+
+  const chaves = Object.keys(corpo);
+  const proibida = chaves.find((k) => !CAMPOS_LIVRES.includes(k) && !CAMPOS_DE_EMPRESA.includes(k));
+  if (proibida) throw new ErroHttp(StatusCode.BAD_REQUEST, `O campo '${proibida}' não pode ser alterado.`);
+  if (chaves.length === 0) throw new ErroHttp(StatusCode.BAD_REQUEST, "Nenhum campo para atualizar.");
+
+  const erros = regras.check(...["nome", "role", "escopo", "filiaisIds"].filter((k) => k in corpo).map((k) => ({ [k]: corpo[k] })));
+  if (erros) throw new ErroHttp(StatusCode.BAD_REQUEST, erros.map((e: { message: string }) => e.message).join(" "));
+  for (const k of ["telefone", "cargo"]) {
+    if (k in corpo && typeof corpo[k] !== "string") throw new ErroHttp(StatusCode.BAD_REQUEST, `O campo '${k}' deve ser texto.`);
+  }
+
+  if (CAMPOS_DE_EMPRESA.some((k) => k in corpo)) exigirEmpresa(req.escopo, SO_EMPRESA);
+  if (corpo.filiaisIds !== undefined) exigirFiliaisVisiveis(req, corpo.filiaisIds as string[]);
+  return corpo;
+}
+
 export async function atualizar(req: Request, res: Response) {
   try {
     const id = obterIdUsuario(req);
@@ -129,10 +156,9 @@ export async function atualizar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
     }
 
-    const corpo = req.body as Partial<Record<string, unknown>>;
-    delete corpo._id;
+    const corpo = corpoDeAtualizacao(req);
 
-    const atualizado = await servicoUser.atualizar(id, corpo);
+    const atualizado = await servicoUser.atualizar(id, corpo, filtroPorEmpresa(req.escopo));
     return respostaSucesso(res, StatusCode.OK, atualizado.obterDados());
   } catch (error: any) {
     if (error.message === "Usuário não encontrado(a).") {

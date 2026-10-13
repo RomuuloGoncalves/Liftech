@@ -433,15 +433,15 @@ T9 → T13
 
 **Done when**:
 
-- [ ] Só `nome`, `telefone` e `cargo`: o service recebe esses campos e o filtro de empresa (Usuários AC10)
-- [ ] `role`, `escopo`, `filiaisIds` válidos com chamador de empresa passam ao service (Usuários AC11)
-- [ ] Os mesmos campos com chamador que não é de empresa respondem 403 sem chamar o service (Usuários AC12)
-- [ ] `senhaHash`, `email`, `usuario`, `empresaId`, chave desconhecida e chave com `$` respondem 400 sem chamar o service (Usuários AC13)
-- [ ] `nome` vazio ou que não é texto, `telefone` ou `cargo` que não é texto, `role` ou `escopo` inválido respondem 400; corpo vazio responde 400 (Usuários AC14, edge corpo vazio)
-- [ ] `filiaisIds` com filial fora do escopo responde 403 (Usuários AC9)
-- [ ] `_id` e `id` no corpo são descartados e não chegam ao service (Usuários AC15)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/userController.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 16 testes novos passam
+- [x] Só `nome`, `telefone` e `cargo`: o service recebe esses campos e o filtro de empresa (Usuários AC10)
+- [x] `role`, `escopo`, `filiaisIds` válidos com chamador de empresa passam ao service (Usuários AC11)
+- [x] Os mesmos campos com chamador que não é de empresa respondem 403 sem chamar o service (Usuários AC12)
+- [x] `senhaHash`, `email`, `usuario`, `empresaId`, chave desconhecida e chave com `$` respondem 400 sem chamar o service (Usuários AC13)
+- [x] `nome` vazio ou que não é texto, `telefone` ou `cargo` que não é texto, `role` ou `escopo` inválido respondem 400; corpo vazio responde 400 (Usuários AC14, edge corpo vazio)
+- [x] `filiaisIds` com filial fora do escopo responde 403 (Usuários AC9)
+- [x] `_id` e `id` no corpo são descartados e não chegam ao service (Usuários AC15)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/userController.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 16 testes novos passam
 
 **Tests**: unit
 **Gate**: quick

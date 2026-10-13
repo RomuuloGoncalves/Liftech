@@ -224,7 +224,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | SCP-11 | P1 Telemetria: AC7, AC8, AC9, AC10, AC11 | Tasks | Implementing |
 | SCP-12 | P1 Usuários: AC1, AC2, AC3, AC4 | Tasks | Implementing |
 | SCP-13 | P1 Usuários: AC5, AC6, AC7, AC8, AC9 | Tasks | Implementing |
-| SCP-14 | P1 Usuários: AC10, AC11, AC12, AC13, AC14, AC15; Edge: corpo vazio | Tasks | In Tasks |
+| SCP-14 | P1 Usuários: AC10, AC11, AC12, AC13, AC14, AC15; Edge: corpo vazio | Tasks | Implementing |
 
 **Coverage:** 14 total, 14 mapped to tasks, 0 unmapped.
 
