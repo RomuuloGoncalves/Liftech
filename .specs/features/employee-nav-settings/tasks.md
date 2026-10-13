@@ -80,8 +80,8 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Os dois campos existem, `String` com `trim: true`, sem `required` (AC1)
-- [ ] `npx tsc --noEmit` continua limpo
+- [x] Os dois campos existem, `String` com `trim: true`, sem `required` (AC1)
+- [x] `npx tsc --noEmit` continua limpo
 
 **Tests**: none
 **Gate**: build
