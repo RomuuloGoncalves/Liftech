@@ -281,6 +281,26 @@ describe('machines load error translations', () => {
     expect(common.retry, `Locale "${code}" common.retry is missing or empty`).toBeTruthy();
   });
 
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code has load error texts that are translated, not copied from pt-BR',
+    ({ code, data }) => {
+      const machines = data.machines as Record<string, string>;
+      const common = data.common as Record<string, string>;
+      expect(machines.loadError, `Locale "${code}" machines.loadError equals pt-BR`).not.toBe(ptBR.machines.loadError);
+      expect(common.retry, `Locale "${code}" common.retry equals pt-BR`).not.toBe(ptBR.common.retry);
+    }
+  );
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR' && code !== 'en-US'))(
+    'locale $code has load error texts that are translated, not left in English',
+    ({ code, data }) => {
+      const machines = data.machines as Record<string, string>;
+      const common = data.common as Record<string, string>;
+      expect(machines.loadError, `Locale "${code}" machines.loadError equals en-US`).not.toBe(enUS.machines.loadError);
+      expect(common.retry, `Locale "${code}" common.retry equals en-US`).not.toBe(enUS.common.retry);
+    }
+  );
+
   it('pt-BR texts match the spec', () => {
     expect(ptBR.machines.loadError).toBe('Não foi possível carregar as máquinas.');
     expect(ptBR.common.retry).toBe('Tentar novamente');
