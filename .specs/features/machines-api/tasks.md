@@ -200,14 +200,14 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Cada collection usa `findOneAndUpdate(chave, dados, { upsert: true })` com a chave do spec (AC4)
-- [ ] A empilhadeira recebe `dispositivoConectadoId`, `operadorConectadoId` e `sessaoIniciadaEm = agora − minutos` quando o mock tem mais de 0 (AC2, AC3)
-- [ ] Com `SEED_COLABORADOR_SENHA`, cria os 11 colaboradores com `senhaHash` que valida a senha; sem ela, pula e avisa (AC5, AC6)
-- [ ] Chama `seedAdmin` (AC7)
-- [ ] Registra a contagem por collection e fecha a conexão no modo script (AC8)
-- [ ] `package.json` tem `"seed:data": "tsx src/scripts/seedData.ts"` e `.env.example` tem `SEED_COLABORADOR_SENHA`
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/seedData.test.ts`
-- [ ] Test count: ao menos 7 testes passam, todos com os models mockados
+- [x] Cada collection usa `findOneAndUpdate(chave, dados, { upsert: true })` com a chave do spec (AC4)
+- [x] A empilhadeira recebe `dispositivoConectadoId`, `operadorConectadoId` e `sessaoIniciadaEm = agora − minutos` quando o mock tem mais de 0 (AC2, AC3)
+- [x] Com `SEED_COLABORADOR_SENHA`, cria os 11 colaboradores com `senhaHash` que valida a senha; sem ela, pula e avisa (AC5, AC6)
+- [x] Chama `seedAdmin` (AC7)
+- [x] Registra a contagem por collection e fecha a conexão no modo script (AC8)
+- [x] `package.json` tem `"seed:data": "tsx src/scripts/seedData.ts"` e `.env.example` tem `SEED_COLABORADOR_SENHA`
+- [x] Gate: `cd Backend && npx vitest run tests/unit/seedData.test.ts`
+- [x] Test count: ao menos 7 testes passam, todos com os models mockados
 
 **Tests**: unit
 **Gate**: quick
