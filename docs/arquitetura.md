@@ -37,6 +37,8 @@ A estrutura do Frontend está em [frontend.md](./frontend.md). Resumo: `src/{com
 
 A pasta `.specs/` na raiz guarda o fluxo spec-driven: `features/<nome>/` com o `spec.md` de cada feature e, conforme o tamanho dela, `design.md`, `tasks.md` e `validation.md`, `STATE.md` com o registro de decisões e `LESSONS.md` com as lições aprendidas.
 
+As rotas REST atuais e os scripts de seed e de teste estão documentados em [API REST e Scripts](./api.md).
+
 ## 3. Ferramentas e Decisões Técnicas
 
 ### Motor TypeScript no Backend (`tsx`)
