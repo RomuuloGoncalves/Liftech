@@ -134,12 +134,12 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `nome` e `empresaId` obrigatórios (Modelo AC2)
-- [ ] `matriz` vale `false` quando omitido (Modelo AC2)
-- [ ] Índice único em `{ empresaId: 1, nome: 1 }` (Modelo AC3)
-- [ ] Índice único em `{ empresaId: 1 }` com `partialFilterExpression: { matriz: true }` (Modelo AC4)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
-- [ ] Test count: 4 testes novos passam
+- [x] `nome` e `empresaId` obrigatórios (Modelo AC2)
+- [x] `matriz` vale `false` quando omitido (Modelo AC2)
+- [x] Índice único em `{ empresaId: 1, nome: 1 }` (Modelo AC3)
+- [x] Índice único em `{ empresaId: 1 }` com `partialFilterExpression: { matriz: true }` (Modelo AC4)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
+- [x] Test count: 4 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
