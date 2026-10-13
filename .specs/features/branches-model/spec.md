@@ -225,7 +225,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BRM-01 | P1 Modelo: AC1, AC2, AC3, AC4 | Tasks | Implementing |
 | BRM-02 | P1 Modelo: AC5, AC6, AC7 | Tasks | Implementing |
 | BRM-03 | P1 Modelo: AC8 | Tasks | Implementing |
-| BRM-04 | P1 Modelo: AC9, AC10, AC11 | Tasks | In Tasks |
+| BRM-04 | P1 Modelo: AC9, AC10, AC11 | Tasks | Implementing |
 | BRM-05 | P1 Modelo: AC12, AC13, AC14 | Tasks | In Tasks |
 | BRM-06 | P1 Escopo: AC1 a AC6; Edge: filial apagada, escopo indefinido | Tasks | In Tasks |
 | BRM-07 | P1 Escopo: AC7, AC8, AC9 | Tasks | In Tasks |

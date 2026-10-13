@@ -1,15 +1,27 @@
 import { coreModel } from "../core/coreModel.js";
 
+export interface Acesso {
+    empresaId?: string;
+    escopo?: string;
+    filiaisIds?: string[];
+}
+
 export class userModel extends coreModel {
     protected id: string | undefined;
     protected nome: string;
     protected role: string;
+    protected empresaId: string | undefined;
+    protected escopo: string | undefined;
+    protected filiaisIds: string[];
 
-    constructor(nome: string, role: string, id?: string) {
+    constructor(nome: string, role: string, id?: string, acesso: Acesso = {}) {
         super();
         this.id = id;
         this.nome = nome;
         this.role = role;
+        this.empresaId = acesso.empresaId;
+        this.escopo = acesso.escopo;
+        this.filiaisIds = acesso.filiaisIds ?? [];
     }
 
     obterDados(): Record<string, unknown> {
@@ -17,6 +29,9 @@ export class userModel extends coreModel {
             ...(this.id ? { _id: this.id } : {}),
             nome: this.nome,
             role: this.role,
+            empresaId: this.empresaId,
+            escopo: this.escopo,
+            filiaisIds: this.filiaisIds,
         };
     }
 

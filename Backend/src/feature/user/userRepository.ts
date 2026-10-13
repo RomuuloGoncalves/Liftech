@@ -12,6 +12,11 @@ export class UserRepository extends RepositoryBase<userModel> {
         String(documento.nome ?? ""),
         String(documento.role ?? ""),
         documento._id ? String(documento._id) : undefined,
+        {
+          empresaId: documento.empresaId ? String(documento.empresaId) : undefined,
+          escopo: documento.escopo ? String(documento.escopo) : undefined,
+          filiaisIds: ((documento.filiaisIds as unknown[] | undefined) ?? []).map(String),
+        },
      );
  }
 

@@ -219,10 +219,10 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `obterDados()` inclui `empresaId`, `escopo` e `filiaisIds` (Modelo AC9)
-- [ ] O repository converte o documento com ids em texto; documento sem os campos vira `filiaisIds: []` (Modelo AC9)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/userModel.test.ts && npx tsc --noEmit`
-- [ ] Test count: 3 testes novos passam
+- [x] `obterDados()` inclui `empresaId`, `escopo` e `filiaisIds` (Modelo AC9)
+- [x] O repository converte o documento com ids em texto; documento sem os campos vira `filiaisIds: []` (Modelo AC9)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/userModel.test.ts && npx tsc --noEmit`
+- [x] Test count: 3 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
