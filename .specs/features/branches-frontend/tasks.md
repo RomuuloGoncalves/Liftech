@@ -176,13 +176,13 @@ T6 → T7
 
 **Done when**:
 
-- [ ] 401 de `/machines` em `/`: `token` e `user` removidos do `localStorage` e `window.location.pathname` vira `/login` (AC1)
-- [ ] 401 de `/auth/login`: nada é limpo e a rota não muda (AC2)
-- [ ] 401 estando em `/login`, `/login/colaborador` ou `/solicitar-acesso`: a rota não muda (AC3)
-- [ ] A promessa rejeita com o mesmo erro em todos os casos (AC4)
-- [ ] 403, 409 e 500 não chamam `logout` (AC5)
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/api.test.ts`
-- [ ] Test count: ao menos 6 testes passam
+- [x] 401 de `/machines` em `/`: `token` e `user` removidos do `localStorage` e `window.location.pathname` vira `/login` (AC1)
+- [x] 401 de `/auth/login`: nada é limpo e a rota não muda (AC2)
+- [x] 401 estando em `/login`, `/login/colaborador` ou `/solicitar-acesso`: a rota não muda (AC3)
+- [x] A promessa rejeita com o mesmo erro em todos os casos (AC4)
+- [x] 403, 409 e 500 não chamam `logout` (AC5)
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/api.test.ts`
+- [x] Test count: ao menos 6 testes passam
 
 **Tests**: unit
 **Gate**: quick
