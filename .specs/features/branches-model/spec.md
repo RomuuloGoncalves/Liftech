@@ -236,7 +236,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BRM-12 | P1 Seeds: AC7, AC8, AC9, AC10, AC11 | Tasks | Implementing |
 | BRM-13 | P1 Migração: AC1, AC2, AC3, AC4; Edge: usuário já migrado | Tasks | Implementing |
 | BRM-14 | P1 Migração: AC5, AC6, AC7, AC8 | Tasks | Implementing |
-| BRM-15 | P2 Documentação: AC1, AC2 | Tasks | In Tasks |
+| BRM-15 | P2 Documentação: AC1, AC2 | Tasks | Implementing |
 
 **Coverage:** 15 total, 15 mapped to tasks, 0 unmapped.
 

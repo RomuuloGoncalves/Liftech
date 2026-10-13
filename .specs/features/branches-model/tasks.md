@@ -13,7 +13,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Spec**: `.specs/features/branches-model/spec.md` (sem `design.md`: a abordagem está nas Assumptions do spec)
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -638,10 +638,10 @@ T18 → T19
 
 **Done when**:
 
-- [ ] Entidades `Company` e `Branch` com os campos e a regra de uma matriz por empresa (Docs AC1, AC2)
-- [ ] `User` com `empresaId`, `escopo` e `filiaisIds`; `Forklift`, `Device`, `Operator` e `Incident` com `filialId` (Docs AC1)
-- [ ] Seção curta sobre `yarn migrate:branches` (Docs AC2)
-- [ ] Gate: build (`cd Backend && npx tsc --noEmit && npx vitest run tests/unit`)
+- [x] Entidades `Company` e `Branch` com os campos e a regra de uma matriz por empresa (Docs AC1, AC2)
+- [x] `User` com `empresaId`, `escopo` e `filiaisIds`; `Forklift`, `Device`, `Operator` e `Incident` com `filialId` (Docs AC1)
+- [x] Seção curta sobre `yarn migrate:branches` (Docs AC2)
+- [x] Gate: build (`cd Backend && npx tsc --noEmit && npx vitest run tests/unit`)
 
 **Tests**: none
 **Gate**: build
