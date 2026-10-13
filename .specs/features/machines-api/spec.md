@@ -137,7 +137,7 @@ A Visão Geral das Máquinas lê `MACHINES`, um mock em `Frontend/src/data/machi
 | MCH-02 | P1 Rota: AC2, AC3, AC4, AC8; Edge: operador apagado | Execute | Implementing |
 | MCH-03 | P1 Rota: AC5, AC6; Edge: data futura | Execute | Implementing |
 | MCH-04 | P1 Rota: AC7, AC9 | Execute | Implementing |
-| SED-01 | P1 Seeds: AC1, AC2, AC3 | Execute | Pending |
+| SED-01 | P1 Seeds: AC1, AC2, AC3 | Execute | Implementing |
 | SED-02 | P1 Seeds: AC4 | Execute | Pending |
 | SED-03 | P1 Seeds: AC5, AC6, AC9 | Execute | Pending |
 | SED-04 | P1 Seeds: AC7, AC8 | Execute | Pending |

@@ -169,14 +169,14 @@ T7 → T8
 
 **Done when**:
 
-- [ ] 8 operadores com nomes únicos, 16 dispositivos com MAC único, 16 empilhadeiras EMP-081 a EMP-096 (AC1)
-- [ ] Todo MAC e todo operador citado por uma empilhadeira existe nas listas (AC2)
-- [ ] 11 colaboradores com `usuario` único e 2 solicitações de acesso (AC1, AC5)
-- [ ] Telemetria: 5 leituras por dispositivo, horárias a partir de `2026-09-01T08:00:00Z`, as mesmas a cada chamada (AC1, AC4)
-- [ ] Incidentes: 2 por empilhadeira, datas fixas, `forcaImpacto` de 3 a 9, `status` `pendente` ou `resolvido` (AC1, AC4)
-- [ ] Nenhuma senha literal no arquivo (AC9)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/seedDataset.test.ts`
-- [ ] Test count: ao menos 8 testes passam
+- [x] 8 operadores com nomes únicos, 16 dispositivos com MAC único, 16 empilhadeiras EMP-081 a EMP-096 (AC1)
+- [x] Todo MAC e todo operador citado por uma empilhadeira existe nas listas (AC2)
+- [x] 11 colaboradores com `usuario` único e 2 solicitações de acesso (AC1, AC5)
+- [x] Telemetria: 5 leituras por dispositivo, horárias a partir de `2026-09-01T08:00:00Z`, as mesmas a cada chamada (AC1, AC4)
+- [x] Incidentes: 2 por empilhadeira, datas fixas, `forcaImpacto` de 3 a 9, `status` `pendente` ou `resolvido` (AC1, AC4)
+- [x] Nenhuma senha literal no arquivo (AC9)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/seedDataset.test.ts`
+- [x] Test count: ao menos 8 testes passam
 
 **Tests**: unit
 **Gate**: quick
