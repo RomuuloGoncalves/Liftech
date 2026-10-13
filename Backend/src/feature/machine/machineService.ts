@@ -1,11 +1,14 @@
 import { Forklift } from "../../schemas/forklift.js";
 import "../../schemas/device.js";
 import "../../schemas/operator.js";
+import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 
 const MINUTO_MS = 60_000;
 
-export async function listarMaquinas() {
-  const empilhadeiras: any[] = await Forklift.find()
+// `filialId` (filtro da tela) só reduz o escopo: a interseção nunca amplia o que o chamador vê.
+export async function listarMaquinas(escopo?: Escopo, filialId?: string) {
+  const permitidas = filtroPorFilial(escopo).filialId.$in;
+  const empilhadeiras: any[] = await Forklift.find({ filialId: { $in: filialId ? permitidas.filter((id) => id === filialId) : permitidas } })
     .sort({ identificacao: 1 })
     .populate("dispositivoConectadoId")
     .populate("operadorConectadoId")
@@ -23,6 +26,7 @@ export async function listarMaquinas() {
       identificacao: f.identificacao,
       nome: f.nome,
       setor: f.setor,
+      filialId: String(f.filialId),
       dispositivoConectado: dispositivo
         ? { enderecoMac: dispositivo.enderecoMac, status: dispositivo.status }
         : { enderecoMac: "", status: "Offline" },

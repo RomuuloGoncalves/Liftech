@@ -1,9 +1,13 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { seedAdmin } from '../../src/scripts/seedAdmin.js';
 import { User } from '../../src/schemas/user.js';
+import { Company } from '../../src/schemas/company.js';
+import { Branch } from '../../src/schemas/branch.js';
 import { verificarSenha } from '../../src/utils/senha.js';
 
-vi.mock('../../src/schemas/user.js', () => ({ User: { findOne: vi.fn(), create: vi.fn() } }));
+vi.mock('../../src/schemas/user.js', () => ({ User: { findOne: vi.fn(), create: vi.fn(), updateOne: vi.fn() } }));
+vi.mock('../../src/schemas/company.js', () => ({ Company: { findOneAndUpdate: vi.fn() } }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/config/conn.js', () => ({ conn: { mongoose: { disconnect: vi.fn() } } }));
 
 const VARIAVEIS = ['SEED_ADMIN_EMAIL', 'SEED_ADMIN_SENHA', 'SEED_ADMIN_NOME'] as const;
@@ -13,12 +17,23 @@ function mockarBusca(documento: Record<string, unknown> | null) {
     vi.mocked(User.findOne).mockReturnValue({ lean: vi.fn().mockResolvedValue(documento) } as any);
 }
 
+function mockarEmpresa() {
+    for (const [nome, m] of Object.entries({ Company, Branch })) {
+        vi.mocked(m.findOneAndUpdate).mockImplementation(((filtro: unknown) => ({
+            lean: () => Promise.resolve({ _id: `${nome}:${JSON.stringify(filtro)}` }),
+        })) as any);
+    }
+}
+
+const EMPRESA_PADRAO = 'Company:{"nome":"Liftech Logística"}';
+
 describe('seedAdmin', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         process.env.SEED_ADMIN_EMAIL = '  Admin@Empresa.COM ';
         process.env.SEED_ADMIN_SENHA = 'segredo1';
         process.env.SEED_ADMIN_NOME = 'Administrador';
+        mockarEmpresa();
     });
 
     afterEach(() => {
@@ -42,6 +57,34 @@ describe('seedAdmin', () => {
         mockarBusca({ _id: '1', email: 'admin@empresa.com' });
         await seedAdmin();
         expect(User.create).not.toHaveBeenCalled();
+    });
+
+    test('com empresaId: o admin novo nasce com empresaId e escopo empresa, sem garantir a empresa de novo', async () => {
+        mockarBusca(null);
+
+        await seedAdmin('empresa-1');
+
+        expect(vi.mocked(User.create).mock.calls[0]![0]).toMatchObject({ role: 'admin', empresaId: 'empresa-1', escopo: 'empresa' });
+        expect(Company.findOneAndUpdate).not.toHaveBeenCalled();
+    });
+
+    test('admin que já existe: atualiza só empresaId e escopo empresa, sem recriar', async () => {
+        mockarBusca({ _id: '1', email: 'admin@empresa.com' });
+
+        await seedAdmin('empresa-1');
+
+        expect(User.updateOne).toHaveBeenCalledWith({ email: 'admin@empresa.com' }, { $set: { empresaId: 'empresa-1', escopo: 'empresa' } });
+        expect(User.create).not.toHaveBeenCalled();
+    });
+
+    test('sem empresaId: garante a empresa padrão e a matriz e usa o id da empresa no admin', async () => {
+        mockarBusca(null);
+
+        await seedAdmin();
+
+        expect(Company.findOneAndUpdate).toHaveBeenCalledTimes(1);
+        expect(Branch.findOneAndUpdate).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(User.create).mock.calls[0]![0]).toMatchObject({ empresaId: EMPRESA_PADRAO, escopo: 'empresa' });
     });
 
     test.each(VARIAVEIS)('sem %s: não cria nem consulta o banco', async (variavel) => {

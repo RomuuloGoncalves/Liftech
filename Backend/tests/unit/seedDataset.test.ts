@@ -3,11 +3,63 @@ import {
     COLABORADORES,
     DISPOSITIVOS,
     EMPILHADEIRAS,
+    EMPRESA_NOME,
+    FILIAIS_DOS_COLABORADORES,
+    FILIAIS_EXTRAS,
+    MATRIZ_NOME,
     OPERADORES,
     SOLICITACOES,
+    filialDaEmpilhadeira,
+    filialDoDispositivo,
+    filialDoOperador,
     gerarIncidentes,
     gerarTelemetria,
 } from '../../src/scripts/seedDataset.js';
+
+describe('seedDataset: empresa e filiais', () => {
+    test('empresa Liftech Logística, matriz Matriz e filiais Unidade Centro e Unidade Norte', () => {
+        expect(EMPRESA_NOME).toBe('Liftech Logística');
+        expect(MATRIZ_NOME).toBe('Matriz');
+        expect(FILIAIS_EXTRAS).toEqual(['Unidade Centro', 'Unidade Norte']);
+    });
+
+    test.each([
+        ['EMP-081', 'Matriz'],
+        ['EMP-083', 'Unidade Centro'],
+        ['EMP-085', 'Unidade Norte'],
+    ])('a empilhadeira %s cai na filial do seu setor: %s', (identificacao, filial) => {
+        const e = EMPILHADEIRAS.find((x) => x.identificacao === identificacao)!;
+
+        expect(filialDaEmpilhadeira(e)).toBe(filial);
+    });
+
+    test('o dispositivo herda a filial da sua empilhadeira, para os 16', () => {
+        for (const e of EMPILHADEIRAS) expect(filialDoDispositivo(e.enderecoMac)).toBe(filialDaEmpilhadeira(e));
+    });
+
+    test('o operador herda a filial da primeira empilhadeira que o cita; sem empilhadeira, a matriz', () => {
+        expect(filialDoOperador('Carlos Silva')).toBe('Matriz');
+        expect(filialDoOperador('Marina Costa')).toBe('Unidade Centro');
+        expect(filialDoOperador('João Pereira')).toBe('Unidade Norte');
+        expect(filialDoOperador('Alexandre Gomes')).toBe('Matriz');
+    });
+
+    test('os 3 setores do mock estão distribuídos pelas 3 filiais', () => {
+        expect(new Set(EMPILHADEIRAS.map(filialDaEmpilhadeira))).toEqual(new Set(['Matriz', ...FILIAIS_EXTRAS]));
+    });
+
+    test('os 11 colaboradores têm filiais existentes e ao menos um tem duas', () => {
+        const nomes = new Set(['Matriz', ...FILIAIS_EXTRAS]);
+
+        expect(Object.keys(FILIAIS_DOS_COLABORADORES).sort()).toEqual(COLABORADORES.map((c) => c.usuario).sort());
+        for (const filiais of Object.values(FILIAIS_DOS_COLABORADORES)) {
+            expect(filiais.length).toBeGreaterThanOrEqual(1);
+            expect(filiais.length).toBeLessThanOrEqual(2);
+            for (const f of filiais) expect(nomes.has(f)).toBe(true);
+        }
+        expect(Object.values(FILIAIS_DOS_COLABORADORES).some((f) => f.length === 2)).toBe(true);
+    });
+});
 
 describe('seedDataset: cadastros', () => {
     test('8 operadores com nomes únicos', () => {

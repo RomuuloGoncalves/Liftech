@@ -1,5 +1,6 @@
 import requestCheckPkg from "request-check";
 import * as isness from "@zarco/isness";
+import { Types } from "mongoose";
 
 const requestCheck = (requestCheckPkg as unknown as { default: typeof requestCheckPkg }).default ?? requestCheckPkg;
 
@@ -12,8 +13,20 @@ regras.addRules("nome", [{
 }]);
 
 regras.addRules("role", [{
-  validator: (role: string) => isness.string(role) && role.trim().length > 0,
-  message: "O campo 'role' é obrigatório e deve ser texto válido.",
+  validator: (role: string) => role === "admin" || role === "colaborador",
+  message: "O campo 'role' deve ser 'admin' ou 'colaborador'.",
+}]);
+
+const objectIdTexto = (valor: unknown) => isness.string(valor) && Types.ObjectId.isValid(valor as string);
+
+regras.addRules("escopo", [{
+  validator: (escopo: string) => escopo === "empresa" || escopo === "filiais",
+  message: "O campo 'escopo' deve ser 'empresa' ou 'filiais'.",
+}]);
+
+regras.addRules("filiaisIds", [{
+  validator: (ids: unknown) => Array.isArray(ids) && ids.every(objectIdTexto),
+  message: "O campo 'filiaisIds' deve ser uma lista de ObjectId válidos do MongoDB.",
 }]);
 
 for (const campo of ["telefone", "cargo"]) {

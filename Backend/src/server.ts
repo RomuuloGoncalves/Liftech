@@ -1,58 +1,7 @@
-import express from 'express';
-import cors from 'cors';
 import { startKeepAlive } from '@rafaelhdsv/keep-alive';
-import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
-import { getHealthTemplate } from './utils/healthTemplate.js';
-import forkliftRouter from './feature/forklift/forkliftRouter.js';
-import userRouter from './feature/user/userRouter.js';
-import authRouter from './feature/auth/authRouter.js';
-import accessRequestRouter from './feature/accessRequest/accessRequestRouter.js';
-import telemetryRouter from './feature/telemetry/telemtryRouter.js';
-import machineRouter from './feature/machine/machineRouter.js';
+import { app } from './app.js';
 import { seedAdmin } from './scripts/seedAdmin.js';
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-// @ts-ignore
-app.use(pinoHttp({ 
-  logger,
-  customSuccessMessage: function (req: any, res: any) {
-    return `${req.method} ${req.url} - Status: ${res.statusCode}`;
-  },
-  customErrorMessage: function (req: any, res: any, err: any) {
-    return `${req.method} ${req.url} - Status: ${res.statusCode} - Erro: ${err.message}`;
-  }
-}));
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-let lastPingTime: string | null = null;
-
-app.get('/api/health', (req, res) => {
-  const currentPing = new Date().toLocaleString('pt-BR');
-  const displayLastPing = lastPingTime || 'Primeiro ping!';
-  lastPingTime = currentPing;
-
-  if (req.accepts('html')) {
-    const html = getHealthTemplate(displayLastPing);
-    res.status(200).send(html);
-  } else {
-    res.status(200).json({ ok: true, lastPing: displayLastPing });
-  }
-});
-
-app.use('/api/forklifts', forkliftRouter);
-app.use('/api/users', userRouter);
-app.use('/api/auth', authRouter);
-app.use('/api/access-requests', accessRequestRouter);
-app.use('/api/telemetry', telemetryRouter);
-app.use('/api/machines', machineRouter);
 
 if (process.argv.includes('--seed')) {
   await seedAdmin();
@@ -61,4 +10,4 @@ if (process.argv.includes('--seed')) {
 app.listen(3000, () => {
   logger.info('Servidor rodando! Acesse http://localhost:3000');
   startKeepAlive();
-}); 
+});

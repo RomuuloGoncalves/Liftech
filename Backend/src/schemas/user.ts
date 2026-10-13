@@ -8,7 +8,10 @@ const userSchema = new Schema({
     cargo: { type: String, trim: true },
     email: { type: String, lowercase: true, trim: true, unique: true, sparse: true },
     usuario: { type: String, trim: true, unique: true, sparse: true },
-    senhaHash: { type: String, select: false }
+    senhaHash: { type: String, select: false },
+    empresaId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'company', required: true },
+    escopo: { type: String, enum: ['empresa', 'filiais'], default: 'filiais' },
+    filiaisIds: [{ type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch' }]
 })
 
 export const User = conn.mongoose.model("user", userSchema)

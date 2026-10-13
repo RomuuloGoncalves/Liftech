@@ -22,6 +22,7 @@ describe('UserRepository.converterParaModelo', () => {
             role: 'colaborador',
             telefone: '+55 99 99999999',
             cargo: 'Operador',
+            filiaisIds: [],
         });
     });
 
@@ -30,6 +31,6 @@ describe('UserRepository.converterParaModelo', () => {
 
         const [usuario] = await repo.obterTodos();
 
-        expect(usuario!.obterDados()).toEqual({ _id: ID, nome: 'Ana', role: 'admin' });
+        expect(usuario!.obterDados()).toEqual({ _id: ID, nome: 'Ana', role: 'admin', filiaisIds: [] });
     });
 });

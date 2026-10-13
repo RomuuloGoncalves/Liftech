@@ -5,6 +5,7 @@ const incidentSchema = new Schema ({
     dataIncidente: Date,
     forcaImpacto: Number,
     status: String,
+    filialId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch', required: true, index: true },
     empilhadeiraId: {
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'forklift'

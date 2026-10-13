@@ -1,115 +1,263 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { Request, Response } from 'express';
-import { criar, atualizar, servicoUser } from '../../src/feature/user/userController.js';
+import { listar, buscar, criar, deletar, atualizar, servicoUser } from '../../src/feature/user/userController.js';
 import { userModel } from '../../src/models/userModel.js';
+import type { Escopo } from '../../src/core/escopo.js';
 
+vi.mock('../../src/feature/user/userService.js');
 vi.mock('../../src/schemas/user.js', () => ({ User: {} }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
 
-const ID = '665f1c2b9a1e4b0012345678';
+const EMPRESA = '665f1c2b9a1e4b0012345678';
+const OUTRA_EMPRESA = '665f1c2b9a1e4b00123456ff';
+const F1 = '665f1c2b9a1e4b00123456b1';
+const F2 = '665f1c2b9a1e4b00123456b2';
+const FORA = '665f1c2b9a1e4b00123456b9';
+const ID = '665f1c2b9a1e4b0012345679';
+const escopoDe = (tipo: 'empresa' | 'filiais', ids: string[] = [F1, F2]): Escopo => ({
+    empresaId: EMPRESA,
+    tipo,
+    filiais: ids.map((_id) => ({ _id, nome: 'x', matriz: false })),
+});
+const FILTRO = { empresaId: { $in: [EMPRESA] } };
 
-describe('UserController telefone e cargo', () => {
+describe('userController: escopo por empresa', () => {
     let mockJson: ReturnType<typeof vi.fn>;
     let mockStatus: ReturnType<typeof vi.fn>;
     let res: Response;
 
+    const req = (escopo: Escopo, extra: object = {}) => ({ escopo, params: {}, body: {}, ...extra }) as unknown as Request;
+    const modeloEnviado = () => vi.mocked(servicoUser.criar).mock.calls[0]![0].obterDados();
+
     beforeEach(() => {
-        vi.restoreAllMocks();
+        vi.clearAllMocks();
         mockJson = vi.fn();
         mockStatus = vi.fn().mockReturnValue({ json: mockJson });
         res = { status: mockStatus, json: mockJson } as unknown as Response;
+        vi.mocked(servicoUser.criar).mockImplementation(async (u: userModel) => u);
     });
 
-    describe('POST (criar)', () => {
-        const chamar = (body: unknown) => criar({ body } as Request, res);
-        // simula o banco: devolve o que recebeu, agora com _id
-        const eco = () =>
-            vi.spyOn(servicoUser, 'criar').mockImplementation(async (u) => {
-                const d = u.obterDados() as Record<string, string | undefined>;
-                return new userModel(u.getNome(), u.getRole(), ID, d.telefone, d.cargo);
-            });
+    describe('listar, buscar, deletar', () => {
+        test('listar passa o filtro da empresa do chamador', async () => {
+            vi.mocked(servicoUser.listar).mockResolvedValue([new userModel('Ana', 'admin', ID)]);
 
-        test('201 grava e devolve telefone e cargo', async () => {
-            const criarMock = eco();
+            await listar(req(escopoDe('filiais')), res);
 
-            await chamar({ nome: 'Bruno', role: 'colaborador', telefone: '+55 99 99999999', cargo: 'Operador' });
-
-            expect(criarMock.mock.calls[0]![0].obterDados()).toMatchObject({ telefone: '+55 99 99999999', cargo: 'Operador' });
-            expect(mockStatus).toHaveBeenCalledWith(201);
-            expect(mockJson).toHaveBeenCalledWith({
-                _id: ID,
-                nome: 'Bruno',
-                role: 'colaborador',
-                telefone: '+55 99 99999999',
-                cargo: 'Operador',
-            });
+            expect(servicoUser.listar).toHaveBeenCalledWith(FILTRO);
+            expect(mockStatus).toHaveBeenCalledWith(200);
         });
 
-        test('201 sem telefone e cargo: resposta sem os campos', async () => {
-            eco();
+        test('escopo sem empresa: listar filtra com $in vazio', async () => {
+            vi.mocked(servicoUser.listar).mockResolvedValue([]);
 
-            await chamar({ nome: 'Bruno', role: 'colaborador' });
+            await listar(req({ tipo: 'filiais', filiais: [] }), res);
+
+            expect(servicoUser.listar).toHaveBeenCalledWith({ empresaId: { $in: [] } });
+        });
+
+        test('buscar passa o filtro; usuário de outra empresa faz o service lançar e vira 404', async () => {
+            vi.mocked(servicoUser.obterPorId).mockRejectedValue(new Error('Usuário não encontrado(a).'));
+
+            await buscar(req(escopoDe('filiais'), { params: { id: ID } }), res);
+
+            expect(servicoUser.obterPorId).toHaveBeenCalledWith(ID, FILTRO);
+            expect(mockStatus).toHaveBeenCalledWith(404);
+        });
+
+        test('deletar passa o filtro; usuário de outra empresa vira 404', async () => {
+            vi.mocked(servicoUser.deletar).mockRejectedValue(new Error('Usuário não encontrado(a).'));
+
+            await deletar(req(escopoDe('filiais'), { params: { id: ID } }), res);
+
+            expect(servicoUser.deletar).toHaveBeenCalledWith(ID, FILTRO);
+            expect(mockStatus).toHaveBeenCalledWith(404);
+        });
+    });
+
+    describe('criar', () => {
+        test('201 com o empresaId do chamador, ignorando o empresaId do corpo', async () => {
+            await criar(req(escopoDe('empresa'), { body: { nome: 'Ana', role: 'colaborador', empresaId: OUTRA_EMPRESA } }), res);
 
             expect(mockStatus).toHaveBeenCalledWith(201);
-            expect(mockJson).toHaveBeenCalledWith({ _id: ID, nome: 'Bruno', role: 'colaborador' });
+            expect(modeloEnviado()).toMatchObject({ nome: 'Ana', role: 'colaborador', empresaId: EMPRESA });
+            expect(mockJson).toHaveBeenCalledWith(modeloEnviado());
+        });
+
+        test('chamador de empresa define escopo, filiaisIds e role admin', async () => {
+            await criar(req(escopoDe('empresa'), { body: { nome: 'Ana', role: 'admin', escopo: 'filiais', filiaisIds: [F2] } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(201);
+            expect(modeloEnviado()).toMatchObject({ role: 'admin', escopo: 'filiais', filiaisIds: [F2] });
+        });
+
+        test('sem escopo e filiaisIds no corpo, o usuário fica sem escopo e com filiaisIds vazio', async () => {
+            await criar(req(escopoDe('filiais'), { body: { nome: 'Ana', role: 'colaborador' } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(201);
+            expect(modeloEnviado().escopo).toBeUndefined();
+            expect(modeloEnviado().filiaisIds).toEqual([]);
+        });
+
+        test('403 quando o chamador não tem empresa', async () => {
+            await criar(req({ tipo: 'filiais', filiais: [] }, { body: { nome: 'Ana', role: 'colaborador' } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(403);
+            expect(servicoUser.criar).not.toHaveBeenCalled();
         });
 
         test.each([
-            ['telefone', 123],
-            ['cargo', { nome: 'Operador' }],
-        ])('400 quando %s não é texto, sem chamar o serviço', async (campo, valor) => {
-            const criarMock = eco();
-
-            await chamar({ nome: 'Bruno', role: 'colaborador', [campo]: valor });
+            ['role ausente', { nome: 'Ana' }],
+            ['role fora da lista', { nome: 'Ana', role: 'root' }],
+        ])('400 com %s', async (_caso, body) => {
+            await criar(req(escopoDe('empresa'), { body }), res);
 
             expect(mockStatus).toHaveBeenCalledWith(400);
-            expect(JSON.stringify(mockJson.mock.calls[0]![0])).toContain(`O campo '${campo}' deve ser texto válido.`);
-            expect(criarMock).not.toHaveBeenCalled();
+            expect(mockJson.mock.calls[0]![0].error).toEqual([expect.objectContaining({ field: 'role' })]);
+            expect(servicoUser.criar).not.toHaveBeenCalled();
+        });
+
+        test('nome e role inválidos juntos: o 400 lista os dois campos', async () => {
+            await criar(req(escopoDe('empresa'), { body: { nome: '   ', role: 'root' } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(400);
+            expect(mockJson.mock.calls[0]![0].error.map((e: any) => e.field).sort()).toEqual(['nome', 'role']);
+        });
+
+        test.each([
+            ['escopo fora da lista', { escopo: 'todos' }, 'escopo'],
+            ['filiaisIds com item inválido', { filiaisIds: [F1, 'x'] }, 'filiaisIds'],
+            ['filiaisIds que não é lista', { filiaisIds: F1 }, 'filiaisIds'],
+        ])('400 com %s', async (_caso, extra, campo) => {
+            await criar(req(escopoDe('empresa'), { body: { nome: 'Ana', role: 'colaborador', ...extra } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(400);
+            expect(mockJson.mock.calls[0]![0].error).toEqual([expect.objectContaining({ field: campo })]);
+        });
+
+        test.each([
+            ['escopo', { role: 'colaborador', escopo: 'empresa' }],
+            ['filiaisIds', { role: 'colaborador', filiaisIds: [F1] }],
+            ['role admin', { role: 'admin' }],
+        ])('403 quando o chamador não é de empresa e o corpo traz %s', async (_caso, extra) => {
+            await criar(req(escopoDe('filiais'), { body: { nome: 'Ana', ...extra } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(403);
+            expect(servicoUser.criar).not.toHaveBeenCalled();
+        });
+
+        test('403 com filiaisIds que tem filial fora das filiais visíveis, mesmo para chamador de empresa', async () => {
+            await criar(req(escopoDe('empresa'), { body: { nome: 'Ana', role: 'colaborador', filiaisIds: [F1, FORA] } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(403);
+            expect(servicoUser.criar).not.toHaveBeenCalled();
+        });
+
+        test('409 quando o service acusa nome repetido', async () => {
+            vi.mocked(servicoUser.criar).mockRejectedValue(new Error('Já existe um usuário com o nome "Ana".'));
+
+            await criar(req(escopoDe('empresa'), { body: { nome: 'Ana', role: 'colaborador' } }), res);
+
+            expect(mockStatus).toHaveBeenCalledWith(409);
         });
     });
+});
 
-    describe('PUT (atualizar)', () => {
-        const chamar = (body: unknown) => atualizar({ params: { id: ID }, body } as unknown as Request, res);
+describe('userController.atualizar: sem atribuição em massa', () => {
+    let mockJson: ReturnType<typeof vi.fn>;
+    let mockStatus: ReturnType<typeof vi.fn>;
+    let res: Response;
 
-        test('200 repassa telefone ao serviço e devolve o valor atualizado', async () => {
-            const atualizarMock = vi
-                .spyOn(servicoUser, 'atualizar')
-                .mockResolvedValue(new userModel('Bruno', 'colaborador', ID, '+55 11 98888-7777', 'Operador'));
+    const chamar = (escopo: Escopo, body: unknown) =>
+        atualizar({ escopo, params: { id: ID }, body } as unknown as Request, res);
+    const status = () => mockStatus.mock.calls[0]![0];
 
-            await chamar({ telefone: '+55 11 98888-7777' });
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockJson = vi.fn();
+        mockStatus = vi.fn().mockReturnValue({ json: mockJson });
+        res = { status: mockStatus, json: mockJson } as unknown as Response;
+        vi.mocked(servicoUser.atualizar).mockResolvedValue(new userModel('Ana', 'admin', ID));
+    });
 
-            expect(atualizarMock).toHaveBeenCalledWith(ID, { telefone: '+55 11 98888-7777' });
-            expect(mockStatus).toHaveBeenCalledWith(200);
-            expect(mockJson.mock.calls[0]![0]).toMatchObject({ telefone: '+55 11 98888-7777' });
-        });
+    test('nome, telefone e cargo: qualquer chamador da empresa; o service recebe só eles e o filtro da empresa', async () => {
+        await chamar(escopoDe('filiais'), { nome: 'Ana Maria', telefone: '1199999', cargo: 'Operadora' });
 
-        test('200 repassa cargo ao serviço e devolve o valor atualizado', async () => {
-            const atualizarMock = vi
-                .spyOn(servicoUser, 'atualizar')
-                .mockResolvedValue(new userModel('Bruno', 'colaborador', ID, undefined, 'Líder'));
+        expect(servicoUser.atualizar).toHaveBeenCalledWith(ID, { nome: 'Ana Maria', telefone: '1199999', cargo: 'Operadora' }, FILTRO);
+        expect(status()).toBe(200);
+    });
 
-            await chamar({ cargo: 'Líder' });
+    test('role, escopo e filiaisIds válidos com chamador de empresa passam ao service', async () => {
+        const corpo = { role: 'admin', escopo: 'filiais', filiaisIds: [F1] };
 
-            expect(atualizarMock).toHaveBeenCalledWith(ID, { cargo: 'Líder' });
-            expect(mockJson.mock.calls[0]![0]).toMatchObject({ cargo: 'Líder' });
-        });
+        await chamar(escopoDe('empresa'), corpo);
 
-        test('400 quando telefone não é texto, sem chamar o serviço', async () => {
-            const atualizarMock = vi.spyOn(servicoUser, 'atualizar');
+        expect(servicoUser.atualizar).toHaveBeenCalledWith(ID, corpo, FILTRO);
+        expect(status()).toBe(200);
+    });
 
-            await chamar({ telefone: 99 });
+    test.each([
+        ['role', { role: 'admin' }],
+        ['escopo', { escopo: 'empresa' }],
+        ['filiaisIds', { filiaisIds: [F1] }],
+    ])('403 com %s quando o chamador não é de empresa, sem chamar o service', async (_campo, corpo) => {
+        await chamar(escopoDe('filiais'), corpo);
 
-            expect(mockStatus).toHaveBeenCalledWith(400);
-            expect(JSON.stringify(mockJson.mock.calls[0]![0])).toContain("O campo 'telefone' deve ser texto válido.");
-            expect(atualizarMock).not.toHaveBeenCalled();
-        });
+        expect(status()).toBe(403);
+        expect(servicoUser.atualizar).not.toHaveBeenCalled();
+    });
 
-        test('PUT só com nome continua válido', async () => {
-            const atualizarMock = vi.spyOn(servicoUser, 'atualizar').mockResolvedValue(new userModel('Novo', 'colaborador', ID));
+    test('403 com filiaisIds que tem filial fora das visíveis, mesmo para chamador de empresa', async () => {
+        await chamar(escopoDe('empresa'), { filiaisIds: [F1, FORA] });
 
-            await chamar({ nome: 'Novo' });
+        expect(status()).toBe(403);
+        expect(servicoUser.atualizar).not.toHaveBeenCalled();
+    });
 
-            expect(atualizarMock).toHaveBeenCalledWith(ID, { nome: 'Novo' });
-            expect(mockStatus).toHaveBeenCalledWith(200);
-        });
+    test.each(['senhaHash', 'email', 'usuario', 'empresaId', 'campoQualquer', '$set', '$where'])(
+        '400 com a chave %s no corpo, sem chamar o service',
+        async (chave) => {
+            await chamar(escopoDe('empresa'), { nome: 'Ana', [chave]: 'x' });
+
+            expect(status()).toBe(400);
+            expect(mockJson.mock.calls[0]![0].error).toContain(`'${chave}'`);
+            expect(servicoUser.atualizar).not.toHaveBeenCalled();
+        }
+    );
+
+    test.each([
+        ['nome vazio', { nome: '  ' }],
+        ['nome que não é texto', { nome: { $ne: 'x' } }],
+        ['telefone que não é texto', { telefone: 5 }],
+        ['cargo que não é texto', { cargo: ['a'] }],
+        ['role inválido', { role: 'root' }],
+        ['escopo inválido', { escopo: 'todos' }],
+        ['filiaisIds com item inválido', { filiaisIds: ['x'] }],
+        ['corpo vazio', {}],
+    ])('400 com %s, sem chamar o service', async (_caso, corpo) => {
+        await chamar(escopoDe('empresa'), corpo);
+
+        expect(status()).toBe(400);
+        expect(servicoUser.atualizar).not.toHaveBeenCalled();
+    });
+
+    test('400 vem antes do 403: valor inválido de chamador sem escopo de empresa', async () => {
+        await chamar(escopoDe('filiais'), { role: 'root' });
+
+        expect(status()).toBe(400);
+    });
+
+    test('_id e id do corpo são descartados sem erro e não chegam ao service', async () => {
+        await chamar(escopoDe('filiais'), { _id: ID, id: ID, nome: 'Ana' });
+
+        expect(servicoUser.atualizar).toHaveBeenCalledWith(ID, { nome: 'Ana' }, FILTRO);
+        expect(status()).toBe(200);
+    });
+
+    test('usuário de outra empresa: o service lança e vira 404', async () => {
+        vi.mocked(servicoUser.atualizar).mockRejectedValue(new Error('Usuário não encontrado(a).'));
+
+        await chamar(escopoDe('filiais'), { nome: 'Ana' });
+
+        expect(status()).toBe(404);
     });
 });

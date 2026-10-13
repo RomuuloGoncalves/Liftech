@@ -10,23 +10,22 @@ import { gerarHashSenha } from '../utils/senha.js';
 import { logger } from '../utils/logger.js';
 import { seedAdmin } from './seedAdmin.js';
 import {
-    COLABORADORES, DISPOSITIVOS, EMPILHADEIRAS, OPERADORES, SOLICITACOES, gerarIncidentes, gerarTelemetria,
+    COLABORADORES, DISPOSITIVOS, EMPILHADEIRAS, FILIAIS_DOS_COLABORADORES, FILIAIS_EXTRAS, OPERADORES, SOLICITACOES,
+    filialDaEmpilhadeira, filialDoDispositivo, filialDoOperador, gerarIncidentes, gerarTelemetria,
 } from './seedDataset.js';
-
-// Upsert pela chave natural: rodar de novo atualiza em vez de duplicar. Devolve o _id.
-async function upsert(modelo: any, filtro: object, dados: object) {
-    const doc = await modelo.findOneAndUpdate(filtro, { $set: dados }, { upsert: true, returnDocument: 'after' }).lean();
-    return doc._id;
-}
+import { garantirEmpresa, upsert } from './seedEmpresa.js';
 
 export async function seedData() {
-    await seedAdmin();
+    const { empresaId, filialIds } = await garantirEmpresa(FILIAIS_EXTRAS);
+    await seedAdmin(empresaId);
 
     const operadorIds = new Map<string, unknown>();
-    for (const nome of OPERADORES) operadorIds.set(nome, await upsert(Operator, { nome }, { nome }));
+    for (const nome of OPERADORES) operadorIds.set(nome, await upsert(Operator, { nome }, { nome, filialId: filialIds.get(filialDoOperador(nome)) }));
 
     const dispositivoIds = new Map<string, unknown>();
-    for (const d of DISPOSITIVOS) dispositivoIds.set(d.enderecoMac, await upsert(Device, { enderecoMac: d.enderecoMac }, d));
+    for (const d of DISPOSITIVOS) {
+        dispositivoIds.set(d.enderecoMac, await upsert(Device, { enderecoMac: d.enderecoMac }, { ...d, filialId: filialIds.get(filialDoDispositivo(d.enderecoMac)) }));
+    }
 
     const agora = Date.now();
     const empilhadeiraIds: unknown[] = [];
@@ -35,6 +34,7 @@ export async function seedData() {
             identificacao: e.identificacao,
             nome: e.nome,
             setor: e.setor,
+            filialId: filialIds.get(filialDaEmpilhadeira(e)),
             dispositivoConectadoId: dispositivoIds.get(e.enderecoMac),
             ...(e.operador && { operadorConectadoId: operadorIds.get(e.operador) }),
             ...(e.tempoSessaoMinutos > 0 && { sessaoIniciadaEm: new Date(agora - e.tempoSessaoMinutos * 60_000) }),
@@ -53,7 +53,8 @@ export async function seedData() {
     for (const [i, e] of EMPILHADEIRAS.entries()) {
         const operadorId = operadorIds.get(e.operador ?? OPERADORES[i % OPERADORES.length]!);
         for (const incidente of gerarIncidentes(String(empilhadeiraIds[i]), String(operadorId), i)) {
-            await upsert(Incident, { empilhadeiraId: incidente.empilhadeiraId, dataIncidente: incidente.dataIncidente }, incidente);
+            const filialId = filialIds.get(filialDaEmpilhadeira(e));
+            await upsert(Incident, { empilhadeiraId: incidente.empilhadeiraId, dataIncidente: incidente.dataIncidente }, { ...incidente, filialId });
             incidentes++;
         }
     }
@@ -62,7 +63,10 @@ export async function seedData() {
     const senha = process.env.SEED_COLABORADOR_SENHA;
     if (senha) {
         for (const c of COLABORADORES) {
-            await upsert(User, { usuario: c.usuario }, { ...c, role: 'colaborador', senhaHash: gerarHashSenha(senha) });
+            const filiaisIds = FILIAIS_DOS_COLABORADORES[c.usuario]!.map((nome) => filialIds.get(nome));
+            await upsert(User, { usuario: c.usuario }, {
+                ...c, role: 'colaborador', senhaHash: gerarHashSenha(senha), empresaId, escopo: 'filiais', filiaisIds,
+            });
             colaboradores++;
         }
     } else {
@@ -72,6 +76,8 @@ export async function seedData() {
     for (const s of SOLICITACOES) await upsert(AccessRequest, { email: s.email, status: s.status }, s);
 
     const contagem = {
+        empresas: 1,
+        filiais: filialIds.size,
         operadores: OPERADORES.length,
         dispositivos: DISPOSITIVOS.length,
         empilhadeiras: EMPILHADEIRAS.length,
@@ -81,7 +87,7 @@ export async function seedData() {
         solicitacoes: SOLICITACOES.length,
     };
     logger.info(
-        `Seed concluído: ${contagem.operadores} operadores, ${contagem.dispositivos} dispositivos, ` +
+        `Seed concluído: ${contagem.empresas} empresa, ${contagem.filiais} filiais, ${contagem.operadores} operadores, ${contagem.dispositivos} dispositivos, ` +
         `${contagem.empilhadeiras} empilhadeiras, ${contagem.telemetria} leituras, ${contagem.incidentes} incidentes, ` +
         `${contagem.colaboradores} colaboradores, ${contagem.solicitacoes} solicitações.`
     );

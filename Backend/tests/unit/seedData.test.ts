@@ -8,6 +8,8 @@ import { Telemetry } from '../../src/schemas/telemetry.js';
 import { Incident } from '../../src/schemas/incident.js';
 import { User } from '../../src/schemas/user.js';
 import { AccessRequest } from '../../src/schemas/accessRequest.js';
+import { Company } from '../../src/schemas/company.js';
+import { Branch } from '../../src/schemas/branch.js';
 import { logger } from '../../src/utils/logger.js';
 import { verificarSenha } from '../../src/utils/senha.js';
 import { gerarIncidentes } from '../../src/scripts/seedDataset.js';
@@ -19,6 +21,8 @@ vi.mock('../../src/schemas/telemetry.js', () => ({ Telemetry: { findOneAndUpdate
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/user.js', () => ({ User: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/accessRequest.js', () => ({ AccessRequest: { findOneAndUpdate: vi.fn() } }));
+vi.mock('../../src/schemas/company.js', () => ({ Company: { findOneAndUpdate: vi.fn() } }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/scripts/seedAdmin.js', () => ({ seedAdmin: vi.fn() }));
 vi.mock('../../src/config/conn.js', () => ({ conn: { mongoose: { disconnect: vi.fn() } } }));
 vi.mock('../../src/utils/logger.js', () => ({ logger: { info: vi.fn(), warn: vi.fn() } }));
@@ -27,7 +31,7 @@ const AGORA = new Date('2026-10-13T12:00:00Z');
 const SENHA = 'senha-de-teste-1';
 const envOriginal = { ...process.env };
 
-const MODELOS = { Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
+const MODELOS = { Company, Branch, Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
 
 function mockarModelos() {
     for (const [nome, m] of Object.entries(MODELOS)) {
@@ -41,6 +45,8 @@ const chamadas = (m: { findOneAndUpdate: unknown }) => vi.mocked(m.findOneAndUpd
 const chamadaDe = (m: { findOneAndUpdate: unknown }, filtro: object) =>
     chamadas(m).find((c) => JSON.stringify(c[0]) === JSON.stringify(filtro))!;
 const idDe = (nome: string, filtro: object) => `${nome}:${JSON.stringify(filtro)}`;
+const EMPRESA_ID = idDe('Company', { nome: 'Liftech Logística' });
+const filialId = (nome: string) => idDe('Branch', { empresaId: EMPRESA_ID, nome });
 
 describe('seedData', () => {
     beforeEach(() => {
@@ -56,16 +62,80 @@ describe('seedData', () => {
         process.env = { ...envOriginal };
     });
 
-    test('chama o seedAdmin existente', async () => {
+    test('chama o seedAdmin existente, uma vez, com o id da empresa', async () => {
         await seedData();
 
         expect(seedAdmin).toHaveBeenCalledTimes(1);
+        expect(seedAdmin).toHaveBeenCalledWith(EMPRESA_ID);
+    });
+
+    test('cria 1 empresa e 3 filiais pela chave natural, só a matriz com matriz: true', async () => {
+        await seedData();
+
+        expect(chamadas(Company)).toHaveLength(1);
+        expect(chamadas(Company)[0]![0]).toEqual({ nome: 'Liftech Logística' });
+        expect(chamadas(Branch).map((c) => [c[0], c[1].$set.matriz, c[2].upsert])).toEqual([
+            [{ empresaId: EMPRESA_ID, nome: 'Matriz' }, true, true],
+            [{ empresaId: EMPRESA_ID, nome: 'Unidade Centro' }, false, true],
+            [{ empresaId: EMPRESA_ID, nome: 'Unidade Norte' }, false, true],
+        ]);
+    });
+
+    test.each([
+        ['EMP-081', 'Matriz'],
+        ['EMP-083', 'Unidade Centro'],
+        ['EMP-085', 'Unidade Norte'],
+    ])('a empilhadeira %s leva o filialId da filial do seu setor (%s)', async (identificacao, filial) => {
+        await seedData();
+
+        expect(chamadaDe(Forklift, { identificacao })[1].$set.filialId).toBe(filialId(filial));
+    });
+
+    test('o dispositivo leva o filialId da filial da sua empilhadeira', async () => {
+        await seedData();
+
+        expect(chamadaDe(Device, { enderecoMac: 'A2:C9:9B:1D:F7' })[1].$set.filialId).toBe(filialId('Matriz'));
+        expect(chamadaDe(Device, { enderecoMac: 'A2:C9:9B:1D:F9' })[1].$set.filialId).toBe(filialId('Unidade Centro'));
+        expect(chamadaDe(Device, { enderecoMac: 'A2:C9:9B:1D:FB' })[1].$set.filialId).toBe(filialId('Unidade Norte'));
+    });
+
+    test('o operador leva o filialId da primeira empilhadeira que o cita, ou da matriz', async () => {
+        await seedData();
+
+        expect(chamadaDe(Operator, { nome: 'Carlos Silva' })[1].$set.filialId).toBe(filialId('Matriz'));
+        expect(chamadaDe(Operator, { nome: 'Marina Costa' })[1].$set.filialId).toBe(filialId('Unidade Centro'));
+        expect(chamadaDe(Operator, { nome: 'João Pereira' })[1].$set.filialId).toBe(filialId('Unidade Norte'));
+        expect(chamadaDe(Operator, { nome: 'Alexandre Gomes' })[1].$set.filialId).toBe(filialId('Matriz'));
+    });
+
+    test('o incidente leva o filialId da filial da sua empilhadeira', async () => {
+        await seedData();
+
+        const data = (indice: number) => gerarIncidentes('x', 'y', indice)[0]!.dataIncidente;
+        const filialDoIncidente = (identificacao: string, indice: number) =>
+            chamadaDe(Incident, { empilhadeiraId: idDe('Forklift', { identificacao }), dataIncidente: data(indice) })[1].$set.filialId;
+
+        expect(filialDoIncidente('EMP-081', 0)).toBe(filialId('Matriz'));
+        expect(filialDoIncidente('EMP-083', 2)).toBe(filialId('Unidade Centro'));
+        expect(filialDoIncidente('EMP-085', 4)).toBe(filialId('Unidade Norte'));
+    });
+
+    test('o colaborador leva empresaId, escopo filiais e as filiaisIds da tabela; PauloNunes tem duas', async () => {
+        await seedData();
+
+        const carlos = chamadaDe(User, { usuario: 'CarlosSilva' })[1].$set;
+        const paulo = chamadaDe(User, { usuario: 'PauloNunes' })[1].$set;
+
+        expect(carlos).toMatchObject({ empresaId: EMPRESA_ID, escopo: 'filiais', filiaisIds: [filialId('Matriz')] });
+        expect(paulo.filiaisIds).toEqual([filialId('Unidade Centro'), filialId('Unidade Norte')]);
     });
 
     test('cria 8 operadores, 16 dispositivos, 16 empilhadeiras, 80 leituras, 32 incidentes, 11 colaboradores e 2 solicitações', async () => {
         const contagem = await seedData();
 
         expect(contagem).toEqual({
+            empresas: 1,
+            filiais: 3,
             operadores: 8,
             dispositivos: 16,
             empilhadeiras: 16,
@@ -198,7 +268,7 @@ describe('seedData', () => {
         await seedData();
 
         const mensagem = vi.mocked(logger.info).mock.calls.map((c) => String(c[0])).join('\n');
-        for (const trecho of ['8 operadores', '16 dispositivos', '16 empilhadeiras', '80 leituras', '32 incidentes', '11 colaboradores', '2 solicitações']) {
+        for (const trecho of ['1 empresa', '3 filiais', '8 operadores', '16 dispositivos', '16 empilhadeiras', '80 leituras', '32 incidentes', '11 colaboradores', '2 solicitações']) {
             expect(mensagem).toContain(trecho);
         }
     });
