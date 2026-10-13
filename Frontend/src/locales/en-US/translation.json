@@ -247,8 +247,7 @@
     "nav": {
       "overview": "Overview",
       "machines": "Forklifts",
-      "history": "History",
-      "incident": "Incident"
+      "history": "History"
     },
     "common": {
       "available": "Available",
@@ -332,7 +331,18 @@
     },
     "settings": {
       "title": "Settings",
-      "close": "Close"
+      "close": "Close",
+      "general": "General",
+      "userData": "User data",
+      "name": "Name",
+      "phone": "Phone",
+      "position": "Position",
+      "changeNoticeTitle": "Change request",
+      "changeNotice": "To change your details, ask the supervisor in charge.",
+      "logout": "Log out",
+      "feedbackTitle": "Feedback & Suggestions",
+      "feedbackQuestion": "How was your experience?",
+      "privacy": "Privacy Policy"
     }
   },
   "notFound": {

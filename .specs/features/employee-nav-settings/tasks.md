@@ -296,11 +296,11 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] pt-BR e en-US têm as mesmas chaves `employee.*`, todas com texto (AC12)
-- [ ] Os outros 5 idiomas (es, fr, ja, de, ru) trazem `employee.settings.*` completo, todos com texto (AC12)
-- [ ] `employee.nav.incident` removida dos locales que a têm
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/config/i18n.test.ts`
-- [ ] Test count: os testes antigos de i18n passam e os novos cobrem o bloco `settings` nos 7 idiomas
+- [x] pt-BR e en-US têm as mesmas chaves `employee.*`, todas com texto (AC12)
+- [x] Os outros 5 idiomas (es, fr, ja, de, ru) trazem `employee.settings.*` completo, todos com texto (AC12)
+- [x] `employee.nav.incident` removida dos locales que a têm
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/config/i18n.test.ts`
+- [x] Test count: os testes antigos de i18n passam e os novos cobrem o bloco `settings` nos 7 idiomas
 
 **Tests**: unit
 **Gate**: quick

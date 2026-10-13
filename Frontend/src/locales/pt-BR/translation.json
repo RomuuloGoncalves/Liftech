@@ -249,8 +249,7 @@
     "nav": {
       "overview": "Visão geral",
       "machines": "Empilhadeiras",
-      "history": "Histórico",
-      "incident": "Ocorrência"
+      "history": "Histórico"
     },
     "common": {
       "available": "Disponível",
@@ -334,7 +333,18 @@
     },
     "settings": {
       "title": "Configurações",
-      "close": "Fechar"
+      "close": "Fechar",
+      "general": "Geral",
+      "userData": "Dados do usuário",
+      "name": "Nome",
+      "phone": "Telefone",
+      "position": "Cargo",
+      "changeNoticeTitle": "Solicitação de alteração",
+      "changeNotice": "Para alterar seus dados, solicite a mudança ao supervisor responsável.",
+      "logout": "Deslogar-se",
+      "feedbackTitle": "Feedback & Sugestões",
+      "feedbackQuestion": "Como foi sua experiência?",
+      "privacy": "Política e Privacidade"
     }
   },
   "notFound": {

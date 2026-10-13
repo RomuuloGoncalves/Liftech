@@ -253,8 +253,33 @@ describe('employee module translations', () => {
       overview: 'Visão geral',
       machines: 'Empilhadeiras',
       history: 'Histórico',
-      incident: 'Ocorrência',
     });
+  });
+
+  it.each(ALL_LOCALES)('locale $code translates every employee.settings text', ({ code, data }) => {
+    const settings = (data as { employee?: { settings?: Record<string, string> } }).employee?.settings
+    expect(Object.keys(settings ?? {}).sort(), `Locale "${code}" employee.settings keys differ from pt-BR`).toEqual(
+      Object.keys(ptBR.employee.settings).sort()
+    )
+    for (const [key, value] of Object.entries(settings ?? {})) {
+      expect(value, `Locale "${code}" employee.settings.${key} is empty`).toBeTruthy()
+    }
+  });
+
+  it('pt-BR settings texts follow the Figma screen', () => {
+    expect(ptBR.employee.settings).toMatchObject({
+      title: 'Configurações',
+      general: 'Geral',
+      userData: 'Dados do usuário',
+      name: 'Nome',
+      phone: 'Telefone',
+      position: 'Cargo',
+      changeNoticeTitle: 'Solicitação de alteração',
+      logout: 'Deslogar-se',
+      feedbackTitle: 'Feedback & Sugestões',
+      feedbackQuestion: 'Como foi sua experiência?',
+      privacy: 'Política e Privacidade',
+    })
   });
 
   it('en-US has exactly the same employee keys as pt-BR, all non-empty', () => {

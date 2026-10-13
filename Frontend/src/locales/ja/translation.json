@@ -240,6 +240,23 @@
     "toastMachinesAdded": "「{{name}}」に機械を追加しました",
     "toastMachineRemoved": "{{name}} をカテゴリーから外しました"
   },
+  "employee": {
+    "settings": {
+      "title": "設定",
+      "close": "閉じる",
+      "general": "一般",
+      "userData": "ユーザー情報",
+      "name": "名前",
+      "phone": "電話番号",
+      "position": "役職",
+      "changeNoticeTitle": "変更のリクエスト",
+      "changeNotice": "情報を変更するには、担当の監督者に依頼してください。",
+      "logout": "ログアウト",
+      "feedbackTitle": "フィードバックとご意見",
+      "feedbackQuestion": "ご利用はいかがでしたか？",
+      "privacy": "プライバシーポリシー"
+    }
+  },
   "notFound": {
     "description": "お探しのページは存在しないか、移動しました。",
     "backHome": "ホームに戻る"

@@ -240,6 +240,23 @@
     "toastMachinesAdded": "Máquinas agregadas a \"{{name}}\"",
     "toastMachineRemoved": "{{name}} quitada de la categoría"
   },
+  "employee": {
+    "settings": {
+      "title": "Configuración",
+      "close": "Cerrar",
+      "general": "General",
+      "userData": "Datos del usuario",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "position": "Cargo",
+      "changeNoticeTitle": "Solicitud de cambio",
+      "changeNotice": "Para cambiar tus datos, pídeselo al supervisor responsable.",
+      "logout": "Cerrar sesión",
+      "feedbackTitle": "Comentarios y sugerencias",
+      "feedbackQuestion": "¿Cómo fue tu experiencia?",
+      "privacy": "Política y privacidad"
+    }
+  },
   "notFound": {
     "description": "La página que buscas no existe o fue movida.",
     "backHome": "Volver al inicio"

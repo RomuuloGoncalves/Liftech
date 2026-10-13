@@ -137,7 +137,7 @@ A barra inferior do funcionário tem 4 ícones e o Figma tem 3: o ícone de ocor
 | SET-05 | P1 Config: AC8; Edge: descartar texto | Execute | Pending |
 | SET-06 | P1 Config: AC9 | Execute | Pending |
 | SET-07 | P1 Config: AC10, AC11 | Execute | Pending |
-| SET-08 | P1 Config: AC12 | Execute | Pending |
+| SET-08 | P1 Config: AC12 | Execute | Implementing |
 
 ---
 
