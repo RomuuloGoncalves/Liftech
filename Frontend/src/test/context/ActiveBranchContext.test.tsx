@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, useNavigate } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext'
 import { branchService } from '../../services/branchService'
@@ -258,6 +258,30 @@ describe('ActiveBranchProvider', () => {
     expect(document.title).toBe('409')
     expect(listar).not.toHaveBeenCalled()
     expect(JSON.parse(localStorage.getItem('user')!).filiais).toEqual([F1])
+  })
+
+  it('picks up a login and a logout on navigation', () => {
+    const Go = () => {
+      const navigate = useNavigate()
+      return <button onClick={() => navigate('/next')}>go</button>
+    }
+    render(
+      <MemoryRouter>
+        <ActiveBranchProvider>
+          <Probe />
+          <Go />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+    expect(screen.getByTestId('flags')).toHaveTextContent('user=none')
+
+    login('empresa', [F1, F2])
+    fireEvent.click(screen.getByText('go'))
+    expect(screen.getByTestId('flags')).toHaveTextContent('user=Ana')
+
+    localStorage.removeItem('user')
+    fireEvent.click(screen.getByText('go'))
+    expect(screen.getByTestId('flags')).toHaveTextContent('user=none')
   })
 
   it('without a provider useActiveBranch returns todas and no user', () => {
