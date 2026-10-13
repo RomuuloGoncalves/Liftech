@@ -482,15 +482,15 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `EMPRESA_NOME` é `Liftech Logística`, `MATRIZ_NOME` é `Matriz` e `FILIAIS_EXTRAS` são `Unidade Centro` e `Unidade Norte` (Seeds AC1)
-- [ ] Cada empilhadeira cai na filial do seu setor: Expedição na Matriz, Recebimento em Unidade Centro, Armazenagem em Unidade Norte (Seeds AC2)
-- [ ] Cada dispositivo herda a filial da sua empilhadeira (Seeds AC3)
-- [ ] Cada operador herda a filial da primeira empilhadeira que o cita, ou a Matriz se nenhuma (Seeds AC4)
-- [ ] Os 11 colaboradores têm entrada na tabela, com nomes de filial existentes, e ao menos um tem duas filiais (Seeds AC6)
-- [ ] Os testes existentes de `seedDataset.test.ts` seguem passando sem mudança
-- [ ] Nenhuma senha literal (Seeds AC12)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/seedDataset.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 12 testes existentes mais ao menos 6 novos passam
+- [x] `EMPRESA_NOME` é `Liftech Logística`, `MATRIZ_NOME` é `Matriz` e `FILIAIS_EXTRAS` são `Unidade Centro` e `Unidade Norte` (Seeds AC1)
+- [x] Cada empilhadeira cai na filial do seu setor: Expedição na Matriz, Recebimento em Unidade Centro, Armazenagem em Unidade Norte (Seeds AC2)
+- [x] Cada dispositivo herda a filial da sua empilhadeira (Seeds AC3)
+- [x] Cada operador herda a filial da primeira empilhadeira que o cita, ou a Matriz se nenhuma (Seeds AC4)
+- [x] Os 11 colaboradores têm entrada na tabela, com nomes de filial existentes, e ao menos um tem duas filiais (Seeds AC6)
+- [x] Os testes existentes de `seedDataset.test.ts` seguem passando sem mudança
+- [x] Nenhuma senha literal (Seeds AC12)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/seedDataset.test.ts && npx tsc --noEmit`
+- [x] Test count: os 12 testes existentes mais ao menos 6 novos passam
 
 **Tests**: unit
 **Gate**: quick

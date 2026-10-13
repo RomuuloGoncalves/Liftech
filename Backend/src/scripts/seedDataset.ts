@@ -54,6 +54,46 @@ export const COLABORADORES = [
     { nome: 'Diego Martins', usuario: 'DiegoMartins' },
 ];
 
+export const EMPRESA_NOME = 'Liftech Logística';
+export const MATRIZ_NOME = 'Matriz';
+export const FILIAIS_EXTRAS = ['Unidade Centro', 'Unidade Norte'];
+
+// Cada bloco (setor) do mock vira uma filial.
+const FILIAL_POR_SETOR: Record<string, string> = {
+    'Expedição - Bloco B': MATRIZ_NOME,
+    'Recebimento - Bloco A': 'Unidade Centro',
+    'Armazenagem - Bloco C': 'Unidade Norte',
+};
+
+export const filialDaEmpilhadeira = (e: Pick<EmpilhadeiraSeed, 'setor'>) => FILIAL_POR_SETOR[e.setor] ?? MATRIZ_NOME;
+
+// O dispositivo fica na filial da empilhadeira que o usa.
+export const filialDoDispositivo = (enderecoMac: string) => {
+    const e = EMPILHADEIRAS.find((x) => x.enderecoMac === enderecoMac);
+    return e ? filialDaEmpilhadeira(e) : MATRIZ_NOME;
+};
+
+// O operador fica na filial da primeira empilhadeira que o cita; sem empilhadeira, na matriz.
+export const filialDoOperador = (nome: string) => {
+    const e = EMPILHADEIRAS.find((x) => x.operador === nome);
+    return e ? filialDaEmpilhadeira(e) : MATRIZ_NOME;
+};
+
+// Filiais de cada colaborador (chave: usuario). PauloNunes tem duas, para testar o seletor.
+export const FILIAIS_DOS_COLABORADORES: Record<string, string[]> = {
+    AlexandreMattos: [MATRIZ_NOME],
+    CarlosSilva: [MATRIZ_NOME],
+    AnaSouza: [MATRIZ_NOME],
+    JoaoPereira: ['Unidade Norte'],
+    MarinaCosta: ['Unidade Centro'],
+    RafaelLima: ['Unidade Norte'],
+    BeatrizAlves: [MATRIZ_NOME],
+    FernandaDias: ['Unidade Centro'],
+    PauloNunes: ['Unidade Centro', 'Unidade Norte'],
+    LarissaRocha: ['Unidade Centro'],
+    DiegoMartins: ['Unidade Norte'],
+};
+
 export const SOLICITACOES = [
     { email: 'ana.prado@acmelogistica.com.br', nomeEmpresa: 'Acme Logística', nomeAdministrador: 'Ana Prado', status: 'pendente' },
     { email: 'carlos.teixeira@nortearmazens.com.br', nomeEmpresa: 'Norte Armazéns', nomeAdministrador: 'Carlos Teixeira', status: 'pendente' },
