@@ -43,3 +43,7 @@ yarn dev
 ```
 
 Você verá os logs do Backend e Frontend no mesmo terminal. O Backend reinicia automaticamente com `tsx watch` e o Frontend usa o servidor do Vite.
+
+## Testes
+
+`yarn test` (na raiz ou em `Backend/`) roda só os testes unitários, que usam mocks e não tocam no banco. Os testes de integração do Backend conectam ao MongoDB configurado em `.env` e rodam à parte, com `yarn test:integration` dentro de `Backend/`.
