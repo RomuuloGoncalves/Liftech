@@ -5,15 +5,12 @@ import './index.css'
 import './config/i18n'
 import App from './App.tsx'
 import { ToastProvider } from './components/common/Toast'
-import { ActiveBranchProvider } from './context/ActiveBranchContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ToastProvider>
-        <ActiveBranchProvider>
-          <App />
-        </ActiveBranchProvider>
+        <App />
       </ToastProvider>
     </BrowserRouter>
   </StrictMode>,
