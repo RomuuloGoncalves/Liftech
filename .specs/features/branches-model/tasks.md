@@ -449,16 +449,16 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `listar` responde 200 com `req.escopo.filiais` (CRUD AC1)
-- [ ] `criar`, `atualizar` e `deletar` respondem 403 sem `tipo: 'empresa'`, antes de validar corpo e id e sem chamar o service (CRUD AC2)
-- [ ] `criar` e `atualizar` respondem 400 com `nome` ausente, vazio, só espaços ou que não é texto, e passam o `nome` sem espaços nas pontas ao service (CRUD AC5, edges nome)
-- [ ] `atualizar` e `deletar` respondem 400 com id inválido (CRUD AC8)
-- [ ] Sucesso: 201 em `criar`, 200 em `atualizar` e `deletar`, com o corpo do service (CRUD AC3, AC7, AC10)
-- [ ] `ErroHttp` do service vira o status dele (404, 409) e erro comum vira 500 com `{ error }` (CRUD AC6, AC9, AC11, AC12, AC13)
-- [ ] `matriz` do corpo nunca chega ao service (CRUD AC4)
-- [ ] `branchRouter` expõe GET `/`, POST `/`, PUT `/:id` e DELETE `/:id` ligados aos handlers
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/branchController.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 16 testes passam
+- [x] `listar` responde 200 com `req.escopo.filiais` (CRUD AC1)
+- [x] `criar`, `atualizar` e `deletar` respondem 403 sem `tipo: 'empresa'`, antes de validar corpo e id e sem chamar o service (CRUD AC2)
+- [x] `criar` e `atualizar` respondem 400 com `nome` ausente, vazio, só espaços ou que não é texto, e passam o `nome` sem espaços nas pontas ao service (CRUD AC5, edges nome)
+- [x] `atualizar` e `deletar` respondem 400 com id inválido (CRUD AC8)
+- [x] Sucesso: 201 em `criar`, 200 em `atualizar` e `deletar`, com o corpo do service (CRUD AC3, AC7, AC10)
+- [x] `ErroHttp` do service vira o status dele (404, 409) e erro comum vira 500 com `{ error }` (CRUD AC6, AC9, AC11, AC12, AC13)
+- [x] `matriz` do corpo nunca chega ao service (CRUD AC4)
+- [x] `branchRouter` expõe GET `/`, POST `/`, PUT `/:id` e DELETE `/:id` ligados aos handlers
+- [x] Gate: `cd Backend && npx vitest run tests/unit/branchController.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 16 testes passam
 
 **Tests**: unit
 **Gate**: quick
