@@ -163,12 +163,12 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `validateSync()` sem `empresaId` falha em `empresaId` (Modelo AC5)
-- [ ] Sem `escopo` e `filiaisIds`, valem `'filiais'` e `[]` (Modelo AC6)
-- [ ] `escopo: 'todos'` é rejeitado e `'empresa'` é aceito (Modelo AC7)
-- [ ] `Backend/tests/integration/feature/user/user.test.ts` cria o usuário com `empresaId` (não executado aqui)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
-- [ ] Test count: 4 testes novos passam
+- [x] `validateSync()` sem `empresaId` falha em `empresaId` (Modelo AC5)
+- [x] Sem `escopo` e `filiaisIds`, valem `'filiais'` e `[]` (Modelo AC6)
+- [x] `escopo: 'todos'` é rejeitado e `'empresa'` é aceito (Modelo AC7)
+- [x] `Backend/tests/integration/feature/user/user.test.ts` cria o usuário com `empresaId` (não executado aqui)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
+- [x] Test count: 4 testes novos passam
 
 **Tests**: unit
 **Gate**: quick

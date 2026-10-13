@@ -2,6 +2,7 @@ import { describe, test, expect, vi } from 'vitest';
 import mongoose from 'mongoose';
 import { Company } from '../../src/schemas/company.js';
 import { Branch } from '../../src/schemas/branch.js';
+import { User } from '../../src/schemas/user.js';
 
 // Só o mongoose, sem conectar: validate() e schema.indexes() não tocam no banco.
 vi.mock('../../src/config/conn.js', async () => ({ conn: { mongoose: (await import('mongoose')).default } }));
@@ -24,6 +25,30 @@ describe('schema company', () => {
 
     test('nome tem índice único', () => {
         expect(Company.schema.indexes()).toContainEqual([{ nome: 1 }, expect.objectContaining({ unique: true })]);
+    });
+});
+
+describe('schema user', () => {
+    const empresaId = new mongoose.Types.ObjectId();
+
+    test('empresaId é obrigatório', async () => {
+        expect(await erros(new User({ nome: 'Ana', role: 'admin' }))).toEqual(['empresaId']);
+    });
+
+    test('sem escopo e filiaisIds, valem "filiais" e lista vazia', () => {
+        const usuario = new User({ nome: 'Ana', role: 'admin', empresaId });
+
+        expect(usuario.escopo).toBe('filiais');
+        expect(usuario.filiaisIds).toHaveLength(0);
+    });
+
+    test('escopo "todos" é rejeitado', async () => {
+        expect(await erros(new User({ nome: 'Ana', role: 'admin', empresaId, escopo: 'todos' }))).toEqual(['escopo']);
+    });
+
+    test('escopo "empresa" e "filiais" são aceitos', async () => {
+        expect(await erros(new User({ nome: 'Ana', role: 'admin', empresaId, escopo: 'empresa' }))).toEqual([]);
+        expect(await erros(new User({ nome: 'Ana', role: 'admin', empresaId, escopo: 'filiais', filiaisIds: [empresaId] }))).toEqual([]);
     });
 });
 
