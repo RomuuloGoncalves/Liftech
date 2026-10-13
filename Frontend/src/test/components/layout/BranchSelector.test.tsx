@@ -154,6 +154,37 @@ describe('BranchSelector: choosing a branch', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
 
+  it('returns the focus to the trigger after selecting an option', () => {
+    login('empresa', [F1, F2])
+    renderSelector()
+    open()
+
+    fireEvent.click(screen.getByRole('option', { name: 'Filial 02' }))
+
+    expect(screen.getByRole('button', { name: /Filiais/ })).toHaveFocus()
+  })
+
+  it('returns the focus to the trigger when Escape closes the list', () => {
+    login('empresa', [F1, F2])
+    renderSelector()
+    open()
+    screen.getByRole('option', { name: 'Filial 02' }).focus()
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(screen.getByRole('button', { name: /Filiais/ })).toHaveFocus()
+  })
+
+  it('returns the focus to the trigger when a click outside closes the list', () => {
+    login('empresa', [F1, F2])
+    renderSelector()
+    open()
+
+    fireEvent.mouseDown(screen.getByText('outside'))
+
+    expect(screen.getByRole('button', { name: /Filiais/ })).toHaveFocus()
+  })
+
   it('closes the list when Escape is pressed', () => {
     login('empresa', [F1, F2])
     renderSelector()

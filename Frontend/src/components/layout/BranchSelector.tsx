@@ -63,6 +63,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({ collapsed = false }
   const [pendingDelete, setPendingDelete] = useState<Filial | null>(null)
   const [error, setError] = useState<string | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const labelId = useId()
   const triggerId = useId()
 
@@ -72,6 +73,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({ collapsed = false }
     setCreating(false)
     setEditingId(null)
     setError(null)
+    triggerRef.current?.focus()
   }
 
   useEffect(() => {
@@ -130,6 +132,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({ collapsed = false }
       <button
         type="button"
         id={triggerId}
+        ref={triggerRef}
         className={styles.trigger}
         aria-haspopup="listbox"
         aria-expanded={open}
