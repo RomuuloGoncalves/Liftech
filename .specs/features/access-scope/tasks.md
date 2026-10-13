@@ -2,7 +2,7 @@
 
 ## Execution Protocol (MANDATORY -- do not skip)
 
-Implement these tasks with the `tlc-spec-driven` skill: **activate it by name and follow its Execute flow and Critical Rules.** Do not search for skill files by filesystem path. The skill is the source of truth for the full flow (per-task cycle, sub-agent delegation, adequacy review, Verifier, discrimination sensor).
+Implement these tasks with the `tlc-spec-driven` skill: **activate it by name and follow its Execute flow and Critical Rules.** Do not search for skill files by filesystem path. The skill is the source of truth for the full flow (per-task cycle, adequacy review, Verifier, discrimination sensor).
 
 **If the skill cannot be activated, STOP and tell the user - do not proceed without it.**
 
@@ -503,7 +503,7 @@ Phase 3:  T6 ------→ T13
 Phase 3:  T9 ------→ T13
 ```
 
-Cross-phase dependencies appear as arrows in the phase they land in and in each task's `Depends on`. Execution is strictly sequential, in the order T1 to T13, by a single worker with no sub-agents; the Verifier is dispatched by the orchestrator afterwards.
+Cross-phase dependencies appear as arrows in the phase they land in and in each task's `Depends on`. Execution is strictly sequential, in the order T1 to T13, and a separate verification pass follows.
 
 ---
 
