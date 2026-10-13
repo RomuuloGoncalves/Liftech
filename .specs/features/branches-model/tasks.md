@@ -572,16 +572,16 @@ T18 → T19
 
 **Done when**:
 
-- [ ] Empresa por `{ nome }` e 3 filiais por `{ empresaId, nome }`, só a matriz com `matriz: true` (Seeds AC1)
-- [ ] Empilhadeira, dispositivo, operador e incidente levam o `filialId` da regra do dataset (Seeds AC2, AC3, AC4, AC5)
-- [ ] Cada colaborador leva `empresaId`, `escopo: 'filiais'` e `filiaisIds` da tabela, e `PauloNunes` tem duas filiais (Seeds AC6)
-- [ ] O `seedAdmin` é chamado uma vez com o `empresaId` (Seeds AC7)
-- [ ] Duas execuções usam as mesmas chaves, sem repetir nenhuma (Seeds AC10)
-- [ ] A contagem e o log incluem empresas e filiais (Seeds AC11)
-- [ ] Nenhuma senha literal (Seeds AC12)
-- [ ] Os testes existentes de `seedData.test.ts` passam com `Company` e `Branch` mockados; só a asserção de contagem total ganha `empresas` e `filiais` (comportamento mudou pelo spec)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/seedData.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 12 testes existentes mais ao menos 8 novos passam
+- [x] Empresa por `{ nome }` e 3 filiais por `{ empresaId, nome }`, só a matriz com `matriz: true` (Seeds AC1)
+- [x] Empilhadeira, dispositivo, operador e incidente levam o `filialId` da regra do dataset (Seeds AC2, AC3, AC4, AC5)
+- [x] Cada colaborador leva `empresaId`, `escopo: 'filiais'` e `filiaisIds` da tabela, e `PauloNunes` tem duas filiais (Seeds AC6)
+- [x] O `seedAdmin` é chamado uma vez com o `empresaId` (Seeds AC7)
+- [x] Duas execuções usam as mesmas chaves, sem repetir nenhuma (Seeds AC10)
+- [x] A contagem e o log incluem empresas e filiais (Seeds AC11)
+- [x] Nenhuma senha literal (Seeds AC12)
+- [x] Os testes existentes de `seedData.test.ts` passam com `Company` e `Branch` mockados; só a asserção de contagem total ganha `empresas` e `filiais` (comportamento mudou pelo spec)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/seedData.test.ts && npx tsc --noEmit`
+- [x] Test count: os 11 testes existentes mais 10 novos passam
 
 **Tests**: unit
 **Gate**: quick
