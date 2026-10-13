@@ -246,11 +246,11 @@ T18 → T19
 
 **Done when**:
 
-- [ ] 201 e o service recebe um model com `empresaId`, `escopo` e `filiaisIds` do corpo (Modelo AC10)
-- [ ] Sem `escopo` e `filiaisIds` no corpo, o model não os define (Modelo AC10)
-- [ ] 400 com `empresaId` ausente, `empresaId` inválido, `escopo` fora da lista e `filiaisIds` com item inválido (Modelo AC11)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/userController.test.ts && npx tsc --noEmit`
-- [ ] Test count: 6 testes novos passam
+- [x] 201 e o service recebe um model com `empresaId`, `escopo` e `filiaisIds` do corpo (Modelo AC10)
+- [x] Sem `escopo` e `filiaisIds` no corpo, o model fica sem `escopo` e com `filiaisIds` vazio (Modelo AC10)
+- [x] 400 com `empresaId` ausente, `empresaId` inválido, `escopo` fora da lista e `filiaisIds` com item inválido (Modelo AC11)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/userController.test.ts && npx tsc --noEmit`
+- [x] Test count: 6 testes novos passam
 
 **Tests**: unit
 **Gate**: quick

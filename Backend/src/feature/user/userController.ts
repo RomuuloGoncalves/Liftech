@@ -55,13 +55,19 @@ export async function criar(req: Request, res: Response) {
     const erros = regras.check({
       nome: corpo.nome,
       role: corpo.role
-    });
+    }, { empresaId: corpo.empresaId },
+    { escopo: corpo.escopo, isRequiredField: false },
+    { filiaisIds: corpo.filiaisIds, isRequiredField: false });
 
     if (erros) {
         return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
-    const usuario = new userModel(corpo.nome, corpo.role);
+    const usuario = new userModel(corpo.nome, corpo.role, undefined, {
+      empresaId: corpo.empresaId,
+      escopo: corpo.escopo,
+      filiaisIds: corpo.filiaisIds,
+    });
 
     const criado = await servicoUser.criar(usuario);
     return respostaSucesso(res, StatusCode.CREATED, criado.obterDados());
