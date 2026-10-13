@@ -98,14 +98,14 @@ T9 → T13
 
 **Done when**:
 
-- [ ] `obterTodos(filtro)` chama `find(filtro)`; sem filtro, `find({})` (Filtro AC1)
-- [ ] `obterPorId(id, filtro)` chama `findOne({ ...filtro, _id: id })` e devolve `null` quando não acha (Filtro AC2)
-- [ ] `atualizarPorId(id, dados, options, filtro)` chama `findOneAndUpdate({ ...filtro, _id: id }, dados, { new: true, ...options })` e devolve `null` quando não acha (Filtro AC3)
-- [ ] `deletarPorId(id, filtro)` chama `findOneAndDelete({ ...filtro, _id: id })` e devolve `null` quando não acha (Filtro AC4)
-- [ ] Um `_id` dentro do filtro nunca vence o `_id` pedido (Filtro AC5)
-- [ ] Id inválido devolve `null` sem consultar o model nos três métodos por id (Filtro AC6)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/coreRepository.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 9 testes passam
+- [x] `obterTodos(filtro)` chama `find(filtro)`; sem filtro, `find({})` (Filtro AC1)
+- [x] `obterPorId(id, filtro)` chama `findOne({ ...filtro, _id: id })` e devolve `null` quando não acha (Filtro AC2)
+- [x] `atualizarPorId(id, dados, options, filtro)` chama `findOneAndUpdate({ ...filtro, _id: id }, dados, { new: true, ...options })` e devolve `null` quando não acha (Filtro AC3)
+- [x] `deletarPorId(id, filtro)` chama `findOneAndDelete({ ...filtro, _id: id })` e devolve `null` quando não acha (Filtro AC4)
+- [x] Um `_id` dentro do filtro nunca vence o `_id` pedido (Filtro AC5)
+- [x] Id inválido devolve `null` sem consultar o model nos três métodos por id (Filtro AC6)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/coreRepository.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 9 testes passam
 
 **Tests**: unit
 **Gate**: quick

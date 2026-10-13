@@ -10,19 +10,20 @@ export abstract class RepositoryBase<T extends coreModel> {
 
   protected abstract converterParaModelo(documento: Record<string, unknown>): T;
 
-  async obterTodos(): Promise<T[]> {
-    const documentos = await this.bd.find().lean();
+  // `filtro` é o filtro de escopo das rotas; o `_id` pedido sempre vence um `_id` do filtro.
+  async obterTodos(filtro: Record<string, unknown> = {}): Promise<T[]> {
+    const documentos = await this.bd.find(filtro).lean();
     return documentos.map((doc) =>
       this.converterParaModelo(doc as Record<string, unknown>)
     );
   }
 
-  async obterPorId(id: string): Promise<T | null> {
+  async obterPorId(id: string, filtro: Record<string, unknown> = {}): Promise<T | null> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return null;
     }
 
-    const documento = await this.bd.findById(id).lean();
+    const documento = await this.bd.findOne({ ...filtro, _id: id }).lean();
     if (!documento) {
       return null;
     }
@@ -41,12 +42,12 @@ export abstract class RepositoryBase<T extends coreModel> {
     );
   }
 
-  async atualizarPorId(id: string, dados: Partial<Record<string, unknown>>, options?: mongoose.QueryOptions): Promise<T | null> {
+  async atualizarPorId(id: string, dados: Partial<Record<string, unknown>>, options?: mongoose.QueryOptions, filtro: Record<string, unknown> = {}): Promise<T | null> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return null;
     }
 
-    const documento = await this.bd.findByIdAndUpdate(id, dados, { new: true, ...options }).lean();
+    const documento = await this.bd.findOneAndUpdate({ ...filtro, _id: id }, dados, { new: true, ...options }).lean();
     if (!documento) {
       return null;
     }
@@ -54,12 +55,12 @@ export abstract class RepositoryBase<T extends coreModel> {
     return this.converterParaModelo(documento as Record<string, unknown>);
   }
 
-  async deletarPorId(id: string): Promise<T | null> {
+  async deletarPorId(id: string, filtro: Record<string, unknown> = {}): Promise<T | null> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return null;
     }
 
-    const documento = await this.bd.findByIdAndDelete(id).lean();
+    const documento = await this.bd.findOneAndDelete({ ...filtro, _id: id }).lean();
     if (!documento) {
       return null;
     }
