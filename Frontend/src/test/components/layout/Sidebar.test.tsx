@@ -297,6 +297,7 @@ describe('Sidebar branch selector and company', () => {
 
     expect(screen.queryByText('Acme Logística')).not.toBeInTheDocument()
     const company = screen.getByRole('img', { name: 'Acme Logística' })
+    expect(company).toHaveAttribute('aria-label', 'Acme Logística')
     expect(company).toHaveAttribute('title', 'Acme Logística')
     expect(company.querySelector('svg')).toBeInTheDocument()
   })

@@ -141,6 +141,19 @@ describe('BranchSelector: choosing a branch', () => {
     expect(localStorage.getItem('liftech.activeBranch')).toBe('f2')
   })
 
+  it('reflects the open state in aria-expanded', () => {
+    login('empresa', [F1, F2])
+    renderSelector()
+    const trigger = screen.getByRole('button', { name: /Filiais/ })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('closes the list when Escape is pressed', () => {
     login('empresa', [F1, F2])
     renderSelector()
@@ -179,6 +192,7 @@ describe('BranchSelector: choosing a branch', () => {
 
     const trigger = screen.getByRole('button', { name: 'Filial 02' })
     expect(trigger).toHaveTextContent(/^F$/)
+    expect(trigger).toHaveAttribute('aria-label', 'Filial 02')
     expect(trigger).toHaveAttribute('title', 'Filial 02')
     expect(screen.queryByText('Filiais')).not.toBeInTheDocument()
   })
