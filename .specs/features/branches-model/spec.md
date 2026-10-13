@@ -85,7 +85,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 8. The schemas `forklift`, `device`, `operator` e `incident` SHALL exigir `filialId`.
 9. WHEN `GET /api/users` ou `GET /api/users/:id` responde THEN o usuário SHALL incluir `empresaId`, `escopo` e `filiaisIds`.
 10. WHEN `POST /api/users` recebe `nome`, `role` e `empresaId` válidos THEN o backend SHALL criar o usuário com esses campos e com `escopo` e `filiaisIds` do corpo quando enviados.
-11. IF `POST /api/users` recebe `empresaId` ausente ou que não é ObjectId THEN o backend SHALL responder 400.
+11. IF `POST /api/users` recebe `empresaId` ausente ou que não é ObjectId, `escopo` fora de `'empresa'` e `'filiais'`, ou `filiaisIds` que não é lista de ObjectId THEN o backend SHALL responder 400.
 12. WHEN `GET /api/forklifts` ou `GET /api/forklifts/:id` responde THEN a empilhadeira SHALL incluir `filialId`.
 13. WHEN `POST /api/forklifts` recebe `id` e `filialId` válidos THEN o backend SHALL criar a empilhadeira com esse `filialId`.
 14. IF `POST /api/forklifts` recebe `filialId` ausente ou que não é ObjectId THEN o backend SHALL responder 400.
