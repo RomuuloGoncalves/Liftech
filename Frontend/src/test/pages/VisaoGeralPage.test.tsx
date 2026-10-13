@@ -543,6 +543,23 @@ describe('VisaoGeralPage: active branch', () => {
     expect(screen.getAllByRole('article')).toHaveLength(1)
   })
 
+  it('ignores a failure of a previous branch that arrives after the switch', async () => {
+    let rejectOld!: (error: Error) => void
+    listar.mockReturnValueOnce(new Promise<Machine[]>((_, r) => (rejectOld = r)))
+    listar.mockResolvedValueOnce([apiMachine({ id: 'b2', identificacao: 'EMP-099' })])
+
+    renderWithBranches()
+    fireEvent.click(screen.getByText('switch to f2'))
+    expect(await screen.findByText('EMP-099(ID)')).toBeInTheDocument()
+
+    await act(async () => {
+      rejectOld(new Error('Network Error'))
+    })
+
+    expect(screen.queryByRole('button', { name: 'Tentar novamente' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(1)
+  })
+
   it('retries with the active branch after a failure', async () => {
     localStorage.setItem('liftech.activeBranch', 'f2')
     listar.mockRejectedValueOnce(new Error('Network Error'))
