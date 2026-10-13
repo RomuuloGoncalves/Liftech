@@ -73,7 +73,7 @@ export function gerarIncidentes(empilhadeiraId: string, operadorId: string, indi
     return [0, 1].map((k) => ({
         empilhadeiraId,
         operadorId,
-        dataIncidente: new Date(PRIMEIRO_INCIDENTE + (indice * 2 + k) * 3 * DIA_MS),
+        dataIncidente: new Date(PRIMEIRO_INCIDENTE + (indice * 2 + k) * 2 * DIA_MS),
         forcaImpacto: 3 + ((indice * 2 + k * 3) % 7),
         status: (indice + k) % 2 === 0 ? 'resolvido' : 'pendente',
     }));

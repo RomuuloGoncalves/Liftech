@@ -93,6 +93,15 @@ describe('seedDataset: incidentes', () => {
         }
     });
 
+    test('nenhum incidente fica depois de 2026-10-13 (a data em que o seed foi escrito)', () => {
+        const ultimo = Math.max(
+            ...EMPILHADEIRAS.flatMap((_, i) => gerarIncidentes('f', 'o', i).map((x) => x.dataIncidente.getTime()))
+        );
+
+        expect(new Date(ultimo).toISOString()).toBe('2026-10-02T10:00:00.000Z');
+        expect(ultimo).toBeLessThanOrEqual(Date.UTC(2026, 9, 13));
+    });
+
     test('datas fixas e distintas por empilhadeira: a mesma chamada repete, índices diferentes não colidem', () => {
         expect(gerarIncidentes('f1', 'o1', 3)).toEqual(gerarIncidentes('f1', 'o1', 3));
 

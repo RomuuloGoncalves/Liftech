@@ -41,7 +41,7 @@ A Visão Geral das Máquinas lê `MACHINES`, um mock em `Frontend/src/data/machi
 | Operadores | Os nomes que aparecem no mock: operadores das máquinas e dos eventos | Evita operador sem uso | n |
 | Chave de cada collection | `operator.nome`, `device.enderecoMac`, `forklift.identificacao`, `user.usuario`, `accessRequest.email`+`status`, `telemetry.dispositivoId`+`dataDados`, `incident.empilhadeiraId`+`dataIncidente` | Upsert por chave natural dá idempotência | n |
 | Telemetria do seed | 5 leituras por dispositivo, de hora em hora a partir de `2026-09-01T08:00:00Z` | Âncora fixa mantém a chave estável entre execuções | n |
-| Incidentes do seed | 2 por empilhadeira, em datas fixas, com `forcaImpacto` de 3 a 9 e `status` `pendente` ou `resolvido` | O schema não define escala; números plausíveis | n |
+| Incidentes do seed | 2 por empilhadeira, em datas fixas de 2 em 2 dias a partir de 2026-08-01 (nenhuma depois de 2026-10-13), com `forcaImpacto` de 3 a 9 e `status` `pendente` ou `resolvido` | O schema não define escala; números plausíveis | n |
 | Usuários colaboradores | Criados dos 11 funcionários do mock de Equipe, com `usuario` e senha vinda de `SEED_COLABORADOR_SENHA`; sem a variável, são ignorados com aviso | Mesmo padrão do `seedAdmin`; nenhuma senha no código | n |
 | `sessaoIniciadaEm` no seed | `agora − tempoSessaoMinutos` quando o mock tem mais de 0 minutos, recalculado a cada execução | Mantém o tempo de sessão plausível | n |
 | Histórico do modal de detalhe | Segue o mock, escolhido pela `identificacao` da máquina | Os ids da API são ObjectId e os eventos do mock usam `'1'` a `'16'` | n |

@@ -10,6 +10,7 @@ import { User } from '../../src/schemas/user.js';
 import { AccessRequest } from '../../src/schemas/accessRequest.js';
 import { logger } from '../../src/utils/logger.js';
 import { verificarSenha } from '../../src/utils/senha.js';
+import { gerarIncidentes } from '../../src/scripts/seedDataset.js';
 
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: { findOneAndUpdate: vi.fn() } }));
@@ -133,8 +134,8 @@ describe('seedData', () => {
 
         const empilhadeiraComOperador = idDe('Forklift', { identificacao: 'EMP-081' });
         const empilhadeiraSemOperador = idDe('Forklift', { identificacao: 'EMP-083' });
-        const dataDoPrimeiro = new Date('2026-08-01T10:00:00Z');
-        const dataDoTerceiro = new Date('2026-08-13T10:00:00Z');
+        const dataDoPrimeiro = gerarIncidentes('x', 'y', 0)[0]!.dataIncidente;
+        const dataDoTerceiro = gerarIncidentes('x', 'y', 2)[0]!.dataIncidente;
 
         expect(
             chamadaDe(Incident, { empilhadeiraId: empilhadeiraComOperador, dataIncidente: dataDoPrimeiro })[1].$set.operadorId
