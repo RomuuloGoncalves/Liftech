@@ -209,7 +209,7 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | BRF-01 | P1 Sessão: AC1, AC7 | Implementing | Pending |
-| BRF-02 | P1 Sessão: AC2, AC3, AC4, AC5, AC6, AC8; Edge: JSON inválido | Tasks | Pending |
+| BRF-02 | P1 Sessão: AC2, AC3, AC4, AC5, AC6, AC8; Edge: JSON inválido | Implementing | Pending |
 | BRF-03 | P1 Seletor: AC1, AC2, AC3, AC4, AC5, AC6, AC8; Edge: lista vazia | Tasks | Pending |
 | BRF-04 | P1 Seletor: AC7; P2 Empresa: AC1, AC2, AC3 | Tasks | Pending |
 | BRF-05 | P1 Visão Geral: AC1, AC2, AC3, AC4, AC5, AC6, AC7 | Tasks | Pending |

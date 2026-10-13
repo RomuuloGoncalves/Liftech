@@ -144,15 +144,15 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `activeBranch` é o id guardado em `liftech.activeBranch` quando pertence às filiais do usuário; senão `'todas'` (AC2, AC3 da sessão)
-- [ ] Usuário `escopo: 'filiais'` com 1 filial tem essa filial ativa mesmo com `'todas'` guardado (AC4)
-- [ ] `setActiveBranch` grava em `liftech.activeBranch` e muda o valor exposto (AC5)
-- [ ] Sem usuário ou com `localStorage` que lança: `'todas'`, sem filiais, sem erro (AC7, AC8)
-- [ ] `showAll` é verdadeiro para `escopo: 'empresa'` ou 2 ou mais filiais; `canManage` só para `escopo: 'empresa'`
-- [ ] `createBranch`, `renameBranch` e `removeBranch` chamam o `branchService`, refazem `listar`, gravam o resultado com `saveBranches` e a lista exposta atualiza; excluir a filial ativa volta a `'todas'` (AC6, Edge)
-- [ ] Sem provider, `useActiveBranch()` devolve `'todas'` e nenhum usuário (suíte atual da Visão Geral e da Sidebar continua verde)
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/context/ActiveBranchContext.test.tsx`
-- [ ] Test count: ao menos 12 testes passam
+- [x] `activeBranch` é o id guardado em `liftech.activeBranch` quando pertence às filiais do usuário; senão `'todas'` (AC2, AC3 da sessão)
+- [x] Usuário `escopo: 'filiais'` com 1 filial tem essa filial ativa mesmo com `'todas'` guardado (AC4)
+- [x] `setActiveBranch` grava em `liftech.activeBranch` e muda o valor exposto (AC5)
+- [x] Sem usuário ou com `localStorage` que lança: `'todas'`, sem filiais, sem erro (AC7, AC8)
+- [x] `showAll` é verdadeiro para `escopo: 'empresa'` ou 2 ou mais filiais; `canManage` só para `escopo: 'empresa'`
+- [x] `createBranch`, `renameBranch` e `removeBranch` chamam o `branchService`, refazem `listar`, gravam o resultado com `saveBranches` e a lista exposta atualiza; excluir a filial ativa volta a `'todas'` (AC6, Edge)
+- [x] Sem provider, `useActiveBranch()` devolve `'todas'` e nenhum usuário (suíte atual da Visão Geral e da Sidebar continua verde)
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/context/ActiveBranchContext.test.tsx`
+- [x] Test count: ao menos 12 testes passam
 
 **Tests**: unit
 **Gate**: quick
