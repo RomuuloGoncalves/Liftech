@@ -1,7 +1,8 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import mongoose from 'mongoose';
-import { carregarEscopo, filtroPorEmpresa, filtroPorFilial, type Escopo } from '../../src/core/escopo.js';
+import { carregarEscopo, exigirEmpresa, filtroPorEmpresa, filtroPorFilial, resolverFilial, type Escopo } from '../../src/core/escopo.js';
 import { Branch } from '../../src/schemas/branch.js';
+import { ErroHttp } from '../../src/utils/responseHandler.js';
 
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { find: vi.fn() } }));
 
@@ -121,5 +122,63 @@ describe('filtros de escopo', () => {
     test('filtroPorEmpresa: escopo sem empresa ou ausente devolve $in vazio', () => {
         expect(filtroPorEmpresa({ tipo: 'filiais', filiais: [] })).toEqual({ empresaId: { $in: [] } });
         expect(filtroPorEmpresa(undefined)).toEqual({ empresaId: { $in: [] } });
+    });
+});
+
+describe('resolverFilial', () => {
+    const F1 = '665f1c2b9a1e4b00123456b1';
+    const F2 = '665f1c2b9a1e4b00123456b2';
+    const filial = (_id: string) => ({ _id, nome: 'x', matriz: false });
+    const escopo = (tipo: 'empresa' | 'filiais', ids: string[]): Escopo => ({ empresaId: 'e1', tipo, filiais: ids.map(filial) });
+    const erro = (chamar: () => unknown) => {
+        try {
+            chamar();
+        } catch (e) {
+            return e as ErroHttp;
+        }
+        throw new Error('não lançou');
+    };
+
+    test('filialId de uma filial do escopo é devolvido', () => {
+        expect(resolverFilial(escopo('filiais', [F1, F2]), F2)).toBe(F2);
+        expect(resolverFilial(escopo('empresa', [F1, F2]), F1)).toBe(F1);
+    });
+
+    test('filialId fora do escopo: 403', () => {
+        expect(erro(() => resolverFilial(escopo('filiais', [F1]), F2)).status).toBe(403);
+    });
+
+    test.each([['abc'], [123], [{}]])('filialId %j que não é ObjectId: 400', (valor) => {
+        expect(erro(() => resolverFilial(escopo('filiais', [F1]), valor)).status).toBe(400);
+    });
+
+    test.each([[undefined], [null], ['']])('sem filialId (%j) e escopo filiais com uma filial: usa essa filial', (valor) => {
+        expect(resolverFilial(escopo('filiais', [F1]), valor)).toBe(F1);
+    });
+
+    test.each([
+        ['escopo empresa com uma filial', escopo('empresa', [F1])],
+        ['escopo filiais com duas filiais', escopo('filiais', [F1, F2])],
+        ['escopo filiais sem filiais', escopo('filiais', [])],
+    ])('sem filialId e %s: 400', (_caso, e) => {
+        expect(erro(() => resolverFilial(e)).status).toBe(400);
+    });
+});
+
+describe('exigirEmpresa', () => {
+    test('escopo empresa passa sem lançar', () => {
+        expect(() => exigirEmpresa({ empresaId: 'e1', tipo: 'empresa', filiais: [] }, 'não')).not.toThrow();
+    });
+
+    test('escopo filiais lança ErroHttp 403 com a mensagem dada', () => {
+        const chamar = () => exigirEmpresa({ empresaId: 'e1', tipo: 'filiais', filiais: [] }, 'Só a empresa.');
+
+        expect(chamar).toThrow(ErroHttp);
+        expect(chamar).toThrow('Só a empresa.');
+        try {
+            chamar();
+        } catch (e) {
+            expect((e as ErroHttp).status).toBe(403);
+        }
     });
 });

@@ -2,13 +2,10 @@ import type { Request, Response } from "express";
 import { Types as mongooseTypes } from "mongoose";
 import { ErroHttp, StatusCode, respostaSucesso, responderErro } from "../../utils/responseHandler.js";
 import * as servicoBranch from "./branchService.js";
+import { exigirEmpresa as exigirEmpresaDoEscopo } from "../../core/escopo.js";
 
 // Só o escopo de empresa cria, renomeia e exclui filiais.
-function exigirEmpresa(req: Request) {
-  if (req.escopo.tipo !== "empresa") {
-    throw new ErroHttp(StatusCode.FORBIDDEN, "Apenas o escopo de empresa pode gerenciar filiais.");
-  }
-}
+const exigirEmpresa = (req: Request) => exigirEmpresaDoEscopo(req.escopo, "Apenas o escopo de empresa pode gerenciar filiais.");
 
 function lerId(req: Request): string {
   const id = req.params.id;

@@ -185,15 +185,15 @@ T9 → T13
 
 **Done when**:
 
-- [ ] `filialId` de uma filial do escopo é devolvido (Forklift AC3)
-- [ ] `filialId` fora do escopo lança `ErroHttp` 403 (Forklift AC4)
-- [ ] `filialId` que não é texto de ObjectId lança `ErroHttp` 400 (Forklift AC5)
-- [ ] Sem `filialId`, escopo `filiais` com uma filial devolve essa filial (Forklift AC6)
-- [ ] Sem `filialId`, escopo `empresa`, várias filiais ou nenhuma lança `ErroHttp` 400 (Forklift AC7)
-- [ ] `exigirEmpresa` lança `ErroHttp` 403 com a mensagem dada quando `tipo` não é `empresa`, e não faz nada quando é
-- [ ] Os testes existentes de `branchController.test.ts` seguem passando sem mudança
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/escopo.test.ts tests/unit/branchController.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 9 testes novos passam e os 20 de branchController seguem
+- [x] `filialId` de uma filial do escopo é devolvido (Forklift AC3)
+- [x] `filialId` fora do escopo lança `ErroHttp` 403 (Forklift AC4)
+- [x] `filialId` que não é texto de ObjectId lança `ErroHttp` 400 (Forklift AC5)
+- [x] Sem `filialId`, escopo `filiais` com uma filial devolve essa filial (Forklift AC6)
+- [x] Sem `filialId`, escopo `empresa`, várias filiais ou nenhuma lança `ErroHttp` 400 (Forklift AC7)
+- [x] `exigirEmpresa` lança `ErroHttp` 403 com a mensagem dada quando `tipo` não é `empresa`, e não faz nada quando é
+- [x] Os testes existentes de `branchController.test.ts` seguem passando; o arquivo só ganha o mock do schema `branch`, que o controller agora alcança por `core/escopo`
+- [x] Gate: `cd Backend && npx vitest run tests/unit/escopo.test.ts tests/unit/branchController.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 9 testes novos passam e os 20 de branchController seguem
 
 **Tests**: unit
 **Gate**: quick

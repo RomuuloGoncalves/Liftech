@@ -1,4 +1,6 @@
+import { Types } from "mongoose";
 import { Branch } from "../schemas/branch.js";
+import { ErroHttp, StatusCode } from "../utils/responseHandler.js";
 
 export interface FilialEscopo {
   _id: string;
@@ -51,3 +53,22 @@ export const filtroPorFilial = (escopo?: Escopo) => ({
 export const filtroPorEmpresa = (escopo?: Escopo) => ({
   empresaId: { $in: escopo?.empresaId ? [escopo.empresaId] : [] },
 });
+
+export function exigirEmpresa(escopo: Escopo, mensagem: string) {
+  if (escopo.tipo !== "empresa") throw new ErroHttp(StatusCode.FORBIDDEN, mensagem);
+}
+
+// Filial de um recurso novo: a informada (válida e dentro do escopo) ou, sem ela, a única filial de quem tem escopo 'filiais'.
+export function resolverFilial(escopo: Escopo, filialId?: unknown): string {
+  if (filialId === undefined || filialId === null || filialId === "") {
+    if (escopo.tipo === "filiais" && escopo.filiais.length === 1) return escopo.filiais[0]!._id;
+    throw new ErroHttp(StatusCode.BAD_REQUEST, "Informe a filial (filialId).");
+  }
+  if (typeof filialId !== "string" || !Types.ObjectId.isValid(filialId)) {
+    throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'filialId' deve ser um ObjectId válido do MongoDB.");
+  }
+  if (!escopo.filiais.some((f) => f._id === filialId)) {
+    throw new ErroHttp(StatusCode.FORBIDDEN, "A filial informada está fora do seu escopo.");
+  }
+  return filialId;
+}

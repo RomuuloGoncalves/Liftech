@@ -7,6 +7,7 @@ import { ErroHttp } from '../../src/utils/responseHandler.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
 vi.mock('../../src/feature/branch/branchService.js', () => ({ criar: vi.fn(), renomear: vi.fn(), excluir: vi.fn() }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
 
 const ID = '665f1c2b9a1e4b0012345678';
 const FILIAIS = [{ _id: ID, nome: 'Matriz', matriz: true }];

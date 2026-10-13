@@ -218,7 +218,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | SCP-05 | P1 Autenticar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: bearer minúsculo | Tasks | In Tasks |
 | SCP-06 | P1 Autenticar: AC9, AC10, AC11, AC12 | Tasks | In Tasks |
 | SCP-07 | P1 Forklift: AC1, AC2 | Tasks | In Tasks |
-| SCP-08 | P1 Forklift: AC3, AC4, AC5, AC6, AC7 | Tasks | In Tasks |
+| SCP-08 | P1 Forklift: AC3, AC4, AC5, AC6, AC7 | Tasks | Implementing |
 | SCP-09 | P1 Forklift: AC8, AC9, AC10 | Tasks | In Tasks |
 | SCP-10 | P1 Máquinas: AC1, AC2, AC3, AC4, AC5, AC6; Edge: filialId repetido | Tasks | In Tasks |
 | SCP-11 | P1 Telemetria: AC7, AC8, AC9, AC10, AC11 | Tasks | In Tasks |
