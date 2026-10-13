@@ -542,13 +542,13 @@ T18 → T19
 
 **Done when**:
 
-- [ ] Com `empresaId`, o admin novo nasce com `empresaId` e `escopo: 'empresa'` (Seeds AC7)
-- [ ] Admin existente recebe só `empresaId` e `escopo: 'empresa'` por `updateOne` e não é recriado (Seeds AC8)
-- [ ] Sem `empresaId`, chama `garantirEmpresa()` e usa o id devolvido (Seeds AC9)
-- [ ] Sem as variáveis de ambiente, nada é consultado nem criado (comportamento atual)
-- [ ] Os testes existentes de `seedAdmin.test.ts` passam com os models `company` e `branch` mockados (o mock de `User` ganha `updateOne`)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/seedAdmin.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 6 testes existentes mais ao menos 3 novos passam
+- [x] Com `empresaId`, o admin novo nasce com `empresaId` e `escopo: 'empresa'` (Seeds AC7)
+- [x] Admin existente recebe só `empresaId` e `escopo: 'empresa'` por `updateOne` e não é recriado (Seeds AC8)
+- [x] Sem `empresaId`, chama `garantirEmpresa()` e usa o id devolvido (Seeds AC9)
+- [x] Sem as variáveis de ambiente, nada é consultado nem criado (comportamento atual)
+- [x] Os testes existentes de `seedAdmin.test.ts` passam com os models `company` e `branch` mockados (o mock de `User` ganha `updateOne`)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/seedAdmin.test.ts && npx tsc --noEmit`
+- [x] Test count: os 5 testes existentes mais 3 novos passam
 
 **Tests**: unit
 **Gate**: quick
