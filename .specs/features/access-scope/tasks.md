@@ -339,12 +339,12 @@ T9 → T13
 
 **Done when**:
 
-- [ ] 200 com o array do service, chamado com `req.escopo` e o `filialId` da query (Máquinas/Telemetria AC1, AC3)
-- [ ] `?filialId=` que não é ObjectId, ou aparece duas vezes, responde 400 sem chamar o service (Máquinas/Telemetria AC5, edge filialId repetido)
-- [ ] 500 com `{ error: <mensagem> }` quando o service lança
-- [ ] Os testes existentes de `machineController.test.ts` passam com `query` e `escopo` no `Request` falso
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/machineController.test.ts && npx tsc --noEmit`
-- [ ] Test count: os 3 testes existentes mais ao menos 4 novos passam
+- [x] 200 com o array do service, chamado com `req.escopo` e o `filialId` da query (Máquinas/Telemetria AC1, AC3)
+- [x] `?filialId=` que não é ObjectId, ou aparece duas vezes, responde 400 sem chamar o service (Máquinas/Telemetria AC5, edge filialId repetido)
+- [x] 500 com `{ error: <mensagem> }` quando o service lança
+- [x] Os testes existentes de `machineController.test.ts` passam com `query` e `escopo` no `Request` falso
+- [x] Gate: `cd Backend && npx vitest run tests/unit/machineController.test.ts && npx tsc --noEmit`
+- [x] Test count: os 3 testes existentes (2 do controller e 1 do router) mais 4 novos passam
 
 **Tests**: unit
 **Gate**: quick
