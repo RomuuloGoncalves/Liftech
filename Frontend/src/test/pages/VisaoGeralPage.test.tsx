@@ -4,7 +4,7 @@ import { ToastProvider } from '../../components/common/Toast'
 import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
 import { machineService } from '../../services/machineService'
-import { MACHINES, type Machine } from '../../data/machines'
+import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
 
 vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.fn() } }))
 
@@ -403,7 +403,9 @@ describe('VisaoGeralPage: API', () => {
     const withMockHistory = await listItemsInDetail(apiMachine())
     const withoutHistory = await listItemsInDetail(apiMachine({ identificacao: 'EMP-777' }))
 
-    expect(withMockHistory).toBeGreaterThan(withoutHistory)
+    const expectedEvents = filterEvents(eventsForMachine('4'), { tipo: 'acidente', ...DEFAULT_PERIOD }).length
+    expect(expectedEvents).toBeGreaterThan(0)
+    expect(withMockHistory - withoutHistory).toBe(expectedEvents)
   })
 
   it('detail history is empty for a machine whose identificacao is not in the mock', async () => {
