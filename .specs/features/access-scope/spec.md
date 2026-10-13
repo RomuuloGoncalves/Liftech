@@ -211,20 +211,20 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| SCP-01 | P1 Filtro: AC1, AC2, AC3, AC4, AC5, AC6 | Tasks | Pending |
-| SCP-02 | P1 Filtro: AC7, AC8 | Tasks | Pending |
-| SCP-03 | P1 Filtro: AC9, AC10, AC11 | Tasks | Pending |
-| SCP-04 | P1 Filtro: AC12; Forklift: AC11; Telemetria: AC12 | Tasks | Pending |
-| SCP-05 | P1 Autenticar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: bearer minúsculo | Tasks | Pending |
-| SCP-06 | P1 Autenticar: AC9, AC10, AC11, AC12 | Tasks | Pending |
-| SCP-07 | P1 Forklift: AC1, AC2 | Tasks | Pending |
-| SCP-08 | P1 Forklift: AC3, AC4, AC5, AC6, AC7 | Tasks | Pending |
-| SCP-09 | P1 Forklift: AC8, AC9, AC10 | Tasks | Pending |
-| SCP-10 | P1 Máquinas: AC1, AC2, AC3, AC4, AC5, AC6; Edge: filialId repetido | Tasks | Pending |
-| SCP-11 | P1 Telemetria: AC7, AC8, AC9, AC10, AC11 | Tasks | Pending |
-| SCP-12 | P1 Usuários: AC1, AC2, AC3, AC4 | Tasks | Pending |
-| SCP-13 | P1 Usuários: AC5, AC6, AC7, AC8, AC9 | Tasks | Pending |
-| SCP-14 | P1 Usuários: AC10, AC11, AC12, AC13, AC14, AC15; Edge: corpo vazio | Tasks | Pending |
+| SCP-01 | P1 Filtro: AC1, AC2, AC3, AC4, AC5, AC6 | Tasks | In Tasks |
+| SCP-02 | P1 Filtro: AC7, AC8 | Tasks | In Tasks |
+| SCP-03 | P1 Filtro: AC9, AC10, AC11 | Tasks | In Tasks |
+| SCP-04 | P1 Filtro: AC12; Forklift: AC11; Telemetria: AC12 | Tasks | In Tasks |
+| SCP-05 | P1 Autenticar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: bearer minúsculo | Tasks | In Tasks |
+| SCP-06 | P1 Autenticar: AC9, AC10, AC11, AC12 | Tasks | In Tasks |
+| SCP-07 | P1 Forklift: AC1, AC2 | Tasks | In Tasks |
+| SCP-08 | P1 Forklift: AC3, AC4, AC5, AC6, AC7 | Tasks | In Tasks |
+| SCP-09 | P1 Forklift: AC8, AC9, AC10 | Tasks | In Tasks |
+| SCP-10 | P1 Máquinas: AC1, AC2, AC3, AC4, AC5, AC6; Edge: filialId repetido | Tasks | In Tasks |
+| SCP-11 | P1 Telemetria: AC7, AC8, AC9, AC10, AC11 | Tasks | In Tasks |
+| SCP-12 | P1 Usuários: AC1, AC2, AC3, AC4 | Tasks | In Tasks |
+| SCP-13 | P1 Usuários: AC5, AC6, AC7, AC8, AC9 | Tasks | In Tasks |
+| SCP-14 | P1 Usuários: AC10, AC11, AC12, AC13, AC14, AC15; Edge: corpo vazio | Tasks | In Tasks |
 
 **Coverage:** 14 total, 14 mapped to tasks, 0 unmapped.
 
