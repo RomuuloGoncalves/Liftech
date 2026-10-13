@@ -56,7 +56,7 @@ export async function criar(req: Request, res: Response) {
       id: corpo.id,
       dispositivoConectadoId: corpo.dispositivoConectadoId,
       operadorConectadoId: corpo.operadorConectadoId
-    });
+    }, { filialId: corpo.filialId });
 
     if (erros) {
         return respostaErro(res, StatusCode.BAD_REQUEST, erros);
@@ -65,7 +65,9 @@ export async function criar(req: Request, res: Response) {
     const forklift = new forkliftModel(
       corpo.id,
       corpo.dispositivoConectadoId,
-      corpo.operadorConectadoId
+      corpo.operadorConectadoId,
+      undefined,
+      corpo.filialId
     );
 
     const criado = await servicoForklift.criar(forklift);

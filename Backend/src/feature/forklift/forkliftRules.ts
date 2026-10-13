@@ -27,4 +27,9 @@ regras.addRules("operadorConectadoId", [{
   message: "O campo 'operadorConectadoId' deve ser um ObjectId válido do MongoDB.",
 }]);
 
+regras.addRules("filialId", [{
+  validator: isValidObjectId,
+  message: "O campo 'filialId' é obrigatório e deve ser um ObjectId válido do MongoDB.",
+}]);
+
 export default regras;

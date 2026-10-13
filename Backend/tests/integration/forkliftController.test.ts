@@ -83,7 +83,7 @@ describe('ForkliftController', () => {
         const mockModel = new forkliftModel('EMP-001', undefined, undefined, 'some-id');
         vi.mocked(servicoForklift.criar).mockResolvedValue(mockModel);
 
-        mockReq.body = { id: 'EMP-001' };
+        mockReq.body = { id: 'EMP-001', filialId: '507f1f77bcf86cd799439020' };
 
         await criar(mockReq as Request, mockRes as Response);
 
@@ -92,7 +92,7 @@ describe('ForkliftController', () => {
     });
 
     test('criar: deve retornar 400 quando identificação é inválida', async () => {
-        mockReq.body = { id: '' };
+        mockReq.body = { id: '', filialId: '507f1f77bcf86cd799439020' };
 
         await criar(mockReq as Request, mockRes as Response);
 
@@ -108,7 +108,7 @@ describe('ForkliftController', () => {
     });
 
     test('criar: deve retornar 409 quando há conflito de identificação', async () => {
-        mockReq.body = { id: 'EMP-001' };
+        mockReq.body = { id: 'EMP-001', filialId: '507f1f77bcf86cd799439020' };
         vi.mocked(servicoForklift.criar).mockRejectedValue(new Error('Já existe uma empilhadeira com a identificação "EMP-001".'));
 
         await criar(mockReq as Request, mockRes as Response);

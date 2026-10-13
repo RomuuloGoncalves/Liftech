@@ -301,12 +301,12 @@ T18 → T19
 
 **Done when**:
 
-- [ ] 201 e o service recebe um model com o `filialId` do corpo (Modelo AC13)
-- [ ] 400 com `filialId` ausente e com `filialId` que não é ObjectId (Modelo AC14)
-- [ ] Os erros de `id` inválido seguem no mesmo formato
-- [ ] Em `tests/integration/forkliftController.test.ts` (não executado aqui) os corpos de `criar` que esperam 201, 400 de `id` e 409 levam `filialId` válido
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/forkliftController.test.ts && npx tsc --noEmit`
-- [ ] Test count: 4 testes novos passam
+- [x] 201 e o service recebe um model com o `filialId` do corpo (Modelo AC13)
+- [x] 400 com `filialId` ausente e com `filialId` que não é ObjectId (Modelo AC14)
+- [x] Os erros de `id` inválido seguem no mesmo formato
+- [x] Em `tests/integration/forkliftController.test.ts` (não executado aqui) os corpos de `criar` que esperam 201, 400 de `id` e 409 levam `filialId` válido
+- [x] Gate: `cd Backend && npx vitest run tests/unit/forkliftController.test.ts && npx tsc --noEmit`
+- [x] Test count: 4 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
