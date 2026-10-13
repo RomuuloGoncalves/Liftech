@@ -186,12 +186,12 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] `POST` com `telefone` e `cargo` chama o serviço com um modelo que os contém e responde 201 com os dois (AC2)
-- [ ] `POST` ou `PUT` com `telefone` ou `cargo` não texto responde 400 com a mensagem de validação e não chama o serviço (AC3)
-- [ ] `PUT` com `telefone` ou `cargo` repassa o campo ao serviço e responde 200 com o valor atualizado (AC4)
-- [ ] `POST` sem os campos continua 201 (AC6)
-- [ ] Gate check passes: `cd Backend && npx vitest run tests/unit/userController.test.ts`
-- [ ] Test count: ao menos 6 testes passam
+- [x] `POST` com `telefone` e `cargo` chama o serviço com um modelo que os contém e responde 201 com os dois (AC2)
+- [x] `POST` ou `PUT` com `telefone` ou `cargo` não texto responde 400 com a mensagem de validação e não chama o serviço (AC3)
+- [x] `PUT` com `telefone` ou `cargo` repassa o campo ao serviço e responde 200 com o valor atualizado (AC4)
+- [x] `POST` sem os campos continua 201 (AC6)
+- [x] Gate check passes: `cd Backend && npx vitest run tests/unit/userController.test.ts`
+- [x] Test count: ao menos 6 testes passam
 
 **Tests**: unit
 **Gate**: quick

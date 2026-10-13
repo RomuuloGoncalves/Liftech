@@ -20,6 +20,11 @@ function obterIdUsuario(req: Request): string | null {
   return null;
 }
 
+// request-check só lê o primeiro campo de cada objeto; `isRequiredField: false` ignora o ausente.
+function validarOpcionais(corpo: Record<string, unknown>) {
+  return regras.check(...["telefone", "cargo"].map(c => ({ [c]: corpo[c], isRequiredField: false })));
+}
+
 export async function listar(_req: Request, res: Response) {
   try {
     const usuarios = await servicoUser.listar();
@@ -55,13 +60,13 @@ export async function criar(req: Request, res: Response) {
     const erros = regras.check({
       nome: corpo.nome,
       role: corpo.role
-    });
+    }) ?? validarOpcionais(corpo);
 
     if (erros) {
         return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
-    const usuario = new userModel(corpo.nome, corpo.role);
+    const usuario = new userModel(corpo.nome, corpo.role, undefined, corpo.telefone, corpo.cargo);
 
     const criado = await servicoUser.criar(usuario);
     return respostaSucesso(res, StatusCode.CREATED, criado.obterDados());
@@ -105,6 +110,11 @@ export async function atualizar(req: Request, res: Response) {
 
     const corpo = req.body as Partial<Record<string, unknown>>;
     delete corpo._id;
+
+    const erros = validarOpcionais(corpo);
+    if (erros) {
+      return respostaErro(res, StatusCode.BAD_REQUEST, erros);
+    }
 
     const atualizado = await servicoUser.atualizar(id, corpo);
     return respostaSucesso(res, StatusCode.OK, atualizado.obterDados());
