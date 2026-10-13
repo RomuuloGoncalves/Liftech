@@ -16,7 +16,6 @@ regras.addRules("role", [{
   message: "O campo 'role' é obrigatório e deve ser texto válido.",
 }]);
 
-// Opcionais: o controller só envia a chave quando ela vem no corpo (ausente = request-check marca como obrigatório).
 for (const campo of ["telefone", "cargo"]) {
   regras.addRules(campo, [{
     validator: (valor: unknown) => isness.string(valor),
