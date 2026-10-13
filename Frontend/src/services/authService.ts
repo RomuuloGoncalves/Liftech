@@ -6,6 +6,8 @@ export interface UsuarioLogado {
   _id: string;
   nome: string;
   role: RoleLogin;
+  telefone?: string;
+  cargo?: string;
 }
 
 export interface SolicitacaoAcesso {

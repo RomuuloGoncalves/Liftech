@@ -271,8 +271,8 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Os dois campos opcionais (`string`) existem no tipo
-- [ ] `npx tsc -b` limpo
+- [x] Os dois campos opcionais (`string`) existem no tipo
+- [x] `npx tsc -b` limpo
 
 **Tests**: none
 **Gate**: build
