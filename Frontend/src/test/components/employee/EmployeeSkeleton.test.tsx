@@ -5,7 +5,7 @@ import EmployeeSkeleton from '../../../components/employee/EmployeeSkeleton'
 const count = (container: HTMLElement, attr: string) => container.querySelectorAll(`[${attr}]`).length
 
 describe('EmployeeSkeleton', () => {
-  it.each(['home', 'list', 'session', 'form', 'title'] as const)(
+  it.each(['home', 'list', 'session', 'form', 'title', 'settings'] as const)(
     '%s announces loading once and marks the region busy',
     (variant) => {
       const { container } = render(<EmployeeSkeleton variant={variant} />)
@@ -43,6 +43,15 @@ describe('EmployeeSkeleton', () => {
     const other = render(<EmployeeSkeleton variant="form" buttons={false} />)
     expect(count(other.container, 'data-skeleton-field')).toBe(4)
     expect(count(other.container, 'data-skeleton-button')).toBe(0)
+  })
+
+  it('settings has the data card with 3 fields, the 2 buttons and the 2 text blocks of the notice and feedback', () => {
+    const { container } = render(<EmployeeSkeleton variant="settings" />)
+    expect(count(container, 'data-skeleton-card')).toBe(1)
+    expect(container.querySelector('[data-skeleton-card]')!.querySelectorAll('[data-skeleton-field]')).toHaveLength(3)
+    expect(count(container, 'data-skeleton-button')).toBe(2)
+    expect(count(container, 'data-skeleton-notice')).toBe(1)
+    expect(count(container, 'data-skeleton-textarea')).toBe(1)
   })
 
   it('title has a single line and no cards, fields or buttons', () => {

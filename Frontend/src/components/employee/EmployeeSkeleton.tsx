@@ -4,7 +4,7 @@ import base from '../common/PageSkeleton.module.css'
 import styles from './EmployeeSkeleton.module.css'
 
 interface EmployeeSkeletonProps {
-  variant: 'home' | 'list' | 'session' | 'form' | 'title'
+  variant: 'home' | 'list' | 'session' | 'form' | 'title' | 'settings'
   /** Quantidade de cards da variante `list`. */
   count?: number
   /** Variante `form`: mostra os 2 botões; o sheet de ocorrência já tem os botões no rodapé. */
@@ -96,6 +96,27 @@ const Visual: React.FC<EmployeeSkeletonProps> = ({ variant, count = 6, buttons =
       )
     case 'title':
       return <Block className={styles.title} />
+    case 'settings':
+      return (
+        <>
+          <Block className={styles.title} />
+          <Block className={styles.sectionLabel} />
+          <div className={styles.card} data-skeleton-card>
+            <Block className={`${styles.line} ${styles.medium}`} />
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={styles.field} data-skeleton-field>
+                <Block className={styles.fieldLabel} />
+                <Block className={styles.input} />
+              </div>
+            ))}
+            <span className={`${base.block} ${styles.notice}`} data-skeleton-notice />
+          </div>
+          <span className={`${base.block} ${styles.button}`} data-skeleton-button />
+          <Block className={styles.sectionLabel} />
+          <span className={`${base.block} ${styles.textarea}`} data-skeleton-textarea />
+          <span className={`${base.block} ${styles.button}`} data-skeleton-button />
+        </>
+      )
   }
 }
 

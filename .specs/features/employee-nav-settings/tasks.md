@@ -324,10 +324,10 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] `variant="settings"` anuncia carregamento uma vez e marca `aria-busy="true"` (AC10)
-- [ ] Tem 3 campos de dados (`data-skeleton-field`) e 2 botões (`data-skeleton-button`), sem erros de tipo
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/styles/no-hardcoded-colors.test.ts`
-- [ ] Test count: os testes antigos passam e o novo caso cobre a variante
+- [x] `variant="settings"` anuncia carregamento uma vez e marca `aria-busy="true"` (AC10)
+- [x] Tem 3 campos de dados (`data-skeleton-field`) e 2 botões (`data-skeleton-button`), sem erros de tipo
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/styles/no-hardcoded-colors.test.ts`
+- [x] Test count: os testes antigos passam e o novo caso cobre a variante
 
 **Tests**: unit
 **Gate**: quick
