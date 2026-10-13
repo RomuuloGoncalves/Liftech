@@ -330,10 +330,10 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `responderErro` responde com `error.status` e `{ error: mensagem }` para `ErroHttp` (CRUD AC2, AC13)
-- [ ] `responderErro` responde 500 com `{ error: mensagem }` para qualquer outro erro (CRUD AC13)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/responseHandler.test.ts && npx tsc --noEmit`
-- [ ] Test count: 2 testes novos passam
+- [x] `responderErro` responde com `error.status` e `{ error: mensagem }` para `ErroHttp` (CRUD AC2, AC13)
+- [x] `responderErro` responde 500 com `{ error: mensagem }` para qualquer outro erro (CRUD AC13)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/responseHandler.test.ts && npx tsc --noEmit`
+- [x] Test count: 2 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
