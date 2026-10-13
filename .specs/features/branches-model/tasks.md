@@ -357,15 +357,15 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `escopo: 'empresa'` devolve `tipo: 'empresa'` e todas as filiais da empresa (Escopo AC1)
-- [ ] `escopo: 'filiais'` devolve só as filiais da empresa com id em `filiaisIds` (Escopo AC2)
-- [ ] A consulta usa `empresaId` do usuário, então filial de outra empresa ou inexistente não aparece (Escopo AC4, edge filial apagada)
-- [ ] `filiaisIds` vazio devolve `filiais` vazio (Escopo AC3)
-- [ ] Cada filial vem como `{ _id, nome, matriz }` com `_id` em texto, matriz primeiro e depois por `nome` (Escopo AC5)
-- [ ] Sem `empresaId`: `tipo: 'filiais'`, `filiais: []` e nenhuma consulta (Escopo AC6)
-- [ ] `escopo` indefinido com `empresaId` vira `'filiais'` (edge)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/escopo.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 7 testes passam
+- [x] `escopo: 'empresa'` devolve `tipo: 'empresa'` e todas as filiais da empresa (Escopo AC1)
+- [x] `escopo: 'filiais'` devolve só as filiais da empresa com id em `filiaisIds` (Escopo AC2)
+- [x] A consulta usa `empresaId` do usuário, então filial de outra empresa ou inexistente não aparece (Escopo AC4, edge filial apagada)
+- [x] `filiaisIds` vazio devolve `filiais` vazio (Escopo AC3)
+- [x] Cada filial vem como `{ _id, nome, matriz }` com `_id` em texto, matriz primeiro e depois por `nome` (Escopo AC5)
+- [x] Sem `empresaId`: `tipo: 'filiais'`, `filiais: []` e nenhuma consulta (Escopo AC6)
+- [x] `escopo` indefinido com `empresaId` vira `'filiais'` (edge)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/escopo.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 7 testes passam
 
 **Tests**: unit
 **Gate**: quick
