@@ -85,6 +85,22 @@
   - 18 testes novos (`App.test.tsx` + 3 arquivos de página), suite completa (264 testes) + lint + build passando. Verificação visual feita por mim mesmo no Browser pane contra os 3 screenshots do Figma (sem subagente dedicado — o usuário pediu monitoramento visual e isso supriu a necessidade).
   - Ver `.specs/features/login-cadastro/spec.md` (14 ACs, AUTH-01..14, todas marcadas Verified).
 
+### AD-008: Empresas e filiais (modelo de acesso)
+- **Date**: 2026-10-13
+- **Status**: Approved (decisões do dono; specs B, C e D ainda não escritos)
+- **Context**: Hoje não existe empresa ou filial no backend (só `accessRequest.nomeEmpresa`), o JWT não é verificado em nenhuma rota e o `RepositoryBase` não filtra. O Figma tem o seletor de filial na Sidebar (frames `341:7064`, `341:7309`, `341:7804`), não no Header.
+- **Decision**:
+  - Dois eixos independentes: `role` (`admin` | `colaborador`) diz o que o usuário vê; o escopo diz onde atua.
+  - Coleções novas `company` e `branch` (`empresaId`; a matriz é uma filial com `matriz: true`).
+  - `user` ganha `empresaId`, `escopo: 'empresa' | 'filiais'` e `filiaisIds[]` (um usuário pode ter várias filiais). `escopo: 'filiais'` com lista vazia não vê nada.
+  - Recursos (forklift, device, operator, sector, incident) têm um único `filialId`; telemetria isola pelo device.
+  - O JWT continua só com `sub`; o middleware busca o usuário a cada requisição, e o escopo vem daí. O filtro entra no `RepositoryBase`.
+  - Criar recurso com várias filiais exige `filialId` no corpo, validado contra as filiais do usuário.
+  - Cada filial tem admin próprio; só o admin da empresa move máquina ou funcionário entre filiais. Mesmo banco, com `empresaId` nos documentos. O setor pertence a uma filial e substitui o texto `unidade`.
+  - Front: o seletor fica na Sidebar, com "Todas as filiais", listar, criar inline, renomear e excluir; "Gerenciar" e "Criar" só para `escopo: 'empresa'`. Linha "Nome da companhia" no rodapé da Sidebar.
+  - Reverte o Out of Scope "Proteção de rotas" de `auth-login`.
+- **Plano**: A `employee-nav-settings` (só front) → B `branches-model` → C `access-scope` → D `branches-frontend`.
+
 ## Handoff Snapshot
 - **Current Phase**: Execute da feature "Telas de Login e Cadastro" concluído (todas as 14 ACs implementadas e verificadas manualmente: testes + lint + build + checagem visual no browser contra o Figma).
 - **Next Phase**: Nenhuma ação pendente desta feature. Possível próximo passo (não iniciado): backend real de autenticação, hoje fora de escopo (ver Out of Scope em `login-cadastro/spec.md`).
