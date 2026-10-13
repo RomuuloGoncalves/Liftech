@@ -213,8 +213,8 @@ O backend passa a ter empresa e filial (AD-008): o login devolve o escopo do usu
 | BRF-03 | P1 Seletor: AC1, AC2, AC3, AC4, AC5, AC6, AC8; Edge: lista vazia | Tasks | Pending |
 | BRF-04 | P1 Seletor: AC7; P2 Empresa: AC1, AC2, AC3 | Tasks | Pending |
 | BRF-05 | P1 Visão Geral: AC1, AC2, AC3, AC4, AC5, AC6, AC7 | Tasks | Pending |
-| BRF-06 | P2 Gerenciar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: espaços | Tasks | Pending |
-| BRF-07 | P2 Gerenciar: AC9, AC10, AC11, AC12, AC13; Edge: excluir a ativa | Tasks | Pending |
+| BRF-06 | P2 Gerenciar: AC1, AC2, AC3, AC4, AC5, AC6, AC7, AC8; Edge: espaços | Implementing | Pending |
+| BRF-07 | P2 Gerenciar: AC9, AC10, AC11, AC12, AC13; Edge: excluir a ativa | Implementing | Pending |
 | BRF-08 | P1 Sessão inválida: AC1, AC2, AC3, AC4, AC5 | Tasks | Pending |
 | BRF-09 | P1 Textos: AC1, AC2 | Tasks | Pending |
 

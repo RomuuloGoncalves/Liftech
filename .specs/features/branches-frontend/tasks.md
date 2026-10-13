@@ -116,11 +116,11 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `listar` chama `GET /branches` e devolve `Filial[]`
-- [ ] `criar` chama `POST /branches` com `{ nome }`; `renomear` chama `PUT /branches/<id>` com `{ nome }`; `remover` chama `DELETE /branches/<id>`
-- [ ] A rejeição da API se propaga nas quatro funções (o 409 chega ao chamador)
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/branchService.test.ts`
-- [ ] Test count: ao menos 5 testes passam
+- [x] `listar` chama `GET /branches` e devolve `Filial[]`
+- [x] `criar` chama `POST /branches` com `{ nome }`; `renomear` chama `PUT /branches/<id>` com `{ nome }`; `remover` chama `DELETE /branches/<id>`
+- [x] A rejeição da API se propaga nas quatro funções (o 409 chega ao chamador)
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/services/branchService.test.ts`
+- [x] Test count: ao menos 5 testes passam
 
 **Tests**: unit
 **Gate**: quick
