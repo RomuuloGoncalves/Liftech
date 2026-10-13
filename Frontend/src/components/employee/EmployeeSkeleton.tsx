@@ -4,7 +4,7 @@ import base from '../common/PageSkeleton.module.css'
 import styles from './EmployeeSkeleton.module.css'
 
 interface EmployeeSkeletonProps {
-  variant: 'home' | 'list' | 'session' | 'form' | 'title' | 'settings'
+  variant: 'home' | 'list' | 'history' | 'session' | 'form' | 'title' | 'settings'
   /** Quantidade de cards da variante `list`. */
   count?: number
   /** Variante `form`: mostra os 2 botões; o sheet de ocorrência já tem os botões no rodapé. */
@@ -25,10 +25,11 @@ const Header: React.FC = () => (
   </div>
 )
 
-const Cards: React.FC<{ count: number }> = ({ count }) => (
+/** `extra`: card com data e hora (Empilhadeiras e Histórico), mais alto que o da Visão geral. */
+const Cards: React.FC<{ count: number; extra?: boolean }> = ({ count, extra = false }) => (
   <div className={styles.list}>
     {Array.from({ length: count }, (_, i) => (
-      <div key={i} className={styles.card} data-skeleton-card>
+      <div key={i} className={`${styles.card} ${extra ? styles.cardExtra : ''}`} data-skeleton-card>
         <div className={styles.cardTop} data-skeleton-part="top">
           <div className={styles.cardNames}>
             <Block className={styles.cardName} />
@@ -40,8 +41,15 @@ const Cards: React.FC<{ count: number }> = ({ count }) => (
         <div className={styles.cardBottom} data-skeleton-part="bottom">
           <div className={styles.cardField} data-skeleton-part="field">
             <Block className={styles.cardLabel} />
-            <Block className={styles.cardValue} />
+            <Block className={styles.cardValue} data-skeleton-part="value" />
           </div>
+          {extra && (
+            <div className={styles.cardField} data-skeleton-part="field">
+              <Block className={styles.cardLabel} />
+              <Block className={styles.cardValue} data-skeleton-part="value" />
+              <Block className={styles.cardValue} data-skeleton-part="value" />
+            </div>
+          )}
           <Block className={styles.cardAction} data-skeleton-part="action" />
         </div>
       </div>
@@ -90,7 +98,27 @@ const Visual: React.FC<EmployeeSkeletonProps> = ({ variant, count = 6, buttons =
         <>
           <Header />
           <Block className={styles.search} />
-          <Cards count={count} />
+          <Cards count={count} extra />
+        </>
+      )
+    case 'history':
+      return (
+        <>
+          <Block className={styles.headerTitle} data-skeleton-part="title" />
+          <div data-skeleton-part="subtitle">
+            <Block className={styles.subtitleLine} />
+            <Block className={`${styles.subtitleLine} ${styles.subtitleSecond}`} />
+          </div>
+          <Block className={styles.filtersTitle} data-skeleton-part="filters-title" />
+          <div className={styles.filters} data-skeleton-filters>
+            <Block className={styles.filterField} data-skeleton-field />
+            <div className={styles.times}>
+              <Block className={styles.filterField} data-skeleton-field />
+              <Block className={styles.filterField} data-skeleton-field />
+            </div>
+            <Block className={styles.filterField} data-skeleton-field />
+          </div>
+          <Cards count={count} extra />
         </>
       )
     case 'session':
@@ -151,7 +179,7 @@ const Visual: React.FC<EmployeeSkeletonProps> = ({ variant, count = 6, buttons =
 
 const EmployeeSkeleton: React.FC<EmployeeSkeletonProps> = (props) => {
   const { t } = useTranslation()
-  const visual = `${styles.wrapper} ${props.variant === 'session' ? styles.session : ''}`
+  const visual = `${styles.wrapper} ${props.variant === 'session' ? styles.session : ''} ${props.variant === 'history' ? styles.history : ''}`
 
   return (
     <div aria-busy="true" className={styles.wrapper}>

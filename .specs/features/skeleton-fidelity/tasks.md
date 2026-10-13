@@ -213,12 +213,12 @@ T5 → T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Cards de `list` e `history` com 140px (SKL-07 AC3)
-- [ ] `history` mostra título, subtítulo, "Filtros" e 3 linhas de campo de 36px, a segunda com 2 campos lado a lado (SKL-07 AC2)
-- [ ] O Histórico carregando usa a variante `history`
-- [ ] `prefers-reduced-motion` global mantém o brilho parado (SKL-10, AC9 já coberto por `employeeMotion.test.ts`)
-- [ ] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHistoryPage.test.tsx`
-- [ ] Test count: 5 tests added, `EmployeeHistoryPage.test.tsx` all pass
+- [x] Cards de `list` e `history` com 140px (SKL-07 AC3)
+- [x] `history` mostra título, subtítulo, "Filtros" e 3 linhas de campo de 36px, a segunda com 2 campos lado a lado (SKL-07 AC2)
+- [x] O Histórico carregando usa a variante `history`
+- [x] `prefers-reduced-motion` global mantém o brilho parado (SKL-10, AC9 já coberto por `employeeMotion.test.ts`)
+- [x] Gate check passes: `cd Frontend && npx vitest run src/test/components/employee/EmployeeSkeleton.test.tsx src/test/styles/employeeSkeleton.test.ts src/test/pages/employee/EmployeeHistoryPage.test.tsx src/test/pages/employee/EmployeeHistorySkeleton.test.tsx`
+- [x] Test count: 2 tests added to `EmployeeSkeleton.test.tsx` (plus `history` in the aria-busy `it.each`), 3 to `employeeSkeleton.test.ts`, 1 new page file `EmployeeHistorySkeleton.test.tsx`; `EmployeeHistoryPage.test.tsx` all pass
 
 **Tests**: unit
 **Gate**: quick

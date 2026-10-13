@@ -10,6 +10,7 @@ const media = (css: string, query: string) => css.match(new RegExp(`@media \\(${
 const skeleton = read('components/employee/EmployeeSkeleton.module.css')
 const listCard = read('components/employee/MachineListCard.module.css')
 const home = read('pages/employee/EmployeeHomePage.module.css')
+const history = read('pages/employee/EmployeeHistoryPage.module.css')
 const num = (css: string, prop: string) => Number(css.match(new RegExp(`(?:^|[\\s;])${prop}:\\s*(-?[\\d.]+)px`))?.[1])
 const pages = ['Machines', 'History', 'Home'].map((n) => read(`pages/employee/Employee${n}Page.module.css`))
 
@@ -83,5 +84,29 @@ describe('EmployeeSkeleton home styles', () => {
 
   it('shows only one subtitle line from 600px, where the real subtitle fits on one line', () => {
     expect(block(media(skeleton, 'min-width: 600px'), '.subtitleSecond')).toMatch(/display:\s*none/)
+  })
+})
+
+describe('EmployeeSkeleton list and history styles', () => {
+  it('card with date and time is 140px: 37 top + 1 divider + 60 bottom + 2 gaps of 8 + 24 padding + 2 borders', () => {
+    const card = block(skeleton, '.card')
+    const bottom = num(block(skeleton, '.cardExtra .cardBottom'), 'height')
+    expect(bottom).toBe(60)
+    expect(num(block(skeleton, '.cardTop'), 'height') + 1 + bottom + 2 * num(card, 'gap') + 2 * num(card, 'padding') + 2).toBe(140)
+  })
+
+  it('history column keeps the 12px page gap and the filters 8px apart, with 36px fields like the page', () => {
+    expect(num(block(skeleton, '.history'), 'gap')).toBe(num(block(history, '.page'), 'gap'))
+    expect(num(block(skeleton, '.filters'), 'gap')).toBe(num(block(history, '.filters'), 'gap'))
+    expect(num(block(skeleton, '.filterField'), 'height')).toBe(num(block(history, '.field'), 'height'))
+    expect(num(block(skeleton, '.times'), 'gap')).toBe(num(block(history, '.times'), 'gap'))
+    expect(block(skeleton, '.times')).toMatch(/grid-template-columns:\s*1fr 1fr/)
+  })
+
+  it('"Filtros" title keeps the 4px top margin and the 15.3px line of the page heading', () => {
+    const title = block(skeleton, '.filtersTitle')
+    expect(block(history, '.filtersTitle')).toMatch(/margin:\s*4px 0 0/)
+    expect(num(title, 'margin-top')).toBe(4)
+    expect(num(title, 'height') + num(title, 'margin-top') + num(title, 'margin-bottom')).toBeCloseTo(4 + 15.3, 1)
   })
 })

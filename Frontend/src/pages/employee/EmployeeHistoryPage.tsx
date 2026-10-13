@@ -31,7 +31,7 @@ const EmployeeHistoryPage: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.page}>
-        <EmployeeSkeleton variant="list" />
+        <EmployeeSkeleton variant="history" />
       </div>
     )
   }

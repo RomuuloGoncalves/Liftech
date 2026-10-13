@@ -5,7 +5,7 @@ import EmployeeSkeleton from '../../../components/employee/EmployeeSkeleton'
 const count = (container: HTMLElement, attr: string) => container.querySelectorAll(`[${attr}]`).length
 
 describe('EmployeeSkeleton', () => {
-  it.each(['home', 'list', 'session', 'form', 'title', 'settings'] as const)(
+  it.each(['home', 'list', 'history', 'session', 'form', 'title', 'settings'] as const)(
     '%s announces loading once and marks the region busy',
     (variant) => {
       const { container } = render(<EmployeeSkeleton variant={variant} />)
@@ -88,5 +88,29 @@ describe('EmployeeSkeleton', () => {
       expect(container.querySelector('[data-skeleton-part="subtitle"]')!.children).toHaveLength(2)
       unmount()
     }
+  })
+
+  it('list cards carry date and time: the bottom has the sector field and a date-time field with two values', () => {
+    const { container } = render(<EmployeeSkeleton variant="list" count={2} />)
+    for (const card of container.querySelectorAll('[data-skeleton-card]')) {
+      const fields = card.querySelectorAll('[data-skeleton-part="bottom"] [data-skeleton-part="field"]')
+      expect(fields).toHaveLength(2)
+      expect(fields[0].querySelectorAll('[data-skeleton-part="value"]')).toHaveLength(1)
+      expect(fields[1].querySelectorAll('[data-skeleton-part="value"]')).toHaveLength(2)
+    }
+  })
+
+  it('history shows title, subtitle, the "Filtros" title and 3 filter rows (period, two times, search) above 6 cards', () => {
+    const { container } = render(<EmployeeSkeleton variant="history" />)
+    expect(container.querySelectorAll('[data-skeleton-part="title"]')).toHaveLength(1)
+    expect(container.querySelector('[data-skeleton-part="subtitle"]')!.children).toHaveLength(2)
+    expect(container.querySelectorAll('[data-skeleton-part="filters-title"]')).toHaveLength(1)
+    const rows = container.querySelector('[data-skeleton-filters]')!.children
+    expect([...rows].map((row) => (row.hasAttribute('data-skeleton-field') ? 1 : row.querySelectorAll('[data-skeleton-field]').length))).toEqual([1, 2, 1])
+    expect(count(container, 'data-skeleton-card')).toBe(6)
+    expect(
+      container.querySelector('[data-skeleton-filters]')!.compareDocumentPosition(container.querySelector('[data-skeleton-card]')!) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 })
