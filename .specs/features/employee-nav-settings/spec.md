@@ -124,20 +124,20 @@ A barra inferior do funcionário tem 4 ícones e o Figma tem 3: o ícone de ocor
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| TAB-01 | P1 Menu: AC1, AC2, AC3 | Execute | Implementing |
-| TAB-02 | P1 Menu: AC4 | Execute | Implementing |
-| TAB-03 | P1 Menu: AC5, AC6 | Execute | Implementing |
-| SET-01 | P1 Config: AC1, AC2 | Execute | Implementing |
-| SET-02 | P1 Config: AC3, AC4, AC5; Edge: JSON inválido | Execute | Implementing |
-| USR-01 | P1 Usuário: AC1, AC6 | Execute | Implementing |
-| USR-02 | P1 Usuário: AC2, AC3, AC4 | Execute | Implementing |
-| USR-03 | P1 Usuário: AC5 | Execute | Implementing |
-| SET-03 | P1 Config: AC6 | Execute | Implementing |
-| SET-04 | P1 Config: AC7 | Execute | Implementing |
-| SET-05 | P1 Config: AC8; Edge: descartar texto | Execute | Implementing |
-| SET-06 | P1 Config: AC9 | Execute | Implementing |
-| SET-07 | P1 Config: AC10, AC11 | Execute | Implementing |
-| SET-08 | P1 Config: AC12 | Execute | Implementing |
+| TAB-01 | P1 Menu: AC1, AC2, AC3 | Execute | Verified |
+| TAB-02 | P1 Menu: AC4 | Execute | Verified |
+| TAB-03 | P1 Menu: AC5, AC6 | Execute | Verified |
+| SET-01 | P1 Config: AC1, AC2 | Execute | Verified |
+| SET-02 | P1 Config: AC3, AC4, AC5; Edge: JSON inválido | Execute | Verified |
+| USR-01 | P1 Usuário: AC1, AC6 | Execute | Verified |
+| USR-02 | P1 Usuário: AC2, AC3, AC4 | Execute | Verified |
+| USR-03 | P1 Usuário: AC5 | Execute | Verified |
+| SET-03 | P1 Config: AC6 | Execute | Verified |
+| SET-04 | P1 Config: AC7 | Execute | Verified |
+| SET-05 | P1 Config: AC8; Edge: descartar texto | Execute | Verified |
+| SET-06 | P1 Config: AC9 | Execute | Verified |
+| SET-07 | P1 Config: AC10, AC11 | Execute | Verified |
+| SET-08 | P1 Config: AC12 | Execute | Verified |
 
 ---
 

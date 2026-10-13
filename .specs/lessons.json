@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 10,
+  "next_id": 11,
   "lessons": [
     {
       "id": "L-001",
@@ -166,6 +166,24 @@
       ],
       "created": "2026-10-13T15:22:43Z",
       "last_seen": "2026-10-13T15:22:43Z"
+    },
+    {
+      "id": "L-010",
+      "key": "surviving_mutant::when a body field is validated on both post and put give the put its own non text test for every validated field",
+      "text": "When a body field is validated on both POST and PUT, give the PUT its own non-text test for every validated field",
+      "signal": "surviving_mutant",
+      "scope": "backend-tests",
+      "status": "candidate",
+      "features": [
+        "employee-nav-settings"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "B20 userController.ts PUT telefone/cargo (backend-tests)"
+      ],
+      "created": "2026-10-13T17:09:14Z",
+      "last_seen": "2026-10-13T17:09:14Z"
     }
   ]
 }

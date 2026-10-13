@@ -68,6 +68,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M25 i18n.test.ts:loadError/retry (frontend-i18n)
 - last seen: 2026-10-13T15:22:43Z
 
+### L-010 - When a body field is validated on both POST and PUT, give the PUT its own non-text test for every validated field
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-tests` · harmful: 0
+- features: employee-nav-settings
+- evidence: B20 userController.ts PUT telefone/cargo (backend-tests)
+- last seen: 2026-10-13T17:09:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
