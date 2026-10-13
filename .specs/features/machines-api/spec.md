@@ -133,17 +133,17 @@ A Visão Geral das Máquinas lê `MACHINES`, um mock em `Frontend/src/data/machi
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| MCH-01 | P1 Rota: AC1 | Execute | Implementing |
-| MCH-02 | P1 Rota: AC2, AC3, AC4, AC8; Edge: operador apagado | Execute | Implementing |
-| MCH-03 | P1 Rota: AC5, AC6; Edge: data futura | Execute | Implementing |
-| MCH-04 | P1 Rota: AC7, AC9 | Execute | Implementing |
-| SED-01 | P1 Seeds: AC1, AC2, AC3 | Execute | Implementing |
-| SED-02 | P1 Seeds: AC4 | Execute | Implementing |
-| SED-03 | P1 Seeds: AC5, AC6, AC9 | Execute | Implementing |
-| SED-04 | P1 Seeds: AC7, AC8 | Execute | Implementing |
-| VGR-01 | P1 Visão Geral: AC1, AC2, AC5, AC6; Edge: status desconhecido | Execute | Implementing |
-| VGR-02 | P1 Visão Geral: AC3, AC4, AC9 | Execute | Implementing |
-| VGR-03 | P1 Visão Geral: AC7, AC8 | Execute | Implementing |
+| MCH-01 | P1 Rota: AC1 | Execute | Verified |
+| MCH-02 | P1 Rota: AC2, AC3, AC4, AC8; Edge: operador apagado | Execute | Verified |
+| MCH-03 | P1 Rota: AC5, AC6; Edge: data futura | Execute | Verified |
+| MCH-04 | P1 Rota: AC7, AC9 | Execute | Verified |
+| SED-01 | P1 Seeds: AC1, AC2, AC3 | Execute | Verified |
+| SED-02 | P1 Seeds: AC4 | Execute | Verified |
+| SED-03 | P1 Seeds: AC5, AC6, AC9 | Execute | Verified |
+| SED-04 | P1 Seeds: AC7, AC8 | Execute | Verified |
+| VGR-01 | P1 Visão Geral: AC1, AC2, AC5, AC6; Edge: status desconhecido | Execute | Verified |
+| VGR-02 | P1 Visão Geral: AC3, AC4, AC9 | Execute | Verified |
+| VGR-03 | P1 Visão Geral: AC7, AC8 | Execute | Verified |
 
 ---
 

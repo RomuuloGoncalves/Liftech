@@ -101,10 +101,19 @@
   - Reverte o Out of Scope "Proteção de rotas" de `auth-login`.
 - **Plano**: A `employee-nav-settings` (só front) → B `branches-model` → C `access-scope` → D `branches-frontend`.
 
+### AD-009: Visão Geral lendo a API e seeds (`machines-api`)
+- **Date**: 2026-10-13
+- **Status**: Approved, implementado e verificado (ver `.specs/features/machines-api/validation.md`)
+- **Context**: A Visão Geral lia o mock `MACHINES`; o backend não tinha rota que juntasse forklift, device e operator.
+- **Decision**:
+  - `GET /api/machines` (feature `machine`: service, controller, router) devolve o formato `Machine` do front; rota separada de `/api/forklifts`, sem auth até a feature de escopo.
+  - O schema `forklift` ganhou `nome`, `setor` e `sessaoIniciadaEm` (opcionais); `tempoSessaoMinutos` é calculado na resposta.
+  - `yarn seed:data` (`Backend/src/scripts/seedData.ts`, dados em `seedDataset.ts`) faz upsert por chave natural em operator, device, forklift, telemetry, incident, user (colaboradores, senha em `SEED_COLABORADOR_SENHA`) e accessRequest, e chama o `seedAdmin`. O dono executa o seed; os testes usam models mockados.
+  - A Visão Geral busca as máquinas com skeleton, erro e nova tentativa; cadastrar, editar e excluir seguem só em memória; o histórico do detalhe segue mock, casado pela `identificacao`.
+  - Frota, Equipe, Alertas e as telas do funcionário seguem em mock.
+
 ## Handoff Snapshot
-- **Current Phase**: Execute da feature "Telas de Login e Cadastro" concluído (todas as 14 ACs implementadas e verificadas manualmente: testes + lint + build + checagem visual no browser contra o Figma).
-- **Next Phase**: Nenhuma ação pendente desta feature. Possível próximo passo (não iniciado): backend real de autenticação, hoje fora de escopo (ver Out of Scope em `login-cadastro/spec.md`).
-- **Files changed (uncommitted)**: `Frontend/src/App.tsx`, `Frontend/src/routes/appRoutes.tsx`, `Frontend/src/locales/*/translation.json` (7 arquivos, namespace `auth` novo), `Frontend/src/components/auth/` (novo: `AuthLayout.tsx`, `AuthLayout.module.css`, `AuthField.tsx`, `AuthForm.module.css`), `Frontend/src/pages/{LoginAdminPage,LoginColaboradorPage,SolicitarAcessoPage}.tsx`, `Frontend/src/test/App.test.tsx`, `Frontend/src/test/pages/{LoginAdminPage,LoginColaboradorPage,SolicitarAcessoPage}.test.tsx`, `.specs/features/login-cadastro/spec.md`, `.specs/STATE.md`.
-- **Não commitado de propósito**: regra do projeto (`CLAUDE.md`) proíbe `git commit` nesta sessão; o usuário revisa e commita manualmente.
-- **Mudanças não relacionadas no working tree (não minhas, não tocadas)**: `Backend/src/feature/user/*`, `Backend/src/models/userModel.ts`, `Backend/tests/unit/userService.test.ts`, `Backend/tests/integration/feature/user/user.test.ts` — alterados por outro processo durante esta sessão, fora do escopo desta feature.
-- **Test suite**: 264 testes passando (Frontend), lint limpo, build de produção ok. Backend não testado nesta sessão (fora de escopo).
+- **Branch**: `feature/visao-geral-api-e-seeds` (local, nada enviado ao remoto), a partir da `main`.
+- **Concluído**: feature `machines-api` (T1 a T8) e as correções da verificação; Backend com testes unitários passando e Frontend com os mesmos 3 testes antigos de "N min" falhando; `validate_state.py machines-api` passa.
+- **Próximo (não iniciado)**: rodar `yarn seed:data` (dono) e conferir `GET /api/machines`; depois as features `employee-nav-settings` e `skeleton-fidelity` (specs prontos, sem tasks) e as features B, C e D do plano de filiais (AD-008, specs ainda não escritos).
+- **Pendências conhecidas**: `Backend` sem `jsonwebtoken` e `@types/cors` instalados neste ambiente (2 arquivos de teste e 2 erros de `tsc` antigos); o mount de `/api/machines` em `server.ts` não tem teste unitário.

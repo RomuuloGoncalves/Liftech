@@ -11,7 +11,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Spec**: `.specs/features/machines-api/spec.md` (sem `design.md`: a abordagem está nas Assumptions do spec)
-**Status**: Approved (dono pediu a implementação)
+**Status**: Done
 
 ---
 
