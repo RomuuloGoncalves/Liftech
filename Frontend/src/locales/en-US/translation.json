@@ -8,7 +8,8 @@
     "save": "Save",
     "close": "Close",
     "loading": "Loading...",
-    "closeNotification": "Close notification"
+    "closeNotification": "Close notification",
+    "retry": "Try again"
   },
   "navigation": {
     "overview": "Overview",
@@ -33,6 +34,7 @@
     "operator": "Operator",
     "noOperator": "No operator",
     "emptyState": "No machines found",
+    "loadError": "Could not load the machines.",
     "newMachineTitle": "New Machine",
     "labelId": "ID",
     "labelName": "Name",

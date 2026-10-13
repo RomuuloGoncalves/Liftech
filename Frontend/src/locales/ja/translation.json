@@ -8,7 +8,8 @@
     "save": "保存",
     "close": "閉じる",
     "loading": "読み込み中...",
-    "closeNotification": "通知を閉じる"
+    "closeNotification": "通知を閉じる",
+    "retry": "もう一度試す"
   },
   "navigation": {
     "overview": "概要",
@@ -33,6 +34,7 @@
     "operator": "オペレーター",
     "noOperator": "オペレーターなし",
     "emptyState": "機械が見つかりません",
+    "loadError": "機械を読み込めませんでした。",
     "newMachineTitle": "新しい機械",
     "labelId": "ID",
     "labelName": "名前",

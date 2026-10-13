@@ -142,7 +142,7 @@ A Visão Geral das Máquinas lê `MACHINES`, um mock em `Frontend/src/data/machi
 | SED-03 | P1 Seeds: AC5, AC6, AC9 | Execute | Implementing |
 | SED-04 | P1 Seeds: AC7, AC8 | Execute | Implementing |
 | VGR-01 | P1 Visão Geral: AC1, AC2, AC5, AC6; Edge: status desconhecido | Execute | Implementing |
-| VGR-02 | P1 Visão Geral: AC3, AC4, AC9 | Execute | Pending |
+| VGR-02 | P1 Visão Geral: AC3, AC4, AC9 | Execute | Implementing |
 | VGR-03 | P1 Visão Geral: AC7, AC8 | Execute | Pending |
 
 ---

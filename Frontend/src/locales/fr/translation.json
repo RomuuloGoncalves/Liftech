@@ -8,7 +8,8 @@
     "save": "Enregistrer",
     "close": "Fermer",
     "loading": "Chargement...",
-    "closeNotification": "Fermer la notification"
+    "closeNotification": "Fermer la notification",
+    "retry": "Réessayer"
   },
   "navigation": {
     "overview": "Aperçu",
@@ -33,6 +34,7 @@
     "operator": "Opérateur",
     "noOperator": "Aucun opérateur",
     "emptyState": "Aucune machine trouvée",
+    "loadError": "Impossible de charger les machines.",
     "newMachineTitle": "Nouvelle Machine",
     "labelId": "ID",
     "labelName": "Nom",

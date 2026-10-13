@@ -8,7 +8,8 @@
     "save": "Guardar",
     "close": "Cerrar",
     "loading": "Cargando...",
-    "closeNotification": "Cerrar aviso"
+    "closeNotification": "Cerrar aviso",
+    "retry": "Intentar de nuevo"
   },
   "navigation": {
     "overview": "Visión General",
@@ -33,6 +34,7 @@
     "operator": "Operador",
     "noOperator": "Sin operador",
     "emptyState": "No se encontraron máquinas",
+    "loadError": "No se pudieron cargar las máquinas.",
     "newMachineTitle": "Nueva Máquina",
     "labelId": "ID",
     "labelName": "Nombre",

@@ -8,7 +8,8 @@
     "save": "Speichern",
     "close": "Schließen",
     "loading": "Wird geladen...",
-    "closeNotification": "Hinweis schließen"
+    "closeNotification": "Hinweis schließen",
+    "retry": "Erneut versuchen"
   },
   "navigation": {
     "overview": "Übersicht",
@@ -33,6 +34,7 @@
     "operator": "Bediener",
     "noOperator": "Kein Bediener",
     "emptyState": "Keine Maschinen gefunden",
+    "loadError": "Die Maschinen konnten nicht geladen werden.",
     "newMachineTitle": "Neue Maschine",
     "labelId": "ID",
     "labelName": "Name",

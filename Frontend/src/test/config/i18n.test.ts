@@ -272,3 +272,17 @@ describe('employee module translations', () => {
     expect(data.employee.session.description, `Locale "${code}" lost <b>`).toMatch(/<b>.+<\/b>/);
   });
 });
+
+describe('machines load error translations', () => {
+  it.each(ALL_LOCALES)('locale $code defines machines.loadError and common.retry as non-empty text', ({ code, data }) => {
+    const machines = data.machines as Record<string, string>;
+    const common = data.common as Record<string, string>;
+    expect(machines.loadError, `Locale "${code}" machines.loadError is missing or empty`).toBeTruthy();
+    expect(common.retry, `Locale "${code}" common.retry is missing or empty`).toBeTruthy();
+  });
+
+  it('pt-BR texts match the spec', () => {
+    expect(ptBR.machines.loadError).toBe('Não foi possível carregar as máquinas.');
+    expect(ptBR.common.retry).toBe('Tentar novamente');
+  });
+});

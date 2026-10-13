@@ -8,7 +8,8 @@
     "save": "Salvar",
     "close": "Fechar",
     "loading": "Carregando...",
-    "closeNotification": "Fechar aviso"
+    "closeNotification": "Fechar aviso",
+    "retry": "Tentar novamente"
   },
   "navigation": {
     "overview": "Visão Geral",
@@ -33,6 +34,7 @@
     "operator": "Operador",
     "noOperator": "Sem operador",
     "emptyState": "Nenhuma máquina encontrada",
+    "loadError": "Não foi possível carregar as máquinas.",
     "newMachineTitle": "Nova Máquina",
     "newMachineSubtitle": "Cadastre uma nova empilhadeira para a sua frota.",
     "labelId": "ID",

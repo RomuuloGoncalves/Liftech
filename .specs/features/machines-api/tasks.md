@@ -258,11 +258,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] pt-BR: "Não foi possível carregar as máquinas." e "Tentar novamente"
-- [ ] As duas chaves existem nos outros 6 idiomas (`en-US`, `es`, `fr`, `ja`, `de`, `ru`), com texto traduzido
-- [ ] Teste de paridade cobre as duas chaves nos 7 idiomas
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/config/i18n.test.ts`
-- [ ] Test count: os testes existentes mais ao menos 1 novo passam
+- [x] pt-BR: "Não foi possível carregar as máquinas." e "Tentar novamente"
+- [x] As duas chaves existem nos outros 6 idiomas (`en-US`, `es`, `fr`, `ja`, `de`, `ru`), com texto traduzido
+- [x] Teste de paridade cobre as duas chaves nos 7 idiomas
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/config/i18n.test.ts`
+- [x] Test count: os testes existentes mais ao menos 1 novo passam
 
 **Tests**: unit
 **Gate**: quick

@@ -8,7 +8,8 @@
     "save": "Сохранить",
     "close": "Закрыть",
     "loading": "Загрузка...",
-    "closeNotification": "Закрыть уведомление"
+    "closeNotification": "Закрыть уведомление",
+    "retry": "Повторить"
   },
   "navigation": {
     "overview": "Обзор",
@@ -33,6 +34,7 @@
     "operator": "Оператор",
     "noOperator": "Нет оператора",
     "emptyState": "Машины не найдены",
+    "loadError": "Не удалось загрузить машины.",
     "newMachineTitle": "Новая машина",
     "labelId": "ID",
     "labelName": "Имя",
