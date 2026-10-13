@@ -222,7 +222,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| BRM-01 | P1 Modelo: AC1, AC2, AC3, AC4 | Tasks | In Tasks |
+| BRM-01 | P1 Modelo: AC1, AC2, AC3, AC4 | Tasks | Implementing |
 | BRM-02 | P1 Modelo: AC5, AC6, AC7 | Tasks | In Tasks |
 | BRM-03 | P1 Modelo: AC8 | Tasks | In Tasks |
 | BRM-04 | P1 Modelo: AC9, AC10, AC11 | Tasks | In Tasks |

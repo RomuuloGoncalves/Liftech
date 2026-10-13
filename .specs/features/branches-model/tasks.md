@@ -107,10 +107,10 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `company` existe com `nome` obrigatório (Modelo AC1)
-- [ ] `schema.indexes()` contém índice único em `nome` (Modelo AC1)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
-- [ ] Test count: 2 testes novos passam
+- [x] `company` existe com `nome` obrigatório (Modelo AC1)
+- [x] `schema.indexes()` contém índice único em `nome` (Modelo AC1)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/schemas.test.ts && npx tsc --noEmit`
+- [x] Test count: 2 testes novos passam
 
 **Tests**: unit
 **Gate**: quick
