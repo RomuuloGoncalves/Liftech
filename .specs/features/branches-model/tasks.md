@@ -514,11 +514,11 @@ T18 → T19
 
 **Done when**:
 
-- [ ] Upsert da empresa por `{ nome }` e de cada filial por `{ empresaId, nome }`, com `matriz: true` só na matriz (Seeds AC1, AC10)
-- [ ] Sem `extras` cria só a matriz; com `extras` cria a matriz e elas (Seeds AC9)
-- [ ] Devolve `empresaId` e um mapa nome para `filialId` (Seeds AC1)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/seedEmpresa.test.ts && npx tsc --noEmit`
-- [ ] Test count: ao menos 4 testes passam
+- [x] Upsert da empresa por `{ nome }` e de cada filial por `{ empresaId, nome }`, com `matriz: true` só na matriz (Seeds AC1, AC10)
+- [x] Sem `extras` cria só a matriz; com `extras` cria a matriz e elas (Seeds AC9)
+- [x] Devolve `empresaId` e um mapa nome para `filialId` (Seeds AC1)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/seedEmpresa.test.ts && npx tsc --noEmit`
+- [x] Test count: ao menos 4 testes passam
 
 **Tests**: unit
 **Gate**: quick
