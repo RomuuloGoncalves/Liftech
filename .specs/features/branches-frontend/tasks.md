@@ -237,12 +237,12 @@ T6 → T7
 
 **Done when**:
 
-- [ ] pt-BR: "Filiais", "Todas as filiais", "Gerenciar Filiais", "Criar Filial", "Nome da filial", "Confirmar" e os avisos do spec com o texto exato
-- [ ] en-US: "Branches" e "All branches"
-- [ ] As chaves `branches.*` existem nos 7 idiomas com o mesmo conjunto, com texto traduzido (não cópia do pt-BR)
-- [ ] Teste de paridade exige o módulo `branches` nos 7 idiomas
-- [ ] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/config/i18n.test.ts`
-- [ ] Test count: os testes existentes mais ao menos 2 novos passam
+- [x] pt-BR: "Filiais", "Todas as filiais", "Gerenciar Filiais", "Criar Filial", "Nome da filial", "Confirmar" e os avisos do spec com o texto exato
+- [x] en-US: "Branches" e "All branches"
+- [x] As chaves `branches.*` existem nos 7 idiomas com o mesmo conjunto, com texto traduzido (não cópia do pt-BR)
+- [x] Teste de paridade exige o módulo `branches` nos 7 idiomas
+- [x] Gate: `cd Frontend && PATH=$HOME/.nvm/versions/node/v22.22.2/bin:$PATH npx vitest run src/test/config/i18n.test.ts`
+- [x] Test count: os testes existentes mais ao menos 2 novos passam
 
 **Tests**: unit
 **Gate**: quick

@@ -257,6 +257,22 @@
       "privacy": "Politique de confidentialité"
     }
   },
+  "branches": {
+    "label": "Filiales",
+    "all": "Toutes les filiales",
+    "manage": "Gérer les filiales",
+    "doneManaging": "Terminé",
+    "create": "Créer une filiale",
+    "nameLabel": "Nom de la filiale",
+    "confirm": "Confirmer",
+    "rename": "Renommer {{name}}",
+    "remove": "Supprimer {{name}}",
+    "deleteTitle": "Supprimer la filiale",
+    "deleteMessage": "Supprimer la filiale {{name}} ?",
+    "saveError": "Impossible d'enregistrer la filiale.",
+    "deleteError": "Impossible de supprimer la filiale.",
+    "deleteBlocked": "Suppression impossible : la filiale est le siège ou possède encore des ressources."
+  },
   "notFound": {
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
     "backHome": "Retour à l'accueil"

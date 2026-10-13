@@ -347,6 +347,22 @@
       "privacy": "Política e Privacidade"
     }
   },
+  "branches": {
+    "label": "Filiais",
+    "all": "Todas as filiais",
+    "manage": "Gerenciar Filiais",
+    "doneManaging": "Concluir",
+    "create": "Criar Filial",
+    "nameLabel": "Nome da filial",
+    "confirm": "Confirmar",
+    "rename": "Renomear {{name}}",
+    "remove": "Excluir {{name}}",
+    "deleteTitle": "Excluir filial",
+    "deleteMessage": "Deseja excluir a filial {{name}}?",
+    "saveError": "Não foi possível salvar a filial.",
+    "deleteError": "Não foi possível excluir a filial.",
+    "deleteBlocked": "Não foi possível excluir: a filial é a matriz ou ainda tem recursos."
+  },
   "notFound": {
     "description": "A página que você está procurando não existe ou foi movida.",
     "backHome": "Voltar para o início"

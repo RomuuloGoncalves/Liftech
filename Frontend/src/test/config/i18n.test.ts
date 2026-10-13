@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet', 'branches'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -329,5 +329,55 @@ describe('machines load error translations', () => {
   it('pt-BR texts match the spec', () => {
     expect(ptBR.machines.loadError).toBe('Não foi possível carregar as máquinas.');
     expect(ptBR.common.retry).toBe('Tentar novamente');
+  });
+});
+
+describe('branches module translations', () => {
+  const ptBRBranchKeys = Object.keys(ptBR.branches).sort();
+
+  it.each(ALL_LOCALES)('locale $code has the same branches keys as pt-BR, all non-empty', ({ code, data }) => {
+    const branches = data.branches as Record<string, string>;
+    expect(Object.keys(branches).sort(), `Locale "${code}" branches keys differ from pt-BR`).toEqual(ptBRBranchKeys);
+    for (const [key, value] of Object.entries(branches)) {
+      expect(value, `Locale "${code}" branches.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps {{name}} in the per-branch texts', ({ code, data }) => {
+    const branches = data.branches as Record<string, string>;
+    for (const key of ['rename', 'remove', 'deleteMessage']) {
+      expect(branches[key], `Locale "${code}" branches.${key} lost {{name}}`).toContain('{{name}}');
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code has branch texts that are translated, not copied from pt-BR',
+    ({ code, data }) => {
+      const branches = data.branches as Record<string, string>;
+      for (const key of ['label', 'all', 'manage', 'create', 'saveError', 'deleteBlocked']) {
+        expect(branches[key], `Locale "${code}" branches.${key} equals pt-BR`).not.toBe(
+          (ptBR.branches as Record<string, string>)[key]
+        );
+      }
+    }
+  );
+
+  it('pt-BR texts match the spec', () => {
+    expect(ptBR.branches.label).toBe('Filiais');
+    expect(ptBR.branches.all).toBe('Todas as filiais');
+    expect(ptBR.branches.manage).toBe('Gerenciar Filiais');
+    expect(ptBR.branches.create).toBe('Criar Filial');
+    expect(ptBR.branches.nameLabel).toBe('Nome da filial');
+    expect(ptBR.branches.confirm).toBe('Confirmar');
+    expect(ptBR.branches.saveError).toBe('Não foi possível salvar a filial.');
+    expect(ptBR.branches.deleteError).toBe('Não foi possível excluir a filial.');
+    expect(ptBR.branches.deleteBlocked).toBe(
+      'Não foi possível excluir: a filial é a matriz ou ainda tem recursos.'
+    );
+  });
+
+  it('en-US label and all-branches option match the spec', () => {
+    expect(enUS.branches.label).toBe('Branches');
+    expect(enUS.branches.all).toBe('All branches');
   });
 });

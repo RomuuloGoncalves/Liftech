@@ -345,6 +345,22 @@
       "privacy": "Privacy Policy"
     }
   },
+  "branches": {
+    "label": "Branches",
+    "all": "All branches",
+    "manage": "Manage branches",
+    "doneManaging": "Done",
+    "create": "Create branch",
+    "nameLabel": "Branch name",
+    "confirm": "Confirm",
+    "rename": "Rename {{name}}",
+    "remove": "Delete {{name}}",
+    "deleteTitle": "Delete branch",
+    "deleteMessage": "Delete the branch {{name}}?",
+    "saveError": "Could not save the branch.",
+    "deleteError": "Could not delete the branch.",
+    "deleteBlocked": "Could not delete: the branch is the headquarters or still has resources."
+  },
   "notFound": {
     "description": "The page you are looking for does not exist or was moved.",
     "backHome": "Back to home"

@@ -257,6 +257,22 @@
       "privacy": "プライバシーポリシー"
     }
   },
+  "branches": {
+    "label": "拠点",
+    "all": "すべての拠点",
+    "manage": "拠点を管理",
+    "doneManaging": "完了",
+    "create": "拠点を作成",
+    "nameLabel": "拠点名",
+    "confirm": "確認",
+    "rename": "{{name}} の名前を変更",
+    "remove": "{{name}} を削除",
+    "deleteTitle": "拠点を削除",
+    "deleteMessage": "拠点「{{name}}」を削除しますか?",
+    "saveError": "拠点を保存できませんでした。",
+    "deleteError": "拠点を削除できませんでした。",
+    "deleteBlocked": "削除できません: 本社であるか、まだリソースがあります。"
+  },
   "notFound": {
     "description": "お探しのページは存在しないか、移動しました。",
     "backHome": "ホームに戻る"

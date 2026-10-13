@@ -257,6 +257,22 @@
       "privacy": "Datenschutzrichtlinie"
     }
   },
+  "branches": {
+    "label": "Filialen",
+    "all": "Alle Filialen",
+    "manage": "Filialen verwalten",
+    "doneManaging": "Fertig",
+    "create": "Filiale anlegen",
+    "nameLabel": "Name der Filiale",
+    "confirm": "Bestätigen",
+    "rename": "{{name}} umbenennen",
+    "remove": "{{name}} löschen",
+    "deleteTitle": "Filiale löschen",
+    "deleteMessage": "Filiale {{name}} löschen?",
+    "saveError": "Die Filiale konnte nicht gespeichert werden.",
+    "deleteError": "Die Filiale konnte nicht gelöscht werden.",
+    "deleteBlocked": "Löschen nicht möglich: Die Filiale ist die Zentrale oder hat noch Ressourcen."
+  },
   "notFound": {
     "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
     "backHome": "Zurück zur Startseite"
