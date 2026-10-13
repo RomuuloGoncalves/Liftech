@@ -274,10 +274,10 @@ T18 → T19
 
 **Done when**:
 
-- [ ] `obterDados()` inclui `filialId` (Modelo AC12)
-- [ ] O repository converte `filialId` do documento em texto (Modelo AC12)
-- [ ] Gate: `cd Backend && npx vitest run tests/unit/forkliftModel.test.ts tests/unit/forkliftService.test.ts && npx tsc --noEmit`
-- [ ] Test count: 2 testes novos passam e os 7 de `forkliftService.test.ts` seguem passando
+- [x] `obterDados()` inclui `filialId` (Modelo AC12)
+- [x] O repository converte `filialId` do documento em texto (Modelo AC12)
+- [x] Gate: `cd Backend && npx vitest run tests/unit/forkliftModel.test.ts tests/unit/forkliftService.test.ts && npx tsc --noEmit`
+- [x] Test count: 2 testes novos passam e os 9 de `forkliftService.test.ts` seguem passando
 
 **Tests**: unit
 **Gate**: quick
