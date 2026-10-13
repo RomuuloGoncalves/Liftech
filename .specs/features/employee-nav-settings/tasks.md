@@ -92,7 +92,7 @@ T7 → T8 → T9 → T10 → T11
 
 ### T2: Carry telefone and cargo in userModel
 
-**What**: Parâmetros opcionais `telefone` e `cargo` depois de `id`, getters, e `obterDados()` com os dois só quando existem.
+**What**: Parâmetros opcionais `telefone` e `cargo` depois de `id` e `obterDados()` com os dois só quando existem.
 **Where**: `Backend/src/models/userModel.ts`
 **Depends on**: T1
 **Reuses**: O padrão `...(this.id ? { _id: this.id } : {})` do mesmo arquivo
@@ -105,10 +105,10 @@ T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] `new userModel(nome, role, id)` continua válido e `obterDados()` sem `telefone`/`cargo` (AC6)
-- [ ] Com `telefone` e `cargo`, `obterDados()` devolve os dois (AC2, AC4)
-- [ ] Gate check passes: `cd Backend && npx vitest run tests/unit/userModel.test.ts`
-- [ ] Test count: ao menos 3 testes passam
+- [x] `new userModel(nome, role, id)` continua válido e `obterDados()` sem `telefone`/`cargo` (AC6)
+- [x] Com `telefone` e `cargo`, `obterDados()` devolve os dois (AC2, AC4)
+- [x] Gate check passes: `cd Backend && npx vitest run tests/unit/userModel.test.ts`
+- [x] Test count: ao menos 3 testes passam
 
 **Tests**: unit
 **Gate**: quick
