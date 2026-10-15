@@ -1,11 +1,11 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { definirTrava, listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
 import { Incident } from '../../src/schemas/incident.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
-vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn() } }));
+vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn(), updateOne: vi.fn(), countDocuments: vi.fn(), updateMany: vi.fn() } }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: {} }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
@@ -262,5 +262,25 @@ describe('obterMaquina', () => {
     test('fora do escopo: 404', async () => {
         mockarLista([]);
         await expect(obterMaquina(ESCOPO, ID.toHexString())).rejects.toMatchObject({ status: 404 });
+    });
+});
+
+describe('definirTrava', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test.each([true, false])('grava categoriaTravada %s sem tocar na categoria', async (valor) => {
+        mockarLista([{ ...base, categoriaTravada: valor }]);
+        const id = ID.toHexString();
+
+        const maquina = await definirTrava(ESCOPO, id, valor);
+
+        expect(Forklift.updateOne).toHaveBeenCalledWith({ _id: id }, { $set: { categoriaTravada: valor } });
+        expect(maquina.categoriaTravada).toBe(valor);
+    });
+
+    test('fora do escopo: 404 sem gravar', async () => {
+        mockarLista([]);
+        await expect(definirTrava(ESCOPO, ID.toHexString(), true)).rejects.toMatchObject({ status: 404 });
+        expect(Forklift.updateOne).not.toHaveBeenCalled();
     });
 });

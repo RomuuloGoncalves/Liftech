@@ -215,8 +215,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: 200 ligando e desligando; `categoriaId` não muda ao desligar; 400 com `"true"` texto; 404 fora do escopo
-- [ ] Quick gate passa
+- [x] Testes: 200 ligando e desligando; `categoriaId` não muda ao desligar; 400 com `"true"` texto; 404 fora do escopo
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

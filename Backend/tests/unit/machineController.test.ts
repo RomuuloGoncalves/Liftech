@@ -1,12 +1,12 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { Request, Response } from 'express';
-import { listar, alterarStatus } from '../../src/feature/machine/machineController.js';
-import { listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { listar, alterarStatus, travar } from '../../src/feature/machine/machineController.js';
+import { definirTrava, listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { aplicarStatus } from '../../src/feature/machine/statusService.js';
 import machineRouter from '../../src/feature/machine/machineRouter.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
-vi.mock('../../src/feature/machine/machineService.js', () => ({ listarMaquinas: vi.fn(), obterMaquina: vi.fn() }));
+vi.mock('../../src/feature/machine/machineService.js', () => ({ listarMaquinas: vi.fn(), obterMaquina: vi.fn(), definirTrava: vi.fn() }));
 vi.mock('../../src/feature/machine/statusService.js', async (original) => ({ ...(await original<any>()), aplicarStatus: vi.fn() }));
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: {} }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: {} }));
@@ -144,5 +144,43 @@ describe('machineController.alterarStatus', () => {
         const layer = (machineRouter as any).stack.find((l: any) => l.route?.path === '/:id/status');
         expect(layer.route.methods).toEqual({ put: true });
         expect(layer.route.stack[0].handle).toBe(alterarStatus);
+    });
+});
+
+describe('machineController.travar', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(definirTrava).mockResolvedValue({ ...MAQUINA, categoriaTravada: true } as any);
+    });
+
+    test.each([true, false])('200 gravando categoriaTravada %s', async (valor) => {
+        const { res, status, json } = resposta();
+
+        await travar(reqPut(ID, { categoriaTravada: valor }), res);
+
+        expect(definirTrava).toHaveBeenCalledWith(ESCOPO, ID, valor);
+        expect(status).toHaveBeenCalledWith(200);
+        expect(json).toHaveBeenCalledWith({ ...MAQUINA, categoriaTravada: true });
+    });
+
+    test.each([['true'], [1], [undefined]])('400 com categoriaTravada %s', async (valor) => {
+        const { res, status } = resposta();
+        await travar(reqPut(ID, { categoriaTravada: valor }), res);
+        expect(status).toHaveBeenCalledWith(400);
+        expect(definirTrava).not.toHaveBeenCalled();
+    });
+
+    test('404 fora do escopo', async () => {
+        const { ErroHttp } = await import('../../src/utils/responseHandler.js');
+        vi.mocked(definirTrava).mockRejectedValue(new ErroHttp(404, 'Máquina não encontrada.'));
+        const { res, status } = resposta();
+        await travar(reqPut(ID, { categoriaTravada: true }), res);
+        expect(status).toHaveBeenCalledWith(404);
+    });
+
+    test('rota PUT /:id/trava ligada ao controller', () => {
+        const layer = (machineRouter as any).stack.find((l: any) => l.route?.path === '/:id/trava');
+        expect(layer.route.methods).toEqual({ put: true });
+        expect(layer.route.stack[0].handle).toBe(travar);
     });
 });

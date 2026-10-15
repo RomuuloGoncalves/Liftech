@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { Types as mongooseTypes } from "mongoose";
 import { ErroHttp, StatusCode, respostaSucesso, respostaErro, responderErro } from "../../utils/responseHandler.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
-import { listarMaquinas, obterMaquina } from "./machineService.js";
+import { definirTrava, listarMaquinas, obterMaquina } from "./machineService.js";
 import { aplicarStatus, ehStatus } from "./statusService.js";
 
 function lerId(req: Request): string {
@@ -41,6 +41,19 @@ export async function alterarStatus(req: Request, res: Response) {
     await obterMaquina(req.escopo, id);
     await aplicarStatus(id, status);
     return respostaSucesso(res, StatusCode.OK, await obterMaquina(req.escopo, id));
+  } catch (error: any) {
+    return responderErro(res, error);
+  }
+}
+
+export async function travar(req: Request, res: Response) {
+  try {
+    const id = lerId(req);
+    const { categoriaTravada } = lerCorpo(req);
+    if (typeof categoriaTravada !== "boolean") {
+      throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'categoriaTravada' deve ser true ou false.");
+    }
+    return respostaSucesso(res, StatusCode.OK, await definirTrava(req.escopo, id, categoriaTravada));
   } catch (error: any) {
     return responderErro(res, error);
   }

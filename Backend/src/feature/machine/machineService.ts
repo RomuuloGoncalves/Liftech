@@ -63,3 +63,10 @@ export async function obterMaquina(escopo: Escopo, id: string) {
   if (!maquina) throw new ErroHttp(StatusCode.NOT_FOUND, "Máquina não encontrada.");
   return maquina;
 }
+
+// Trava só muda a trava: a máquina fica na categoria atual até a próxima mudança de status.
+export async function definirTrava(escopo: Escopo, id: string, categoriaTravada: boolean) {
+  await obterMaquina(escopo, id);
+  await Forklift.updateOne({ _id: id }, { $set: { categoriaTravada } });
+  return obterMaquina(escopo, id);
+}
