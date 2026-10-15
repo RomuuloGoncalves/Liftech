@@ -310,9 +310,9 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `categoryController.test.ts`: GET 200 para escopo filiais; POST/PUT/DELETE 403 para escopo filiais; nome vazio e com 41 caracteres → 400; cor inválida → 400; `$` no corpo → 400; 201/200 nos caminhos felizes
-- [ ] `app.test.ts` confirma 401 sem token em `/api/categories`
-- [ ] Build gate do Backend passa
+- [x] Testes em `categoryController.test.ts`: GET 200 para escopo filiais; POST/PUT/DELETE 403 para escopo filiais; nome vazio e com 41 caracteres → 400; cor inválida → 400; `$` no corpo → 400; 201/200 nos caminhos felizes
+- [x] `app.test.ts` confirma 401 sem token em `/api/categories`
+- [x] Build gate do Backend passa
 
 **Tests**: unit
 **Gate**: build
