@@ -27,9 +27,8 @@ const MachineDetailSheet: React.FC<MachineDetailSheetProps> = ({ machine, onClos
 
   const canActivate = machine.status === 'disponivel' && !session
 
-  const activate = () => {
-    start(machine.id)
-    navigate('/funcionario/sessao')
+  const activate = async () => {
+    if (await start(machine.id)) navigate('/funcionario/sessao')
   }
 
   const formatDate = (date: string) =>

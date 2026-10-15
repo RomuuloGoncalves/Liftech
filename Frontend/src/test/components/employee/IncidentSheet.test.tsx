@@ -1,16 +1,23 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../../App'
 import { ToastProvider } from '../../../components/common/Toast'
 import IncidentSheet from '../../../components/employee/IncidentSheet'
 import { EMPLOYEE_NAME } from '../../../data/employeeArea'
 import { MACHINES } from '../../../data/machines'
-import { SESSION_STORAGE_KEY } from '../../../hooks/useWorkSession'
+import { resetWorkSession } from '../../../hooks/useWorkSession'
+import { sessionService } from '../../../services/sessionService'
+
+vi.mock('../../../services/sessionService', () => ({
+  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
+}))
+
+const atual = vi.mocked(sessionService.atual)
 
 const machine = MACHINES[0]
 
-const renderSheet = (props: Partial<React.ComponentProps<typeof IncidentSheet>> = {}) => {
+const renderSheet = async (props: Partial<React.ComponentProps<typeof IncidentSheet>> = {}) => {
   const onClose = vi.fn()
   const onSubmitted = vi.fn()
   render(
@@ -18,6 +25,7 @@ const renderSheet = (props: Partial<React.ComponentProps<typeof IncidentSheet>> 
       <IncidentSheet open onClose={onClose} onSubmitted={onSubmitted} {...props} />
     </ToastProvider>
   )
+  await act(async () => {})
   return { onClose, onSubmitted }
 }
 
@@ -32,11 +40,13 @@ const fillAll = () => {
 }
 
 describe('IncidentSheet', () => {
-  beforeEach(() => sessionStorage.clear())
-  afterEach(() => sessionStorage.clear())
+  beforeEach(() => {
+    resetWorkSession()
+    atual.mockReset().mockResolvedValue(null)
+  })
 
-  it('shows the 4 fields, placeholders and both buttons', () => {
-    renderSheet()
+  it('shows the 4 fields, placeholders and both buttons', async () => {
+    await renderSheet()
     expect(screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
     expect(field('Nome funcionário')).toHaveAttribute('placeholder', 'Ex: Alexandre Mattos')
     expect(field('Setor')).toHaveAttribute('placeholder', 'Ex: Expedição - Bloco B')
@@ -46,30 +56,37 @@ describe('IncidentSheet', () => {
     expect(footerButton('Enviar ocorrência')).toBeInTheDocument()
   })
 
-  it('does not render when closed', () => {
-    renderSheet({ open: false })
+  it('does not render when closed', async () => {
+    await renderSheet({ open: false })
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('without a session fills only the employee name', () => {
-    renderSheet()
+  it('without a session fills only the employee name', async () => {
+    await renderSheet()
     expect(field('Nome funcionário').value).toBe(EMPLOYEE_NAME)
     expect(field('Setor').value).toBe('')
     expect(field('Máquina').value).toBe('')
     expect(field('Horário').value).toBe('')
   })
 
-  it('with an active session fills sector and machine from the session machine, still editable', () => {
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ machineId: machine.id, startedAt: Date.now() }))
-    renderSheet()
+  it('with an active session fills sector and machine from the session machine, still editable', async () => {
+    atual.mockResolvedValue({
+      _id: 's1',
+      machineId: machine.id,
+      maquina: { nome: machine.nome, identificacao: machine.identificacao, setor: machine.setor },
+      operador: { nome: 'Carlos' },
+      inicio: new Date().toISOString(),
+      fim: null,
+    })
+    await renderSheet()
     expect(field('Setor').value).toBe(machine.setor)
     expect(field('Máquina').value).toBe(machine.nome)
     fireEvent.change(field('Setor'), { target: { value: 'Outro' } })
     expect(field('Setor').value).toBe('Outro')
   })
 
-  it('shows the required message under every empty field and does not submit', () => {
-    const { onClose, onSubmitted } = renderSheet()
+  it('shows the required message under every empty field and does not submit', async () => {
+    const { onClose, onSubmitted } = await renderSheet()
     fireEvent.change(field('Nome funcionário'), { target: { value: '' } })
     fireEvent.click(footerButton('Enviar ocorrência'))
 
@@ -85,8 +102,8 @@ describe('IncidentSheet', () => {
     expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
   })
 
-  it('flags only the fields still empty and clears the message when typing', () => {
-    renderSheet()
+  it('flags only the fields still empty and clears the message when typing', async () => {
+    await renderSheet()
     fireEvent.change(field('Setor'), { target: { value: 'Expedição' } })
     fireEvent.click(footerButton('Enviar ocorrência'))
     expect(screen.getAllByText('Campo obrigatório')).toHaveLength(2)
@@ -95,8 +112,8 @@ describe('IncidentSheet', () => {
     expect(screen.getAllByText('Campo obrigatório')).toHaveLength(1)
   })
 
-  it('a valid submit calls onSubmitted, closes and shows the toast', () => {
-    const { onClose, onSubmitted } = renderSheet()
+  it('a valid submit calls onSubmitted, closes and shows the toast', async () => {
+    const { onClose, onSubmitted } = await renderSheet()
     fillAll()
     fireEvent.click(footerButton('Enviar ocorrência'))
     expect(screen.queryByText('Campo obrigatório')).not.toBeInTheDocument()
@@ -105,8 +122,8 @@ describe('IncidentSheet', () => {
     expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
   })
 
-  it('Cancelar closes without submitting', () => {
-    const { onClose, onSubmitted } = renderSheet()
+  it('Cancelar closes without submitting', async () => {
+    const { onClose, onSubmitted } = await renderSheet()
     fillAll()
     fireEvent.click(footerButton('Cancelar'))
     expect(onClose).toHaveBeenCalledTimes(1)
@@ -119,12 +136,12 @@ const Path = () => <output data-testid="path">{useLocation().pathname}</output>
 
 describe('Incident route', () => {
   beforeEach(() => {
-    sessionStorage.clear()
+    resetWorkSession()
+    atual.mockReset().mockResolvedValue(null)
     localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Bruno', role: 'colaborador', operador: null }))
   })
-  afterEach(() => sessionStorage.clear())
 
-  const renderRoute = () =>
+  const renderRoute = async () => {
     render(
       <ToastProvider>
         <MemoryRouter initialEntries={['/funcionario/historico', '/funcionario/ocorrencia']} initialIndex={1}>
@@ -133,9 +150,11 @@ describe('Incident route', () => {
         </MemoryRouter>
       </ToastProvider>
     )
+    await act(async () => {})
+  }
 
-  it('opens the sheet and a valid submit goes back keeping the toast', () => {
-    renderRoute()
+  it('opens the sheet and a valid submit goes back keeping the toast', async () => {
+    await renderRoute()
     expect(screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
     fillAll()
     fireEvent.click(footerButton('Enviar ocorrência'))
@@ -144,8 +163,8 @@ describe('Incident route', () => {
     expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
   })
 
-  it('Cancelar goes back without a toast', () => {
-    renderRoute()
+  it('Cancelar goes back without a toast', async () => {
+    await renderRoute()
     fireEvent.click(footerButton('Cancelar'))
     expect(screen.getByTestId('path')).toHaveTextContent('/funcionario/historico')
     expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()

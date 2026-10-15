@@ -1,32 +1,20 @@
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useToast } from '../components/common/Toast'
+import { sessionService, type Sessao } from '../services/sessionService'
 
-export interface WorkSession {
-  machineId: string
-  startedAt: number
+interface State {
+  session: Sessao | null
+  ready: boolean
 }
-
-export const SESSION_STORAGE_KEY = 'liftech.employee.session'
 
 const listeners = new Set<() => void>()
-let memoryRaw: string | null = null
+let state: State = { session: null, ready: false }
+// Token the open session was loaded for: a new login loads it again.
+let loadedFor: string | null | undefined
 
-function readRaw(): string | null {
-  try {
-    memoryRaw = sessionStorage.getItem(SESSION_STORAGE_KEY)
-  } catch {
-    return memoryRaw
-  }
-  return memoryRaw
-}
-
-function writeRaw(raw: string | null) {
-  memoryRaw = raw
-  try {
-    if (raw === null) sessionStorage.removeItem(SESSION_STORAGE_KEY)
-    else sessionStorage.setItem(SESSION_STORAGE_KEY, raw)
-  } catch {
-    memoryRaw = raw
-  }
+function set(next: State) {
+  state = next
   listeners.forEach((listener) => listener())
 }
 
@@ -37,14 +25,20 @@ function subscribe(listener: () => void) {
   }
 }
 
-function parse(raw: string | null): WorkSession | null {
-  if (!raw) return null
-  try {
-    const value = JSON.parse(raw)
-    return typeof value?.machineId === 'string' && typeof value?.startedAt === 'number' ? value : null
-  } catch {
-    return null
-  }
+function load() {
+  const token = localStorage.getItem('token')
+  if (loadedFor === token) return
+  loadedFor = token
+  set({ session: null, ready: false })
+  sessionService.atual().then(
+    (session) => loadedFor === token && set({ session, ready: true }),
+    () => loadedFor === token && set({ session: null, ready: true })
+  )
+}
+
+export function resetWorkSession() {
+  loadedFor = undefined
+  state = { session: null, ready: false }
 }
 
 export function formatElapsed(seconds: number): string {
@@ -54,9 +48,12 @@ export function formatElapsed(seconds: number): string {
 }
 
 export function useWorkSession() {
-  const raw = useSyncExternalStore(subscribe, readRaw)
-  const session = useMemo(() => parse(raw), [raw])
+  const { t } = useTranslation()
+  const { showError } = useToast()
+  const { session, ready } = useSyncExternalStore(subscribe, () => state)
   const [now, setNow] = useState(() => Date.now())
+
+  useEffect(load, [])
 
   useEffect(() => {
     if (!session) return
@@ -64,13 +61,31 @@ export function useWorkSession() {
     return () => clearInterval(id)
   }, [session])
 
-  const start = useCallback((machineId: string) => {
-    writeRaw(JSON.stringify({ machineId, startedAt: Date.now() } satisfies WorkSession))
-  }, [])
+  const start = useCallback(
+    async (machineId: string) => {
+      try {
+        set({ session: await sessionService.iniciar(machineId), ready: true })
+        return true
+      } catch {
+        showError(t('employee.session.startError'))
+        return false
+      }
+    },
+    [showError, t]
+  )
 
-  const end = useCallback(() => writeRaw(null), [])
+  const end = useCallback(async () => {
+    try {
+      await sessionService.encerrar()
+      set({ session: null, ready: true })
+      return true
+    } catch {
+      showError(t('employee.session.endError'))
+      return false
+    }
+  }, [showError, t])
 
-  const elapsedSeconds = session ? Math.max(0, Math.floor((now - session.startedAt) / 1000)) : 0
+  const elapsedSeconds = session ? Math.max(0, Math.floor((now - Date.parse(session.inicio)) / 1000)) : 0
 
-  return { session, start, end, elapsedSeconds }
+  return { session, ready, start, end, elapsedSeconds }
 }

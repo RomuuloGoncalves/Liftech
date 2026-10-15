@@ -223,8 +223,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes: iniciar navega para a sessão com o cronômetro de `inicio`; recarregar recupera; falha ao encerrar mantém a sessão e mostra o toast
-- [ ] Quick gate passa
+- [x] Testes: iniciar navega para a sessão com o cronômetro de `inicio`; recarregar recupera; falha ao encerrar mantém a sessão e mostra o toast
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

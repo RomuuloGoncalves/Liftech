@@ -9,7 +9,7 @@ export interface MaquinaResumo {
 export interface Sessao {
   _id: string;
   machineId: string;
-  maquina: MaquinaResumo;
+  maquina: MaquinaResumo | null;
   operador: { nome: string };
   inicio: string;
   fim: string | null;

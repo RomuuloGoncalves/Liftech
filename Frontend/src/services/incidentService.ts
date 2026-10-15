@@ -4,7 +4,7 @@ import type { MaquinaResumo } from './sessionService';
 export interface Incidente {
   _id: string;
   machineId: string;
-  maquina: MaquinaResumo;
+  maquina: MaquinaResumo | null;
   operador: { nome: string } | null;
   dataIncidente: string;
   forcaImpacto: number | null;

@@ -3,7 +3,6 @@ import { ArrowRight, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../common/Toast'
 import { EMPLOYEE_NAME } from '../../data/employeeArea'
-import { MACHINES } from '../../data/machines'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import { useWorkSession } from '../../hooks/useWorkSession'
 import BottomSheet from './BottomSheet'
@@ -26,7 +25,7 @@ const IncidentForm: React.FC<{ formId: string; onSubmitted: () => void }> = ({ f
   const { session } = useWorkSession()
   const baseId = useId()
   const [values, setValues] = useState<Values>(() => {
-    const machine = session ? MACHINES.find((item) => item.id === session.machineId) : undefined
+    const machine = session?.maquina
     return { name: EMPLOYEE_NAME, sector: machine?.setor ?? '', machine: machine?.nome ?? '', time: '' }
   })
   const [invalid, setInvalid] = useState<FieldName[]>([])
@@ -91,7 +90,8 @@ const IncidentForm: React.FC<{ formId: string; onSubmitted: () => void }> = ({ f
 
 const IncidentBody: React.FC<{ formId: string; onSubmitted: () => void }> = (props) => {
   const loading = useFirstVisitLoading('employee-incident')
-  return loading ? <EmployeeSkeleton variant="form" buttons={false} /> : <IncidentForm {...props} />
+  const { ready } = useWorkSession()
+  return loading || !ready ? <EmployeeSkeleton variant="form" buttons={false} /> : <IncidentForm {...props} />
 }
 
 const IncidentSheet: React.FC<IncidentSheetProps> = ({ open, onClose, onSubmitted }) => {

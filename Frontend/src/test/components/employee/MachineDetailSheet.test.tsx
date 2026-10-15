@@ -1,26 +1,50 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import MachineDetailSheet from '../../../components/employee/MachineDetailSheet'
 import { MACHINES } from '../../../data/machines'
-import { SESSION_STORAGE_KEY } from '../../../hooks/useWorkSession'
+import { ToastProvider } from '../../../components/common/Toast'
+import { resetWorkSession } from '../../../hooks/useWorkSession'
+import { sessionService } from '../../../services/sessionService'
+
+vi.mock('../../../services/sessionService', () => ({
+  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
+}))
+
+const atual = vi.mocked(sessionService.atual)
+const iniciar = vi.mocked(sessionService.iniciar)
+
+const sessao = (machineId: string) => ({
+  _id: 's1',
+  machineId,
+  maquina: { nome: 'Titan-X', identificacao: 'EMP-083', setor: 'Recebimento' },
+  operador: { nome: 'Carlos' },
+  inicio: new Date().toISOString(),
+  fim: null,
+})
 
 const machine = (id: string) => MACHINES.find((item) => item.id === id)!
 
 const setup = (id: string, onClose = () => {}) =>
   render(
+    <ToastProvider>
     <MemoryRouter initialEntries={['/funcionario/maquinas']}>
       <Routes>
         <Route path="/funcionario/maquinas" element={<MachineDetailSheet machine={machine(id)} onClose={onClose} />} />
         <Route path="/funcionario/sessao" element={<p>pagina da sessao</p>} />
       </Routes>
     </MemoryRouter>
+    </ToastProvider>
   )
 
 const dialog = () => screen.getByRole('dialog', { name: 'Selecionar Máquina' })
 const activate = () => within(dialog()).getByRole('button', { name: /Ativar máquina/ })
 
-beforeEach(() => sessionStorage.clear())
+beforeEach(() => {
+  resetWorkSession()
+  atual.mockReset().mockResolvedValue(null)
+  iniciar.mockReset()
+})
 
 describe('MachineDetailSheet', () => {
   it('shows name, MAC, code, sector and device name', () => {
@@ -70,27 +94,41 @@ describe('MachineDetailSheet', () => {
     expect(closed).toBe(1)
   })
 
-  it('starts the session and goes to /funcionario/sessao on Ativar máquina', () => {
+  it('starts the session through the API and goes to /funcionario/sessao on Ativar máquina', async () => {
+    iniciar.mockResolvedValue(sessao('3'))
     setup('3')
     expect(activate()).toBeEnabled()
-    fireEvent.click(activate())
+    await act(async () => {
+      fireEvent.click(activate())
+    })
+    expect(iniciar).toHaveBeenCalledWith('3')
     expect(screen.getByText('pagina da sessao')).toBeInTheDocument()
-    expect(JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY)!).machineId).toBe('3')
   })
 
-  it('disables Ativar máquina while a session is active', () => {
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ machineId: '3', startedAt: Date.now() }))
+  it('stays on the sheet and shows the error toast when starting fails', async () => {
+    iniciar.mockRejectedValue(new Error('409'))
+    setup('3')
+    await act(async () => {
+      fireEvent.click(activate())
+    })
+    expect(screen.queryByText('pagina da sessao')).not.toBeInTheDocument()
+    expect(screen.getByText('Não foi possível iniciar a sessão. Tente novamente.')).toBeInTheDocument()
+  })
+
+  it('disables Ativar máquina while a session is active', async () => {
+    atual.mockResolvedValue(sessao('3'))
     setup('1')
+    await act(async () => {})
     expect(activate()).toBeDisabled()
     expect(within(dialog()).getByText('Você já tem uma sessão em andamento.')).toBeInTheDocument()
     fireEvent.click(activate())
-    expect(JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY)!).machineId).toBe('3')
+    expect(iniciar).not.toHaveBeenCalled()
   })
 
   it('does not activate a machine that is not available', () => {
     setup('2')
     expect(activate()).toBeDisabled()
     fireEvent.click(activate())
-    expect(sessionStorage.getItem(SESSION_STORAGE_KEY)).toBeNull()
+    expect(iniciar).not.toHaveBeenCalled()
   })
 })
