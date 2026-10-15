@@ -9,20 +9,21 @@ import FleetCard from '../components/fleet/FleetCard'
 import FleetRow from '../components/fleet/FleetRow'
 import MachinePickerModal from '../components/fleet/MachinePickerModal'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
-import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
+import { useActiveBranch } from '../context/ActiveBranchContext'
 import {
   addMachines,
-  createCategory,
   deleteCategory,
-  initialBoard,
   matchesMachine,
+  montarQuadro,
   moveMachine,
   removeMachine,
   unassignedMachines,
-  type CategoryKind,
+  type CategoryKey,
   type FleetCategory,
 } from '../data/fleet'
 import { MACHINES, eventsForMachine, type Machine } from '../data/machines'
+import { categoryService } from '../services/categoryService'
+import { machineService } from '../services/machineService'
 import styles from './FrotaPage.module.css'
 
 type Dialog =
@@ -32,19 +33,31 @@ type Dialog =
   | { type: 'detail'; machineId: string }
   | null
 
-const LABEL_KEYS: Record<Exclude<CategoryKind, 'custom'>, string> = {
+type LoadState = 'loading' | 'ready' | 'error'
+
+const LABEL_KEYS: Record<CategoryKey, string> = {
   acidentes: 'fleet.categoryAcidentes',
   ativas: 'fleet.categoryAtivas',
   manutencao: 'fleet.categoryManutencao',
   disponiveis: 'fleet.categoryDisponiveis',
 }
 
-const MACHINES_BY_ID = new Map(MACHINES.map((m) => [m.id, m]))
+// ponytail: o histórico do detalhe ainda é mock (não há rota de incident); casa pela identificacao porque os ids da API são ObjectId.
+const mockEventsFor = (machine: Machine) =>
+  eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
+
+let nextLocalId = 1
 const ARRIVE_MS = 1000
 
 const FrotaPage: React.FC = () => {
   const { t } = useTranslation()
-  const [board, setBoard] = useState<FleetCategory[]>(() => initialBoard(MACHINES))
+  const [board, setBoard] = useState<FleetCategory[]>([])
+  const [machines, setMachines] = useState<Machine[]>([])
+  const [loadState, setLoadState] = useState<LoadState>('loading')
+  const { activeBranch } = useActiveBranch()
+  const filialId = activeBranch === 'todas' ? undefined : activeBranch
+  const [loadedFilialId, setLoadedFilialId] = useState(filialId)
+  const [attempt, setAttempt] = useState(0)
   const [query, setQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dialog, setDialog] = useState<Dialog>(null)
@@ -52,15 +65,45 @@ const FrotaPage: React.FC = () => {
   const [overRowId, setOverRowId] = useState<string | null>(null)
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(() => new Set())
   const arriveTimers = useRef<ReturnType<typeof setTimeout>[]>([])
-  const loading = useFirstVisitLoading('frota')
   const { show } = useToast()
+
+  // Outra filial volta ao skeleton antes do efeito buscar de novo.
+  if (loadedFilialId !== filialId) {
+    setLoadedFilialId(filialId)
+    setLoadState('loading')
+  }
+
+  useEffect(() => {
+    let stale = false
+    Promise.all([categoryService.listar(), machineService.listar(filialId)]).then(
+      ([categorias, maquinas]) => {
+        if (stale) return
+        setMachines(maquinas)
+        setBoard(montarQuadro(categorias, maquinas))
+        setLoadState('ready')
+      },
+      () => {
+        if (!stale) setLoadState('error')
+      }
+    )
+    return () => {
+      stale = true
+    }
+  }, [filialId, attempt])
+
+  const retry = () => {
+    setLoadState('loading')
+    setAttempt((value) => value + 1)
+  }
+
+  const machinesById = new Map(machines.map((m) => [m.id, m]))
 
   useEffect(() => {
     const timers = arriveTimers.current
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const labelOf = (category: FleetCategory) => (category.kind === 'custom' ? category.nome : t(LABEL_KEYS[category.kind]))
+  const labelOf = (category: FleetCategory) => (category.chave ? t(LABEL_KEYS[category.chave]) : category.nome)
   const close = () => setDialog(null)
   const visibleRows = categoryFilter === 'all' ? board : board.filter((c) => c.id === categoryFilter)
 
@@ -99,7 +142,7 @@ const FrotaPage: React.FC = () => {
       onMove={moveTo}
       onRemove={(id) => {
         setBoard((prev) => removeMachine(prev, id))
-        show(t('fleet.toastMachineRemoved', { name: MACHINES_BY_ID.get(id)?.identificacao }))
+        show(t('fleet.toastMachineRemoved', { name: machinesById.get(id)?.identificacao }))
       }}
       isDragging={draggingId === machine.id}
       isArriving={arrivedIds.has(machine.id)}
@@ -107,9 +150,9 @@ const FrotaPage: React.FC = () => {
   )
 
   const deleting = dialog?.type === 'delete' ? board.find((c) => c.id === dialog.categoryId) : undefined
-  const detail = dialog?.type === 'detail' ? MACHINES_BY_ID.get(dialog.machineId) : undefined
+  const detail = dialog?.type === 'detail' ? machinesById.get(dialog.machineId) : undefined
 
-  if (loading) {
+  if (loadState === 'loading') {
     return (
       <div className={styles.page}>
         <PageSkeleton variant="kanban">
@@ -119,6 +162,19 @@ const FrotaPage: React.FC = () => {
             <SkeletonBlock className={styles.buttonSkeleton} />
           </div>
         </PageSkeleton>
+      </div>
+    )
+  }
+
+  if (loadState === 'error') {
+    return (
+      <div className={styles.page}>
+        <div role="alert" className={styles.errorState}>
+          <p>{t('machines.loadError')}</p>
+          <button type="button" className={styles.createButton} onClick={retry}>
+            {t('common.retry')}
+          </button>
+        </div>
       </div>
     )
   }
@@ -165,7 +221,7 @@ const FrotaPage: React.FC = () => {
             category={category}
             label={labelOf(category)}
             machines={category.machineIds
-              .map((id) => MACHINES_BY_ID.get(id)!)
+              .map((id) => machinesById.get(id)!)
               .filter((machine) => matchesMachine(machine, query))}
             total={category.machineIds.length}
             renderCard={renderCard(category)}
@@ -194,7 +250,11 @@ const FrotaPage: React.FC = () => {
         <CategoryFormModal
           existingNames={board.map(labelOf)}
           onSubmit={(nome, cor) => {
-            setBoard((prev) => createCategory(prev, nome, cor))
+            // ponytail: criação local até o T28 ligar o categoryService.criar.
+            setBoard((prev) => [
+              ...prev,
+              ...montarQuadro([{ _id: `local-${nextLocalId++}`, nome, cor, chave: null, statusVinculados: [] }], []),
+            ])
             show(t('fleet.toastCategoryCreated', { name: nome }))
             close()
           }}
@@ -203,7 +263,7 @@ const FrotaPage: React.FC = () => {
       )}
       {dialog?.type === 'add' && (
         <MachinePickerModal
-          machines={unassignedMachines(board, MACHINES)}
+          machines={unassignedMachines(board, machines)}
           onConfirm={(ids) => {
             setBoard((prev) => addMachines(prev, dialog.categoryId, ids))
             markArrived(ids)
@@ -228,7 +288,7 @@ const FrotaPage: React.FC = () => {
         />
       )}
       {detail && (
-        <MachineDetailModal machine={detail} events={eventsForMachine(detail.id)} onClose={close} variant="fleet" />
+        <MachineDetailModal machine={detail} events={mockEventsFor(detail)} onClose={close} variant="fleet" />
       )}
     </div>
   )

@@ -559,8 +559,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: skeleton até as duas responderem; troca de filial busca de novo e ignora a resposta antiga; falha de qualquer busca mostra erro e tentar de novo refaz; categoria com `chave` mostra texto traduzido, sem `chave` mostra `nome`
-- [ ] Quick gate passa
+- [x] Testes: skeleton até as duas responderem; troca de filial busca de novo e ignora a resposta antiga; falha de qualquer busca mostra erro e tentar de novo refaz; categoria com `chave` mostra texto traduzido, sem `chave` mostra `nome`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
