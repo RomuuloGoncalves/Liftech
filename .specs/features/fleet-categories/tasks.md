@@ -597,8 +597,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: edição vem preenchida; status de outra categoria fica desabilitado com `fleet.statusTaken`; envio devolve nome, cor e status marcados; erro mantém o formulário aberto
-- [ ] Quick gate passa
+- [x] Testes: edição vem preenchida; status de outra categoria fica desabilitado com `fleet.statusTaken`; envio devolve nome, cor e status marcados; erro mantém o formulário aberto
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

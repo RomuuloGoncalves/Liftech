@@ -249,11 +249,11 @@ const FrotaPage: React.FC = () => {
       {dialog?.type === 'create' && (
         <CategoryFormModal
           existingNames={board.map(labelOf)}
-          onSubmit={(nome, cor) => {
+          onSubmit={({ nome, cor, statusVinculados }) => {
             // ponytail: criação local até o T28 ligar o categoryService.criar.
             setBoard((prev) => [
               ...prev,
-              ...montarQuadro([{ _id: `local-${nextLocalId++}`, nome, cor, chave: null, statusVinculados: [] }], []),
+              ...montarQuadro([{ _id: `local-${nextLocalId++}`, nome, cor, chave: null, statusVinculados }], []),
             ])
             show(t('fleet.toastCategoryCreated', { name: nome }))
             close()
