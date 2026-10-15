@@ -13,6 +13,7 @@ import { Branch } from '../../src/schemas/branch.js';
 import { logger } from '../../src/utils/logger.js';
 import { verificarSenha } from '../../src/utils/senha.js';
 import { gerarIncidentes } from '../../src/scripts/seedDataset.js';
+import { criarQuadroInicial, posicionarSemCategoria } from '../../src/feature/category/categoryService.js';
 
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: { findOneAndUpdate: vi.fn() } }));
@@ -23,6 +24,7 @@ vi.mock('../../src/schemas/user.js', () => ({ User: { findOneAndUpdate: vi.fn() 
 vi.mock('../../src/schemas/accessRequest.js', () => ({ AccessRequest: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/company.js', () => ({ Company: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findOneAndUpdate: vi.fn() } }));
+vi.mock('../../src/feature/category/categoryService.js', () => ({ criarQuadroInicial: vi.fn(), posicionarSemCategoria: vi.fn() }));
 vi.mock('../../src/scripts/seedAdmin.js', () => ({ seedAdmin: vi.fn() }));
 vi.mock('../../src/config/conn.js', () => ({ conn: { mongoose: { disconnect: vi.fn() } } }));
 vi.mock('../../src/utils/logger.js', () => ({ logger: { info: vi.fn(), warn: vi.fn() } }));
@@ -189,14 +191,52 @@ describe('seedData', () => {
         expect(semOperador).not.toHaveProperty('operadorConectadoId');
     });
 
-    test('sessaoIniciadaEm é agora menos os minutos do mock; com 0 minutos não é definida', async () => {
+    test('sessaoIniciadaEm só nas em_uso: agora menos os minutos do mock', async () => {
         await seedData();
 
-        const com34 = chamadaDe(Forklift, { identificacao: 'EMP-081' })[1].$set;
-        const com0 = chamadaDe(Forklift, { identificacao: 'EMP-086' })[1].$set;
+        const emUso = chamadaDe(Forklift, { identificacao: 'EMP-082' })[1].$set;
+        const disponivelCom34 = chamadaDe(Forklift, { identificacao: 'EMP-083' })[1].$set;
+        const alertaCom34 = chamadaDe(Forklift, { identificacao: 'EMP-081' })[1].$set;
 
-        expect(com34.sessaoIniciadaEm).toEqual(new Date(AGORA.getTime() - 34 * 60_000));
-        expect(com0).not.toHaveProperty('sessaoIniciadaEm');
+        expect(emUso.sessaoIniciadaEm).toEqual(new Date(AGORA.getTime() - 12 * 60_000));
+        expect(disponivelCom34).not.toHaveProperty('sessaoIniciadaEm');
+        expect(alertaCom34).not.toHaveProperty('sessaoIniciadaEm');
+    });
+
+    test('grava o status do dataset na empilhadeira', async () => {
+        await seedData();
+
+        expect(chamadaDe(Forklift, { identificacao: 'EMP-081' })[1].$set.status).toBe('alerta');
+        expect(chamadaDe(Forklift, { identificacao: 'EMP-084' })[1].$set.status).toBe('manutencao');
+        expect(chamadaDe(Forklift, { identificacao: 'EMP-086' })[1].$set.status).toBe('offline');
+    });
+
+    test('só as 3 máquinas em alerta têm incidente pendente', async () => {
+        await seedData();
+
+        const pendentes = chamadas(Incident).filter((c) => c[1].$set.status === 'pendente').map((c) => c[0].empilhadeiraId);
+        expect(pendentes).toEqual(['EMP-081', 'EMP-085', 'EMP-089'].map((identificacao) => idDe('Forklift', { identificacao })));
+    });
+
+    test('cria o quadro inicial da empresa e posiciona as máquinas das 3 filiais', async () => {
+        const quadro = new Map([['alerta', 'c1']]);
+        vi.mocked(criarQuadroInicial).mockResolvedValue(quadro as any);
+
+        await seedData();
+
+        expect(criarQuadroInicial).toHaveBeenCalledWith(EMPRESA_ID);
+        expect(posicionarSemCategoria).toHaveBeenCalledWith(
+            ['Matriz', 'Unidade Centro', 'Unidade Norte'].map(filialId),
+            quadro
+        );
+    });
+
+    test('empresa que já tinha quadro: não reposiciona', async () => {
+        vi.mocked(criarQuadroInicial).mockResolvedValue(null);
+
+        await seedData();
+
+        expect(posicionarSemCategoria).not.toHaveBeenCalled();
     });
 
     test('o incidente usa o operador da empilhadeira, ou o operador de reserva quando ela não tem', async () => {

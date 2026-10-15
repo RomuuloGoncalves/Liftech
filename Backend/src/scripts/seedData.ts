@@ -14,6 +14,7 @@ import {
     filialDaEmpilhadeira, filialDoDispositivo, filialDoOperador, gerarIncidentes, gerarTelemetria,
 } from './seedDataset.js';
 import { garantirEmpresa, upsert } from './seedEmpresa.js';
+import { criarQuadroInicial, posicionarSemCategoria } from '../feature/category/categoryService.js';
 
 export async function seedData() {
     const { empresaId, filialIds } = await garantirEmpresa(FILIAIS_EXTRAS);
@@ -36,10 +37,15 @@ export async function seedData() {
             setor: e.setor,
             filialId: filialIds.get(filialDaEmpilhadeira(e)),
             dispositivoConectadoId: dispositivoIds.get(e.enderecoMac),
+            status: e.status,
             ...(e.operador && { operadorConectadoId: operadorIds.get(e.operador) }),
-            ...(e.tempoSessaoMinutos > 0 && { sessaoIniciadaEm: new Date(agora - e.tempoSessaoMinutos * 60_000) }),
+            ...(e.status === 'em_uso' && e.tempoSessaoMinutos > 0 && { sessaoIniciadaEm: new Date(agora - e.tempoSessaoMinutos * 60_000) }),
         }));
     }
+
+    // Só na criação do quadro as máquinas entram pela regra; depois a posição é de quem usa o kanban.
+    const quadro = await criarQuadroInicial(empresaId);
+    if (quadro) await posicionarSemCategoria([...filialIds.values()], quadro);
 
     let telemetria = 0;
     for (const dispositivoId of dispositivoIds.values()) {
@@ -52,7 +58,7 @@ export async function seedData() {
     let incidentes = 0;
     for (const [i, e] of EMPILHADEIRAS.entries()) {
         const operadorId = operadorIds.get(e.operador ?? OPERADORES[i % OPERADORES.length]!);
-        for (const incidente of gerarIncidentes(String(empilhadeiraIds[i]), String(operadorId), i)) {
+        for (const incidente of gerarIncidentes(String(empilhadeiraIds[i]), String(operadorId), i, e.status === 'alerta')) {
             const filialId = filialIds.get(filialDaEmpilhadeira(e));
             await upsert(Incident, { empilhadeiraId: incidente.empilhadeiraId, dataIncidente: incidente.dataIncidente }, { ...incidente, filialId });
             incidentes++;

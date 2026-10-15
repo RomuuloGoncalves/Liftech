@@ -112,3 +112,10 @@ export async function criarQuadroInicial(empresaId: unknown): Promise<Map<Status
   );
   return new Map(QUADRO_INICIAL.map(({ status }, i) => [status as Status, criadas[i]._id]));
 }
+
+// Põe cada empilhadeira sem categoria das filiais na categoria ligada ao seu status; status sem ligação fica sem categoria.
+export async function posicionarSemCategoria(filialIds: unknown[], quadro: Map<Status, unknown>) {
+  for (const [status, categoriaId] of quadro) {
+    await Forklift.updateMany({ filialId: { $in: filialIds }, categoriaId: null, status } as Record<string, unknown>, { $set: { categoriaId } });
+  }
+}

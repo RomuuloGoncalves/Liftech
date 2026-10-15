@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { Types } from 'mongoose';
 import { Category } from '../../src/schemas/category.js';
 import { Forklift } from '../../src/schemas/forklift.js';
-import { atualizar, criar, criarQuadroInicial, excluir, listar } from '../../src/feature/category/categoryService.js';
+import { atualizar, criar, criarQuadroInicial, excluir, listar, posicionarSemCategoria } from '../../src/feature/category/categoryService.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
 vi.mock('../../src/schemas/category.js', () => ({
@@ -169,5 +169,17 @@ describe('criarQuadroInicial', () => {
         expect(await criarQuadroInicial(EMPRESA)).toBeNull();
         expect(Category.exists).toHaveBeenCalledWith({ empresaId: EMPRESA });
         expect(Category.insertMany).not.toHaveBeenCalled();
+    });
+});
+
+describe('posicionarSemCategoria', () => {
+    test('cada status ligado manda as empilhadeiras sem categoria das filiais para a sua categoria', async () => {
+        const filiais = ['f1', 'f2'];
+        await posicionarSemCategoria(filiais, new Map([['alerta', 'c-alerta'], ['disponivel', 'c-disp']]) as any);
+
+        expect(vi.mocked(Forklift.updateMany).mock.calls).toEqual([
+            [{ filialId: { $in: filiais }, categoriaId: null, status: 'alerta' }, { $set: { categoriaId: 'c-alerta' } }],
+            [{ filialId: { $in: filiais }, categoriaId: null, status: 'disponivel' }, { $set: { categoriaId: 'c-disp' } }],
+        ]);
     });
 });

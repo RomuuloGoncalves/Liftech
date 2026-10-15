@@ -330,8 +330,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `seedDataset.test.ts` e `seedData.test.ts`: só as 3 máquinas têm incidente pendente; `sessaoIniciadaEm` só nas `em_uso`; `categoriaId` de cada máquina é o da categoria ligada ao seu status; `offline` sem categoria
-- [ ] Quick gate passa
+- [x] Testes em `seedDataset.test.ts` e `seedData.test.ts`: só as 3 máquinas têm incidente pendente; `sessaoIniciadaEm` só nas `em_uso`; `categoriaId` de cada máquina é o da categoria ligada ao seu status; `offline` sem categoria
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
