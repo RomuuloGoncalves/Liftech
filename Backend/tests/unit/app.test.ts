@@ -69,6 +69,8 @@ describe('app: rotas protegidas', () => {
         ['GET', '/api/sessions/atual'],
         ['POST', '/api/sessions'],
         ['PUT', '/api/sessions/atual/encerrar'],
+        ['GET', '/api/incidents'],
+        ['POST', '/api/incidents'],
         ['GET', '/api/access-requests'],
         ['GET', '/api/auth/login'],
         ['GET', '/api/qualquer-coisa'],
