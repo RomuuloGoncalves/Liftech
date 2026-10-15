@@ -102,6 +102,9 @@ export async function deletar(req: Request, res: Response) {
   }
 }
 
+// Status, trava e categoria só mudam pelas rotas de /api/machines, que aplicam as regras deles.
+const CAMPOS_PROTEGIDOS = ["status", "statusAlteradoEm", "categoriaId", "categoriaTravada", "sessaoIniciadaEm"];
+
 export async function atualizar(req: Request, res: Response) {
   try {
     const id = obterIdForklift(req);
@@ -114,6 +117,10 @@ export async function atualizar(req: Request, res: Response) {
 
     const corpo = (req.body ?? {}) as Partial<Record<string, unknown>>;
     exigirSemOperadores(corpo);
+    const protegido = CAMPOS_PROTEGIDOS.find((campo) => campo in corpo);
+    if (protegido) {
+      return respostaErro(res, StatusCode.BAD_REQUEST, `O campo '${protegido}' não pode ser alterado por esta rota.`);
+    }
     if (corpo.filialId !== undefined) {
       exigirEmpresa(req.escopo, "Apenas o escopo de empresa pode mover uma empilhadeira de filial.");
       corpo.filialId = resolverFilial(req.escopo, corpo.filialId);

@@ -253,8 +253,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `forkliftController.test.ts`: cada um dos 5 campos → 400 sem chamar o serviço; corpo sem eles segue 200
-- [ ] Quick gate passa
+- [x] Testes em `forkliftController.test.ts`: cada um dos 5 campos → 400 sem chamar o serviço; corpo sem eles segue 200
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

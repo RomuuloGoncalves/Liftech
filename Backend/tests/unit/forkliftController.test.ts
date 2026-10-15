@@ -134,6 +134,17 @@ describe('forkliftController: escopo', () => {
             expect(mockStatus).toHaveBeenCalledWith(200);
         });
 
+        test.each(['status', 'statusAlteradoEm', 'categoriaId', 'categoriaTravada', 'sessaoIniciadaEm'])(
+            '400 com o campo protegido %s, sem chamar o service',
+            async (campo) => {
+                await atualizar(req(escopoDe('empresa', [F1]), { params: { id: ID }, body: { nome: 'Nova', [campo]: null } }), res);
+
+                expect(mockStatus).toHaveBeenCalledWith(400);
+                expect(mockJson).toHaveBeenCalledWith({ error: `O campo '${campo}' não pode ser alterado por esta rota.` });
+                expect(servicoForklift.atualizar).not.toHaveBeenCalled();
+            }
+        );
+
         test('fora do escopo o service lança e vira 404', async () => {
             vi.mocked(servicoForklift.atualizar).mockRejectedValue(new Error('Empilhadeira não encontrado(a).'));
 
