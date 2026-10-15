@@ -133,8 +133,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes de controller: status e corpo de cada rota e de cada erro; rotas registradas
-- [ ] Quick gate passa
+- [x] Testes de controller: status e corpo de cada rota e de cada erro; rotas registradas
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
