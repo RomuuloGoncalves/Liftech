@@ -521,8 +521,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: máquina `disponivel` com `kind` de acidentes mostra selo "Disponível" e horas semanais; cada status mostra o destaque do spec; `alerta` usa `alertaEm`; cadeado visível só com trava ligada e clique chama `onToggleLock`
-- [ ] Quick gate passa
+- [x] Testes: máquina `disponivel` com `kind` de acidentes mostra selo "Disponível" e horas semanais; cada status mostra o destaque do spec; `alerta` usa `alertaEm`; cadeado visível só com trava ligada e clique chama `onToggleLock`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

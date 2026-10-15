@@ -39,18 +39,24 @@
   }
 }
 
+/* Fundo e cor do texto vêm do STATUS_TONE do StatusBadge. */
 .topRow {
   display: flex;
   align-items: flex-start;
   gap: calc(8 * var(--px, 1px));
-}
-
-.topRow.danger,
-.topRow.warning,
-.topRow.caution {
   margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0;
   padding: calc(8 * var(--px, 1px)) calc(12 * var(--px, 1px));
   border-radius: calc(7 * var(--px, 1px)) calc(7 * var(--px, 1px)) 0 0;
+}
+
+.topRow :is(.nome, .code, .menuButton) {
+  color: inherit;
+}
+
+/* Card de ocorrência (Alertas): cabeçalho no tom da urgência. */
+.topRow.danger,
+.topRow.warning,
+.topRow.caution {
   color: var(--white);
 }
 
@@ -64,48 +70,6 @@
 
 .topRow.caution {
   background: var(--urgency-medium);
-}
-
-.topRow.statusAvailable,
-.topRow.statusInUse,
-.topRow.statusMaintenance,
-.topRow.statusOffline {
-  margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0;
-  padding: calc(8 * var(--px, 1px)) calc(12 * var(--px, 1px));
-  border-radius: calc(7 * var(--px, 1px)) calc(7 * var(--px, 1px)) 0 0;
-  color: var(--white);
-}
-
-.topRow.statusAvailable {
-  background: var(--green);
-}
-
-.topRow.statusInUse {
-  background: var(--blue);
-}
-
-.topRow.statusMaintenance {
-  background: var(--yellow);
-}
-
-.topRow.statusOffline {
-  background: var(--black-text);
-}
-
-.topRow.statusAvailable :is(.nome, .code, .menuButton),
-.topRow.statusInUse :is(.nome, .code, .menuButton),
-.topRow.statusOffline :is(.nome, .code, .menuButton) {
-  color: var(--white);
-}
-
-.topRow.statusMaintenance :is(.nome, .code, .menuButton) {
-  color: var(--black-title);
-}
-
-.topRow.danger :is(.nome, .code, .menuButton),
-.topRow.warning :is(.nome, .code, .menuButton),
-.topRow.caution :is(.nome, .code, .menuButton) {
-  color: var(--white);
 }
 
 .names {
@@ -309,4 +273,8 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+}
+
+.badge {
+  align-self: flex-start;
 }

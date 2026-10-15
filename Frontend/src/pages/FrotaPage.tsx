@@ -15,7 +15,6 @@ import {
   createCategory,
   deleteCategory,
   initialBoard,
-  lastAccidentDate,
   matchesMachine,
   moveMachine,
   removeMachine,
@@ -23,7 +22,7 @@ import {
   type CategoryKind,
   type FleetCategory,
 } from '../data/fleet'
-import { MACHINES, MACHINE_EVENTS, eventsForMachine, type Machine } from '../data/machines'
+import { MACHINES, eventsForMachine, type Machine } from '../data/machines'
 import styles from './FrotaPage.module.css'
 
 type Dialog =
@@ -94,8 +93,6 @@ const FrotaPage: React.FC = () => {
     <FleetCard
       key={machine.id}
       machine={machine}
-      kind={category.kind}
-      lastAccident={category.kind === 'acidentes' ? lastAccidentDate(machine.id, MACHINE_EVENTS) : undefined}
       moveTargets={board.filter((c) => c.id !== category.id).map((c) => ({ id: c.id, nome: labelOf(c) }))}
       onOpen={(item) => setDialog({ type: 'detail', machineId: item.id })}
       onDragStart={setDraggingId}
