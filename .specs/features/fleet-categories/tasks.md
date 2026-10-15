@@ -100,8 +100,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `schemas.test.ts`: nome vazio, nome com 41 caracteres, cor `#12345` e `#GGGGGG` falham; padrão de `statusVinculados` é `[]`; o índice existe com a collation
-- [ ] Quick gate passa
+- [x] Testes em `schemas.test.ts`: nome vazio, nome com 41 caracteres, cor `#12345` e `#GGGGGG` falham; padrão de `statusVinculados` é `[]`; o índice existe com a collation
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

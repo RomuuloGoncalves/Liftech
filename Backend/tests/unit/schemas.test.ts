@@ -91,3 +91,33 @@ describe('schema branch', () => {
         ]);
     });
 });
+
+describe('schema category', async () => {
+    const { Category } = await import('../../src/schemas/category.js');
+    const empresaId = new mongoose.Types.ObjectId();
+    const valida = { empresaId, nome: 'Pátio', cor: '#3A9CFF' };
+
+    test('categoria válida passa e statusVinculados começa vazio', async () => {
+        const categoria = new Category(valida);
+        expect(await erros(categoria)).toEqual([]);
+        expect(categoria.statusVinculados).toHaveLength(0);
+        expect(categoria.chave).toBeNull();
+    });
+
+    test('nome vazio ou com mais de 40 caracteres falha', async () => {
+        expect(await erros(new Category({ ...valida, nome: '   ' }))).toEqual(['nome']);
+        expect(await erros(new Category({ ...valida, nome: 'a'.repeat(41) }))).toEqual(['nome']);
+        expect(await erros(new Category({ ...valida, nome: 'a'.repeat(40) }))).toEqual([]);
+    });
+
+    test.each(['#12345', '#GGGGGG', '3A9CFF', '#3A9CFF0'])('cor %s falha', async (cor) => {
+        expect(await erros(new Category({ ...valida, cor }))).toEqual(['cor']);
+    });
+
+    test('nome único por empresa sem diferenciar caixa', () => {
+        expect(Category.schema.indexes()).toContainEqual([
+            { empresaId: 1, nome: 1 },
+            expect.objectContaining({ unique: true, collation: { locale: 'pt', strength: 2 } }),
+        ]);
+    });
+});
