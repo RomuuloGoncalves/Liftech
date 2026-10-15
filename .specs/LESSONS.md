@@ -74,6 +74,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: B20 userController.ts PUT telefone/cargo (backend-tests)
 - last seen: 2026-10-13T17:09:14Z
 
+### L-011 - When a migration maps legacy values, the spec must state the outcome for values outside the known mapping
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `migrations` · harmful: 0
+- features: fleet-categories
+- evidence: MIG-01 Backend/tests/unit/migrateStatus.test.ts:49 (migrations)
+- last seen: 2026-10-15T18:24:48Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

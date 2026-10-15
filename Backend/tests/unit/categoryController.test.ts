@@ -92,6 +92,7 @@ describe('categoryController', () => {
     test.each([
         ['nome vazio', { nome: '' }],
         ['cor inválida', { cor: 'azul' }],
+        ['chave $', { cor: '#000000', $set: { empresaId: 'x' } }],
     ])('atualizar %s: 400', async (_caso, body) => {
         await atualizar(req(empresa, { params: { id: ID }, body }), res);
         expect(status).toHaveBeenCalledWith(400);

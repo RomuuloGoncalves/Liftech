@@ -124,7 +124,7 @@
 
 ### AD-011: Status da máquina e categorias da Frota (`fleet-categories`)
 - **Date**: 2026-10-15
-- **Status**: Approved (spec, design e tasks; implementação não iniciada)
+- **Status**: Implementado e verificado (PASS em `.specs/features/fleet-categories/validation.md`)
 - **Context**: O status era texto livre em `device.status`, escrito só pelo seed, e as categorias da Frota viviam só em memória, nascendo do status.
 - **Decision**:
   - O status é da máquina (`forklift.status`), com os códigos `disponivel`, `em_uso`, `manutencao`, `alerta`, `offline`. Muda por leitura do dispositivo (o backend decide: `forcaImpacto >= LIMITE_IMPACTO` vira `alerta` e cria incidente pendente) ou à mão. Toda mudança passa por `aplicarStatus`.
@@ -134,10 +134,9 @@
   - Fica para a feature seguinte: sessão do funcionário e ocorrência no backend; também fora: autenticação do dispositivo e offline por heartbeat.
 
 ## Handoff Snapshot
-- **Branch**: `feature/visao-geral-api-e-seeds` (local, nada enviado ao remoto, sem PR), a partir da `main`.
-- **Gate final**: Frontend `tsc -b` e `eslint .` limpos, 1133 testes passando; Backend 372 testes unitários passando e `tsc --noEmit` limpo.
-- **Verificadas (validation.md com PASS)**: `machines-api`, `employee-nav-settings`.
-- **Implementadas mas SEM validation.md aprovado**: `branches-model`, `access-scope` (verificação interrompida antes de terminar), `skeleton-fidelity` (verificação interrompida; medição no navegador a 1024px e 375px ainda por fazer por um verificador independente) e `branches-frontend` (verificador deu FAIL só por força de teste: ver `.specs/features/branches-frontend/validation.md`).
-- **Pendente em `branches-frontend`**: tratar a falha do `GET /branches` depois de criar, renomear ou excluir com sucesso (hoje mostra erro de salvar com o formulário aberto); a correção estava em andamento e não entrou.
-- **Pendente para o dono**: rodar `yarn migrate:branches` e `yarn seed:data` (com `SEED_COLABORADOR_SENHA`); conferir os índices de `users` no banco; `POST /api/telemetry` agora exige token, então dispositivos IoT precisam de um canal próprio.
-- **Achados dos revisores ainda não tratados**: traduções do namespace `employee.*` só em pt-BR e en-US (es, fr, ja, de e ru caem no fallback); formas plurais de `fleet.*` (ru principalmente); contraste do azul principal, foco nos campos de busca do funcionário e links da Sidebar recolhida sem nome; confirmação ao encerrar sessão; limpeza de cerca de 250 linhas de testes duplicados.
+- **Branch**: `feature/fleet-categories` (local, nada enviado ao remoto, sem PR), a partir da `main`.
+- **Feature**: `fleet-categories` concluída (T1–T28) e verificada: PASS, 10/10 mutantes mortos.
+- **Gate final**: Backend `tsc --noEmit` limpo e 535 testes unitários; Frontend `tsc -b` e `eslint .` limpos e 1200 testes. O Frontend precisa do Node 24+ (o v20 quebra o vitest).
+- **Pendente para o dono**: rodar `yarn migrate:status` (ou `yarn seed:data` em dev) e definir `LIMITE_IMPACTO` no `.env` se 5 não servir; revisar o filtro de data da linha Acidentes (usa `alertaEm`, fim padrão = maior entre 2026-07-14 e hoje).
+- **Próxima feature**: sessão do funcionário e ocorrência no backend (decisão do dono); autenticação do dispositivo IoT e offline por heartbeat seguem fora.
+- **Achados anteriores ainda não tratados**: ver histórico do AD-010 (traduções `employee.*`, plurais de `fleet.*`, contraste, foco, testes duplicados).

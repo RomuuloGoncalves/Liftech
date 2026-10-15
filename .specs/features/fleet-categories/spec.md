@@ -213,7 +213,7 @@ O kanban da Frota (`FrotaPage`) guarda as categorias só em memória: recarregar
 
 **Acceptance Criteria**:
 
-1. WHEN `yarn migrate:status` roda THEN the script SHALL gravar `forklift.status` a partir do `device.status` ligado (`Disponível`→`disponivel`, `Em uso`→`em_uso`, `Manutenção`→`manutencao`, `Offline`→`offline`) nas empilhadeiras sem `status`.
+1. WHEN `yarn migrate:status` roda THEN the script SHALL gravar `forklift.status` a partir do `device.status` ligado (`Disponível`→`disponivel`, `Em uso`→`em_uso`, `Manutenção`→`manutencao`, `Offline`→`offline`; qualquer outro valor→`disponivel`) nas empilhadeiras sem `status`.
 2. WHEN `yarn migrate:status` encontra empilhadeira sem dispositivo e sem `status` THEN the script SHALL gravar `status: 'offline'`.
 3. WHEN `yarn migrate:status` encontra empresa sem categorias THEN the script SHALL criar as 4 categorias iniciais com `chave`, cor e `statusVinculados` do quadro inicial.
 4. WHEN `yarn migrate:status` cria as categorias de uma empresa THEN the script SHALL colocar cada empilhadeira sem `categoriaId` dessa empresa na categoria ligada ao status dela, e deixar sem categoria as de status sem ligação.
@@ -240,70 +240,70 @@ O kanban da Frota (`FrotaPage`) guarda as categorias só em memória: recarregar
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| STS-01 | P1: Status gravado e trocado à mão (AC1) | Tasks | In Tasks |
-| STS-02 | P1: Status gravado e trocado à mão (AC2) | Tasks | In Tasks |
-| STS-03 | P1: Status gravado e trocado à mão (AC3) | Tasks | In Tasks |
-| STS-04 | P1: Status gravado e trocado à mão (AC4) | Tasks | In Tasks |
-| STS-05 | P1: Status gravado e trocado à mão (AC5) | Tasks | In Tasks |
-| STS-06 | P1: Status gravado e trocado à mão (AC6) | Tasks | In Tasks |
-| STS-07 | P1: Status gravado e trocado à mão (AC7) | Tasks | In Tasks |
-| STS-08 | P1: Status gravado e trocado à mão (AC8) | Tasks | In Tasks |
-| STS-09 | P1: Status gravado e trocado à mão (AC9) | Tasks | In Tasks |
-| STS-10 | P1: Status gravado e trocado à mão (AC10) | Tasks | In Tasks |
-| IMP-01 | P1: Leitura de impacto vira alerta (AC1) | Tasks | In Tasks |
-| IMP-02 | P1: Leitura de impacto vira alerta (AC2) | Tasks | In Tasks |
-| IMP-03 | P1: Leitura de impacto vira alerta (AC3) | Tasks | In Tasks |
-| IMP-04 | P1: Leitura de impacto vira alerta (AC4) | Tasks | In Tasks |
-| IMP-05 | P1: Leitura de impacto vira alerta (AC5) | Tasks | In Tasks |
-| IMP-06 | P1: Leitura de impacto vira alerta (AC6) | Tasks | In Tasks |
-| IMP-07 | P1: Leitura de impacto vira alerta (AC7) | Tasks | In Tasks |
-| CAT-01 | P1: Categorias da empresa ligadas a status (AC1) | Tasks | In Tasks |
-| CAT-02 | P1: Categorias da empresa ligadas a status (AC2) | Tasks | In Tasks |
-| CAT-03 | P1: Categorias da empresa ligadas a status (AC3) | Tasks | In Tasks |
-| CAT-04 | P1: Categorias da empresa ligadas a status (AC4) | Tasks | In Tasks |
-| CAT-05 | P1: Categorias da empresa ligadas a status (AC5) | Tasks | In Tasks |
-| CAT-06 | P1: Categorias da empresa ligadas a status (AC6) | Tasks | In Tasks |
-| CAT-07 | P1: Categorias da empresa ligadas a status (AC7) | Tasks | In Tasks |
-| CAT-08 | P1: Categorias da empresa ligadas a status (AC8) | Tasks | In Tasks |
-| CAT-09 | P1: Categorias da empresa ligadas a status (AC9) | Tasks | In Tasks |
-| CAT-10 | P1: Categorias da empresa ligadas a status (AC10) | Tasks | In Tasks |
-| CAT-11 | P1: Categorias da empresa ligadas a status (AC11) | Tasks | In Tasks |
-| CAT-12 | P1: Categorias da empresa ligadas a status (AC12) | Tasks | In Tasks |
-| CAT-13 | P1: Categorias da empresa ligadas a status (AC13) | Tasks | In Tasks |
-| AUT-01 | P1: Status move a máquina, trava segura (AC1) | Tasks | In Tasks |
-| AUT-02 | P1: Status move a máquina, trava segura (AC2) | Tasks | In Tasks |
-| AUT-03 | P1: Status move a máquina, trava segura (AC3) | Tasks | In Tasks |
-| AUT-04 | P1: Status move a máquina, trava segura (AC4) | Tasks | In Tasks |
-| AUT-05 | P1: Status move a máquina, trava segura (AC5) | Tasks | In Tasks |
-| AUT-06 | P1: Status move a máquina, trava segura (AC6) | Tasks | In Tasks |
-| AUT-07 | P1: Status move a máquina, trava segura (AC7) | Tasks | In Tasks |
-| MOV-01 | P1: Mover máquinas à mão (AC1) | Tasks | In Tasks |
-| MOV-02 | P1: Mover máquinas à mão (AC2) | Tasks | In Tasks |
-| MOV-03 | P1: Mover máquinas à mão (AC3) | Tasks | In Tasks |
-| MOV-04 | P1: Mover máquinas à mão (AC4) | Tasks | In Tasks |
-| MOV-05 | P1: Mover máquinas à mão (AC5) | Tasks | In Tasks |
-| MOV-06 | P1: Mover máquinas à mão (AC6) | Tasks | In Tasks |
-| MOV-07 | P1: Mover máquinas à mão (AC7) | Tasks | In Tasks |
-| MOV-08 | P1: Mover máquinas à mão (AC8) | Tasks | In Tasks |
-| FRT-01 | P1: Frota lendo a API com selo de status (AC1) | Tasks | In Tasks |
-| FRT-02 | P1: Frota lendo a API com selo de status (AC2) | Tasks | In Tasks |
-| FRT-03 | P1: Frota lendo a API com selo de status (AC3) | Tasks | In Tasks |
-| FRT-04 | P1: Frota lendo a API com selo de status (AC4) | Tasks | In Tasks |
-| FRT-05 | P1: Frota lendo a API com selo de status (AC5) | Tasks | In Tasks |
-| FRT-06 | P1: Frota lendo a API com selo de status (AC6) | Tasks | In Tasks |
-| FRT-07 | P1: Frota lendo a API com selo de status (AC7) | Tasks | In Tasks |
-| FRT-08 | P1: Frota lendo a API com selo de status (AC8) | Tasks | In Tasks |
-| FRT-09 | P1: Frota lendo a API com selo de status (AC9) | Tasks | In Tasks |
-| FRT-10 | P1: Frota lendo a API com selo de status (AC10) | Tasks | In Tasks |
-| FRT-11 | P1: Frota lendo a API com selo de status (AC11) | Tasks | In Tasks |
-| FRT-12 | P1: Frota lendo a API com selo de status (AC12) | Tasks | In Tasks |
-| MIG-01 | P2: Quadro inicial e dados antigos (AC1) | Tasks | In Tasks |
-| MIG-02 | P2: Quadro inicial e dados antigos (AC2) | Tasks | In Tasks |
-| MIG-03 | P2: Quadro inicial e dados antigos (AC3) | Tasks | In Tasks |
-| MIG-04 | P2: Quadro inicial e dados antigos (AC4) | Tasks | In Tasks |
-| MIG-05 | P2: Quadro inicial e dados antigos (AC5) | Tasks | In Tasks |
-| MIG-06 | P2: Quadro inicial e dados antigos (AC6) | Tasks | In Tasks |
-| MIG-07 | P2: Quadro inicial e dados antigos (AC7) | Tasks | In Tasks |
+| STS-01 | P1: Status gravado e trocado à mão (AC1) | Tasks | Verified |
+| STS-02 | P1: Status gravado e trocado à mão (AC2) | Tasks | Verified |
+| STS-03 | P1: Status gravado e trocado à mão (AC3) | Tasks | Verified |
+| STS-04 | P1: Status gravado e trocado à mão (AC4) | Tasks | Verified |
+| STS-05 | P1: Status gravado e trocado à mão (AC5) | Tasks | Verified |
+| STS-06 | P1: Status gravado e trocado à mão (AC6) | Tasks | Verified |
+| STS-07 | P1: Status gravado e trocado à mão (AC7) | Tasks | Verified |
+| STS-08 | P1: Status gravado e trocado à mão (AC8) | Tasks | Verified |
+| STS-09 | P1: Status gravado e trocado à mão (AC9) | Tasks | Verified |
+| STS-10 | P1: Status gravado e trocado à mão (AC10) | Tasks | Verified |
+| IMP-01 | P1: Leitura de impacto vira alerta (AC1) | Tasks | Verified |
+| IMP-02 | P1: Leitura de impacto vira alerta (AC2) | Tasks | Verified |
+| IMP-03 | P1: Leitura de impacto vira alerta (AC3) | Tasks | Verified |
+| IMP-04 | P1: Leitura de impacto vira alerta (AC4) | Tasks | Verified |
+| IMP-05 | P1: Leitura de impacto vira alerta (AC5) | Tasks | Verified |
+| IMP-06 | P1: Leitura de impacto vira alerta (AC6) | Tasks | Verified |
+| IMP-07 | P1: Leitura de impacto vira alerta (AC7) | Tasks | Verified |
+| CAT-01 | P1: Categorias da empresa ligadas a status (AC1) | Tasks | Verified |
+| CAT-02 | P1: Categorias da empresa ligadas a status (AC2) | Tasks | Verified |
+| CAT-03 | P1: Categorias da empresa ligadas a status (AC3) | Tasks | Verified |
+| CAT-04 | P1: Categorias da empresa ligadas a status (AC4) | Tasks | Verified |
+| CAT-05 | P1: Categorias da empresa ligadas a status (AC5) | Tasks | Verified |
+| CAT-06 | P1: Categorias da empresa ligadas a status (AC6) | Tasks | Verified |
+| CAT-07 | P1: Categorias da empresa ligadas a status (AC7) | Tasks | Verified |
+| CAT-08 | P1: Categorias da empresa ligadas a status (AC8) | Tasks | Verified |
+| CAT-09 | P1: Categorias da empresa ligadas a status (AC9) | Tasks | Verified |
+| CAT-10 | P1: Categorias da empresa ligadas a status (AC10) | Tasks | Verified |
+| CAT-11 | P1: Categorias da empresa ligadas a status (AC11) | Tasks | Verified |
+| CAT-12 | P1: Categorias da empresa ligadas a status (AC12) | Tasks | Verified |
+| CAT-13 | P1: Categorias da empresa ligadas a status (AC13) | Tasks | Verified |
+| AUT-01 | P1: Status move a máquina, trava segura (AC1) | Tasks | Verified |
+| AUT-02 | P1: Status move a máquina, trava segura (AC2) | Tasks | Verified |
+| AUT-03 | P1: Status move a máquina, trava segura (AC3) | Tasks | Verified |
+| AUT-04 | P1: Status move a máquina, trava segura (AC4) | Tasks | Verified |
+| AUT-05 | P1: Status move a máquina, trava segura (AC5) | Tasks | Verified |
+| AUT-06 | P1: Status move a máquina, trava segura (AC6) | Tasks | Verified |
+| AUT-07 | P1: Status move a máquina, trava segura (AC7) | Tasks | Verified |
+| MOV-01 | P1: Mover máquinas à mão (AC1) | Tasks | Verified |
+| MOV-02 | P1: Mover máquinas à mão (AC2) | Tasks | Verified |
+| MOV-03 | P1: Mover máquinas à mão (AC3) | Tasks | Verified |
+| MOV-04 | P1: Mover máquinas à mão (AC4) | Tasks | Verified |
+| MOV-05 | P1: Mover máquinas à mão (AC5) | Tasks | Verified |
+| MOV-06 | P1: Mover máquinas à mão (AC6) | Tasks | Verified |
+| MOV-07 | P1: Mover máquinas à mão (AC7) | Tasks | Verified |
+| MOV-08 | P1: Mover máquinas à mão (AC8) | Tasks | Verified |
+| FRT-01 | P1: Frota lendo a API com selo de status (AC1) | Tasks | Verified |
+| FRT-02 | P1: Frota lendo a API com selo de status (AC2) | Tasks | Verified |
+| FRT-03 | P1: Frota lendo a API com selo de status (AC3) | Tasks | Verified |
+| FRT-04 | P1: Frota lendo a API com selo de status (AC4) | Tasks | Verified |
+| FRT-05 | P1: Frota lendo a API com selo de status (AC5) | Tasks | Verified |
+| FRT-06 | P1: Frota lendo a API com selo de status (AC6) | Tasks | Verified |
+| FRT-07 | P1: Frota lendo a API com selo de status (AC7) | Tasks | Verified |
+| FRT-08 | P1: Frota lendo a API com selo de status (AC8) | Tasks | Verified |
+| FRT-09 | P1: Frota lendo a API com selo de status (AC9) | Tasks | Verified |
+| FRT-10 | P1: Frota lendo a API com selo de status (AC10) | Tasks | Verified |
+| FRT-11 | P1: Frota lendo a API com selo de status (AC11) | Tasks | Verified |
+| FRT-12 | P1: Frota lendo a API com selo de status (AC12) | Tasks | Verified |
+| MIG-01 | P2: Quadro inicial e dados antigos (AC1) | Tasks | Verified |
+| MIG-02 | P2: Quadro inicial e dados antigos (AC2) | Tasks | Verified |
+| MIG-03 | P2: Quadro inicial e dados antigos (AC3) | Tasks | Verified |
+| MIG-04 | P2: Quadro inicial e dados antigos (AC4) | Tasks | Verified |
+| MIG-05 | P2: Quadro inicial e dados antigos (AC5) | Tasks | Verified |
+| MIG-06 | P2: Quadro inicial e dados antigos (AC6) | Tasks | Verified |
+| MIG-07 | P2: Quadro inicial e dados antigos (AC7) | Tasks | Verified |
 
 **Coverage:** 64 total, 64 mapped to tasks, 0 unmapped
 
