@@ -187,8 +187,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes de serviço (URL, método, corpo) e paridade i18n
-- [ ] Quick gate passa
+- [x] Testes de serviço (URL, método, corpo) e paridade i18n
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

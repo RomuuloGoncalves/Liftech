@@ -270,6 +270,13 @@
       "feedbackTitle": "フィードバックとご意見",
       "feedbackQuestion": "ご利用はいかがでしたか？",
       "privacy": "プライバシーポリシー"
+    },
+    "session": {
+      "startError": "セッションを開始できませんでした。もう一度お試しください。",
+      "endError": "セッションを終了できませんでした。もう一度お試しください。"
+    },
+    "incident": {
+      "sendError": "インシデントを送信できませんでした。もう一度お試しください。"
     }
   },
   "branches": {

@@ -318,7 +318,9 @@
       "description": "O <b>registro do tempo de utilização</b> já está em andamento. Ao finalizar, lembre-se de <b>encerrar a operação</b>.",
       "timerLabel": "Tempo de sessão",
       "end": "Encerrar Sessão",
-      "reportIncident": "Reportar uma ocorrência"
+      "reportIncident": "Reportar uma ocorrência",
+      "startError": "Não foi possível iniciar a sessão. Tente novamente.",
+      "endError": "Não foi possível encerrar a sessão. Tente novamente."
     },
     "history": {
       "title": "Histórico",
@@ -344,7 +346,8 @@
       "cancel": "Cancelar",
       "submit": "Enviar ocorrência",
       "required": "Campo obrigatório",
-      "toastSent": "Ocorrência enviada com sucesso"
+      "toastSent": "Ocorrência enviada com sucesso",
+      "sendError": "Não foi possível enviar a ocorrência. Tente novamente."
     },
     "settings": {
       "title": "Configurações",

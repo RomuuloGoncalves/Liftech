@@ -270,6 +270,13 @@
       "feedbackTitle": "Comentarios y sugerencias",
       "feedbackQuestion": "¿Cómo fue tu experiencia?",
       "privacy": "Política y privacidad"
+    },
+    "session": {
+      "startError": "No se pudo iniciar la sesión de uso. Inténtalo de nuevo.",
+      "endError": "No se pudo finalizar la sesión de uso. Inténtalo de nuevo."
+    },
+    "incident": {
+      "sendError": "No se pudo enviar el incidente. Inténtalo de nuevo."
     }
   },
   "branches": {

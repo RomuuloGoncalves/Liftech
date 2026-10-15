@@ -17,6 +17,7 @@ export interface UsuarioLogado {
   empresa?: { _id: string; nome: string } | null;
   escopo?: 'empresa' | 'filiais';
   filiais?: Filial[];
+  operador?: { _id: string; nome: string } | null;
 }
 
 export interface SolicitacaoAcesso {

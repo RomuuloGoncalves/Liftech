@@ -270,6 +270,13 @@
       "feedbackTitle": "Commentaires et suggestions",
       "feedbackQuestion": "Comment s'est passée votre expérience ?",
       "privacy": "Politique de confidentialité"
+    },
+    "session": {
+      "startError": "Impossible de démarrer la session. Réessayez.",
+      "endError": "Impossible de terminer la session. Réessayez."
+    },
+    "incident": {
+      "sendError": "Impossible d'envoyer l'incident. Réessayez."
     }
   },
   "branches": {
