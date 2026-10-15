@@ -69,3 +69,11 @@
     transform: translateY(0);
   }
 }
+
+.error {
+  border-left-color: var(--danger-solid);
+}
+
+.error .icon {
+  color: var(--danger-solid);
+}

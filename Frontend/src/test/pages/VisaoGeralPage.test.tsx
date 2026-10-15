@@ -9,7 +9,9 @@ import styles from '../../pages/VisaoGeralPage.module.css'
 import { machineService } from '../../services/machineService'
 import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
 
-vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.fn() } }))
+vi.mock('../../services/machineService', () => ({
+  machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn() },
+}))
 
 const listar = vi.mocked(machineService.listar)
 
@@ -585,5 +587,45 @@ describe('VisaoGeralPage: active branch', () => {
     await screen.findAllByRole('article')
     expect(listar).toHaveBeenCalledTimes(2)
     expect(listar).toHaveBeenLastCalledWith('f2')
+  })
+})
+
+describe('VisaoGeralPage status and lock', () => {
+  const card = () =>
+    screen.getAllByRole('article').find((el) => within(el).queryByText('EMP-084(ID)')) as HTMLElement
+  const base = MACHINES.find((m) => m.identificacao === 'EMP-084') as Machine
+  const renderOpen = async () => {
+    render(
+      <ToastProvider>
+        <VisaoGeralPage />
+      </ToastProvider>
+    )
+    await screen.findAllByRole('article')
+    fireEvent.click(within(card()).getByRole('button', { name: /Ver detalhes/ }))
+  }
+
+  it('updates the card badge after a status change', async () => {
+    vi.mocked(machineService.alterarStatus).mockResolvedValue({ ...base, status: 'offline' })
+    await renderOpen()
+    fireEvent.change(screen.getByLabelText('Alterar status'), { target: { value: 'disponivel' } })
+    expect(within(card()).getByText('Disponível')).toBeInTheDocument()
+    expect(machineService.alterarStatus).toHaveBeenCalledWith(base.id, 'disponivel')
+    expect(await within(card()).findByText('Offline')).toBeInTheDocument()
+  })
+
+  it('restores the badge and warns when the change fails', async () => {
+    vi.mocked(machineService.alterarStatus).mockRejectedValue(new Error('x'))
+    await renderOpen()
+    fireEvent.change(screen.getByLabelText('Alterar status'), { target: { value: 'disponivel' } })
+    expect(await within(card()).findByText('Em manutenção')).toBeInTheDocument()
+    expect(within(screen.getByRole('status')).getByText(i18n.t('fleet.saveError'))).toBeInTheDocument()
+  })
+
+  it('applies the lock returned by the service', async () => {
+    vi.mocked(machineService.travar).mockResolvedValue({ ...base, categoriaTravada: true })
+    await renderOpen()
+    fireEvent.click(screen.getByRole('button', { name: 'Travar' }))
+    expect(machineService.travar).toHaveBeenCalledWith(base.id, true)
+    expect(await screen.findByRole('button', { name: 'Destravar' })).toBeInTheDocument()
   })
 })

@@ -37,7 +37,7 @@ const VisaoGeralPage: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
-  const { show } = useToast()
+  const { show, showError } = useToast()
   const { activeBranch } = useActiveBranch()
   const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
@@ -124,6 +124,19 @@ const VisaoGeralPage: React.FC = () => {
     setSubDialog(null)
     setDetailId(null)
     if (detailMachine) show(t('machines.toastDeleted', { name: detailMachine.identificacao }))
+  }
+
+  // Otimista: aplica o patch, grava e usa a resposta; em falha volta a máquina anterior.
+  const updateMachine = (patch: Partial<Machine>, save: (id: string) => Promise<Machine>) => {
+    if (!detailMachine) return
+    const previous = detailMachine
+    const replace = (next: Machine) =>
+      setAllMachines((prev) => prev.map((machine) => (machine.id === previous.id ? next : machine)))
+    replace({ ...previous, ...patch })
+    save(previous.id).then(replace, () => {
+      replace(previous)
+      showError(t('fleet.saveError'))
+    })
   }
 
   if (loadState === 'loading') {
@@ -213,6 +226,10 @@ const VisaoGeralPage: React.FC = () => {
           events={mockEventsFor(detailMachine)}
           onEdit={() => setSubDialog('edit')}
           onDelete={() => setSubDialog('delete')}
+          onChangeStatus={(next) => updateMachine({ status: next }, (id) => machineService.alterarStatus(id, next))}
+          onToggleLock={(valor) =>
+            updateMachine({ categoriaTravada: valor }, (id) => machineService.travar(id, valor))
+          }
           onClose={() => setDetailId(null)}
         />
       )}

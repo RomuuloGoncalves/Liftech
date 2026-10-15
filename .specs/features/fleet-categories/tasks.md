@@ -502,8 +502,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: troca de status atualiza o selo do card; falha volta o selo e mostra o aviso
-- [ ] Quick gate passa
+- [x] Testes: troca de status atualiza o selo do card; falha volta o selo e mostra o aviso
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
