@@ -464,8 +464,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes com `api` mockado: método, URL e corpo de cada função
-- [ ] Build gate do Frontend passa
+- [x] Testes com `api` mockado: método, URL e corpo de cada função
+- [x] Build gate do Frontend passa
 
 **Tests**: unit
 **Gate**: build
