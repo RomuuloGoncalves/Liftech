@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Calendar, CircleCheck, CircleDot, CirclePlus, Search, Trash2, TriangleAlert } from 'lucide-react'
+import { Calendar, CircleCheck, CircleDot, CirclePlus, Pencil, Search, Trash2, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { matchesMachine, type CategoryKey, type FleetCategory } from '../../data/fleet'
 import { DEFAULT_PERIOD, type Machine } from '../../data/machines'
@@ -15,7 +15,9 @@ interface FleetRowProps {
   renderCard: (machine: Machine) => React.ReactNode
   onDrop: (categoryId: string) => void
   onAdd: (categoryId: string) => void
-  onDelete: (categoryId: string) => void
+  /** Editar e excluir só aparecem quando a página passa os handlers (escopo empresa). */
+  onEdit?: (categoryId: string) => void
+  onDelete?: (categoryId: string) => void
   /** Linha sob o card arrastado (e diferente da de origem). */
   isDropTarget?: boolean
   onDragOverRow?: (categoryId: string) => void
@@ -35,6 +37,7 @@ const FleetRow: React.FC<FleetRowProps> = ({
   renderCard,
   onDrop,
   onAdd,
+  onEdit,
   onDelete,
   isDropTarget = false,
   onDragOverRow,
@@ -124,7 +127,13 @@ const FleetRow: React.FC<FleetRowProps> = ({
               />
             </div>
           )}
-          {category.chave === null && (
+          {onEdit && (
+            <button type="button" className={styles.editButton} onClick={() => onEdit(category.id)}>
+              <Pencil size={11} />
+              {t('fleet.editCategory')}
+            </button>
+          )}
+          {onDelete && (
             <button type="button" className={styles.deleteButton} onClick={() => onDelete(category.id)}>
               <Trash2 size={11} />
               {t('fleet.deleteCategory')}

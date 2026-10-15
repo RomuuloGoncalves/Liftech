@@ -10,10 +10,17 @@ import { categoryService, type Categoria } from '../../services/categoryService'
 import { machineService } from '../../services/machineService'
 
 vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.fn() } }))
-vi.mock('../../services/categoryService', () => ({ categoryService: { listar: vi.fn() } }))
+vi.mock('../../services/categoryService', () => ({
+  categoryService: { listar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
+}))
 
 const listarMaquinas = vi.mocked(machineService.listar)
 const listarCategorias = vi.mocked(categoryService.listar)
+const criar = vi.mocked(categoryService.criar)
+const atualizar = vi.mocked(categoryService.atualizar)
+const remover = vi.mocked(categoryService.remover)
+const session = (escopo: 'empresa' | 'filiais') =>
+  localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Ana', role: 'admin', escopo, filiais: [] }))
 
 const categoria = (chave: string, statusVinculados: Machine['status'][]): Categoria => ({
   _id: chave,
@@ -39,11 +46,20 @@ beforeEach(() => {
   listarCategorias.mockReset()
   listarMaquinas.mockResolvedValue(MACHINES)
   listarCategorias.mockResolvedValue(CATEGORIAS)
+  vi.mocked(categoryService.criar).mockReset()
+  vi.mocked(categoryService.atualizar).mockReset()
+  vi.mocked(categoryService.remover).mockReset()
+  criar.mockImplementation(async (dados) => ({ _id: `new-${dados.nome}`, chave: null, nome: '', cor: '', statusVinculados: [], ...dados }))
+  atualizar.mockImplementation(async (id, dados) => ({ ...CATEGORIAS.find((c) => c._id === id)!, chave: null, ...dados }))
+  remover.mockResolvedValue()
+  session('empresa')
 })
+
+afterEach(() => localStorage.clear())
 
 const renderPage = async (ui: React.ReactElement = <FrotaPage />) => {
   const view = render(ui)
-  await screen.findByRole('button', { name: 'Cadastrar categoria' })
+  await screen.findByRole('searchbox', { name: 'Buscar' })
   return view
 }
 
@@ -58,10 +74,14 @@ const card = (code: string) => screen.getByText(`${code}(ID)`).closest('article'
 
 const openMenu = (code: string) => fireEvent.click(screen.getByRole('button', { name: `Mais ações para ${code}` }))
 
-const createCategory = (name: string) => {
+const createCategory = async (name: string) => {
   fireEvent.click(screen.getByRole('button', { name: 'Cadastrar categoria' }))
   fireEvent.change(screen.getByLabelText('Nome da categoria'), { target: { value: name } })
-  fireEvent.click(screen.getByRole('button', { name: 'Criar Categoria' }))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Criar Categoria' })))
+}
+const confirmDelete = async (name: string) => {
+  fireEvent.click(within(row(name)).getByRole('button', { name: 'Excluir categoria' }))
+  await act(async () => fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' })))
 }
 
 const pickerOptions = () =>
@@ -139,7 +159,7 @@ describe('FrotaPage', () => {
 
   it('creates an empty category at the end from "Cadastrar categoria"', async () => {
     await renderPage()
-    createCategory('Reserva')
+    await createCategory('Reserva')
     const regions = screen.getAllByRole('region')
     expect(regions.at(-1)).toHaveAttribute('aria-label', 'Reserva')
     expect(codesIn('Reserva')).toEqual([])
@@ -155,14 +175,14 @@ describe('FrotaPage', () => {
 
   it('rejects a category name already used by an initial category', async () => {
     await renderPage()
-    createCategory('ativas')
+    await createCategory('ativas')
     expect(screen.getByText('Já existe uma categoria com esse nome')).toBeInTheDocument()
     expect(screen.getAllByRole('region')).toHaveLength(4)
   })
 
   it('adds machines without category to a row through the picker', async () => {
     await renderPage()
-    createCategory('Reserva')
+    await createCategory('Reserva')
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Reserva' }))
     expect(pickerOptions()).toEqual(['EMP-086(ID)', 'EMP-094(ID)'])
     fireEvent.click(screen.getByRole('option', { name: 'EMP-086(ID)' }))
@@ -173,7 +193,7 @@ describe('FrotaPage', () => {
 
   it('deletes a created category after confirmation and frees its machines', async () => {
     await renderPage()
-    createCategory('Reserva')
+    await createCategory('Reserva')
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Reserva' }))
     fireEvent.click(screen.getByRole('option', { name: 'EMP-086(ID)' }))
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
@@ -181,7 +201,8 @@ describe('FrotaPage', () => {
     fireEvent.click(within(row('Reserva')).getByRole('button', { name: 'Excluir categoria' }))
     const dialog = screen.getByRole('dialog')
     expect(dialog).toHaveTextContent('Reserva')
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir' }))
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir' })))
+    expect(remover).toHaveBeenCalledWith('new-Reserva')
 
     expect(queryRow('Reserva')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' }))
@@ -190,7 +211,7 @@ describe('FrotaPage', () => {
 
   it('keeps the category when the deletion is cancelled', async () => {
     await renderPage()
-    createCategory('Reserva')
+    await createCategory('Reserva')
     fireEvent.click(within(row('Reserva')).getByRole('button', { name: 'Excluir categoria' }))
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
     expect(row('Reserva')).toBeInTheDocument()
@@ -248,12 +269,11 @@ describe('FrotaPage', () => {
 
   it('goes back to all categories when the filtered category is deleted', async () => {
     await renderPage()
-    createCategory('Reserva')
+    await createCategory('Reserva')
     const filter = screen.getByRole('combobox', { name: 'Filtrar categoria' })
     const reservaId = within(filter).getByRole('option', { name: 'Reserva' }).getAttribute('value')!
     fireEvent.change(filter, { target: { value: reservaId } })
-    fireEvent.click(within(row('Reserva')).getByRole('button', { name: 'Excluir categoria' }))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }))
+    await confirmDelete('Reserva')
     expect(filter).toHaveValue('all')
     expect(screen.getAllByRole('region')).toHaveLength(4)
   })
@@ -495,15 +515,14 @@ describe('FrotaPage notifications', () => {
 
   it('announces a created category', async () => {
     await renderWithToasts()
-    createCategory('Reserva')
+    await createCategory('Reserva')
     expect(toastTexts()).toEqual(['Categoria "Reserva" criada'])
   })
 
   it('announces a deleted category', async () => {
     await renderWithToasts()
-    createCategory('Reserva')
-    fireEvent.click(within(row('Reserva')).getByRole('button', { name: 'Excluir categoria' }))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }))
+    await createCategory('Reserva')
+    await confirmDelete('Reserva')
     expect(toastTexts()).toContain('Categoria "Reserva" excluída')
   })
 
@@ -520,5 +539,104 @@ describe('FrotaPage notifications', () => {
     openMenu('EMP-082')
     fireEvent.click(screen.getByRole('menuitem', { name: 'Remover da categoria' }))
     expect(toastTexts()).toEqual(['EMP-082 removida da categoria'])
+  })
+})
+
+describe('FrotaPage category management by scope (FRT-06, FRT-07, CAT-04, CAT-05)', () => {
+  it('lets the company scope create a category through the API with its linked status', async () => {
+    await renderPage()
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar categoria' }))
+    fireEvent.change(screen.getByLabelText('Nome da categoria'), { target: { value: 'Pátio' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Offline/ }))
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Criar Categoria' })))
+    expect(criar).toHaveBeenCalledWith({ nome: 'Pátio', cor: '#3A9CFF', statusVinculados: ['offline'] })
+    expect(screen.getAllByRole('region').at(-1)).toHaveAttribute('aria-label', 'Pátio')
+  })
+
+  it('keeps the form open when the API refuses the category', async () => {
+    criar.mockRejectedValueOnce(new Error('409'))
+    await renderPage()
+    await createCategory('Pátio')
+    expect(screen.getByRole('dialog', { name: 'Criar Categoria' })).toHaveTextContent('Não foi possível salvar')
+    expect(queryRow('Pátio')).not.toBeInTheDocument()
+  })
+
+  it('edits a category with the status of the other categories disabled', async () => {
+    await renderPage()
+    fireEvent.click(within(row('Ativas')).getByRole('button', { name: 'Editar categoria' }))
+    const dialog = screen.getByRole('dialog', { name: 'Editar categoria' })
+    expect(within(dialog).getByLabelText('Nome da categoria')).toHaveValue('Ativas')
+    expect(within(dialog).getByRole('checkbox', { name: /^Em uso/ })).toBeChecked()
+    expect(within(dialog).getByRole('checkbox', { name: /^Alerta/ })).toBeDisabled()
+
+    fireEvent.change(within(dialog).getByLabelText('Nome da categoria'), { target: { value: 'Rodando' } })
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' })))
+    expect(atualizar).toHaveBeenCalledWith('ativas', { nome: 'Rodando', cor: '#3A9CFF', statusVinculados: ['em_uso'] })
+    expect(codesIn('Rodando')).toContain('EMP-082(ID)')
+  })
+
+  it('does not send the name when a keyed category keeps its translated name', async () => {
+    await renderPage()
+    fireEvent.click(within(row('Ativas')).getByRole('button', { name: 'Editar categoria' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Offline/ }))
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Salvar' })))
+    expect(atualizar).toHaveBeenCalledWith('ativas', { cor: '#3A9CFF', statusVinculados: ['em_uso', 'offline'] })
+  })
+
+  it('deletes any category through the API and leaves its machines without category', async () => {
+    await renderPage()
+    await confirmDelete('Ativas')
+    expect(remover).toHaveBeenCalledWith('ativas')
+    expect(queryRow('Ativas')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Manutenção' }))
+    expect(pickerOptions()).toContain('EMP-082(ID)')
+  })
+
+  it('keeps the category and warns when the deletion fails', async () => {
+    remover.mockRejectedValueOnce(new Error('500'))
+    render(
+      <ToastProvider>
+        <FrotaPage />
+      </ToastProvider>
+    )
+    await screen.findAllByRole('region')
+    await confirmDelete('Ativas')
+    expect(row('Ativas')).toBeInTheDocument()
+    expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
+  })
+
+  it('hides create, edit and delete from the branches scope but keeps add, drag, move and lock', async () => {
+    session('filiais')
+    listarMaquinas.mockResolvedValue(MACHINES.map((m) => (m.identificacao === 'EMP-082' ? { ...m, categoriaTravada: true } : m)))
+    await renderPage()
+    expect(screen.queryByRole('button', { name: 'Cadastrar categoria' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Adicionar categoria' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Editar categoria' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Excluir categoria' })).not.toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' })).toBeInTheDocument()
+    expect(within(card('EMP-082')).getByRole('button', { name: 'Destravar' })).toBeInTheDocument()
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.drop(row('Manutenção'))
+    expect(codesIn('Manutenção')).toContain('EMP-082(ID)')
+    openMenu('EMP-082')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Disponíveis' }))
+    expect(codesIn('Disponíveis')).toContain('EMP-082(ID)')
+  })
+
+  it('shows only the add-category buttons when the company has no categories', async () => {
+    listarCategorias.mockResolvedValue([])
+    await renderPage()
+    expect(screen.queryAllByRole('region')).toEqual([])
+    expect(screen.getByRole('button', { name: 'Adicionar categoria' })).toBeInTheDocument()
+    expect(screen.queryByText('Nenhuma categoria cadastrada')).not.toBeInTheDocument()
+  })
+
+  it('shows "Nenhuma categoria cadastrada" to the branches scope when there are no categories', async () => {
+    session('filiais')
+    listarCategorias.mockResolvedValue([])
+    await renderPage()
+    expect(screen.getByText('Nenhuma categoria cadastrada')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Adicionar categoria' })).not.toBeInTheDocument()
   })
 })

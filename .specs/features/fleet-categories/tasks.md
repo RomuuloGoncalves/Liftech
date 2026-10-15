@@ -616,8 +616,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: escopo empresa vê criar, editar e excluir; escopo filiais não vê e mantém adicionar, arrastar, trava e status; excluir tira as máquinas da linha; estados vazios dos dois escopos
-- [ ] Build gate do Frontend passa
+- [x] Testes: escopo empresa vê criar, editar e excluir; escopo filiais não vê e mantém adicionar, arrastar, trava e status; excluir tira as máquinas da linha; estados vazios dos dois escopos
+- [x] Build gate do Frontend passa
 
 **Tests**: unit
 **Gate**: build

@@ -22,12 +22,13 @@ import {
   type FleetCategory,
 } from '../data/fleet'
 import { MACHINES, eventsForMachine, type Machine } from '../data/machines'
-import { categoryService } from '../services/categoryService'
+import { authService } from '../services/authService'
+import { categoryService, type Categoria } from '../services/categoryService'
 import { machineService } from '../services/machineService'
 import styles from './FrotaPage.module.css'
 
 type Dialog =
-  | { type: 'create' }
+  | { type: 'form'; categoryId?: string }
   | { type: 'add'; categoryId: string }
   | { type: 'delete'; categoryId: string }
   | { type: 'detail'; machineId: string }
@@ -46,8 +47,8 @@ const LABEL_KEYS: Record<CategoryKey, string> = {
 const mockEventsFor = (machine: Machine) =>
   eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
-let nextLocalId = 1
 const ARRIVE_MS = 1000
+const rowOf = (categoria: Categoria) => montarQuadro([categoria], [])[0]
 
 const FrotaPage: React.FC = () => {
   const { t } = useTranslation()
@@ -96,6 +97,9 @@ const FrotaPage: React.FC = () => {
     setAttempt((value) => value + 1)
   }
 
+  // Só o escopo empresa cria, edita e exclui categorias (o backend responde 403 para filiais).
+  const canManage = authService.getSession()?.escopo === 'empresa'
+  const openForm = (categoryId?: string) => setDialog({ type: 'form', categoryId })
   const machinesById = new Map(machines.map((m) => [m.id, m]))
 
   useEffect(() => {
@@ -149,6 +153,7 @@ const FrotaPage: React.FC = () => {
     />
   )
 
+  const editing = dialog?.type === 'form' && dialog.categoryId ? board.find((c) => c.id === dialog.categoryId) : undefined
   const deleting = dialog?.type === 'delete' ? board.find((c) => c.id === dialog.categoryId) : undefined
   const detail = dialog?.type === 'detail' ? machinesById.get(dialog.machineId) : undefined
 
@@ -208,11 +213,15 @@ const FrotaPage: React.FC = () => {
             ))}
           </select>
         </div>
-        <button type="button" className={styles.createButton} onClick={() => setDialog({ type: 'create' })}>
-          <Plus size={16} />
-          {t('fleet.createCategoryButton')}
-        </button>
+        {canManage && (
+          <button type="button" className={styles.createButton} onClick={() => openForm()}>
+            <Plus size={16} />
+            {t('fleet.createCategoryButton')}
+          </button>
+        )}
       </div>
+
+      {board.length === 0 && !canManage && <p className={styles.noCategories}>{t('fleet.noCategories')}</p>}
 
       <div className={styles.rows}>
         {visibleRows.map((category) => (
@@ -232,30 +241,39 @@ const FrotaPage: React.FC = () => {
             }}
             onDragLeaveRow={(id) => setOverRowId((prev) => (prev === id ? null : prev))}
             onAdd={(categoryId) => setDialog({ type: 'add', categoryId })}
-            onDelete={(categoryId) => setDialog({ type: 'delete', categoryId })}
+            onEdit={canManage ? openForm : undefined}
+            onDelete={canManage ? (categoryId) => setDialog({ type: 'delete', categoryId }) : undefined}
           />
         ))}
       </div>
 
-      <button
-        type="button"
-        className={styles.addCategory}
-        aria-label={t('fleet.addCategory')}
-        onClick={() => setDialog({ type: 'create' })}
-      >
-        <CirclePlus size={18} />
-      </button>
+      {canManage && (
+        <button
+          type="button"
+          className={styles.addCategory}
+          aria-label={t('fleet.addCategory')}
+          onClick={() => openForm()}
+        >
+          <CirclePlus size={18} />
+        </button>
+      )}
 
-      {dialog?.type === 'create' && (
+      {dialog?.type === 'form' && (
         <CategoryFormModal
-          existingNames={board.map(labelOf)}
-          onSubmit={({ nome, cor, statusVinculados }) => {
-            // ponytail: criação local até o T28 ligar o categoryService.criar.
-            setBoard((prev) => [
-              ...prev,
-              ...montarQuadro([{ _id: `local-${nextLocalId++}`, nome, cor, chave: null, statusVinculados }], []),
-            ])
-            show(t('fleet.toastCategoryCreated', { name: nome }))
+          existingNames={board.filter((c) => c.id !== editing?.id).map(labelOf)}
+          initial={editing && { nome: labelOf(editing), cor: editing.cor, statusVinculados: editing.statusVinculados }}
+          takenStatus={board.filter((c) => c.id !== editing?.id).flatMap((c) => c.statusVinculados)}
+          onSubmit={async (values) => {
+            if (editing) {
+              // Nome intacto não vai: renomear apaga a `chave` e perde a tradução (CAT-03).
+              const { nome, ...rest } = values
+              const saved = await categoryService.atualizar(editing.id, nome === labelOf(editing) ? rest : values)
+              setBoard((prev) => prev.map((c) => (c.id === saved._id ? { ...rowOf(saved), machineIds: c.machineIds } : c)))
+            } else {
+              const saved = await categoryService.criar(values)
+              setBoard((prev) => [...prev, rowOf(saved)])
+              show(t('fleet.toastCategoryCreated', { name: values.nome }))
+            }
             close()
           }}
           onClose={close}
@@ -278,11 +296,21 @@ const FrotaPage: React.FC = () => {
         <ConfirmDialog
           title={t('fleet.deleteCategory')}
           message={t('fleet.deleteCategoryMessage', { name: labelOf(deleting) })}
-          onConfirm={() => {
+          onConfirm={async () => {
+            close()
+            try {
+              await categoryService.remover(deleting.id)
+            } catch {
+              show(t('fleet.saveError'))
+              return
+            }
+            // O backend tira as máquinas da categoria e destrava (CAT-04).
+            setMachines((prev) =>
+              prev.map((m) => (m.categoriaId === deleting.id ? { ...m, categoriaId: null, categoriaTravada: false } : m))
+            )
             setBoard((prev) => deleteCategory(prev, deleting.id))
             show(t('fleet.toastCategoryDeleted', { name: labelOf(deleting) }))
-            if (categoryFilter === deleting.id) setCategoryFilter('all')
-            close()
+            setCategoryFilter((prev) => (prev === deleting.id ? 'all' : prev))
           }}
           onCancel={close}
         />

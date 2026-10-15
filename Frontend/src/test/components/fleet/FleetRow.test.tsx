@@ -135,15 +135,20 @@ describe('FleetRow', () => {
     expect(screen.queryByLabelText('Data inicial')).not.toBeInTheDocument()
   })
 
-  it('shows "Excluir categoria" only on custom categories', () => {
-    const { onDelete } = setup([], { category: category({ id: 'custom-1', chave: null, nome: 'Reserva' }), label: 'Reserva' })
+  it('shows edit and delete when the page passes their handlers (CAT-04, FRT-06)', () => {
+    const onEdit = vi.fn()
+    const { onDelete } = setup([], { onEdit })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar categoria' }))
+    expect(onEdit).toHaveBeenCalledWith('ativas')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir categoria' }))
-    expect(onDelete).toHaveBeenCalledWith('custom-1')
+    expect(onDelete).toHaveBeenCalledWith('ativas')
   })
 
-  it('hides "Excluir categoria" on the initial categories', () => {
-    setup([])
+  it('hides edit and delete without their handlers but keeps add (FRT-07)', () => {
+    setup([], { onDelete: undefined })
+    expect(screen.queryByRole('button', { name: 'Editar categoria' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Excluir categoria' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' })).toBeInTheDocument()
   })
 })
 
