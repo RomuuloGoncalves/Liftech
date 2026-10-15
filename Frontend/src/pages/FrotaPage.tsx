@@ -66,7 +66,7 @@ const FrotaPage: React.FC = () => {
   const [overRowId, setOverRowId] = useState<string | null>(null)
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(() => new Set())
   const arriveTimers = useRef<ReturnType<typeof setTimeout>[]>([])
-  const { show } = useToast()
+  const { show, showError } = useToast()
 
   // Outra filial volta ao skeleton antes do efeito buscar de novo.
   if (loadedFilialId !== filialId) {
@@ -121,8 +121,45 @@ const FrotaPage: React.FC = () => {
     )
   }
 
+  /** Aplica na hora, chama a API e volta ao estado anterior com aviso se falhar (MOV-07, MOV-08). */
+  const persist = (apply: () => void, call: () => Promise<unknown>) => {
+    const before = { board, machines }
+    apply()
+    call().catch(() => {
+      setBoard(before.board)
+      setMachines(before.machines)
+      showError(t('fleet.saveError'))
+    })
+  }
+
+  const setCategoriaLocal = (ids: string[], categoriaId: string | null) =>
+    setMachines((prev) => prev.map((m) => (ids.includes(m.id) ? { ...m, categoriaId } : m)))
+
+  const replaceMachine = (next: Machine) => setMachines((prev) => prev.map((m) => (m.id === next.id ? next : m)))
+
+  const updateMachine = (machine: Machine, patch: Partial<Machine>, save: () => Promise<Machine>) =>
+    persist(
+      () => replaceMachine({ ...machine, ...patch }),
+      () =>
+        save().then((saved) => {
+          replaceMachine(saved)
+          // O backend decide a troca automática de categoria (AUT-01..03): segue o que ele devolveu.
+          if (saved.categoriaId !== machine.categoriaId) {
+            const exists = board.some((c) => c.id === saved.categoriaId)
+            setBoard((prev) => (exists ? moveMachine(prev, saved.id, saved.categoriaId!) : removeMachine(prev, saved.id)))
+            if (exists) markArrived([saved.id])
+          }
+        })
+    )
+
   const moveTo = (machineId: string, categoryId: string) => {
-    setBoard((prev) => moveMachine(prev, machineId, categoryId))
+    persist(
+      () => {
+        setBoard((prev) => moveMachine(prev, machineId, categoryId))
+        setCategoriaLocal([machineId], categoryId)
+      },
+      () => machineService.mover([machineId], categoryId)
+    )
     markArrived([machineId])
   }
 
@@ -144,8 +181,17 @@ const FrotaPage: React.FC = () => {
       onOpen={(item) => setDialog({ type: 'detail', machineId: item.id })}
       onDragStart={setDraggingId}
       onMove={moveTo}
+      onToggleLock={(id) =>
+        updateMachine(machine, { categoriaTravada: false }, () => machineService.travar(id, false))
+      }
       onRemove={(id) => {
-        setBoard((prev) => removeMachine(prev, id))
+        persist(
+          () => {
+            setBoard((prev) => removeMachine(prev, id))
+            setCategoriaLocal([id], null)
+          },
+          () => machineService.mover([id], null)
+        )
         show(t('fleet.toastMachineRemoved', { name: machinesById.get(id)?.identificacao }))
       }}
       isDragging={draggingId === machine.id}
@@ -283,7 +329,14 @@ const FrotaPage: React.FC = () => {
         <MachinePickerModal
           machines={unassignedMachines(board, machines)}
           onConfirm={(ids) => {
-            setBoard((prev) => addMachines(prev, dialog.categoryId, ids))
+            const { categoryId } = dialog
+            persist(
+              () => {
+                setBoard((prev) => addMachines(prev, categoryId, ids))
+                setCategoriaLocal(ids, categoryId)
+              },
+              () => machineService.mover(ids, categoryId)
+            )
             markArrived(ids)
             const target = board.find((c) => c.id === dialog.categoryId)
             if (target) show(t('fleet.toastMachinesAdded', { name: labelOf(target) }))
@@ -301,7 +354,7 @@ const FrotaPage: React.FC = () => {
             try {
               await categoryService.remover(deleting.id)
             } catch {
-              show(t('fleet.saveError'))
+              showError(t('fleet.saveError'))
               return
             }
             // O backend tira as máquinas da categoria e destrava (CAT-04).
@@ -316,7 +369,16 @@ const FrotaPage: React.FC = () => {
         />
       )}
       {detail && (
-        <MachineDetailModal machine={detail} events={mockEventsFor(detail)} onClose={close} variant="fleet" />
+        <MachineDetailModal
+          machine={detail}
+          events={mockEventsFor(detail)}
+          onClose={close}
+          variant="fleet"
+          onChangeStatus={(status) => updateMachine(detail, { status }, () => machineService.alterarStatus(detail.id, status))}
+          onToggleLock={(valor) =>
+            updateMachine(detail, { categoriaTravada: valor }, () => machineService.travar(detail.id, valor))
+          }
+        />
       )}
     </div>
   )

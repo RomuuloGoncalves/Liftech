@@ -9,13 +9,18 @@ import styles from '../../pages/FrotaPage.module.css'
 import { categoryService, type Categoria } from '../../services/categoryService'
 import { machineService } from '../../services/machineService'
 
-vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.fn() } }))
+vi.mock('../../services/machineService', () => ({
+  machineService: { listar: vi.fn(), mover: vi.fn(), travar: vi.fn(), alterarStatus: vi.fn() },
+}))
 vi.mock('../../services/categoryService', () => ({
   categoryService: { listar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
 }))
 
 const listarMaquinas = vi.mocked(machineService.listar)
 const listarCategorias = vi.mocked(categoryService.listar)
+const mover = vi.mocked(machineService.mover)
+const travar = vi.mocked(machineService.travar)
+const alterarStatus = vi.mocked(machineService.alterarStatus)
 const criar = vi.mocked(categoryService.criar)
 const atualizar = vi.mocked(categoryService.atualizar)
 const remover = vi.mocked(categoryService.remover)
@@ -53,6 +58,10 @@ beforeEach(() => {
   atualizar.mockImplementation(async (id, dados) => ({ ...CATEGORIAS.find((c) => c._id === id)!, chave: null, ...dados }))
   remover.mockResolvedValue()
   session('empresa')
+  for (const fn of [mover, travar, alterarStatus]) fn.mockReset()
+  mover.mockResolvedValue([])
+  travar.mockImplementation(async (id, categoriaTravada) => ({ ...MACHINES.find((m) => m.id === id)!, categoriaTravada }))
+  alterarStatus.mockImplementation(async (id, status) => ({ ...MACHINES.find((m) => m.id === id)!, status }))
 })
 
 afterEach(() => localStorage.clear())
@@ -262,9 +271,7 @@ describe('FrotaPage', () => {
     fireEvent.dragStart(card('EMP-082'))
     fireEvent.drop(row('Manutenção'))
     fireEvent.click(within(card('EMP-082')).getByRole('button', { name: /Ver detalhes/ }))
-    const dialog = screen.getByRole('dialog')
-    expect(within(dialog).getByText('Em uso')).toBeInTheDocument()
-    expect(within(dialog).queryByText('Manutenção')).not.toBeInTheDocument()
+    expect(within(screen.getByRole('dialog')).getByRole('combobox', { name: 'Alterar status' })).toHaveValue('em_uso')
   })
 
   it('goes back to all categories when the filtered category is deleted', async () => {
@@ -638,5 +645,123 @@ describe('FrotaPage category management by scope (FRT-06, FRT-07, CAT-04, CAT-05
     await renderPage()
     expect(screen.getByText('Nenhuma categoria cadastrada')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Adicionar categoria' })).not.toBeInTheDocument()
+  })
+})
+
+describe('FrotaPage persists moves, locks and status (MOV-07, MOV-08, AUT-07, STS-10)', () => {
+  const id = (code: string) => MACHINES.find((m) => m.identificacao === code)!.id
+  const never = () => new Promise<never>(() => {})
+  const renderWithToasts = () =>
+    renderPage(
+      <ToastProvider>
+        <FrotaPage />
+      </ToastProvider>
+    )
+  const openDetail = (code: string) => fireEvent.click(within(card(code)).getByRole('button', { name: /Ver detalhes/ }))
+  const statusSelect = () => within(screen.getByRole('dialog')).getByRole('combobox', { name: 'Alterar status' })
+
+  it('moves a dragged card at once and saves it', async () => {
+    mover.mockReturnValue(never())
+    await renderPage()
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.drop(row('Manutenção'))
+    expect(codesIn('Manutenção')).toContain('EMP-082(ID)')
+    expect(mover).toHaveBeenCalledWith([id('EMP-082')], 'manutencao')
+  })
+
+  it('does not call the API when a card is dropped on its own row', async () => {
+    await renderPage()
+    fireEvent.dragStart(card('EMP-082'))
+    fireEvent.drop(row('Ativas'))
+    expect(mover).not.toHaveBeenCalled()
+  })
+
+  it('saves "Mover para", "Remover da categoria" and "Adicionar máquinas" with the right ids', async () => {
+    await renderPage()
+    openMenu('EMP-082')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Disponíveis' }))
+    expect(mover).toHaveBeenLastCalledWith([id('EMP-082')], 'disponiveis')
+
+    openMenu('EMP-083')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Remover da categoria' }))
+    expect(mover).toHaveBeenLastCalledWith([id('EMP-083')], null)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' }))
+    fireEvent.click(screen.getByRole('option', { name: 'EMP-086(ID)' }))
+    fireEvent.click(screen.getByRole('option', { name: 'EMP-094(ID)' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(mover).toHaveBeenLastCalledWith([id('EMP-086'), id('EMP-094')], 'ativas')
+  })
+
+  it('puts the card back and warns when a move fails', async () => {
+    mover.mockRejectedValue(new Error('500'))
+    await renderWithToasts()
+    fireEvent.dragStart(card('EMP-082'))
+    await act(async () => fireEvent.drop(row('Manutenção')))
+    expect(codesIn('Ativas')).toContain('EMP-082(ID)')
+    expect(codesIn('Manutenção')).not.toContain('EMP-082(ID)')
+    expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
+  })
+
+  it('puts the machines back without category when adding fails', async () => {
+    mover.mockRejectedValue(new Error('500'))
+    await renderWithToasts()
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' }))
+    fireEvent.click(screen.getByRole('option', { name: 'EMP-086(ID)' }))
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Confirmar' })))
+    expect(codesIn('Ativas')).not.toContain('EMP-086(ID)')
+    expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
+  })
+
+  it('unlocks from the card padlock at once and saves it, rolling back on failure', async () => {
+    listarMaquinas.mockResolvedValue(MACHINES.map((m) => (m.identificacao === 'EMP-082' ? { ...m, categoriaTravada: true } : m)))
+    travar.mockRejectedValue(new Error('500'))
+    await renderWithToasts()
+    fireEvent.click(within(card('EMP-082')).getByRole('button', { name: 'Destravar' }))
+    expect(within(card('EMP-082')).queryByRole('button', { name: 'Destravar' })).not.toBeInTheDocument()
+    expect(travar).toHaveBeenCalledWith(id('EMP-082'), false)
+    await act(async () => {})
+    expect(within(card('EMP-082')).getByRole('button', { name: 'Destravar' })).toBeInTheDocument()
+    expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
+  })
+
+  it('locks from the detail and shows the padlock on the card', async () => {
+    await renderPage()
+    openDetail('EMP-082')
+    await act(async () => fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Travar' })))
+    expect(travar).toHaveBeenCalledWith(id('EMP-082'), true)
+    expect(within(row('Ativas')).getByRole('button', { name: 'Destravar' })).toBeInTheDocument()
+  })
+
+  it('changes the status from the detail at once and follows the category the API returns', async () => {
+    let resolve!: (m: Machine) => void
+    alterarStatus.mockReturnValue(new Promise<Machine>((r) => (resolve = r)))
+    await renderPage()
+    openDetail('EMP-082')
+    fireEvent.change(statusSelect(), { target: { value: 'manutencao' } })
+    expect(alterarStatus).toHaveBeenCalledWith(id('EMP-082'), 'manutencao')
+    expect(statusSelect()).toHaveValue('manutencao')
+    expect(codesIn('Ativas')).toContain('EMP-082(ID)')
+
+    const machine = MACHINES.find((m) => m.identificacao === 'EMP-082')!
+    await act(async () => resolve({ ...machine, status: 'manutencao', categoriaId: 'manutencao' }))
+    expect(codesIn('Manutenção')).toContain('EMP-082(ID)')
+    expect(codesIn('Ativas')).not.toContain('EMP-082(ID)')
+  })
+
+  it('keeps the card in place when the API keeps the category on a status change', async () => {
+    await renderPage()
+    openDetail('EMP-082')
+    await act(async () => fireEvent.change(statusSelect(), { target: { value: 'offline' } }))
+    expect(codesIn('Ativas')).toContain('EMP-082(ID)')
+  })
+
+  it('restores the status and warns when the status change fails', async () => {
+    alterarStatus.mockRejectedValue(new Error('500'))
+    await renderWithToasts()
+    openDetail('EMP-082')
+    await act(async () => fireEvent.change(statusSelect(), { target: { value: 'manutencao' } }))
+    expect(statusSelect()).toHaveValue('em_uso')
+    expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
   })
 })

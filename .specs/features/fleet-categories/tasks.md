@@ -578,8 +578,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: cada ação chama o serviço com os ids certos; a tela muda antes da resposta; falha volta ao estado anterior e mostra `fleet.saveError`; soltar na mesma linha não chama
-- [ ] Quick gate passa
+- [x] Testes: cada ação chama o serviço com os ids certos; a tela muda antes da resposta; falha volta ao estado anterior e mostra `fleet.saveError`; soltar na mesma linha não chama
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
