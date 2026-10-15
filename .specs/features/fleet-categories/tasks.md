@@ -368,8 +368,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Rotas, campos e scripts novos documentados
-- [ ] Build gate do Backend passa
+- [x] Rotas, campos e scripts novos documentados
+- [x] Build gate do Backend passa
 
 **Tests**: none
 **Gate**: build

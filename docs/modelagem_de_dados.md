@@ -32,13 +32,14 @@ Motorista ou piloto das empilhadeiras.
 ### 3. Device (`device.ts`)
 Equipamento físico acoplado a uma empilhadeira para captar telemetria.
 - `enderecoMac` (String): Endereço físico único de rede.
-- `status` (String): Status atual do hardware.
+- `status` (String): Conectividade do hardware (`online` ou `offline`). Não é lido pela API; o status da máquina fica na `Forklift`.
 - `filialId` (ObjectId, obrigatório): Referência para a `Branch` do dispositivo.
 
 ### 4. Telemetry (`telemetry.ts`)
 Leituras constantes de dados gerados pelos dispositivos.
 - `dataDados` (Date): Timestamp da leitura.
 - `dispositivoId` (ObjectId): Referência para o `Device` (relação N:1).
+- `forcaImpacto` (Number, opcional): Impacto lido. A partir de `LIMITE_IMPACTO` gera incidente e põe a máquina em `alerta`.
 
 ### 5. Forklift (`forklift.ts`)
 Empilhadeira física e o status de seu uso.
@@ -46,6 +47,10 @@ Empilhadeira física e o status de seu uso.
 - `dispositivoConectadoId` (ObjectId): Qual `Device` rastreia a empilhadeira.
 - `operadorConectadoId` (ObjectId): Qual `Operator` pilota a máquina.
 - `filialId` (ObjectId, obrigatório): Referência para a `Branch` da empilhadeira.
+- `status` (String): `disponivel`, `em_uso`, `manutencao`, `alerta` ou `offline`. `null` em dado antigo, lido como `disponivel`.
+- `statusAlteradoEm` (Date): Quando o status mudou pela última vez.
+- `categoriaId` (ObjectId): Referência para a `Category` (coluna do kanban). `null` = sem categoria.
+- `categoriaTravada` (Boolean): Com `true`, mudança de status não move a máquina de categoria. Padrão `false`.
 
 ### 6. Incident (`incident.ts`)
 Registro de anomalias, como batidas ou paradas bruscas.
@@ -65,6 +70,14 @@ Filial de uma empresa. A matriz é uma filial normal com `matriz: true`.
 - `nome` (String, obrigatório): Nome da filial. Único dentro da empresa.
 - `empresaId` (ObjectId, obrigatório): Referência para a `Company`.
 - `matriz` (Boolean): `true` para a matriz da empresa. Padrão `false`. Cada empresa tem no máximo uma matriz (índice único parcial); a matriz não pode ser excluída.
+
+### 9. Category (`category.ts`)
+Coluna do kanban da Frota, da empresa toda.
+- `empresaId` (ObjectId, obrigatório): Referência para a `Company`.
+- `nome` (String, obrigatório): Até 40 caracteres. Único na empresa sem diferenciar maiúscula de minúscula.
+- `cor` (String, obrigatório): `#RRGGBB`.
+- `chave` (String): Chave das categorias iniciais para tradução; `null` depois de renomeada.
+- `statusVinculados` (String[]): Status que levam a máquina para esta categoria. Cada status fica em no máximo uma categoria da empresa.
 
 Os recursos (`Forklift`, `Device`, `Operator`, `Incident`) guardam só o `filialId`; a empresa de um recurso vem da sua filial. A `Telemetry` é isolada pelo seu `Device`.
 

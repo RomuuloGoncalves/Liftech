@@ -186,6 +186,9 @@ Corpo do `POST`:
 |-------|-------|
 | `dispositivoId` | Obrigatório, ObjectId válido. |
 | `dataDados` | Obrigatório e data válida (`new Date(valor)` não pode ser inválida), mas a regra **não é aplicada** (aviso da seção 1). |
+| `forcaImpacto` | Opcional. Número finito maior ou igual a 0 (`400` caso contrário). |
+
+Leitura com `forcaImpacto` maior ou igual a `LIMITE_IMPACTO` (variável do `.env`, padrão `5`) cria um incidente `pendente` para a empilhadeira ligada ao dispositivo e muda o status dela para `alerta` (regra da seção 8). Sem empilhadeira ligada, só a leitura é gravada.
 
 No `PUT`, `_id` e `id` são descartados e, se vier `dataDados`, ele é convertido com `new Date(...)`; o resto vai direto ao Mongoose sem validação.
 
@@ -194,13 +197,15 @@ Erros:
 * `404`: `Telemetria não encontrado(a).` (`GET /:id`, `PUT`, `DELETE`).
 * `500`: demais erros.
 
-## 8. Máquinas
+## 8. Máquinas e categorias
+
+Todas exigem `Authorization: Bearer <token>` e respeitam o escopo do usuário (filiais que ele enxerga).
 
 ### `GET /api/machines`
 
-Rota de leitura que alimenta a tela de Visão Geral do Frontend (`Frontend/src/services/machineService.ts`). Auth: nenhuma. Sem query nem corpo; não há paginação nem filtro (o filtro é feito no Frontend).
+Alimenta a Visão Geral e a Frota. Aceita `?filialId=<ObjectId>` para reduzir a lista a uma filial do escopo (nunca amplia).
 
-Sucesso `200`: array de objetos, ordenado por `identificacao` crescente, um por empilhadeira, com os dispositivos e operadores já resolvidos (`populate`):
+Sucesso `200`: array ordenado por `identificacao`, uma entrada por empilhadeira:
 
 ```json
 [
@@ -209,7 +214,12 @@ Sucesso `200`: array de objetos, ordenado por `identificacao` crescente, um por 
     "identificacao": "EMP-081",
     "nome": "Empilhadeira Elétrica Titan-X",
     "setor": "Expedição - Bloco B",
-    "dispositivoConectado": { "enderecoMac": "A2:C9:9B:1D:F7", "status": "Disponível" },
+    "filialId": "<_id da filial>",
+    "status": "alerta",
+    "categoriaId": "<_id da categoria> ou null",
+    "categoriaTravada": false,
+    "alertaEm": "2026-10-14T10:00:00.000Z",
+    "dispositivoConectado": { "enderecoMac": "A2:C9:9B:1D:F7" },
     "operadorConectado": { "nome": "Carlos Silva" },
     "tempoSessaoMinutos": 34
   }
@@ -217,15 +227,44 @@ Sucesso `200`: array de objetos, ordenado por `identificacao` crescente, um por 
 ```
 
 Regras do formato:
-* `id` é o `_id` como texto (diferente das rotas de `/api/forklifts`, em que `id` é a identificação).
-* `dispositivoConectado` sempre existe. Sem dispositivo ligado à empilhadeira, vem `{ "enderecoMac": "", "status": "Offline" }`.
-* `operadorConectado` só aparece quando há operador ligado; senão a chave é omitida.
-* `tempoSessaoMinutos` é `floor((agora - sessaoIniciadaEm) / 60000)`, nunca negativo, e `0` quando a empilhadeira não tem `sessaoIniciadaEm`. É calculado a cada chamada.
-* `nome` e `setor` são repassados como estão no banco; se faltarem no documento, a chave some do JSON.
-* `status` é texto livre no schema (`Device.status: String`). O seed usa `Disponível`, `Em uso`, `Manutenção` e `Offline`; não há validação que force esses valores.
-* O tipo `Machine` do Frontend (`Frontend/src/data/machines.ts`) também tem `dispositivoConectado.nomeDispositivo` e `tempoUsoTotalHoras`, que o Backend **não** envia.
+* `status` é da empilhadeira: `disponivel`, `em_uso`, `manutencao`, `alerta` ou `offline`. Empilhadeira sem status gravado vem como `disponivel`.
+* `alertaEm` é a `dataIncidente` do incidente pendente mais recente; só é preenchido com `status: "alerta"` (senão `null`).
+* `dispositivoConectado.enderecoMac` é `""` quando não há dispositivo. O `status` do dispositivo não é mais lido.
+* `operadorConectado` só aparece quando há operador ligado.
+* `tempoSessaoMinutos` é `floor((agora - sessaoIniciadaEm) / 60000)`, nunca negativo, `0` sem sessão.
 
-Erros: `500` com `{ "error": "<mensagem>" }` para falhas de banco. Lista vazia devolve `[]` com `200`.
+### Mudança de status
+
+Toda mudança de status, manual ou por leitura do dispositivo, segue a mesma regra:
+* Status igual ao atual não altera nada.
+* Status novo grava `status` e `statusAlteradoEm`.
+* Saindo de `alerta`, os incidentes `pendente` da máquina viram `resolvido`.
+* Com `categoriaTravada: false`, a máquina vai para a categoria da empresa ligada ao novo status (`statusVinculados`); sem categoria ligada, fica onde está. Com a trava ligada, nunca muda de categoria.
+
+| Método | Caminho | Corpo | Sucesso |
+|--------|---------|-------|---------|
+| `PUT` | `/api/machines/:id/status` | `{ "status": "manutencao" }` | `200` com a máquina |
+| `PUT` | `/api/machines/:id/trava` | `{ "categoriaTravada": true }` | `200` com a máquina; não muda a categoria |
+| `PUT` | `/api/machines/categoria` | `{ "machineIds": ["<id>"], "categoriaId": "<id>" ou null }` | `200` com as máquinas; não muda status nem trava |
+
+Erros: `400` para corpo inválido ou chave iniciada por `$`; `404` para máquina fora do escopo ou categoria de outra empresa (em `/categoria`, nenhuma máquina é gravada se uma falhar).
+
+`PUT /api/forklifts/:id` recusa com `400` os campos `status`, `statusAlteradoEm`, `categoriaId`, `categoriaTravada` e `sessaoIniciadaEm`: eles só mudam pelas rotas acima.
+
+### Categorias (`/api/categories`)
+
+Categorias pertencem à empresa: todas as filiais usam as mesmas. Formato: `{ "_id", "nome", "cor", "chave", "statusVinculados" }`. `chave` (`acidentes`, `ativas`, `manutencao`, `disponiveis`) só existe nas categorias iniciais e vira `null` quando o nome muda.
+
+| Método | Caminho | Quem | Sucesso |
+|--------|---------|------|---------|
+| `GET` | `/api/categories` | qualquer usuário da empresa | `200`, na ordem de criação |
+| `POST` | `/api/categories` | escopo `empresa` | `201` |
+| `PUT` | `/api/categories/:id` | escopo `empresa` | `200` |
+| `DELETE` | `/api/categories/:id` | escopo `empresa` | `200` com `{ _id, message }`; as máquinas dela ficam sem categoria e destravadas |
+
+Regras do corpo: `nome` obrigatório no `POST`, cortado nas pontas, até 40 caracteres; `cor` no formato `#RRGGBB`; `statusVinculados` lista de status sem repetição. Mudar `statusVinculados` não move máquinas.
+
+Erros: `400` corpo inválido; `403` escopo `filiais` em `POST`/`PUT`/`DELETE`; `404` categoria de outra empresa; `409` nome repetido na empresa (sem diferenciar maiúscula de minúscula) ou status já ligado a outra categoria.
 
 ## 9. Scripts do Backend
 
@@ -239,12 +278,14 @@ Os seeds **escrevem no banco configurado no `.env`**. Quem roda é o dono do pro
 |---------|-----------|
 | `yarn seed` | `src/scripts/seedAdmin.ts`. Cria o usuário admin. Precisa de `SEED_ADMIN_EMAIL`, `SEED_ADMIN_SENHA` e `SEED_ADMIN_NOME`; se faltar alguma, só avisa e não faz nada. Se já existe um usuário com aquele email, não faz nada (idempotente). |
 | `yarn seed:data` | `src/scripts/seedData.ts`. Chama o seed do admin e depois popula as demais coleções. Veja abaixo. |
+| `yarn migrate:status` | `src/scripts/migrateStatus.ts`. Leva o `status` antigo do dispositivo (`Disponível`, `Em uso`, `Manutenção`, `Offline`) para a empilhadeira (sem dispositivo: `offline`) e cria o quadro inicial de categorias (Acidentes, Ativas, Manutenção, Disponíveis) nas empresas sem categoria, posicionando as máquinas pelo status. Idempotente. |
 | `yarn dev:seed` | Sobe o servidor com `--seed`, que roda só o seed do admin antes de ouvir a porta. |
 
 `yarn seed:data` precisa, além do acesso ao banco, das variáveis `SEED_ADMIN_*` (admin) e `SEED_COLABORADOR_SENHA` (senha comum dos colaboradores). Sem `SEED_COLABORADOR_SENHA`, os colaboradores são pulados com um aviso e o resto do seed segue. Dados criados, a partir de `seedDataset.ts`:
 
 * 8 operadores, 16 dispositivos e 16 empilhadeiras (`EMP-081` a `EMP-096`), com o mesmo conteúdo do mock do Frontend.
-* 5 leituras de telemetria por dispositivo e 2 incidentes por empilhadeira, com datas fixas.
+* 5 leituras de telemetria por dispositivo e 2 incidentes por empilhadeira, com datas fixas. Só `EMP-081`, `EMP-085` e `EMP-089` ficam em `alerta`, com 1 incidente pendente cada.
+* O quadro inicial de categorias da empresa, com as máquinas posicionadas pelo status.
 * 11 colaboradores (login pelo campo `usuario`, senha vinda de `SEED_COLABORADOR_SENHA`).
 * 2 solicitações de acesso pendentes.
 
