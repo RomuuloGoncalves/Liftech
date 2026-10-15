@@ -109,11 +109,9 @@ const AlertasPage: React.FC = () => {
             {alerts.map(({ event, machine }) => (
               <FleetCard
                 key={event.id}
-                kind="acidentes"
                 // "Funcionário" do alerta é quem operava no acidente, não o operador conectado agora.
                 machine={{ ...machine, operadorConectado: { nome: event.operador } }}
-                lastAccident={{ data: event.data, hora: event.inicio }}
-                urgency={event.causa && ACCIDENT_URGENCY[event.causa]}
+                incident={{ data: event.data, hora: event.inicio, urgency: event.causa && ACCIDENT_URGENCY[event.causa] }}
                 onOpen={() => setDetailId(machine.id)}
               />
             ))}

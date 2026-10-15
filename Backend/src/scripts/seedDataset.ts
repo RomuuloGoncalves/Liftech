@@ -13,31 +13,32 @@ interface EmpilhadeiraSeed {
     nome: string;
     setor: string;
     enderecoMac: string;
-    status: string;
+    status: 'disponivel' | 'em_uso' | 'manutencao' | 'alerta' | 'offline';
     operador?: string;
     tempoSessaoMinutos: number;
 }
 
 export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
-    { identificacao: 'EMP-081', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:F7', status: 'Disponível', operador: 'Carlos Silva', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-082', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:F8', status: 'Em uso', operador: 'Ana Souza', tempoSessaoMinutos: 12 },
-    { identificacao: 'EMP-083', nome: TITAN, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1D:F9', status: 'Disponível', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-084', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:FA', status: 'Manutenção', tempoSessaoMinutos: 5 },
-    { identificacao: 'EMP-085', nome: ATLAS, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1D:FB', status: 'Disponível', operador: 'João Pereira', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-086', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:FC', status: 'Offline', tempoSessaoMinutos: 0 },
-    { identificacao: 'EMP-087', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1D:FD', status: 'Em uso', operador: 'Marina Costa', tempoSessaoMinutos: 47 },
-    { identificacao: 'EMP-088', nome: TITAN, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1D:FE', status: 'Disponível', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-089', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:FF', status: 'Disponível', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-090', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1E:01', status: 'Manutenção', tempoSessaoMinutos: 2 },
-    { identificacao: 'EMP-091', nome: TITAN, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1E:02', status: 'Disponível', operador: 'Rafael Lima', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-092', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1E:03', status: 'Em uso', operador: 'Beatriz Alves', tempoSessaoMinutos: 21 },
-    { identificacao: 'EMP-093', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1E:04', status: 'Disponível', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-094', nome: TITAN, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1E:05', status: 'Offline', tempoSessaoMinutos: 0 },
-    { identificacao: 'EMP-095', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1E:06', status: 'Disponível', tempoSessaoMinutos: 34 },
-    { identificacao: 'EMP-096', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1E:07', status: 'Disponível', operador: 'Fernanda Dias', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-081', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:F7', status: 'alerta', operador: 'Carlos Silva', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-082', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:F8', status: 'em_uso', operador: 'Ana Souza', tempoSessaoMinutos: 12 },
+    { identificacao: 'EMP-083', nome: TITAN, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1D:F9', status: 'disponivel', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-084', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:FA', status: 'manutencao', tempoSessaoMinutos: 5 },
+    { identificacao: 'EMP-085', nome: ATLAS, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1D:FB', status: 'alerta', operador: 'João Pereira', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-086', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:FC', status: 'offline', tempoSessaoMinutos: 0 },
+    { identificacao: 'EMP-087', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1D:FD', status: 'em_uso', operador: 'Marina Costa', tempoSessaoMinutos: 47 },
+    { identificacao: 'EMP-088', nome: TITAN, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1D:FE', status: 'disponivel', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-089', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1D:FF', status: 'alerta', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-090', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1E:01', status: 'manutencao', tempoSessaoMinutos: 2 },
+    { identificacao: 'EMP-091', nome: TITAN, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1E:02', status: 'disponivel', operador: 'Rafael Lima', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-092', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1E:03', status: 'em_uso', operador: 'Beatriz Alves', tempoSessaoMinutos: 21 },
+    { identificacao: 'EMP-093', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1E:04', status: 'disponivel', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-094', nome: TITAN, setor: 'Armazenagem - Bloco C', enderecoMac: 'A2:C9:9B:1E:05', status: 'offline', tempoSessaoMinutos: 0 },
+    { identificacao: 'EMP-095', nome: TITAN, setor: 'Expedição - Bloco B', enderecoMac: 'A2:C9:9B:1E:06', status: 'disponivel', tempoSessaoMinutos: 34 },
+    { identificacao: 'EMP-096', nome: ATLAS, setor: 'Recebimento - Bloco A', enderecoMac: 'A2:C9:9B:1E:07', status: 'disponivel', operador: 'Fernanda Dias', tempoSessaoMinutos: 34 },
 ];
 
-export const DISPOSITIVOS = EMPILHADEIRAS.map(({ enderecoMac, status }) => ({ enderecoMac, status }));
+// O dispositivo guarda só a conectividade; o status da máquina fica na empilhadeira.
+export const DISPOSITIVOS = EMPILHADEIRAS.map(({ enderecoMac, status }) => ({ enderecoMac, status: status === 'offline' ? 'offline' : 'online' }));
 
 // Sem senha aqui: a senha dos colaboradores vem de SEED_COLABORADOR_SENHA.
 export const COLABORADORES = [
@@ -109,12 +110,13 @@ export function gerarTelemetria(dispositivoId: string) {
     return Array.from({ length: 5 }, (_, i) => ({ dispositivoId, dataDados: new Date(PRIMEIRA_LEITURA + i * HORA_MS) }));
 }
 
-export function gerarIncidentes(empilhadeiraId: string, operadorId: string, indice: number) {
+// Só a máquina em alerta tem incidente pendente (1 pendente + 1 resolvido); as outras, 2 resolvidos.
+export function gerarIncidentes(empilhadeiraId: string, operadorId: string, indice: number, emAlerta = false) {
     return [0, 1].map((k) => ({
         empilhadeiraId,
         operadorId,
         dataIncidente: new Date(PRIMEIRO_INCIDENTE + (indice * 2 + k) * 2 * DIA_MS),
         forcaImpacto: 3 + ((indice * 2 + k * 3) % 7),
-        status: (indice + k) % 2 === 0 ? 'resolvido' : 'pendente',
+        status: emAlerta && k === 0 ? 'pendente' : 'resolvido',
     }));
 }

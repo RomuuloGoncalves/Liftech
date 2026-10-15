@@ -91,3 +91,64 @@ describe('schema branch', () => {
         ]);
     });
 });
+
+describe('schema category', async () => {
+    const { Category } = await import('../../src/schemas/category.js');
+    const empresaId = new mongoose.Types.ObjectId();
+    const valida = { empresaId, nome: 'Pátio', cor: '#3A9CFF' };
+
+    test('categoria válida passa e statusVinculados começa vazio', async () => {
+        const categoria = new Category(valida);
+        expect(await erros(categoria)).toEqual([]);
+        expect(categoria.statusVinculados).toHaveLength(0);
+        expect(categoria.chave).toBeNull();
+    });
+
+    test('nome vazio ou com mais de 40 caracteres falha', async () => {
+        expect(await erros(new Category({ ...valida, nome: '   ' }))).toEqual(['nome']);
+        expect(await erros(new Category({ ...valida, nome: 'a'.repeat(41) }))).toEqual(['nome']);
+        expect(await erros(new Category({ ...valida, nome: 'a'.repeat(40) }))).toEqual([]);
+    });
+
+    test.each(['#12345', '#GGGGGG', '3A9CFF', '#3A9CFF0'])('cor %s falha', async (cor) => {
+        expect(await erros(new Category({ ...valida, cor }))).toEqual(['cor']);
+    });
+
+    test('nome único por empresa sem diferenciar caixa', () => {
+        expect(Category.schema.indexes()).toContainEqual([
+            { empresaId: 1, nome: 1 },
+            expect.objectContaining({ unique: true, collation: { locale: 'pt', strength: 2 } }),
+        ]);
+    });
+});
+
+describe('status e categoria na empilhadeira', () => {
+    const filialId = new mongoose.Types.ObjectId();
+
+    test('padrões: status null, sem categoria e destravada', () => {
+        const f = new Forklift({ filialId });
+        expect(f.status).toBeNull();
+        expect(f.categoriaId).toBeNull();
+        expect(f.categoriaTravada).toBe(false);
+    });
+
+    test.each(['disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])('status %s é aceito', async (status) => {
+        expect(await erros(new Forklift({ filialId, status }))).toEqual([]);
+    });
+
+    test('status fora da lista falha', async () => {
+        expect(await erros(new Forklift({ filialId, status: 'Disponível' }))).toEqual(['status']);
+    });
+
+    test('categoriaId tem índice', () => {
+        expect(Forklift.schema.indexes()).toContainEqual([{ categoriaId: 1 }, expect.anything()]);
+    });
+});
+
+describe('forcaImpacto na telemetria', async () => {
+    const { Telemetry } = await import('../../src/schemas/telemetry.js');
+
+    test('guarda forcaImpacto numérico', () => {
+        expect(new Telemetry({ dataDados: new Date(), forcaImpacto: 7 }).forcaImpacto).toBe(7);
+    });
+});

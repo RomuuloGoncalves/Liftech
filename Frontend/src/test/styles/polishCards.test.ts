@@ -53,7 +53,7 @@ describe('MachineCard text scale (POL-01)', () => {
   })
 
   it('status badge uses --fs-xs with padding 2px 8px', () => {
-    const b = block(machine, '.statusBadge')
+    const b = block('components/machines/StatusBadge.module.css', '.badge')
     expect(b).toContain('font-size: var(--fs-xs);')
     expect(b).toContain('padding: 2px 8px;')
   })

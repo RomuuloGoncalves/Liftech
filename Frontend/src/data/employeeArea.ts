@@ -61,7 +61,7 @@ export function filterAvailableMachines(machines: Machine[], query: string): Mac
 
   return machines.filter(
     (machine) =>
-      machine.dispositivoConectado.status === 'Disponível' &&
+      machine.status === 'disponivel' &&
       (term.length === 0 ||
         machine.nome.toLowerCase().includes(term) ||
         machine.identificacao.toLowerCase().includes(term) ||
@@ -70,7 +70,7 @@ export function filterAvailableMachines(machines: Machine[], query: string): Mac
 }
 
 export function findAvailableMachine(id: string): Machine | undefined {
-  return MACHINES.find((machine) => machine.id === id && machine.dispositivoConectado.status === 'Disponível')
+  return MACHINES.find((machine) => machine.id === id && machine.status === 'disponivel')
 }
 
 export interface UsageFilters {

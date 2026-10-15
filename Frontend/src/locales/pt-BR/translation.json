@@ -66,7 +66,15 @@
     "openDetails": "Ver detalhes de {{name}}",
     "toastCreated": "Máquina \"{{name}}\" cadastrada",
     "toastSaved": "Máquina \"{{name}}\" salva",
-    "toastDeleted": "Máquina \"{{name}}\" excluída"
+    "toastDeleted": "Máquina \"{{name}}\" excluída",
+    "status": {
+      "disponivel": "Disponível",
+      "em_uso": "Em uso",
+      "manutencao": "Em manutenção",
+      "alerta": "Alerta",
+      "offline": "Offline"
+    },
+    "changeStatus": "Alterar status"
   },
   "alerts": {
     "accidents": "Acidentes",
@@ -240,7 +248,14 @@
     "toastCategoryCreated": "Categoria \"{{name}}\" criada",
     "toastCategoryDeleted": "Categoria \"{{name}}\" excluída",
     "toastMachinesAdded": "Máquinas adicionadas a \"{{name}}\"",
-    "toastMachineRemoved": "{{name}} removida da categoria"
+    "toastMachineRemoved": "{{name}} removida da categoria",
+    "lock": "Travar",
+    "unlock": "Destravar",
+    "editCategory": "Editar categoria",
+    "linkedStatus": "Status vinculados",
+    "statusTaken": "Já ligado a outra categoria",
+    "saveError": "Não foi possível salvar. Tente novamente.",
+    "noCategories": "Nenhuma categoria cadastrada"
   },
   "employee": {
     "sessionBar": {

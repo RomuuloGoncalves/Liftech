@@ -25,7 +25,7 @@ const MachineDetailSheet: React.FC<MachineDetailSheetProps> = ({ machine, onClos
     [machine.id, from, to]
   )
 
-  const canActivate = machine.dispositivoConectado.status === 'Disponível' && !session
+  const canActivate = machine.status === 'disponivel' && !session
 
   const activate = () => {
     start(machine.id)

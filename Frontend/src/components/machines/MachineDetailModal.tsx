@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
 import {
   DEFAULT_PERIOD,
+  MACHINE_STATUSES,
   filterEvents,
   type Machine,
   type MachineEvent,
@@ -11,6 +12,7 @@ import {
   type MachineStatus,
 } from '../../data/machines'
 import { formatDuration, formatEventDate, formatHours } from '../../utils/format'
+import StatusBadge from './StatusBadge'
 import styles from './MachineDetailModal.module.css'
 
 interface MachineDetailModalProps {
@@ -19,21 +21,10 @@ interface MachineDetailModalProps {
   onEdit?: (machine: Machine) => void
   onDelete?: (machine: Machine) => void
   onClose: () => void
+  onChangeStatus?: (status: MachineStatus) => void
+  onToggleLock?: (valor: boolean) => void
   /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. `alerts`: igual, com a aba de alertas primeiro e sem selo de status. */
   variant?: 'overview' | 'fleet' | 'alerts'
-}
-
-const STATUS_CLASS: Record<MachineStatus, string> = {
-  Disponível: styles.statusAvailable,
-  'Em uso': styles.statusInUse,
-  Manutenção: styles.statusMaintenance,
-  Offline: styles.statusOffline,
-}
-
-const STATUS_KEY: Partial<Record<MachineStatus, string>> = {
-  Disponível: 'machines.statusAvailable',
-  'Em uso': 'machines.statusInUse',
-  Manutenção: 'machines.statusMaintenance',
 }
 
 const TABS: Record<'overview' | 'fleet' | 'alerts', { type: MachineEventType; labelKey: string }[]> = {
@@ -57,6 +48,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   onEdit,
   onDelete,
   onClose,
+  onChangeStatus,
+  onToggleLock,
   variant = 'overview',
 }) => {
   const { t, i18n } = useTranslation()
@@ -67,8 +60,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   const [to, setTo] = useState(DEFAULT_PERIOD.to)
 
   const visibleEvents = useMemo(() => filterEvents(events, { tipo: tab, from, to }), [events, tab, from, to])
-  const { status, enderecoMac, nomeDispositivo } = machine.dispositivoConectado
-  const statusKey = STATUS_KEY[status]
+  const { enderecoMac, nomeDispositivo } = machine.dispositivoConectado
   const dash = '—'
 
   const sectorRow = { icon: <MapPin size={14} />, label: t('machines.detailSector'), value: machine.setor || dash }
@@ -106,7 +98,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       onClose={onClose}
       badge={
         variant !== 'alerts' && (
-          <span className={`${styles.badge} ${STATUS_CLASS[status]}`}>{statusKey ? t(statusKey) : status}</span>
+          <StatusBadge status={machine.status} className={styles.badge} />
         )
       }
       footer={
@@ -135,6 +127,36 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
           <dd>{enderecoMac}</dd>
         </div>
       </dl>
+
+      {(onChangeStatus || onToggleLock) && (
+        <div className={styles.statusControls}>
+          {onChangeStatus && (
+            <label className={styles.statusField}>
+              {t('machines.changeStatus')}
+              <select
+                className={styles.dateInput}
+                value={machine.status}
+                onChange={(event) => onChangeStatus(event.target.value as MachineStatus)}
+              >
+                {MACHINE_STATUSES.map((option) => (
+                  <option key={option} value={option}>
+                    {t(`machines.status.${option}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {onToggleLock && (
+            <button
+              type="button"
+              className={`${styles.action} ${styles.edit}`}
+              onClick={() => onToggleLock(!machine.categoriaTravada)}
+            >
+              {t(machine.categoriaTravada ? 'fleet.unlock' : 'fleet.lock')}
+            </button>
+          )}
+        </div>
+      )}
 
       <ul className={styles.info}>
         {infoRows.map((row) => (

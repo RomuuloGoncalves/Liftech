@@ -4,6 +4,7 @@ import {
   DEFAULT_PERIOD,
   MACHINE_EVENTS,
   MACHINES,
+  MACHINE_STATUSES,
   eventsForMachine,
   filterEvents,
   filterMachines,
@@ -17,8 +18,17 @@ describe('MACHINES mock dataset', () => {
       expect(machine.identificacao).toBeTruthy()
       expect(machine.setor).toBeTruthy()
       expect(machine.dispositivoConectado.enderecoMac).toBeTruthy()
-      expect(machine.dispositivoConectado.status).toBeTruthy()
+      expect(MACHINE_STATUSES).toContain(machine.status)
+      expect(machine).not.toHaveProperty('dispositivoConectado.status')
     })
+  })
+
+  it('puts EMP-081, EMP-085 and EMP-089 in alerta, like the backend seed', () => {
+    expect(MACHINES.filter((m) => m.status === 'alerta').map((m) => m.identificacao)).toEqual(['EMP-081', 'EMP-085', 'EMP-089'])
+  })
+
+  it('lists the 5 status codes', () => {
+    expect(MACHINE_STATUSES).toEqual(['disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])
   })
 })
 
@@ -46,17 +56,21 @@ describe('filterMachines', () => {
     expect(cleared).toHaveLength(MACHINES.length)
   })
 
+  it('filters by alerta', () => {
+    expect(filterMachines(MACHINES, { status: 'alerta' }).map((m) => m.id)).toEqual(['1', '5', '9'])
+  })
+
   it('filters by status', () => {
-    const result = filterMachines(MACHINES, { status: 'Manutenção' })
+    const result = filterMachines(MACHINES, { status: 'manutencao' })
     expect(result.length).toBeGreaterThan(0)
-    result.forEach((machine) => expect(machine.dispositivoConectado.status).toBe('Manutenção'))
+    result.forEach((machine) => expect(machine.status).toBe('manutencao'))
   })
 
   it('combines query and status filters', () => {
-    const result = filterMachines(MACHINES, { query: 'bloco b', status: 'Disponível' })
+    const result = filterMachines(MACHINES, { query: 'bloco b', status: 'disponivel' })
     result.forEach((machine) => {
       expect(machine.setor.toLowerCase()).toContain('bloco b')
-      expect(machine.dispositivoConectado.status).toBe('Disponível')
+      expect(machine.status).toBe('disponivel')
     })
   })
 

@@ -71,11 +71,11 @@ describe('MachineDetailSheet', () => {
   })
 
   it('starts the session and goes to /funcionario/sessao on Ativar máquina', () => {
-    setup('1')
+    setup('3')
     expect(activate()).toBeEnabled()
     fireEvent.click(activate())
     expect(screen.getByText('pagina da sessao')).toBeInTheDocument()
-    expect(JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY)!).machineId).toBe('1')
+    expect(JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY)!).machineId).toBe('3')
   })
 
   it('disables Ativar máquina while a session is active', () => {

@@ -3,9 +3,14 @@ import type { Request, Response } from 'express';
 import { listar, buscar, criar, atualizar, deletar, servicoTelemetry } from '../../src/feature/telemetry/telemetryController.js';
 import { telemetryModel } from '../../src/models/telemetryModel.js';
 import { Device } from '../../src/schemas/device.js';
+import { registrarImpacto } from '../../src/feature/machine/statusService.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
 vi.mock('../../src/feature/telemetry/telemetryService.js');
+vi.mock('../../src/feature/machine/statusService.js', async (original) => ({ ...(await original<any>()), registrarImpacto: vi.fn() }));
+vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: {} }));
+vi.mock('../../src/schemas/incident.js', () => ({ Incident: {} }));
+vi.mock('../../src/schemas/category.js', () => ({ Category: {} }));
 vi.mock('../../src/schemas/telemetry.js', () => ({ Telemetry: {} }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: { find: vi.fn() } }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
@@ -149,5 +154,43 @@ describe('telemetryController: escopo pelos dispositivos', () => {
 
         expect(mockStatus).toHaveBeenCalledWith(400);
         expect(servicoTelemetry.atualizar).not.toHaveBeenCalled();
+    });
+
+    describe('forcaImpacto', () => {
+        const DATA = '2026-09-01T08:00:00Z';
+        const comForca = (forcaImpacto: unknown) => req({ body: { dispositivoId: D1, dataDados: DATA, forcaImpacto } });
+
+        beforeEach(() => {
+            vi.mocked(servicoTelemetry.criar).mockResolvedValue(leitura);
+            delete process.env.LIMITE_IMPACTO;
+        });
+
+        test('igual ao limite (5): grava a leitura com a força e registra o impacto', async () => {
+            await criar(comForca(5), res);
+
+            const gravada = vi.mocked(servicoTelemetry.criar).mock.calls[0]![0];
+            expect(gravada.obterDados()).toMatchObject({ dispositivoId: D1, forcaImpacto: 5 });
+            expect(registrarImpacto).toHaveBeenCalledWith(D1, 5, new Date(DATA));
+            expect(mockStatus).toHaveBeenCalledWith(201);
+        });
+
+        test('abaixo do limite: grava sem registrar impacto', async () => {
+            await criar(comForca(4.9), res);
+            expect(servicoTelemetry.criar).toHaveBeenCalledTimes(1);
+            expect(registrarImpacto).not.toHaveBeenCalled();
+        });
+
+        test('sem forcaImpacto: grava sem registrar impacto', async () => {
+            await criar(req({ body: { dispositivoId: D1, dataDados: DATA } }), res);
+            expect(servicoTelemetry.criar).toHaveBeenCalledTimes(1);
+            expect(registrarImpacto).not.toHaveBeenCalled();
+        });
+
+        test.each([[-1], ['7'], [Number.NaN], [Number.POSITIVE_INFINITY], [null]])('400 com forcaImpacto %s, sem gravar', async (valor) => {
+            await criar(comForca(valor), res);
+            expect(mockStatus).toHaveBeenCalledWith(400);
+            expect(servicoTelemetry.criar).not.toHaveBeenCalled();
+            expect(registrarImpacto).not.toHaveBeenCalled();
+        });
     });
 });

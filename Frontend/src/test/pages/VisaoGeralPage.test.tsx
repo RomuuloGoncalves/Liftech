@@ -9,7 +9,9 @@ import styles from '../../pages/VisaoGeralPage.module.css'
 import { machineService } from '../../services/machineService'
 import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
 
-vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.fn() } }))
+vi.mock('../../services/machineService', () => ({
+  machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn() },
+}))
 
 const listar = vi.mocked(machineService.listar)
 
@@ -62,26 +64,40 @@ describe('VisaoGeralPage', () => {
     const search = screen.getByPlaceholderText('Search...')
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
 
-    fireEvent.change(select, { target: { value: 'Manutenção' } })
+    fireEvent.change(select, { target: { value: 'manutencao' } })
     fireEvent.change(search, { target: { value: 'EMP-084' } })
     expect(screen.getAllByRole('article')).toHaveLength(1)
 
     fireEvent.change(search, { target: { value: '' } })
 
     const expectedCount = MACHINES.filter(
-      (machine) => machine.dispositivoConectado.status === 'Manutenção'
+      (machine) => machine.status === 'manutencao'
     ).length
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
+  })
+
+  it('lists the 5 status codes in the filter and filters by alerta', async () => {
+    await renderLoaded()
+    const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
+    const values = within(select).getAllByRole('option').map((option) => (option as HTMLOptionElement).value)
+    expect(values).toEqual(['Todos', 'disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])
+
+    fireEvent.change(select, { target: { value: 'alerta' } })
+    expect(screen.getAllByRole('article').map((card) => within(card).getByText(/EMP-/).textContent)).toEqual([
+      'EMP-081(ID)',
+      'EMP-085(ID)',
+      'EMP-089(ID)',
+    ])
   })
 
   it('filters cards by status when a status is selected in the filter', async () => {
     await renderLoaded()
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
 
-    fireEvent.change(select, { target: { value: 'Manutenção' } })
+    fireEvent.change(select, { target: { value: 'manutencao' } })
 
     const expectedCount = MACHINES.filter(
-      (machine) => machine.dispositivoConectado.status === 'Manutenção'
+      (machine) => machine.status === 'manutencao'
     ).length
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
   })
@@ -330,7 +346,7 @@ const apiMachine = (over: Partial<Machine> = {}): Machine => ({
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA', status: 'Manutenção' },
+  status: 'manutencao', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA' },
   tempoSessaoMinutos: 5,
   ...over,
 })
@@ -433,12 +449,12 @@ describe('VisaoGeralPage: API', () => {
   })
 
   it('shows a machine with an unknown status under "Todos" and hides it under another status filter', async () => {
-    listar.mockResolvedValue([apiMachine({ dispositivoConectado: { enderecoMac: 'X', status: 'Desconhecido' as never } })])
+    listar.mockResolvedValue([apiMachine({ status: 'Desconhecido' as never, categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'X' } })])
 
     render(<VisaoGeralPage />)
 
     expect(await screen.findAllByRole('article')).toHaveLength(1)
-    fireEvent.change(screen.getByRole('combobox', { name: /filtrar máquinas por status/i }), { target: { value: 'Manutenção' } })
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar máquinas por status/i }), { target: { value: 'manutencao' } })
     expect(screen.queryAllByRole('article')).toEqual([])
   })
 
@@ -571,5 +587,45 @@ describe('VisaoGeralPage: active branch', () => {
     await screen.findAllByRole('article')
     expect(listar).toHaveBeenCalledTimes(2)
     expect(listar).toHaveBeenLastCalledWith('f2')
+  })
+})
+
+describe('VisaoGeralPage status and lock', () => {
+  const card = () =>
+    screen.getAllByRole('article').find((el) => within(el).queryByText('EMP-084(ID)')) as HTMLElement
+  const base = MACHINES.find((m) => m.identificacao === 'EMP-084') as Machine
+  const renderOpen = async () => {
+    render(
+      <ToastProvider>
+        <VisaoGeralPage />
+      </ToastProvider>
+    )
+    await screen.findAllByRole('article')
+    fireEvent.click(within(card()).getByRole('button', { name: /Ver detalhes/ }))
+  }
+
+  it('updates the card badge after a status change', async () => {
+    vi.mocked(machineService.alterarStatus).mockResolvedValue({ ...base, status: 'offline' })
+    await renderOpen()
+    fireEvent.change(screen.getByLabelText('Alterar status'), { target: { value: 'disponivel' } })
+    expect(within(card()).getByText('Disponível')).toBeInTheDocument()
+    expect(machineService.alterarStatus).toHaveBeenCalledWith(base.id, 'disponivel')
+    expect(await within(card()).findByText('Offline')).toBeInTheDocument()
+  })
+
+  it('restores the badge and warns when the change fails', async () => {
+    vi.mocked(machineService.alterarStatus).mockRejectedValue(new Error('x'))
+    await renderOpen()
+    fireEvent.change(screen.getByLabelText('Alterar status'), { target: { value: 'disponivel' } })
+    expect(await within(card()).findByText('Em manutenção')).toBeInTheDocument()
+    expect(within(screen.getByRole('status')).getByText(i18n.t('fleet.saveError'))).toBeInTheDocument()
+  })
+
+  it('applies the lock returned by the service', async () => {
+    vi.mocked(machineService.travar).mockResolvedValue({ ...base, categoriaTravada: true })
+    await renderOpen()
+    fireEvent.click(screen.getByRole('button', { name: 'Travar' }))
+    expect(machineService.travar).toHaveBeenCalledWith(base.id, true)
+    expect(await screen.findByRole('button', { name: 'Destravar' })).toBeInTheDocument()
   })
 })

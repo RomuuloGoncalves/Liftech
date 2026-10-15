@@ -85,10 +85,14 @@ describe('seedDataset: cadastros', () => {
         }
     });
 
-    test('cada dispositivo tem o status da sua empilhadeira', () => {
+    test('o dispositivo guarda só a conectividade: offline se a empilhadeira é offline, online nas demais', () => {
         for (const e of EMPILHADEIRAS) {
-            expect(DISPOSITIVOS.find((d) => d.enderecoMac === e.enderecoMac)?.status).toBe(e.status);
+            expect(DISPOSITIVOS.find((d) => d.enderecoMac === e.enderecoMac)?.status).toBe(e.status === 'offline' ? 'offline' : 'online');
         }
+    });
+
+    test('EMP-081, EMP-085 e EMP-089 são as únicas em alerta', () => {
+        expect(EMPILHADEIRAS.filter((e) => e.status === 'alerta').map((e) => e.identificacao)).toEqual(['EMP-081', 'EMP-085', 'EMP-089']);
     });
 
     test('11 colaboradores com usuário único e sem campo de senha', () => {
@@ -132,6 +136,12 @@ describe('seedDataset: incidentes', () => {
             expect(i.empilhadeiraId).toBe('f1');
             expect(i.operadorId).toBe('o1');
         }
+    });
+
+    test('em alerta: 1 pendente e 1 resolvido; fora de alerta: 2 resolvidos', () => {
+        expect(gerarIncidentes('f', 'o', 0, true).map((i) => i.status)).toEqual(['pendente', 'resolvido']);
+        expect(gerarIncidentes('f', 'o', 0, false).map((i) => i.status)).toEqual(['resolvido', 'resolvido']);
+        expect(gerarIncidentes('f', 'o', 1).map((i) => i.status)).toEqual(['resolvido', 'resolvido']);
     });
 
     test('forcaImpacto de 3 a 9 e status pendente ou resolvido, em todas as empilhadeiras', () => {

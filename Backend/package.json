@@ -10,6 +10,7 @@
     "seed": "tsx src/scripts/seedAdmin.ts",
     "seed:data": "tsx src/scripts/seedData.ts",
     "migrate:branches": "tsx src/scripts/migrateToBranches.ts",
+    "migrate:status": "tsx src/scripts/migrateStatus.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest run tests/unit",

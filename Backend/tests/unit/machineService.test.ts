@@ -1,10 +1,14 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { listarMaquinas } from '../../src/feature/machine/machineService.js';
+import { definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
+import { Incident } from '../../src/schemas/incident.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
-vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn() } }));
+vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn(), updateOne: vi.fn(), countDocuments: vi.fn(), updateMany: vi.fn() } }));
+import { Category } from '../../src/schemas/category.js';
+vi.mock('../../src/schemas/category.js', () => ({ Category: { exists: vi.fn() } }));
+vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: {} }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
@@ -63,7 +67,11 @@ describe('listarMaquinas', () => {
             nome: 'Empilhadeira Elétrica Titan-X',
             setor: 'Expedição - Bloco B',
             filialId: F1,
-            dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7', status: 'Disponível' },
+            status: 'disponivel',
+            categoriaId: null,
+            categoriaTravada: false,
+            alertaEm: null,
+            dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7' },
             operadorConectado: { nome: 'Carlos Silva' },
             tempoSessaoMinutos: 34,
         });
@@ -122,12 +130,12 @@ describe('listarMaquinas', () => {
     test.each([
         ['sem dispositivo ligado', undefined],
         ['dispositivo apagado (populate devolve null)', null],
-    ])('%s: dispositivoConectado é { enderecoMac: "", status: "Offline" }', async (_nome, valor) => {
+    ])('%s: dispositivoConectado é { enderecoMac: "" }', async (_nome, valor) => {
         mockarLista([{ ...base, dispositivoConectadoId: valor }]);
 
         const [item] = await listarMaquinas(ESCOPO);
 
-        expect(item!.dispositivoConectado).toEqual({ enderecoMac: '', status: 'Offline' });
+        expect(item!.dispositivoConectado).toEqual({ enderecoMac: '' });
     });
 
     test('a consulta falha: o erro do banco se propaga', async () => {
@@ -177,5 +185,161 @@ describe('listarMaquinas', () => {
         await listarMaquinas({ ...ESCOPO, filiais: [] }, F1);
 
         expect(Forklift.find).toHaveBeenCalledWith({ filialId: { $in: [] } });
+    });
+});
+
+function mockarIncidentes(documentos: unknown[]) {
+    const lean = vi.fn().mockResolvedValue(documentos);
+    const sort = vi.fn().mockReturnValue({ lean });
+    vi.mocked(Incident.find).mockReturnValue({ sort } as any);
+    return { sort };
+}
+
+describe('status, categoria e trava na lista', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test.each(['disponivel', 'em_uso', 'manutencao', 'offline'])('status %s passa direto', async (status) => {
+        mockarLista([{ ...base, status }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.status).toBe(status);
+        expect(item!.alertaEm).toBeNull();
+    });
+
+    test('status null vira disponivel', async () => {
+        mockarLista([{ ...base, status: null }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.status).toBe('disponivel');
+    });
+
+    test('status vem da empilhadeira, não do dispositivo', async () => {
+        mockarLista([{ ...base, status: 'manutencao', dispositivoConectadoId: { ...dispositivo, status: 'Offline' } }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.status).toBe('manutencao');
+    });
+
+    test('categoriaId em texto e trava ligada', async () => {
+        const categoria = new Types.ObjectId();
+        mockarLista([{ ...base, categoriaId: categoria, categoriaTravada: true }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.categoriaId).toBe(categoria.toHexString());
+        expect(item!.categoriaTravada).toBe(true);
+    });
+
+    test('alerta: alertaEm é a data do pendente mais recente da máquina', async () => {
+        const outra = new Types.ObjectId();
+        mockarLista([{ ...base, status: 'alerta' }, { ...base, _id: outra, identificacao: 'EMP-085', status: 'alerta' }]);
+        const { sort } = mockarIncidentes([
+            { empilhadeiraId: ID, dataIncidente: new Date('2026-10-14T10:00:00Z') },
+            { empilhadeiraId: ID, dataIncidente: new Date('2026-10-01T10:00:00Z') },
+        ]);
+
+        const [item, semIncidente] = await listarMaquinas(ESCOPO);
+
+        expect(Incident.find).toHaveBeenCalledWith({ empilhadeiraId: { $in: [ID, outra] }, status: 'pendente' });
+        expect(sort).toHaveBeenCalledWith({ dataIncidente: -1 });
+        expect(item!.alertaEm).toBe('2026-10-14T10:00:00.000Z');
+        expect(semIncidente!.alertaEm).toBeNull();
+    });
+
+    test('sem máquina em alerta não consulta incidentes', async () => {
+        mockarLista([base]);
+        await listarMaquinas(ESCOPO);
+        expect(Incident.find).not.toHaveBeenCalled();
+    });
+});
+
+describe('obterMaquina', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test('busca pela id dentro do escopo e devolve a máquina', async () => {
+        mockarLista([base]);
+        const id = ID.toHexString();
+
+        const maquina = await obterMaquina(ESCOPO, id);
+
+        expect(Forklift.find).toHaveBeenCalledWith({ _id: id, filialId: { $in: [F1, F2] } });
+        expect(maquina.id).toBe(id);
+    });
+
+    test('fora do escopo: 404', async () => {
+        mockarLista([]);
+        await expect(obterMaquina(ESCOPO, ID.toHexString())).rejects.toMatchObject({ status: 404 });
+    });
+});
+
+describe('definirTrava', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test.each([true, false])('grava categoriaTravada %s sem tocar na categoria', async (valor) => {
+        mockarLista([{ ...base, categoriaTravada: valor }]);
+        const id = ID.toHexString();
+
+        const maquina = await definirTrava(ESCOPO, id, valor);
+
+        expect(Forklift.updateOne).toHaveBeenCalledWith({ _id: id }, { $set: { categoriaTravada: valor } });
+        expect(maquina.categoriaTravada).toBe(valor);
+    });
+
+    test('fora do escopo: 404 sem gravar', async () => {
+        mockarLista([]);
+        await expect(definirTrava(ESCOPO, ID.toHexString(), true)).rejects.toMatchObject({ status: 404 });
+        expect(Forklift.updateOne).not.toHaveBeenCalled();
+    });
+});
+
+describe('moverParaCategoria', () => {
+    const CATEGORIA = new Types.ObjectId().toHexString();
+    const OUTRA = new Types.ObjectId().toHexString();
+    const ids = [ID.toHexString(), OUTRA];
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(2 as any);
+        vi.mocked(Category.exists).mockResolvedValue({ _id: CATEGORIA } as any);
+    });
+
+    test('grava a categoria em todas e devolve as máquinas', async () => {
+        mockarLista([{ ...base, categoriaId: new Types.ObjectId(CATEGORIA) }]);
+
+        const lista = await moverParaCategoria(ESCOPO, ids, CATEGORIA);
+
+        expect(Forklift.countDocuments).toHaveBeenCalledWith({ _id: { $in: ids }, filialId: { $in: [F1, F2] } });
+        expect(Category.exists).toHaveBeenCalledWith({ _id: CATEGORIA, empresaId: 'e1' });
+        expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: ids } }, { $set: { categoriaId: CATEGORIA } });
+        expect(lista[0]!.categoriaId).toBe(CATEGORIA);
+    });
+
+    test('null tira de qualquer categoria sem consultar categoria', async () => {
+        mockarLista([base]);
+
+        await moverParaCategoria(ESCOPO, ids, null);
+
+        expect(Category.exists).not.toHaveBeenCalled();
+        expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: ids } }, { $set: { categoriaId: null } });
+    });
+
+    test('só grava categoriaId: status e trava não entram', async () => {
+        mockarLista([base]);
+        await moverParaCategoria(ESCOPO, ids, CATEGORIA);
+        expect(Object.keys((vi.mocked(Forklift.updateMany).mock.calls[0]![1] as any).$set)).toEqual(['categoriaId']);
+    });
+
+    test('uma máquina fora do escopo: 404 sem gravar nenhuma', async () => {
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(1 as any);
+        await expect(moverParaCategoria(ESCOPO, ids, CATEGORIA)).rejects.toMatchObject({ status: 404 });
+        expect(Forklift.updateMany).not.toHaveBeenCalled();
+    });
+
+    test('categoria de outra empresa: 404 sem gravar', async () => {
+        vi.mocked(Category.exists).mockResolvedValue(null);
+        await expect(moverParaCategoria(ESCOPO, ids, CATEGORIA)).rejects.toMatchObject({ status: 404 });
+        expect(Forklift.updateMany).not.toHaveBeenCalled();
+    });
+
+    test('ids repetidas contam uma vez', async () => {
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(1 as any);
+        mockarLista([base]);
+        await moverParaCategoria(ESCOPO, [ID.toHexString(), ID.toHexString()], null);
+        expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: [ID.toHexString()] } }, { $set: { categoriaId: null } });
     });
 });

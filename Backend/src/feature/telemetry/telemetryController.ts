@@ -9,6 +9,7 @@ import { Device } from "../../schemas/device.js";
 import { filtroPorFilial } from "../../core/escopo.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./telemetryRules.js";
+import { limiteImpacto, registrarImpacto } from "../machine/statusService.js";
 
 export const repositorioTelemetry = new TelemetryRepository(Telemetry);
 export const servicoTelemetry = new TelemetryService(repositorioTelemetry);
@@ -84,16 +85,23 @@ export async function criar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
+    const { forcaImpacto } = corpo;
+    if (forcaImpacto !== undefined && (typeof forcaImpacto !== "number" || !Number.isFinite(forcaImpacto) || forcaImpacto < 0)) {
+      return respostaErro(res, StatusCode.BAD_REQUEST, "O campo 'forcaImpacto' deve ser um número maior ou igual a 0.");
+    }
+
     if (!(await idsDosDispositivos(req)).includes(String(corpo.dispositivoId))) {
       throw new ErroHttp(StatusCode.NOT_FOUND, "Dispositivo não encontrado(a).");
     }
 
-    const telemetria = new telemetryModel(
-      new Date(corpo.dataDados),
-      corpo.dispositivoId
-    );
+    const dataDados = new Date(corpo.dataDados);
+    const telemetria = new telemetryModel(dataDados, corpo.dispositivoId, undefined, forcaImpacto);
 
     const criado = await servicoTelemetry.criar(telemetria);
+    // A leitura fica gravada mesmo que a regra de impacto falhe depois.
+    if (forcaImpacto !== undefined && forcaImpacto >= limiteImpacto()) {
+      await registrarImpacto(String(corpo.dispositivoId), forcaImpacto, dataDados);
+    }
     return respostaSucesso(res, StatusCode.CREATED, criado.obterDados());
   } catch (error: any) {
     return responderErro(res, error);

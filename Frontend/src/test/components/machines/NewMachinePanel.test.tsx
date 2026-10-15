@@ -102,7 +102,7 @@ describe('NewMachinePanel in edit mode', () => {
     identificacao: 'EMP-084',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'AA:BB:CC:DD:EE:FF', status: 'Disponível', nomeDispositivo: 'Mpa-5312' },
+    status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'AA:BB:CC:DD:EE:FF', nomeDispositivo: 'Mpa-5312' },
     tempoSessaoMinutos: 5,
   }
 

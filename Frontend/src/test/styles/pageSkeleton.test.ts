@@ -88,7 +88,7 @@ describe('PageSkeleton fleet card styles', () => {
 
   it('strip bleeds over the card padding like the FleetCard header', () => {
     expect(block(skeleton, '.fleetStrip')).toMatch(/margin:\s*calc\(-12 \* var\(--px, 1px\)\) calc\(-12 \* var\(--px, 1px\)\) 0/)
-    expect(block(fleetCard, '.topRow.danger,\n.topRow.warning,\n.topRow.caution')).toMatch(
+    expect(block(fleetCard, '.topRow')).toMatch(
       /margin:\s*calc\(-12 \* var\(--px, 1px\)\) calc\(-12 \* var\(--px, 1px\)\) 0/
     )
   })

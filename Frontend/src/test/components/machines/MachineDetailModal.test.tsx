@@ -8,7 +8,7 @@ const machine: Machine = {
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', status: 'Disponível', nomeDispositivo: 'Mpa-5312' },
+  status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', nomeDispositivo: 'Mpa-5312' },
   tempoSessaoMinutos: 5,
   tempoUsoTotalHoras: 7,
 }
@@ -65,7 +65,7 @@ describe('MachineDetailModal: content', () => {
       machine: {
         ...machine,
         tempoUsoTotalHoras: undefined,
-        dispositivoConectado: { enderecoMac: 'x', status: 'Offline' },
+        status: 'offline', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'x' },
       },
     })
 
@@ -236,11 +236,13 @@ describe('MachineDetailModal alerts variant', () => {
 
 describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
   it.each([
-    ['Disponível', 'Disponível', 'statusAvailable'],
-    ['Em uso', 'Em uso', 'statusInUse'],
-    ['Manutenção', 'Em manutenção', 'statusMaintenance'],
+    ['disponivel', 'Disponível', 'disponivel'],
+    ['em_uso', 'Em uso', 'em_uso'],
+    ['manutencao', 'Em manutenção', 'manutencao'],
+    ['offline', 'Offline', 'offline'],
+    ['alerta', 'Alerta', 'alerta'],
   ] as const)('maps %s to %s', (status, label, cls) => {
-    setup({ machine: { ...machine, dispositivoConectado: { ...machine.dispositivoConectado, status } } })
+    setup({ machine: { ...machine, status } })
     expect(screen.getByText(label).className).toContain(cls)
   })
 
@@ -248,5 +250,37 @@ describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
     setup()
     expect(screen.getByRole('button', { name: 'Editar Máquina' }).className).toContain('edit')
     expect(screen.getByRole('button', { name: 'Excluir Máquina' }).className).toContain('delete')
+  })
+})
+
+describe('MachineDetailModal status and lock', () => {
+  it('renders neither control without the props', () => {
+    setup()
+    expect(screen.queryByLabelText('Alterar status')).toBeNull()
+    expect(screen.queryByRole('button', { name: /^(Travar|Destravar)$/ })).toBeNull()
+  })
+
+  it('calls onChangeStatus with the chosen code', () => {
+    const onChangeStatus = vi.fn()
+    setup({ onChangeStatus })
+    const select = screen.getByLabelText('Alterar status') as HTMLSelectElement
+    expect(select.value).toBe('disponivel')
+    expect(select.options).toHaveLength(5)
+    fireEvent.change(select, { target: { value: 'manutencao' } })
+    expect(onChangeStatus).toHaveBeenCalledWith('manutencao')
+  })
+
+  it('shows Travar when unlocked and toggles to true', () => {
+    const onToggleLock = vi.fn()
+    setup({ onToggleLock })
+    fireEvent.click(screen.getByRole('button', { name: 'Travar' }))
+    expect(onToggleLock).toHaveBeenCalledWith(true)
+  })
+
+  it('shows Destravar when locked and toggles to false', () => {
+    const onToggleLock = vi.fn()
+    setup({ onToggleLock, machine: { ...machine, categoriaTravada: true } })
+    fireEvent.click(screen.getByRole('button', { name: 'Destravar' }))
+    expect(onToggleLock).toHaveBeenCalledWith(false)
   })
 })

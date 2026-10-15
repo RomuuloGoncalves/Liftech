@@ -28,9 +28,9 @@ describe('EmployeeMachinesPage', () => {
     expect(screen.getByPlaceholderText('Procurar Máquina ou setor')).toBeInTheDocument()
   })
 
-  it('lists only the 9 available machines, each with date and time', () => {
+  it('lists only the 6 available machines, each with date and time', () => {
     renderAt('/funcionario/maquinas')
-    expect(cards()).toHaveLength(9)
+    expect(cards()).toHaveLength(6)
     cards().forEach((card) => {
       expect(within(card).getByText('Disponível')).toBeInTheDocument()
       expect(within(card).getByText('Data e Hora')).toBeInTheDocument()
@@ -41,9 +41,9 @@ describe('EmployeeMachinesPage', () => {
 
   it('filters by identification, ignoring case', () => {
     renderAt('/funcionario/maquinas')
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'emp-085' } })
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'emp-083' } })
     expect(cards()).toHaveLength(1)
-    expect(within(cards()[0]).getByText('EMP-085')).toBeInTheDocument()
+    expect(within(cards()[0]).getByText('EMP-083')).toBeInTheDocument()
   })
 
   it('filters by sector', () => {
@@ -69,7 +69,7 @@ describe('EmployeeMachinesPage', () => {
     renderAt('/funcionario/maquinas')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     fireEvent.click(within(cards()[0]).getByRole('button', { name: /Selecionar/ }))
-    expect(screen.getByTestId('where')).toHaveTextContent('/funcionario/maquinas/1')
+    expect(screen.getByTestId('where')).toHaveTextContent('/funcionario/maquinas/3')
     expect(screen.getByRole('dialog', { name: 'Selecionar Máquina' })).toBeInTheDocument()
   })
 
@@ -83,16 +83,16 @@ describe('EmployeeMachinesPage', () => {
   it('renders only the list for an unknown id', () => {
     renderAt('/funcionario/maquinas/999')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(cards()).toHaveLength(9)
+    expect(cards()).toHaveLength(6)
   })
 
   it('closes the sheet on Cancelar, keeping the list', () => {
-    renderAt('/funcionario/maquinas/1')
+    renderAt('/funcionario/maquinas/3')
     const dialog = screen.getByRole('dialog')
     const cancel = within(dialog).getAllByRole('button', { name: 'Cancelar' })
     fireEvent.click(cancel[cancel.length - 1])
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/funcionario\/maquinas$/)
-    expect(cards()).toHaveLength(9)
+    expect(cards()).toHaveLength(6)
   })
 })
