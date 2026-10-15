@@ -122,6 +122,17 @@
   - `yarn test` no Backend roda só os testes unitários; `yarn test:integration` toca o banco.
   - Reverte o Out of Scope "Proteção de rotas" da spec `auth-login`.
 
+### AD-011: Status da máquina e categorias da Frota (`fleet-categories`)
+- **Date**: 2026-10-15
+- **Status**: Approved (spec, design e tasks; implementação não iniciada)
+- **Context**: O status era texto livre em `device.status`, escrito só pelo seed, e as categorias da Frota viviam só em memória, nascendo do status.
+- **Decision**:
+  - O status é da máquina (`forklift.status`), com os códigos `disponivel`, `em_uso`, `manutencao`, `alerta`, `offline`. Muda por leitura do dispositivo (o backend decide: `forcaImpacto >= LIMITE_IMPACTO` vira `alerta` e cria incidente pendente) ou à mão. Toda mudança passa por `aplicarStatus`.
+  - Categorias pertencem à empresa (coleção `category`) e podem ligar status (`statusVinculados`, um status por categoria). Mudança de status leva a máquina destravada para a categoria ligada; `categoriaTravada` impede. Mover à mão não muda status.
+  - Só escopo empresa gerencia categorias; qualquer usuário do escopo move, trava e troca status.
+  - `device.status` deixa de ser lido pela API; `PUT /api/forklifts/:id` recusa campos de status e categoria.
+  - Fica para a feature seguinte: sessão do funcionário e ocorrência no backend; também fora: autenticação do dispositivo e offline por heartbeat.
+
 ## Handoff Snapshot
 - **Branch**: `feature/visao-geral-api-e-seeds` (local, nada enviado ao remoto, sem PR), a partir da `main`.
 - **Gate final**: Frontend `tsc -b` e `eslint .` limpos, 1133 testes passando; Backend 372 testes unitários passando e `tsc --noEmit` limpo.
