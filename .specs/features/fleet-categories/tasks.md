@@ -291,8 +291,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: lista só da empresa na ordem de criação; cria com `statusVinculados` padrão; nome novo zera `chave`; status ligado a outra categoria → 409; 11000 → 409; status repetido ou fora da lista → 400; 404 de outra empresa; excluir faz `updateMany` com `categoriaId: null, categoriaTravada: false` antes de apagar; mudar ligação não chama `updateMany` em forklift; `criarQuadroInicial` cria as 4 com chave, cor e ligação e não cria nada se já há categoria
-- [ ] Quick gate passa
+- [x] Testes: lista só da empresa na ordem de criação; cria com `statusVinculados` padrão; nome novo zera `chave`; status ligado a outra categoria → 409; 11000 → 409; status repetido ou fora da lista → 400; 404 de outra empresa; excluir faz `updateMany` com `categoriaId: null, categoriaTravada: false` antes de apagar; mudar ligação não chama `updateMany` em forklift; `criarQuadroInicial` cria as 4 com chave, cor e ligação e não cria nada se já há categoria
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
