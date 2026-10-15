@@ -64,7 +64,15 @@
     "openDetails": "View details of {{name}}",
     "toastCreated": "Machine \"{{name}}\" registered",
     "toastSaved": "Machine \"{{name}}\" saved",
-    "toastDeleted": "Machine \"{{name}}\" deleted"
+    "toastDeleted": "Machine \"{{name}}\" deleted",
+    "status": {
+      "disponivel": "Available",
+      "em_uso": "In use",
+      "manutencao": "Under maintenance",
+      "alerta": "Alert",
+      "offline": "Disconnected"
+    },
+    "changeStatus": "Change status"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -238,7 +246,14 @@
     "toastCategoryCreated": "Category \"{{name}}\" created",
     "toastCategoryDeleted": "Category \"{{name}}\" deleted",
     "toastMachinesAdded": "Machines added to \"{{name}}\"",
-    "toastMachineRemoved": "{{name}} removed from the category"
+    "toastMachineRemoved": "{{name}} removed from the category",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "editCategory": "Edit category",
+    "linkedStatus": "Linked statuses",
+    "statusTaken": "Already linked to another category",
+    "saveError": "Could not save. Please try again.",
+    "noCategories": "No categories registered"
   },
   "employee": {
     "sessionBar": {

@@ -64,7 +64,15 @@
     "openDetails": "Подробности: {{name}}",
     "toastCreated": "Машина «{{name}}» добавлена",
     "toastSaved": "Машина «{{name}}» сохранена",
-    "toastDeleted": "Машина «{{name}}» удалена"
+    "toastDeleted": "Машина «{{name}}» удалена",
+    "status": {
+      "disponivel": "Доступна",
+      "em_uso": "Используется",
+      "manutencao": "На обслуживании",
+      "alerta": "Тревога",
+      "offline": "Не в сети"
+    },
+    "changeStatus": "Изменить статус"
   },
   "alerts": {
     "accidents": "Аварии",
@@ -238,7 +246,14 @@
     "toastCategoryCreated": "Категория «{{name}}» создана",
     "toastCategoryDeleted": "Категория «{{name}}» удалена",
     "toastMachinesAdded": "Машины добавлены в «{{name}}»",
-    "toastMachineRemoved": "{{name}} убрана из категории"
+    "toastMachineRemoved": "{{name}} убрана из категории",
+    "lock": "Закрепить",
+    "unlock": "Открепить",
+    "editCategory": "Редактировать категорию",
+    "linkedStatus": "Связанные статусы",
+    "statusTaken": "Уже связан с другой категорией",
+    "saveError": "Не удалось сохранить. Попробуйте ещё раз.",
+    "noCategories": "Нет зарегистрированных категорий"
   },
   "employee": {
     "settings": {

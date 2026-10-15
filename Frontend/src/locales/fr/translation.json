@@ -64,7 +64,15 @@
     "openDetails": "Voir les détails de {{name}}",
     "toastCreated": "Machine « {{name}} » enregistrée",
     "toastSaved": "Machine « {{name}} » enregistrée",
-    "toastDeleted": "Machine « {{name}} » supprimée"
+    "toastDeleted": "Machine « {{name}} » supprimée",
+    "status": {
+      "disponivel": "Disponible",
+      "em_uso": "En utilisation",
+      "manutencao": "En maintenance",
+      "alerta": "Alerte",
+      "offline": "Hors ligne"
+    },
+    "changeStatus": "Changer le statut"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -238,7 +246,14 @@
     "toastCategoryCreated": "Catégorie « {{name}} » créée",
     "toastCategoryDeleted": "Catégorie « {{name}} » supprimée",
     "toastMachinesAdded": "Machines ajoutées à « {{name}} »",
-    "toastMachineRemoved": "{{name}} retirée de la catégorie"
+    "toastMachineRemoved": "{{name}} retirée de la catégorie",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "editCategory": "Modifier la catégorie",
+    "linkedStatus": "Statuts associés",
+    "statusTaken": "Déjà associé à une autre catégorie",
+    "saveError": "Impossible d'enregistrer. Veuillez réessayer.",
+    "noCategories": "Aucune catégorie enregistrée"
   },
   "employee": {
     "settings": {

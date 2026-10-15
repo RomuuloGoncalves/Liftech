@@ -155,14 +155,14 @@ describe('machine detail translations', () => {
   });
 
   it.each(ALL_LOCALES)('locale $code has every detail key, non-empty', ({ code, data }) => {
-    const machines = data.machines as Record<string, string>;
+    const machines = data.machines as unknown as Record<string, string>;
     for (const key of NEW_KEYS) {
       expect(machines[key], `Locale "${code}" machines.${key} is missing or empty`).toBeTruthy();
     }
   });
 
   it.each(ALL_LOCALES)('locale $code keeps {{name}} in per-machine texts', ({ code, data }) => {
-    const machines = data.machines as Record<string, string>;
+    const machines = data.machines as unknown as Record<string, string>;
     for (const key of ['deleteMachineMessage', 'openDetails']) {
       expect(machines[key], `Locale "${code}" machines.${key} lost {{name}}`).toContain('{{name}}');
     }
@@ -300,7 +300,7 @@ describe('employee module translations', () => {
 
 describe('machines load error translations', () => {
   it.each(ALL_LOCALES)('locale $code defines machines.loadError and common.retry as non-empty text', ({ code, data }) => {
-    const machines = data.machines as Record<string, string>;
+    const machines = data.machines as unknown as Record<string, string>;
     const common = data.common as Record<string, string>;
     expect(machines.loadError, `Locale "${code}" machines.loadError is missing or empty`).toBeTruthy();
     expect(common.retry, `Locale "${code}" common.retry is missing or empty`).toBeTruthy();
@@ -309,7 +309,7 @@ describe('machines load error translations', () => {
   it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
     'locale $code has load error texts that are translated, not copied from pt-BR',
     ({ code, data }) => {
-      const machines = data.machines as Record<string, string>;
+      const machines = data.machines as unknown as Record<string, string>;
       const common = data.common as Record<string, string>;
       expect(machines.loadError, `Locale "${code}" machines.loadError equals pt-BR`).not.toBe(ptBR.machines.loadError);
       expect(common.retry, `Locale "${code}" common.retry equals pt-BR`).not.toBe(ptBR.common.retry);
@@ -319,7 +319,7 @@ describe('machines load error translations', () => {
   it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR' && code !== 'en-US'))(
     'locale $code has load error texts that are translated, not left in English',
     ({ code, data }) => {
-      const machines = data.machines as Record<string, string>;
+      const machines = data.machines as unknown as Record<string, string>;
       const common = data.common as Record<string, string>;
       expect(machines.loadError, `Locale "${code}" machines.loadError equals en-US`).not.toBe(enUS.machines.loadError);
       expect(common.retry, `Locale "${code}" common.retry equals en-US`).not.toBe(enUS.common.retry);
@@ -380,4 +380,42 @@ describe('branches module translations', () => {
     expect(enUS.branches.label).toBe('Branches');
     expect(enUS.branches.all).toBe('All branches');
   });
+});
+
+const STATUS_AND_CATEGORY_KEYS = [
+  'machines.status.disponivel',
+  'machines.status.em_uso',
+  'machines.status.manutencao',
+  'machines.status.alerta',
+  'machines.status.offline',
+  'machines.changeStatus',
+  'fleet.lock',
+  'fleet.unlock',
+  'fleet.editCategory',
+  'fleet.linkedStatus',
+  'fleet.statusTaken',
+  'fleet.saveError',
+  'fleet.noCategories',
+];
+
+const valueAt = (data: unknown, path: string) =>
+  path.split('.').reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], data);
+
+describe('i18n status, lock and category texts', () => {
+  it.each(ALL_LOCALES)('locale $code has every status/category key as a non-empty string', ({ data }) => {
+    for (const key of STATUS_AND_CATEGORY_KEYS) {
+      const value = valueAt(data, key);
+      expect(typeof value, key).toBe('string');
+      expect((value as string).trim(), key).not.toBe('');
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code translates every status/category key instead of copying pt-BR',
+    ({ data }) => {
+      for (const key of STATUS_AND_CATEGORY_KEYS) {
+        expect(valueAt(data, key), key).not.toBe(valueAt(ptBR, key));
+      }
+    }
+  );
 });

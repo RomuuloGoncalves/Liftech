@@ -407,8 +407,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Paridade de chaves passa; valores novos diferentes do pt-BR nos outros idiomas (L-009)
-- [ ] Quick gate passa
+- [x] Paridade de chaves passa; valores novos diferentes do pt-BR nos outros idiomas (L-009)
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

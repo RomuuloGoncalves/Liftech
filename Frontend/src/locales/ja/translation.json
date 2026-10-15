@@ -64,7 +64,15 @@
     "openDetails": "{{name}}の詳細を見る",
     "toastCreated": "機械「{{name}}」を登録しました",
     "toastSaved": "機械「{{name}}」を保存しました",
-    "toastDeleted": "機械「{{name}}」を削除しました"
+    "toastDeleted": "機械「{{name}}」を削除しました",
+    "status": {
+      "disponivel": "利用可能",
+      "em_uso": "使用中",
+      "manutencao": "メンテナンス中",
+      "alerta": "アラート",
+      "offline": "オフライン"
+    },
+    "changeStatus": "ステータスを変更"
   },
   "alerts": {
     "accidents": "事故",
@@ -238,7 +246,14 @@
     "toastCategoryCreated": "カテゴリー「{{name}}」を作成しました",
     "toastCategoryDeleted": "カテゴリー「{{name}}」を削除しました",
     "toastMachinesAdded": "「{{name}}」に機械を追加しました",
-    "toastMachineRemoved": "{{name}} をカテゴリーから外しました"
+    "toastMachineRemoved": "{{name}} をカテゴリーから外しました",
+    "lock": "ロック",
+    "unlock": "ロック解除",
+    "editCategory": "カテゴリを編集",
+    "linkedStatus": "連動するステータス",
+    "statusTaken": "すでに別のカテゴリに連動しています",
+    "saveError": "保存できませんでした。もう一度お試しください。",
+    "noCategories": "カテゴリが登録されていません"
   },
   "employee": {
     "settings": {
