@@ -138,8 +138,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: status igual ao atual não grava nada; status novo grava `status` e `statusAlteradoEm`; sair de `alerta` marca `resolvido` os pendentes da máquina; entrar em `alerta` não resolve nada; destravada com categoria ligada grava o `categoriaId` dela; destravada sem ligação mantém; travada mantém; a categoria buscada é da empresa da filial da máquina; `limiteImpacto` usa o env válido e cai em 5 com ausente ou `abc`
-- [ ] Quick gate passa
+- [x] Testes: status igual ao atual não grava nada; status novo grava `status` e `statusAlteradoEm`; sair de `alerta` marca `resolvido` os pendentes da máquina; entrar em `alerta` não resolve nada; destravada com categoria ligada grava o `categoriaId` dela; destravada sem ligação mantém; travada mantém; a categoria buscada é da empresa da filial da máquina; `limiteImpacto` usa o env válido e cai em 5 com ausente ou `abc`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
