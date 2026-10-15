@@ -176,8 +176,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `machineService.test.ts`: os 5 status passam; null vira `disponivel`; `alertaEm` só com `alerta` e é o pendente mais recente; `categoriaId` `null` quando ausente; `obterMaquina` 404 fora do escopo; ids como texto a partir de ObjectId real (L-007)
-- [ ] Quick gate passa
+- [x] Testes em `machineService.test.ts`: os 5 status passam; null vira `disponivel`; `alertaEm` só com `alerta` e é o pendente mais recente; `categoriaId` `null` quando ausente; `obterMaquina` 404 fora do escopo; ids como texto a partir de ObjectId real (L-007)
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

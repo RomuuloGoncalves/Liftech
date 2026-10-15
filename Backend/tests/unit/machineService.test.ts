@@ -1,10 +1,12 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { listarMaquinas } from '../../src/feature/machine/machineService.js';
+import { listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
+import { Incident } from '../../src/schemas/incident.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn() } }));
+vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: {} }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
@@ -63,7 +65,11 @@ describe('listarMaquinas', () => {
             nome: 'Empilhadeira Elétrica Titan-X',
             setor: 'Expedição - Bloco B',
             filialId: F1,
-            dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7', status: 'Disponível' },
+            status: 'disponivel',
+            categoriaId: null,
+            categoriaTravada: false,
+            alertaEm: null,
+            dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7' },
             operadorConectado: { nome: 'Carlos Silva' },
             tempoSessaoMinutos: 34,
         });
@@ -122,12 +128,12 @@ describe('listarMaquinas', () => {
     test.each([
         ['sem dispositivo ligado', undefined],
         ['dispositivo apagado (populate devolve null)', null],
-    ])('%s: dispositivoConectado é { enderecoMac: "", status: "Offline" }', async (_nome, valor) => {
+    ])('%s: dispositivoConectado é { enderecoMac: "" }', async (_nome, valor) => {
         mockarLista([{ ...base, dispositivoConectadoId: valor }]);
 
         const [item] = await listarMaquinas(ESCOPO);
 
-        expect(item!.dispositivoConectado).toEqual({ enderecoMac: '', status: 'Offline' });
+        expect(item!.dispositivoConectado).toEqual({ enderecoMac: '' });
     });
 
     test('a consulta falha: o erro do banco se propaga', async () => {
@@ -177,5 +183,84 @@ describe('listarMaquinas', () => {
         await listarMaquinas({ ...ESCOPO, filiais: [] }, F1);
 
         expect(Forklift.find).toHaveBeenCalledWith({ filialId: { $in: [] } });
+    });
+});
+
+function mockarIncidentes(documentos: unknown[]) {
+    const lean = vi.fn().mockResolvedValue(documentos);
+    const sort = vi.fn().mockReturnValue({ lean });
+    vi.mocked(Incident.find).mockReturnValue({ sort } as any);
+    return { sort };
+}
+
+describe('status, categoria e trava na lista', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test.each(['disponivel', 'em_uso', 'manutencao', 'offline'])('status %s passa direto', async (status) => {
+        mockarLista([{ ...base, status }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.status).toBe(status);
+        expect(item!.alertaEm).toBeNull();
+    });
+
+    test('status null vira disponivel', async () => {
+        mockarLista([{ ...base, status: null }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.status).toBe('disponivel');
+    });
+
+    test('status vem da empilhadeira, não do dispositivo', async () => {
+        mockarLista([{ ...base, status: 'manutencao', dispositivoConectadoId: { ...dispositivo, status: 'Offline' } }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.status).toBe('manutencao');
+    });
+
+    test('categoriaId em texto e trava ligada', async () => {
+        const categoria = new Types.ObjectId();
+        mockarLista([{ ...base, categoriaId: categoria, categoriaTravada: true }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.categoriaId).toBe(categoria.toHexString());
+        expect(item!.categoriaTravada).toBe(true);
+    });
+
+    test('alerta: alertaEm é a data do pendente mais recente da máquina', async () => {
+        const outra = new Types.ObjectId();
+        mockarLista([{ ...base, status: 'alerta' }, { ...base, _id: outra, identificacao: 'EMP-085', status: 'alerta' }]);
+        const { sort } = mockarIncidentes([
+            { empilhadeiraId: ID, dataIncidente: new Date('2026-10-14T10:00:00Z') },
+            { empilhadeiraId: ID, dataIncidente: new Date('2026-10-01T10:00:00Z') },
+        ]);
+
+        const [item, semIncidente] = await listarMaquinas(ESCOPO);
+
+        expect(Incident.find).toHaveBeenCalledWith({ empilhadeiraId: { $in: [ID, outra] }, status: 'pendente' });
+        expect(sort).toHaveBeenCalledWith({ dataIncidente: -1 });
+        expect(item!.alertaEm).toBe('2026-10-14T10:00:00.000Z');
+        expect(semIncidente!.alertaEm).toBeNull();
+    });
+
+    test('sem máquina em alerta não consulta incidentes', async () => {
+        mockarLista([base]);
+        await listarMaquinas(ESCOPO);
+        expect(Incident.find).not.toHaveBeenCalled();
+    });
+});
+
+describe('obterMaquina', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test('busca pela id dentro do escopo e devolve a máquina', async () => {
+        mockarLista([base]);
+        const id = ID.toHexString();
+
+        const maquina = await obterMaquina(ESCOPO, id);
+
+        expect(Forklift.find).toHaveBeenCalledWith({ _id: id, filialId: { $in: [F1, F2] } });
+        expect(maquina.id).toBe(id);
+    });
+
+    test('fora do escopo: 404', async () => {
+        mockarLista([]);
+        await expect(obterMaquina(ESCOPO, ID.toHexString())).rejects.toMatchObject({ status: 404 });
     });
 });
