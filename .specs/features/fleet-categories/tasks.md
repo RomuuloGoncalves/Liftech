@@ -349,8 +349,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `migrateStatus.test.ts`: cada um dos 4 valores antigos vira o código certo; sem device vira `offline`; só toca empilhadeiras com `status: null`; cria quadro só para empresa sem categorias; posiciona só `categoriaId: null`; segunda execução com tudo migrado não chama nenhuma escrita; desconecta também em falha (L-008)
-- [ ] Quick gate passa
+- [x] Testes em `migrateStatus.test.ts`: cada um dos 4 valores antigos vira o código certo; sem device vira `offline`; só toca empilhadeiras com `status: null`; cria quadro só para empresa sem categorias; posiciona só `categoriaId: null`; segunda execução com tudo migrado não chama nenhuma escrita; desconecta também em falha (L-008)
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
