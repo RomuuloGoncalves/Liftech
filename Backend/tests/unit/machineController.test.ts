@@ -1,12 +1,12 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { Request, Response } from 'express';
-import { listar, alterarStatus, travar } from '../../src/feature/machine/machineController.js';
-import { definirTrava, listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { listar, alterarStatus, travar, mover } from '../../src/feature/machine/machineController.js';
+import { definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { aplicarStatus } from '../../src/feature/machine/statusService.js';
 import machineRouter from '../../src/feature/machine/machineRouter.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
-vi.mock('../../src/feature/machine/machineService.js', () => ({ listarMaquinas: vi.fn(), obterMaquina: vi.fn(), definirTrava: vi.fn() }));
+vi.mock('../../src/feature/machine/machineService.js', () => ({ listarMaquinas: vi.fn(), obterMaquina: vi.fn(), definirTrava: vi.fn(), moverParaCategoria: vi.fn() }));
 vi.mock('../../src/feature/machine/statusService.js', async (original) => ({ ...(await original<any>()), aplicarStatus: vi.fn() }));
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: {} }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: {} }));
@@ -182,5 +182,61 @@ describe('machineController.travar', () => {
         const layer = (machineRouter as any).stack.find((l: any) => l.route?.path === '/:id/trava');
         expect(layer.route.methods).toEqual({ put: true });
         expect(layer.route.stack[0].handle).toBe(travar);
+    });
+});
+
+describe('machineController.mover', () => {
+    const CATEGORIA = '665f1c2b9a1e4b00123456c1';
+    const reqMover = (body: unknown) => ({ escopo: ESCOPO, params: {}, body }) as unknown as Request;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(moverParaCategoria).mockResolvedValue([MAQUINA] as any);
+    });
+
+    test('200 com as máquinas movidas', async () => {
+        const { res, status, json } = resposta();
+
+        await mover(reqMover({ machineIds: [ID], categoriaId: CATEGORIA }), res);
+
+        expect(moverParaCategoria).toHaveBeenCalledWith(ESCOPO, [ID], CATEGORIA);
+        expect(status).toHaveBeenCalledWith(200);
+        expect(json).toHaveBeenCalledWith([MAQUINA]);
+    });
+
+    test('categoriaId null é aceito', async () => {
+        const { res, status } = resposta();
+        await mover(reqMover({ machineIds: [ID], categoriaId: null }), res);
+        expect(moverParaCategoria).toHaveBeenCalledWith(ESCOPO, [ID], null);
+        expect(status).toHaveBeenCalledWith(200);
+    });
+
+    test.each([
+        ['lista vazia', { machineIds: [], categoriaId: null }],
+        ['não lista', { machineIds: ID, categoriaId: null }],
+        ['id inválida', { machineIds: [ID, 'abc'], categoriaId: null }],
+        ['categoriaId inválida', { machineIds: [ID], categoriaId: 'abc' }],
+        ['categoriaId ausente', { machineIds: [ID] }],
+        ['chave $', { machineIds: [ID], categoriaId: null, $set: {} }],
+    ])('400 com %s, sem gravar', async (_caso, body) => {
+        const { res, status } = resposta();
+        await mover(reqMover(body), res);
+        expect(status).toHaveBeenCalledWith(400);
+        expect(moverParaCategoria).not.toHaveBeenCalled();
+    });
+
+    test('404 do serviço é repassado', async () => {
+        const { ErroHttp } = await import('../../src/utils/responseHandler.js');
+        vi.mocked(moverParaCategoria).mockRejectedValue(new ErroHttp(404, 'Categoria não encontrada.'));
+        const { res, status, json } = resposta();
+        await mover(reqMover({ machineIds: [ID], categoriaId: CATEGORIA }), res);
+        expect(status).toHaveBeenCalledWith(404);
+        expect(json).toHaveBeenCalledWith({ error: 'Categoria não encontrada.' });
+    });
+
+    test('rota PUT /categoria ligada ao controller', () => {
+        const layer = (machineRouter as any).stack.find((l: any) => l.route?.path === '/categoria');
+        expect(layer.route.methods).toEqual({ put: true });
+        expect(layer.route.stack[0].handle).toBe(mover);
     });
 });

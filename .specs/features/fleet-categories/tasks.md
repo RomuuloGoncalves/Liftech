@@ -234,8 +234,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: grava em todas e devolve as máquinas; `null` tira de categoria; uma id fora do escopo → 404 sem `updateMany`; categoria de outra empresa → 404 sem `updateMany`; lista vazia, não lista ou id inválida → 400; `status` e `categoriaTravada` não entram no `$set`
-- [ ] Quick gate passa
+- [x] Testes: grava em todas e devolve as máquinas; `null` tira de categoria; uma id fora do escopo → 404 sem `updateMany`; categoria de outra empresa → 404 sem `updateMany`; lista vazia, não lista ou id inválida → 400; `status` e `categoriaTravada` não entram no `$set`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

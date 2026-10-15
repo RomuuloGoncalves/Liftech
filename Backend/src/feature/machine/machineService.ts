@@ -1,5 +1,6 @@
 import { Forklift } from "../../schemas/forklift.js";
 import { Incident } from "../../schemas/incident.js";
+import { Category } from "../../schemas/category.js";
 import "../../schemas/device.js";
 import "../../schemas/operator.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
@@ -69,4 +70,18 @@ export async function definirTrava(escopo: Escopo, id: string, categoriaTravada:
   await obterMaquina(escopo, id);
   await Forklift.updateOne({ _id: id }, { $set: { categoriaTravada } });
   return obterMaquina(escopo, id);
+}
+
+// Mover à mão só muda a categoria; status e trava ficam como estão. Confere tudo antes de gravar qualquer uma.
+export async function moverParaCategoria(escopo: Escopo, machineIds: string[], categoriaId: string | null) {
+  const ids = [...new Set(machineIds)];
+  const doEscopo = { _id: { $in: ids }, ...filtroPorFilial(escopo) };
+  if ((await Forklift.countDocuments(doEscopo)) !== ids.length) {
+    throw new ErroHttp(StatusCode.NOT_FOUND, "Máquina não encontrada.");
+  }
+  if (categoriaId !== null && !(await Category.exists({ _id: categoriaId, empresaId: escopo.empresaId }))) {
+    throw new ErroHttp(StatusCode.NOT_FOUND, "Categoria não encontrada.");
+  }
+  await Forklift.updateMany({ _id: { $in: ids } }, { $set: { categoriaId } });
+  return consultar(doEscopo);
 }

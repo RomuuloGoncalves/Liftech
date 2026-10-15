@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { Types as mongooseTypes } from "mongoose";
 import { ErroHttp, StatusCode, respostaSucesso, respostaErro, responderErro } from "../../utils/responseHandler.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
-import { definirTrava, listarMaquinas, obterMaquina } from "./machineService.js";
+import { definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from "./machineService.js";
 import { aplicarStatus, ehStatus } from "./statusService.js";
 
 function lerId(req: Request): string {
@@ -54,6 +54,23 @@ export async function travar(req: Request, res: Response) {
       throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'categoriaTravada' deve ser true ou false.");
     }
     return respostaSucesso(res, StatusCode.OK, await definirTrava(req.escopo, id, categoriaTravada));
+  } catch (error: any) {
+    return responderErro(res, error);
+  }
+}
+
+const ehObjectId = (valor: unknown): valor is string => typeof valor === "string" && mongooseTypes.ObjectId.isValid(valor);
+
+export async function mover(req: Request, res: Response) {
+  try {
+    const { machineIds, categoriaId } = lerCorpo(req);
+    if (!Array.isArray(machineIds) || machineIds.length === 0 || !machineIds.every(ehObjectId)) {
+      throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'machineIds' deve ser uma lista não vazia de ObjectIds.");
+    }
+    if (categoriaId !== null && !ehObjectId(categoriaId)) {
+      throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'categoriaId' deve ser um ObjectId ou null.");
+    }
+    return respostaSucesso(res, StatusCode.OK, await moverParaCategoria(req.escopo, machineIds, categoriaId));
   } catch (error: any) {
     return responderErro(res, error);
   }

@@ -1,11 +1,13 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { definirTrava, listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
 import { Incident } from '../../src/schemas/incident.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn(), updateOne: vi.fn(), countDocuments: vi.fn(), updateMany: vi.fn() } }));
+import { Category } from '../../src/schemas/category.js';
+vi.mock('../../src/schemas/category.js', () => ({ Category: { exists: vi.fn() } }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: {} }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
@@ -282,5 +284,62 @@ describe('definirTrava', () => {
         mockarLista([]);
         await expect(definirTrava(ESCOPO, ID.toHexString(), true)).rejects.toMatchObject({ status: 404 });
         expect(Forklift.updateOne).not.toHaveBeenCalled();
+    });
+});
+
+describe('moverParaCategoria', () => {
+    const CATEGORIA = new Types.ObjectId().toHexString();
+    const OUTRA = new Types.ObjectId().toHexString();
+    const ids = [ID.toHexString(), OUTRA];
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(2 as any);
+        vi.mocked(Category.exists).mockResolvedValue({ _id: CATEGORIA } as any);
+    });
+
+    test('grava a categoria em todas e devolve as máquinas', async () => {
+        mockarLista([{ ...base, categoriaId: new Types.ObjectId(CATEGORIA) }]);
+
+        const lista = await moverParaCategoria(ESCOPO, ids, CATEGORIA);
+
+        expect(Forklift.countDocuments).toHaveBeenCalledWith({ _id: { $in: ids }, filialId: { $in: [F1, F2] } });
+        expect(Category.exists).toHaveBeenCalledWith({ _id: CATEGORIA, empresaId: 'e1' });
+        expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: ids } }, { $set: { categoriaId: CATEGORIA } });
+        expect(lista[0]!.categoriaId).toBe(CATEGORIA);
+    });
+
+    test('null tira de qualquer categoria sem consultar categoria', async () => {
+        mockarLista([base]);
+
+        await moverParaCategoria(ESCOPO, ids, null);
+
+        expect(Category.exists).not.toHaveBeenCalled();
+        expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: ids } }, { $set: { categoriaId: null } });
+    });
+
+    test('só grava categoriaId: status e trava não entram', async () => {
+        mockarLista([base]);
+        await moverParaCategoria(ESCOPO, ids, CATEGORIA);
+        expect(Object.keys((vi.mocked(Forklift.updateMany).mock.calls[0]![1] as any).$set)).toEqual(['categoriaId']);
+    });
+
+    test('uma máquina fora do escopo: 404 sem gravar nenhuma', async () => {
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(1 as any);
+        await expect(moverParaCategoria(ESCOPO, ids, CATEGORIA)).rejects.toMatchObject({ status: 404 });
+        expect(Forklift.updateMany).not.toHaveBeenCalled();
+    });
+
+    test('categoria de outra empresa: 404 sem gravar', async () => {
+        vi.mocked(Category.exists).mockResolvedValue(null);
+        await expect(moverParaCategoria(ESCOPO, ids, CATEGORIA)).rejects.toMatchObject({ status: 404 });
+        expect(Forklift.updateMany).not.toHaveBeenCalled();
+    });
+
+    test('ids repetidas contam uma vez', async () => {
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(1 as any);
+        mockarLista([base]);
+        await moverParaCategoria(ESCOPO, [ID.toHexString(), ID.toHexString()], null);
+        expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: [ID.toHexString()] } }, { $set: { categoriaId: null } });
     });
 });
