@@ -115,8 +115,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Um teste por AC e por edge case (409, 404, 403, 400, `from` > `to`, máquina apagada, `11000` → 409)
-- [ ] Quick gate passa
+- [x] Um teste por AC e por edge case (409, 404, 403, 400, `from` > `to`, máquina apagada, `11000` → 409)
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
