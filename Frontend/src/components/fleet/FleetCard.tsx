@@ -70,7 +70,8 @@ const FleetCard: React.FC<FleetCardProps> = ({
 
   // ponytail: data e hora do alerta em UTC, como o formatAlertDate; trocar para o fuso local se pedirem.
   const alertaEm = machine.alertaEm ?? undefined
-  const alertAt = incident ?? (alertaEm && { data: alertaEm.slice(0, 10), hora: alertaEm.slice(11, 19) })
+  // Horário local, igual aos incidentes de Alertas ('sv' dá YYYY-MM-DD e HH:mm:ss).
+  const alertAt = incident ?? (alertaEm && { data: new Date(alertaEm).toLocaleDateString('sv'), hora: new Date(alertaEm).toLocaleTimeString('sv') })
   const urgencyTone = incident?.urgency ? URGENCY_TONE[incident.urgency] : styles.danger
   const alertHighlight: Highlight = {
     label: t('fleet.cardUrgency'),
