@@ -47,7 +47,9 @@ describe('FleetCard', () => {
   })
 
   it('shows the urgent level and alertaEm date on alerta cards (FRT-10)', () => {
-    setup(withStatus('alerta', { alertaEm: '2026-01-23T14:38:20.000Z' }))
+    // Horário local: o mesmo instante tem de aparecer como o relógio do usuário mostra, não em UTC.
+    const local = new Date(2026, 0, 23, 14, 38, 20)
+    setup(withStatus('alerta', { alertaEm: local.toISOString() }))
     expect(field('Data e Hora')).toBe('23 Janeiro 2026, 14:38:20')
     expect(field('Nível de urgência')).toBe('Urgente')
   })

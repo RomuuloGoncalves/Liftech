@@ -132,6 +132,13 @@ describe('seedData', () => {
         expect(paulo.filiaisIds).toEqual([filialId('Unidade Centro'), filialId('Unidade Norte')]);
     });
 
+    test('o colaborador com operator de mesmo nome ganha operadorId; sem par fica sem', async () => {
+        await seedData();
+
+        expect(chamadaDe(User, { usuario: 'CarlosSilva' })[1].$set.operadorId).toBe(idDe('Operator', { nome: 'Carlos Silva' }));
+        expect(chamadaDe(User, { usuario: 'AlexandreMattos' })[1].$set).not.toHaveProperty('operadorId');
+    });
+
     test('cria 8 operadores, 16 dispositivos, 16 empilhadeiras, 80 leituras, 32 incidentes, 11 colaboradores e 2 solicitações', async () => {
         const contagem = await seedData();
 

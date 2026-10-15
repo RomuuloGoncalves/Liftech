@@ -419,3 +419,29 @@ describe('i18n status, lock and category texts', () => {
     }
   );
 });
+
+const EMPLOYEE_SESSION_KEYS = [
+  'employee.session.startError',
+  'employee.session.endError',
+  'employee.incident.sendError',
+  'employee.settings.logout',
+];
+
+describe('i18n employee session texts', () => {
+  it.each(ALL_LOCALES)('locale $code has every employee session key as a non-empty string', ({ data }) => {
+    for (const key of EMPLOYEE_SESSION_KEYS) {
+      const value = valueAt(data, key);
+      expect(typeof value, key).toBe('string');
+      expect((value as string).trim(), key).not.toBe('');
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code translates every employee session key instead of copying pt-BR',
+    ({ data }) => {
+      for (const key of EMPLOYEE_SESSION_KEYS) {
+        expect(valueAt(data, key), key).not.toBe(valueAt(ptBR, key));
+      }
+    }
+  );
+});

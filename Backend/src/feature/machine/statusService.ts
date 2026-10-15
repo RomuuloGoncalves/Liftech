@@ -55,6 +55,7 @@ export async function registrarImpacto(dispositivoId: string, forcaImpacto: numb
     forcaImpacto,
     dataIncidente: data,
     status: "pendente",
+    origem: "sensor",
   });
   await aplicarStatus(String(empilhadeira._id), "alerta");
 }

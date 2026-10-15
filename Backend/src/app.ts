@@ -12,6 +12,8 @@ import telemetryRouter from './feature/telemetry/telemtryRouter.js';
 import machineRouter from './feature/machine/machineRouter.js';
 import branchRouter from './feature/branch/branchRouter.js';
 import categoryRouter from './feature/category/categoryRouter.js';
+import sessionRouter from './feature/session/sessionRouter.js';
+import incidentRouter from './feature/incident/incidentRouter.js';
 
 export const app = express();
 
@@ -60,3 +62,5 @@ app.use('/api/telemetry', telemetryRouter);
 app.use('/api/machines', machineRouter);
 app.use('/api/branches', branchRouter);
 app.use('/api/categories', categoryRouter);
+app.use('/api/sessions', sessionRouter);
+app.use('/api/incidents', incidentRouter);

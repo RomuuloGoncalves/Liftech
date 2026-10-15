@@ -9,8 +9,20 @@ import EmployeeMachinesPage from '../../../pages/employee/EmployeeMachinesPage'
 import EmployeeSessionPage from '../../../pages/employee/EmployeeSessionPage'
 import EmployeeSettingsPage from '../../../pages/employee/EmployeeSettingsPage'
 import { resetVisitedPages } from '../../../hooks/useFirstVisitLoading'
-import { SESSION_STORAGE_KEY } from '../../../hooks/useWorkSession'
+import { resetWorkSession } from '../../../hooks/useWorkSession'
 import { MACHINES } from '../../../data/machines'
+import { sessionService } from '../../../services/sessionService'
+
+vi.mock('../../../services/sessionService', () => ({
+  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn().mockResolvedValue([]) },
+}))
+vi.mock('../../../services/machineService', async () => {
+  const { MACHINES } = await import('../../../data/machines')
+  return { machineService: { listar: vi.fn().mockResolvedValue(MACHINES) } }
+})
+
+const atual = vi.mocked(sessionService.atual)
+const loadSession = () => act(async () => {})
 
 const DELAY = 600
 
@@ -51,7 +63,14 @@ const screens: { name: string; render: () => unknown; content: () => HTMLElement
   {
     name: 'EmployeeSessionPage',
     render: () => {
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ machineId: MACHINES[0].id, startedAt: Date.now() }))
+      atual.mockResolvedValue({
+        _id: 's1',
+        machineId: MACHINES[0].id,
+        maquina: { nome: MACHINES[0].nome, identificacao: MACHINES[0].identificacao, setor: MACHINES[0].setor },
+        operador: { nome: 'Carlos' },
+        inicio: new Date().toISOString(),
+        fim: null,
+      })
       return at('/funcionario/sessao', <EmployeeSessionPage />)
     },
     content: () => screen.getByRole('timer'),
@@ -67,16 +86,15 @@ describe('employee screens skeleton', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     resetVisitedPages()
-    sessionStorage.clear()
+    resetWorkSession()
+    atual.mockReset().mockResolvedValue(null)
   })
-  afterEach(() => {
-    vi.useRealTimers()
-    sessionStorage.clear()
-  })
+  afterEach(() => vi.useRealTimers())
 
   describe.each(screens)('$name', ({ render: open, content }) => {
-    it('first visit shows the busy skeleton, then the content after the delay', () => {
+    it('first visit shows the busy skeleton, then the content after the delay', async () => {
       open()
+      await loadSession()
       expect(busy()).not.toBeNull()
       expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
       expect(() => content()).toThrow()
@@ -85,18 +103,21 @@ describe('employee screens skeleton', () => {
       expect(content()).toBeInTheDocument()
     })
 
-    it('second visit shows the content without skeleton', () => {
+    it('second visit shows the content without skeleton', async () => {
       const first = open()
+      await loadSession()
       finishLoading()
       ;(first as ReturnType<typeof render>).unmount()
       open()
+      await loadSession()
       expect(busy()).toBeNull()
       expect(content()).toBeInTheDocument()
     })
   })
 
-  it('session without an active session still redirects while loading', () => {
+  it('session without an active session still redirects while loading', async () => {
     at('/funcionario/sessao', <EmployeeSessionPage />)
+    await loadSession()
     expect(screen.getByText('redirected')).toBeInTheDocument()
   })
 
@@ -109,8 +130,9 @@ describe('employee screens skeleton', () => {
     expect(screen.getByLabelText('Nome')).toBeInTheDocument()
   })
 
-  it('machine detail sheet opens normally after the first load', () => {
+  it('machine detail sheet opens normally after the first load', async () => {
     at(`/funcionario/maquinas/${MACHINES[0].id}`, <EmployeeMachinesPage />, '/funcionario/maquinas/:id?')
+    await loadSession()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     finishLoading()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
@@ -124,8 +146,9 @@ describe('employee screens skeleton', () => {
         </ToastProvider>
       )
 
-    it('first visit opens the sheet with the 4 skeleton fields instead of the form', () => {
+    it('first visit opens the sheet with the 4 skeleton fields instead of the form', async () => {
       open()
+      await loadSession()
       const dialog = screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })
       expect(dialog.querySelector('[aria-busy="true"]')).not.toBeNull()
       expect(dialog.querySelectorAll('[data-skeleton-field]')).toHaveLength(4)
@@ -135,8 +158,9 @@ describe('employee screens skeleton', () => {
       expect(screen.getByLabelText('Setor')).toBeInTheDocument()
     })
 
-    it('second visit shows the form without skeleton', () => {
+    it('second visit shows the form without skeleton', async () => {
       const first = open()
+      await loadSession()
       finishLoading()
       first.unmount()
       open()

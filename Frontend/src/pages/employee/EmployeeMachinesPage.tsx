@@ -6,11 +6,9 @@ import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import MachineDetailSheet from '../../components/employee/MachineDetailSheet'
-import { MACHINES } from '../../data/machines'
-import { USAGE_HISTORY, filterAvailableMachines } from '../../data/employeeArea'
+import { filterAvailableMachines } from '../../data/employeeArea'
+import { useEmployeeData } from '../../hooks/useEmployeeData'
 import styles from './EmployeeMachinesPage.module.css'
-
-const FALLBACK_USAGE = { date: '2025-09-14', time: '14:35' }
 
 const EmployeeMachinesPage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -19,16 +17,18 @@ const EmployeeMachinesPage: React.FC = () => {
   const [query, setQuery] = useState('')
   const loading = useFirstVisitLoading('employee-machines')
 
-  const machines = useMemo(() => filterAvailableMachines(MACHINES, query), [query])
-  const selected = id ? MACHINES.find((machine) => machine.id === id) : undefined
+  const { machines: all, records } = useEmployeeData()
+  const machines = useMemo(() => filterAvailableMachines(all, query), [all, query])
+  const selected = id ? all.find((machine) => machine.id === id) : undefined
 
   const extraFor = (machineId: string) => {
-    const record = USAGE_HISTORY.find((item) => item.machineId === machineId)
-    const date = record?.date ?? FALLBACK_USAGE.date
-    return {
-      date: new Date(`${date}T12:00:00`).toLocaleDateString(i18n.language),
-      time: record?.start.slice(0, 5) ?? FALLBACK_USAGE.time,
-    }
+    const record = records.find((item) => item.machineId === machineId)
+    return (
+      record && {
+        date: new Date(`${record.date}T12:00:00`).toLocaleDateString(i18n.language),
+        time: record.start.slice(0, 5),
+      }
+    )
   }
 
   if (loading) {

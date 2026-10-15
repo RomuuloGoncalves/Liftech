@@ -1,3 +1,5 @@
+import type { Incidente } from '../services/incidentService'
+
 export type MachineStatus = 'disponivel' | 'em_uso' | 'manutencao' | 'alerta' | 'offline'
 
 export const MACHINE_STATUSES: MachineStatus[] = ['disponivel', 'em_uso', 'manutencao', 'alerta', 'offline']
@@ -286,6 +288,28 @@ export const MACHINE_EVENTS: MachineEvent[] = BASE_MACHINES.flatMap((machine, ma
 export function eventsForMachine(machineId: string): MachineEvent[] {
   return MACHINE_EVENTS.filter((event) => event.machineId === machineId)
 }
+
+/** API incident as an `acidente` event; the sensor reports a collision, the collaborator report has no cause. */
+export function incidentToEvent(incident: Incidente): MachineEvent {
+  const date = new Date(incident.dataIncidente)
+  const time = date.toLocaleTimeString('sv')
+  return {
+    id: incident._id,
+    machineId: incident.machineId,
+    tipo: 'acidente',
+    operador: incident.operador?.nome ?? '',
+    data: date.toLocaleDateString('sv'),
+    inicio: time,
+    fim: time,
+    ...(incident.origem === 'sensor' && { causa: 'colisao' as const }),
+  }
+}
+
+/** Card urgency: the cause decides; a collaborator report without cause is `alta`. */
+export const eventUrgency = (event: MachineEvent): UrgencyLevel => (event.causa ? ACCIDENT_URGENCY[event.causa] : 'alta')
+
+/** Default end of the period: today when it is past DEFAULT_PERIOD.to, so new incidents show up. */
+export const defaultPeriodTo = () => [DEFAULT_PERIOD.to, new Date().toLocaleDateString('sv')].sort()[1]
 
 export interface EventFilters {
   tipo: MachineEventType

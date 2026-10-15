@@ -54,7 +54,7 @@ const FleetRow: React.FC<FleetRowProps> = ({
     if (!matchesMachine(machine, query)) return false
     if (!isAccidents) return true
     // Sem `alertaEm` (movida à mão para cá) não há data para filtrar: fica visível.
-    const day = machine.alertaEm?.slice(0, 10)
+    const day = machine.alertaEm ? new Date(machine.alertaEm).toLocaleDateString('sv') : undefined
     return day === undefined || (day >= from && day <= to)
   })
 

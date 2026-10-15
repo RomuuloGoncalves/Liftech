@@ -21,6 +21,7 @@ Usuário do sistema, como um Gestor ou Administrador que acessa a plataforma web
 - `empresaId` (ObjectId, obrigatório): Referência para a `Company` do usuário.
 - `escopo` (String): `empresa` (enxerga todas as filiais da empresa) ou `filiais` (só as de `filiaisIds`). Padrão `filiais`.
 - `filiaisIds` (ObjectId[]): Filiais que o usuário enxerga quando o `escopo` é `filiais`. Lista vazia não enxerga nenhuma filial.
+- `operadorId` (ObjectId, opcional): `Operator` que o colaborador é. O `user` serve só para o login; quem retira a máquina é o operator.
 
 O `role` diz o que o usuário vê; o `escopo` diz onde ele atua. São eixos independentes.
 
@@ -60,6 +61,16 @@ Registro de anomalias, como batidas ou paradas bruscas.
 - `empilhadeiraId` (ObjectId): Referência da `Forklift` envolvida.
 - `operadorId` (ObjectId): Referência do `Operator` envolvido.
 - `filialId` (ObjectId, obrigatório): Referência para a `Branch` do incidente.
+- `origem` (String): `sensor` (leitura de impacto) ou `funcionario` (ocorrência reportada na sessão). Padrão `sensor`.
+- `descricao` (String, opcional): Texto da ocorrência, até 500 caracteres.
+
+### 6.1. WorkSession (`workSession.ts`)
+Sessão de uso de uma máquina por um operador.
+- `operadorId` (ObjectId, obrigatório): `Operator` da sessão.
+- `empilhadeiraId` (ObjectId, obrigatório): `Forklift` usada.
+- `filialId` (ObjectId, obrigatório, indexado): `Branch` da máquina.
+- `inicio` (Date, obrigatório) e `fim` (Date, `null` enquanto aberta).
+- Índices únicos parciais `{ operadorId }` e `{ empilhadeiraId }` onde `fim: null`: no máximo uma sessão aberta por operador e por máquina.
 
 ### 7. Company (`company.ts`)
 Empresa cliente. Todo usuário e toda filial pertencem a uma.

@@ -270,6 +270,13 @@
       "feedbackTitle": "Feedback & Vorschläge",
       "feedbackQuestion": "Wie war Ihre Erfahrung?",
       "privacy": "Datenschutzrichtlinie"
+    },
+    "session": {
+      "startError": "Die Sitzung konnte nicht gestartet werden. Bitte erneut versuchen.",
+      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen."
+    },
+    "incident": {
+      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen."
     }
   },
   "branches": {

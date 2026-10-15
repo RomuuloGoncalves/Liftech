@@ -145,6 +145,7 @@ describe('registrarImpacto', () => {
             forcaImpacto: 7,
             dataIncidente: DATA,
             status: 'pendente',
+            origem: 'sensor',
         });
     });
 

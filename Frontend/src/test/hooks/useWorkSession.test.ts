@@ -1,6 +1,26 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SESSION_STORAGE_KEY, formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
+import { formatElapsed, resetWorkSession, useWorkSession } from '../../hooks/useWorkSession'
+import { sessionService } from '../../services/sessionService'
+
+vi.mock('../../services/sessionService', () => ({
+  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
+}))
+
+const atual = vi.mocked(sessionService.atual)
+const iniciar = vi.mocked(sessionService.iniciar)
+const encerrar = vi.mocked(sessionService.encerrar)
+
+const NOW = new Date('2026-10-10T10:00:00Z').getTime()
+
+const sessao = (machineId: string, inicio = NOW) => ({
+  _id: `s-${machineId}`,
+  machineId,
+  maquina: { nome: 'Titan-X', identificacao: 'EMP-081', setor: 'Expedição' },
+  operador: { nome: 'Carlos Silva' },
+  inicio: new Date(inicio).toISOString(),
+  fim: null,
+})
 
 describe('formatElapsed', () => {
   it('formats seconds as HH:MM:SS', () => {
@@ -18,95 +38,108 @@ describe('formatElapsed', () => {
 
 describe('useWorkSession', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-10-10T10:00:00Z'))
-    sessionStorage.clear()
-    renderHook(() => useWorkSession()).result.current.end()
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(NOW)
+    resetWorkSession()
+    atual.mockReset().mockResolvedValue(null)
+    iniciar.mockReset()
+    encerrar.mockReset()
   })
-  afterEach(() => {
-    vi.restoreAllMocks()
-    vi.useRealTimers()
-  })
+  afterEach(() => vi.useRealTimers())
 
-  it('has no session at first', () => {
+  it('loads the open session once from the API and is not ready before', async () => {
     const { result } = renderHook(() => useWorkSession())
+    renderHook(() => useWorkSession())
+    expect(result.current.ready).toBe(false)
+    await waitFor(() => expect(result.current.ready).toBe(true))
     expect(result.current.session).toBeNull()
     expect(result.current.elapsedSeconds).toBe(0)
+    expect(atual).toHaveBeenCalledTimes(1)
   })
 
-  it('starts a session, persists it in sessionStorage and counts seconds', () => {
-    const { result } = renderHook(() => useWorkSession())
-    act(() => result.current.start('3'))
-
-    expect(result.current.session?.machineId).toBe('3')
-    expect(JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY) as string)).toEqual({
-      machineId: '3',
-      startedAt: Date.now(),
-    })
-    expect(result.current.elapsedSeconds).toBe(0)
-
-    act(() => vi.advanceTimersByTime(3000))
-    expect(result.current.elapsedSeconds).toBe(3)
-  })
-
-  it('clears the session on end', () => {
-    const { result } = renderHook(() => useWorkSession())
-    act(() => result.current.start('3'))
-    act(() => result.current.end())
-
-    expect(result.current.session).toBeNull()
-    expect(result.current.elapsedSeconds).toBe(0)
-    expect(sessionStorage.getItem(SESSION_STORAGE_KEY)).toBeNull()
-  })
-
-  it('shares the session between mounted components', () => {
-    const a = renderHook(() => useWorkSession())
-    const b = renderHook(() => useWorkSession())
-    act(() => a.result.current.start('5'))
-    expect(b.result.current.session?.machineId).toBe('5')
-
-    act(() => b.result.current.end())
-    expect(a.result.current.session).toBeNull()
-  })
-
-  it('keeps counting from the stored start after remounting', () => {
-    sessionStorage.setItem(
-      SESSION_STORAGE_KEY,
-      JSON.stringify({ machineId: '3', startedAt: Date.now() - (30 * 60 + 25) * 1000 })
-    )
+  it('recovers the open session after a reload and counts from inicio', async () => {
+    atual.mockResolvedValue(sessao('3', NOW - (30 * 60 + 25) * 1000))
     const { result } = renderHook(() => useWorkSession())
 
-    expect(result.current.session?.machineId).toBe('3')
+    await waitFor(() => expect(result.current.session?.machineId).toBe('3'))
     expect(formatElapsed(result.current.elapsedSeconds)).toBe('00:30:25')
     act(() => vi.advanceTimersByTime(1000))
     expect(formatElapsed(result.current.elapsedSeconds)).toBe('00:30:26')
   })
 
-  it('ignores a corrupted stored value', () => {
-    sessionStorage.setItem(SESSION_STORAGE_KEY, '{not json')
+  it('treats a failed load as no session', async () => {
+    atual.mockRejectedValue(new Error('500'))
     const { result } = renderHook(() => useWorkSession())
+    await waitFor(() => expect(result.current.ready).toBe(true))
     expect(result.current.session).toBeNull()
   })
 
-  it('works in memory when sessionStorage throws', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-      throw new Error('blocked')
-    })
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('blocked')
-    })
-    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
-      throw new Error('blocked')
+  it('loads again for a new login token', async () => {
+    const { result, unmount } = renderHook(() => useWorkSession())
+    await waitFor(() => expect(result.current.ready).toBe(true))
+    unmount()
+    localStorage.setItem('token', 'other')
+    renderHook(() => useWorkSession())
+    expect(atual).toHaveBeenCalledTimes(2)
+  })
+
+  it('start posts the machine, shares the API session and counts seconds', async () => {
+    iniciar.mockResolvedValue(sessao('5'))
+    const a = renderHook(() => useWorkSession())
+    const b = renderHook(() => useWorkSession())
+
+    let ok = false
+    await act(async () => {
+      ok = await a.result.current.start('5')
     })
 
+    expect(ok).toBe(true)
+    expect(iniciar).toHaveBeenCalledWith('5')
+    expect(b.result.current.session?.machineId).toBe('5')
+    act(() => vi.advanceTimersByTime(3000))
+    expect(a.result.current.elapsedSeconds).toBe(3)
+  })
+
+  it('start failing keeps no session and returns false', async () => {
+    iniciar.mockRejectedValue(new Error('409'))
     const { result } = renderHook(() => useWorkSession())
-    expect(() => act(() => result.current.start('7'))).not.toThrow()
-    expect(result.current.session?.machineId).toBe('7')
-
-    act(() => vi.advanceTimersByTime(2000))
-    expect(result.current.elapsedSeconds).toBe(2)
-
-    act(() => result.current.end())
+    let ok = true
+    await act(async () => {
+      ok = await result.current.start('5')
+    })
+    expect(ok).toBe(false)
     expect(result.current.session).toBeNull()
+  })
+
+  it('end closes through the API and clears the session', async () => {
+    atual.mockResolvedValue(sessao('3'))
+    encerrar.mockResolvedValue({ ...sessao('3'), fim: new Date(NOW).toISOString() })
+    const { result } = renderHook(() => useWorkSession())
+    await waitFor(() => expect(result.current.session).not.toBeNull())
+
+    let ok = false
+    await act(async () => {
+      ok = await result.current.end()
+    })
+
+    expect(ok).toBe(true)
+    expect(encerrar).toHaveBeenCalledTimes(1)
+    expect(result.current.session).toBeNull()
+    expect(result.current.elapsedSeconds).toBe(0)
+  })
+
+  it('end failing keeps the session and returns false', async () => {
+    atual.mockResolvedValue(sessao('3'))
+    encerrar.mockRejectedValue(new Error('500'))
+    const { result } = renderHook(() => useWorkSession())
+    await waitFor(() => expect(result.current.session).not.toBeNull())
+
+    let ok = true
+    await act(async () => {
+      ok = await result.current.end()
+    })
+
+    expect(ok).toBe(false)
+    expect(result.current.session?.machineId).toBe('3')
   })
 })

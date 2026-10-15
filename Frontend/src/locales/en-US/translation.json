@@ -316,7 +316,9 @@
       "description": "The <b>usage time tracking</b> is already in progress. When you are done, remember to <b>end the operation</b>.",
       "timerLabel": "Session time",
       "end": "End Session",
-      "reportIncident": "Report an incident"
+      "reportIncident": "Report an incident",
+      "startError": "Could not start the session. Try again.",
+      "endError": "Could not end the session. Try again."
     },
     "history": {
       "title": "History",
@@ -342,7 +344,8 @@
       "cancel": "Cancel",
       "submit": "Send incident",
       "required": "Required field",
-      "toastSent": "Incident sent successfully"
+      "toastSent": "Incident sent successfully",
+      "sendError": "Could not send the incident. Try again."
     },
     "settings": {
       "title": "Settings",

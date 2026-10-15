@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from '../../../App'
 
 const Path = () => <output data-testid="path">{useLocation().pathname}</output>
@@ -18,6 +18,23 @@ const tab = (name: string) => screen.getByRole('link', { name })
 const path = () => screen.getByTestId('path').textContent
 
 describe('Employee layout', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    localStorage.setItem('token', 'tok')
+    localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Bruno', role: 'colaborador', operador: null }))
+  })
+
+  it.each([
+    ['no stored user', null],
+    ['an admin user', JSON.stringify({ _id: 'u2', nome: 'Ana', role: 'admin' })],
+  ])('redirects to /login/colaborador with %s', (_case, user) => {
+    if (user) localStorage.setItem('user', user)
+    else localStorage.removeItem('user')
+    renderAt('/funcionario/historico')
+    expect(path()).toBe('/login/colaborador')
+    expect(screen.queryByRole('navigation', { name: 'Navegação do funcionário' })).not.toBeInTheDocument()
+  })
+
   it('renders without the admin Sidebar and Header', () => {
     renderAt('/funcionario')
     expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()

@@ -9,6 +9,20 @@ const NAO_AUTENTICADO = "Não autenticado.";
 const ERROS_DE_TOKEN = ["JsonWebTokenError", "TokenExpiredError", "NotBeforeError"];
 const OBJECT_ID = /^[0-9a-f]{24}$/i;
 
+export interface UsuarioRequisicao {
+  _id: string;
+  role: string;
+  operadorId: string | null;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      usuario: UsuarioRequisicao;
+    }
+  }
+}
+
 // Valida o Bearer token e lê o usuário do banco a cada requisição, então mudança de acesso vale na hora.
 export async function autenticar(req: Request, res: Response, next: NextFunction) {
   const token = /^Bearer (.+)$/.exec(req.headers.authorization ?? "")?.[1];
@@ -22,6 +36,7 @@ export async function autenticar(req: Request, res: Response, next: NextFunction
     const usuario = await User.findById(sub).lean();
     if (!usuario) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);
 
+    req.usuario = { _id: String(usuario._id), role: String(usuario.role), operadorId: usuario.operadorId ? String(usuario.operadorId) : null };
     req.escopo = await carregarEscopo(usuario);
   } catch (error: any) {
     if (ERROS_DE_TOKEN.includes(error.name)) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);
