@@ -236,9 +236,11 @@ describe('MachineDetailModal alerts variant', () => {
 
 describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
   it.each([
-    ['disponivel', 'Disponível', 'statusAvailable'],
-    ['em_uso', 'Em uso', 'statusInUse'],
-    ['manutencao', 'Em manutenção', 'statusMaintenance'],
+    ['disponivel', 'Disponível', 'disponivel'],
+    ['em_uso', 'Em uso', 'em_uso'],
+    ['manutencao', 'Em manutenção', 'manutencao'],
+    ['offline', 'Offline', 'offline'],
+    ['alerta', 'Alerta', 'alerta'],
   ] as const)('maps %s to %s', (status, label, cls) => {
     setup({ machine: { ...machine, status } })
     expect(screen.getByText(label).className).toContain(cls)

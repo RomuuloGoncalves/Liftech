@@ -1,7 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
-import type { Machine, MachineStatus } from '../../data/machines'
+import type { Machine } from '../../data/machines'
+import StatusBadge from '../machines/StatusBadge'
 import styles from './MachineListCard.module.css'
 
 interface MachineListCardProps {
@@ -10,14 +11,6 @@ interface MachineListCardProps {
   actionLabel: string
   onAction: () => void
   actionDisabled?: boolean
-}
-
-const STATUS: Record<MachineStatus, { key: string; className: string }> = {
-  disponivel: { key: 'employee.common.available', className: styles.available },
-  em_uso: { key: 'employee.common.inUse', className: styles.inUse },
-  manutencao: { key: 'employee.common.maintenance', className: styles.maintenance },
-  alerta: { key: 'employee.common.offline', className: styles.offline },
-  offline: { key: 'employee.common.offline', className: styles.offline },
 }
 
 const MachineListCard: React.FC<MachineListCardProps> = ({
@@ -29,7 +22,6 @@ const MachineListCard: React.FC<MachineListCardProps> = ({
 }) => {
   const { t } = useTranslation()
   const { nome, identificacao, setor } = machine
-  const status = machine.status
 
   return (
     <article className={styles.card}>
@@ -38,7 +30,7 @@ const MachineListCard: React.FC<MachineListCardProps> = ({
           <h3 className={styles.nome}>{nome}</h3>
           <p className={styles.identificacao}>{identificacao}</p>
         </div>
-        <span className={`${styles.chip} ${STATUS[status].className}`}>{t(STATUS[status].key)}</span>
+        <StatusBadge status={machine.status} className={styles.chip} />
       </div>
       <hr className={styles.divider} />
       <div className={styles.bottom}>

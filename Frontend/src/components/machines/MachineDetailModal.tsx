@@ -8,9 +8,9 @@ import {
   type Machine,
   type MachineEvent,
   type MachineEventType,
-  type MachineStatus,
 } from '../../data/machines'
 import { formatDuration, formatEventDate, formatHours } from '../../utils/format'
+import StatusBadge from './StatusBadge'
 import styles from './MachineDetailModal.module.css'
 
 interface MachineDetailModalProps {
@@ -21,20 +21,6 @@ interface MachineDetailModalProps {
   onClose: () => void
   /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. `alerts`: igual, com a aba de alertas primeiro e sem selo de status. */
   variant?: 'overview' | 'fleet' | 'alerts'
-}
-
-const STATUS_CLASS: Record<MachineStatus, string> = {
-  disponivel: styles.statusAvailable,
-  em_uso: styles.statusInUse,
-  manutencao: styles.statusMaintenance,
-  alerta: styles.statusOffline,
-  offline: styles.statusOffline,
-}
-
-const STATUS_KEY: Partial<Record<MachineStatus, string>> = {
-  disponivel: 'machines.statusAvailable',
-  em_uso: 'machines.statusInUse',
-  manutencao: 'machines.statusMaintenance',
 }
 
 const TABS: Record<'overview' | 'fleet' | 'alerts', { type: MachineEventType; labelKey: string }[]> = {
@@ -68,9 +54,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   const [to, setTo] = useState(DEFAULT_PERIOD.to)
 
   const visibleEvents = useMemo(() => filterEvents(events, { tipo: tab, from, to }), [events, tab, from, to])
-  const { status } = machine
   const { enderecoMac, nomeDispositivo } = machine.dispositivoConectado
-  const statusKey = STATUS_KEY[status]
   const dash = '—'
 
   const sectorRow = { icon: <MapPin size={14} />, label: t('machines.detailSector'), value: machine.setor || dash }
@@ -108,7 +92,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       onClose={onClose}
       badge={
         variant !== 'alerts' && (
-          <span className={`${styles.badge} ${STATUS_CLASS[status]}`}>{statusKey ? t(statusKey) : status}</span>
+          <StatusBadge status={machine.status} className={styles.badge} />
         )
       }
       footer={

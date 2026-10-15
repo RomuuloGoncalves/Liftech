@@ -40,8 +40,9 @@ describe('MachineListCard', () => {
   it.each<[MachineStatus, string]>([
     ['disponivel', 'Disponível'],
     ['em_uso', 'Em uso'],
-    ['manutencao', 'Manutenção'],
+    ['manutencao', 'Em manutenção'],
     ['offline', 'Offline'],
+    ['alerta', 'Alerta'],
   ])('shows the %s status chip', (status, label) => {
     setup({ machine: machine(status) })
     expect(screen.getByText(label)).toBeInTheDocument()

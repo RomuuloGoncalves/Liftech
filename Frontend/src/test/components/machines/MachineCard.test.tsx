@@ -67,10 +67,11 @@ describe('MachineCard', () => {
 
 describe('MachineCard status classes (RST-06)', () => {
   it.each([
-    ['manutencao', 'Em manutenção', 'statusMaintenance'],
-    ['em_uso', 'Em uso', 'statusInUse'],
-    ['disponivel', 'Disponível', 'statusAvailable'],
-    ['offline', 'Offline', 'statusOffline'],
+    ['manutencao', 'Em manutenção', 'manutencao'],
+    ['em_uso', 'Em uso', 'em_uso'],
+    ['disponivel', 'Disponível', 'disponivel'],
+    ['offline', 'Offline', 'offline'],
+    ['alerta', 'Alerta', 'alerta'],
   ] as const)('maps %s to %s', (status, label, cls) => {
     render(<MachineCard machine={{ ...baseMachine, status }} />)
     expect(screen.getByText(label).className).toContain(cls)

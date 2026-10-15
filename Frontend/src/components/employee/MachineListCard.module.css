@@ -48,26 +48,6 @@
   font-weight: 500;
 }
 
-.available {
-  background: var(--green-bg);
-  color: var(--green);
-}
-
-.inUse {
-  background: var(--blue-bg);
-  color: var(--blue);
-}
-
-.maintenance {
-  background: var(--yellow-bg);
-  color: var(--yellow);
-}
-
-.offline {
-  background: var(--gray-bg);
-  color: var(--black-text);
-}
-
 .bottom {
   display: flex;
   align-items: flex-end;

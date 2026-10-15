@@ -74,6 +74,20 @@ describe('VisaoGeralPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
   })
 
+  it('lists the 5 status codes in the filter and filters by alerta', async () => {
+    await renderLoaded()
+    const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
+    const values = within(select).getAllByRole('option').map((option) => (option as HTMLOptionElement).value)
+    expect(values).toEqual(['Todos', 'disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])
+
+    fireEvent.change(select, { target: { value: 'alerta' } })
+    expect(screen.getAllByRole('article').map((card) => within(card).getByText(/EMP-/).textContent)).toEqual([
+      'EMP-081(ID)',
+      'EMP-085(ID)',
+      'EMP-089(ID)',
+    ])
+  })
+
   it('filters cards by status when a status is selected in the filter', async () => {
     await renderLoaded()
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })

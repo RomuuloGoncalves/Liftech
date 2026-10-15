@@ -445,8 +445,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: `offline` e `alerta` aparecem traduzidos no card, no detalhe e no card do funcionário; filtro da Visão Geral lista os 5 e filtra `alerta`
-- [ ] Quick gate passa
+- [x] Testes: `offline` e `alerta` aparecem traduzidos no card, no detalhe e no card do funcionário; filtro da Visão Geral lista os 5 e filtra `alerta`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

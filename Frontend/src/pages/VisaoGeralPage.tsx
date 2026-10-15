@@ -75,13 +75,6 @@ const VisaoGeralPage: React.FC = () => {
 
   const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
 
-  const getStatusTranslation = (s: string) => {
-    if (s === 'disponivel') return t('machines.statusAvailable')
-    if (s === 'em_uso') return t('machines.statusInUse')
-    if (s === 'manutencao') return t('machines.statusMaintenance')
-    return s
-  }
-
   const handleCreateMachine = (values: NewMachineFormValues) => {
     const newMachine: Machine = {
       id: String(nextMachineId++),
@@ -188,7 +181,7 @@ const VisaoGeralPage: React.FC = () => {
             <option value="Todos">{t('machines.filterDefault')}</option>
             {MACHINE_STATUSES.map((option) => (
               <option key={option} value={option}>
-                {getStatusTranslation(option)}
+                {t(`machines.status.${option}`)}
               </option>
             ))}
           </select>
