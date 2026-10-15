@@ -62,14 +62,14 @@ describe('VisaoGeralPage', () => {
     const search = screen.getByPlaceholderText('Search...')
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
 
-    fireEvent.change(select, { target: { value: 'Manutenção' } })
+    fireEvent.change(select, { target: { value: 'manutencao' } })
     fireEvent.change(search, { target: { value: 'EMP-084' } })
     expect(screen.getAllByRole('article')).toHaveLength(1)
 
     fireEvent.change(search, { target: { value: '' } })
 
     const expectedCount = MACHINES.filter(
-      (machine) => machine.dispositivoConectado.status === 'Manutenção'
+      (machine) => machine.status === 'manutencao'
     ).length
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
   })
@@ -78,10 +78,10 @@ describe('VisaoGeralPage', () => {
     await renderLoaded()
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
 
-    fireEvent.change(select, { target: { value: 'Manutenção' } })
+    fireEvent.change(select, { target: { value: 'manutencao' } })
 
     const expectedCount = MACHINES.filter(
-      (machine) => machine.dispositivoConectado.status === 'Manutenção'
+      (machine) => machine.status === 'manutencao'
     ).length
     expect(screen.getAllByRole('article')).toHaveLength(expectedCount)
   })
@@ -330,7 +330,7 @@ const apiMachine = (over: Partial<Machine> = {}): Machine => ({
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA', status: 'Manutenção' },
+  status: 'manutencao', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA' },
   tempoSessaoMinutos: 5,
   ...over,
 })
@@ -433,12 +433,12 @@ describe('VisaoGeralPage: API', () => {
   })
 
   it('shows a machine with an unknown status under "Todos" and hides it under another status filter', async () => {
-    listar.mockResolvedValue([apiMachine({ dispositivoConectado: { enderecoMac: 'X', status: 'Desconhecido' as never } })])
+    listar.mockResolvedValue([apiMachine({ status: 'Desconhecido' as never, categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'X' } })])
 
     render(<VisaoGeralPage />)
 
     expect(await screen.findAllByRole('article')).toHaveLength(1)
-    fireEvent.change(screen.getByRole('combobox', { name: /filtrar máquinas por status/i }), { target: { value: 'Manutenção' } })
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar máquinas por status/i }), { target: { value: 'manutencao' } })
     expect(screen.queryAllByRole('article')).toEqual([])
   })
 

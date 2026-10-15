@@ -38,10 +38,11 @@ const URGENCY_TONE: Record<UrgencyLevel, string> = {
 }
 
 const STATUS_HEADER: Record<MachineStatus, string> = {
-  Disponível: styles.statusAvailable,
-  'Em uso': styles.statusInUse,
-  Manutenção: styles.statusMaintenance,
-  Offline: styles.statusOffline,
+  disponivel: styles.statusAvailable,
+  em_uso: styles.statusInUse,
+  manutencao: styles.statusMaintenance,
+  alerta: styles.statusOffline,
+  offline: styles.statusOffline,
 }
 
 const FleetCard: React.FC<FleetCardProps> = ({
@@ -103,7 +104,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
     },
   }
   const highlight = highlights[kind]
-  const headerTone = kind === 'acidentes' ? highlight?.tone : STATUS_HEADER[machine.dispositivoConectado.status]
+  const headerTone = kind === 'acidentes' ? highlight?.tone : STATUS_HEADER[machine.status]
 
   return (
     <article

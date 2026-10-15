@@ -24,16 +24,17 @@ interface MachineDetailModalProps {
 }
 
 const STATUS_CLASS: Record<MachineStatus, string> = {
-  Disponível: styles.statusAvailable,
-  'Em uso': styles.statusInUse,
-  Manutenção: styles.statusMaintenance,
-  Offline: styles.statusOffline,
+  disponivel: styles.statusAvailable,
+  em_uso: styles.statusInUse,
+  manutencao: styles.statusMaintenance,
+  alerta: styles.statusOffline,
+  offline: styles.statusOffline,
 }
 
 const STATUS_KEY: Partial<Record<MachineStatus, string>> = {
-  Disponível: 'machines.statusAvailable',
-  'Em uso': 'machines.statusInUse',
-  Manutenção: 'machines.statusMaintenance',
+  disponivel: 'machines.statusAvailable',
+  em_uso: 'machines.statusInUse',
+  manutencao: 'machines.statusMaintenance',
 }
 
 const TABS: Record<'overview' | 'fleet' | 'alerts', { type: MachineEventType; labelKey: string }[]> = {
@@ -67,7 +68,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   const [to, setTo] = useState(DEFAULT_PERIOD.to)
 
   const visibleEvents = useMemo(() => filterEvents(events, { tipo: tab, from, to }), [events, tab, from, to])
-  const { status, enderecoMac, nomeDispositivo } = machine.dispositivoConectado
+  const { status } = machine
+  const { enderecoMac, nomeDispositivo } = machine.dispositivoConectado
   const statusKey = STATUS_KEY[status]
   const dash = '—'
 

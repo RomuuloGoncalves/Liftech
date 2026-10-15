@@ -8,7 +8,7 @@ const machine: Machine = {
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', status: 'Disponível', nomeDispositivo: 'Mpa-5312' },
+  status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', nomeDispositivo: 'Mpa-5312' },
   tempoSessaoMinutos: 5,
   tempoUsoTotalHoras: 7,
 }
@@ -65,7 +65,7 @@ describe('MachineDetailModal: content', () => {
       machine: {
         ...machine,
         tempoUsoTotalHoras: undefined,
-        dispositivoConectado: { enderecoMac: 'x', status: 'Offline' },
+        status: 'offline', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'x' },
       },
     })
 
@@ -236,11 +236,11 @@ describe('MachineDetailModal alerts variant', () => {
 
 describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
   it.each([
-    ['Disponível', 'Disponível', 'statusAvailable'],
-    ['Em uso', 'Em uso', 'statusInUse'],
-    ['Manutenção', 'Em manutenção', 'statusMaintenance'],
+    ['disponivel', 'Disponível', 'statusAvailable'],
+    ['em_uso', 'Em uso', 'statusInUse'],
+    ['manutencao', 'Em manutenção', 'statusMaintenance'],
   ] as const)('maps %s to %s', (status, label, cls) => {
-    setup({ machine: { ...machine, dispositivoConectado: { ...machine.dispositivoConectado, status } } })
+    setup({ machine: { ...machine, status } })
     expect(screen.getByText(label).className).toContain(cls)
   })
 

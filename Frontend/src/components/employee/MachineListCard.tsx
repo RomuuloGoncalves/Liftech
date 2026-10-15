@@ -13,10 +13,11 @@ interface MachineListCardProps {
 }
 
 const STATUS: Record<MachineStatus, { key: string; className: string }> = {
-  Disponível: { key: 'employee.common.available', className: styles.available },
-  'Em uso': { key: 'employee.common.inUse', className: styles.inUse },
-  Manutenção: { key: 'employee.common.maintenance', className: styles.maintenance },
-  Offline: { key: 'employee.common.offline', className: styles.offline },
+  disponivel: { key: 'employee.common.available', className: styles.available },
+  em_uso: { key: 'employee.common.inUse', className: styles.inUse },
+  manutencao: { key: 'employee.common.maintenance', className: styles.maintenance },
+  alerta: { key: 'employee.common.offline', className: styles.offline },
+  offline: { key: 'employee.common.offline', className: styles.offline },
 }
 
 const MachineListCard: React.FC<MachineListCardProps> = ({
@@ -28,7 +29,7 @@ const MachineListCard: React.FC<MachineListCardProps> = ({
 }) => {
   const { t } = useTranslation()
   const { nome, identificacao, setor } = machine
-  const status = machine.dispositivoConectado.status
+  const status = machine.status
 
   return (
     <article className={styles.card}>

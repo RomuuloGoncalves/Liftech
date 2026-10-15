@@ -9,11 +9,12 @@ interface MachineCardProps {
   onOpen?: (machine: Machine) => void
 }
 
-const STATUS_CLASS: Record<Machine['dispositivoConectado']['status'], string> = {
-  Disponível: styles.statusAvailable,
-  'Em uso': styles.statusInUse,
-  Manutenção: styles.statusMaintenance,
-  Offline: styles.statusOffline,
+const STATUS_CLASS: Record<Machine['status'], string> = {
+  disponivel: styles.statusAvailable,
+  em_uso: styles.statusInUse,
+  manutencao: styles.statusMaintenance,
+  alerta: styles.statusOffline,
+  offline: styles.statusOffline,
 }
 
 function formatTempoSessao(minutos: number): string {
@@ -25,9 +26,10 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
   const { identificacao, nome, setor, dispositivoConectado, tempoSessaoMinutos } = machine
 
   const getStatusTranslation = (status: string) => {
-    if (status === 'Disponível') return t('machines.statusAvailable')
-    if (status === 'Em uso') return t('machines.statusInUse')
-    if (status === 'Manutenção' || status === 'Em manutenção') return t('machines.statusMaintenance')
+    if (status === 'disponivel') return t('machines.statusAvailable')
+    if (status === 'em_uso') return t('machines.statusInUse')
+    if (status === 'manutencao') return t('machines.statusMaintenance')
+    if (status === 'offline') return t('employee.common.offline')
     return status
   }
 
@@ -70,8 +72,8 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
       </dl>
 
       <div className={styles.bottomRow}>
-        <span className={`${styles.statusBadge} ${STATUS_CLASS[dispositivoConectado.status]}`}>
-          {getStatusTranslation(dispositivoConectado.status)}
+        <span className={`${styles.statusBadge} ${STATUS_CLASS[machine.status]}`}>
+          {getStatusTranslation(machine.status)}
         </span>
         <span className={styles.session}>
           {t('machines.sessionTime')} <strong>{formatTempoSessao(tempoSessaoMinutos)}</strong>

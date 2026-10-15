@@ -8,7 +8,7 @@ const baseMachine: Machine = {
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7', status: 'Disponível' },
+  status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7' },
   operadorConectado: { nome: 'Carlos Silva' },
   tempoSessaoMinutos: 34,
 }
@@ -67,12 +67,12 @@ describe('MachineCard', () => {
 
 describe('MachineCard status classes (RST-06)', () => {
   it.each([
-    ['Manutenção', 'Em manutenção', 'statusMaintenance'],
-    ['Em uso', 'Em uso', 'statusInUse'],
-    ['Disponível', 'Disponível', 'statusAvailable'],
-    ['Offline', 'Offline', 'statusOffline'],
+    ['manutencao', 'Em manutenção', 'statusMaintenance'],
+    ['em_uso', 'Em uso', 'statusInUse'],
+    ['disponivel', 'Disponível', 'statusAvailable'],
+    ['offline', 'Offline', 'statusOffline'],
   ] as const)('maps %s to %s', (status, label, cls) => {
-    render(<MachineCard machine={{ ...baseMachine, dispositivoConectado: { ...baseMachine.dispositivoConectado, status } }} />)
+    render(<MachineCard machine={{ ...baseMachine, status }} />)
     expect(screen.getByText(label).className).toContain(cls)
   })
 })

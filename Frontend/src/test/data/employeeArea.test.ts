@@ -44,16 +44,21 @@ describe('filterAvailableMachines', () => {
   it('returns only machines with status Disponível', () => {
     const result = filterAvailableMachines(MACHINES, '')
     expect(result.length).toBeGreaterThan(0)
-    result.forEach((machine) => expect(machine.dispositivoConectado.status).toBe('Disponível'))
-    expect(result).toHaveLength(MACHINES.filter((m) => m.dispositivoConectado.status === 'Disponível').length)
+    result.forEach((machine) => expect(machine.status).toBe('disponivel'))
+    expect(result).toHaveLength(MACHINES.filter((m) => m.status === 'disponivel').length)
   })
 
   it('searches name, identificacao and sector ignoring case', () => {
-    expect(filterAvailableMachines(MACHINES, 'emp-085').map((m) => m.id)).toEqual(['5'])
+    expect(filterAvailableMachines(MACHINES, 'emp-083').map((m) => m.id)).toEqual(['3'])
     expect(filterAvailableMachines(MACHINES, 'ATLAS').every((m) => m.nome.includes('Atlas'))).toBe(true)
     expect(filterAvailableMachines(MACHINES, 'armazenagem').map((m) => m.setor)).toEqual(
       expect.arrayContaining(['Armazenagem - Bloco C'])
     )
+  })
+
+  it('does not offer a machine in alerta', () => {
+    expect(filterAvailableMachines(MACHINES, 'EMP-081')).toEqual([])
+    expect(findAvailableMachine('1')).toBeUndefined()
   })
 
   it('does not return unavailable machines even when the query matches them', () => {
@@ -67,7 +72,7 @@ describe('filterAvailableMachines', () => {
 
 describe('findAvailableMachine', () => {
   it('finds an available machine by id', () => {
-    expect(findAvailableMachine('1')?.identificacao).toBe('EMP-081')
+    expect(findAvailableMachine('3')?.identificacao).toBe('EMP-083')
   })
 
   it('returns undefined for unknown ids and for unavailable machines', () => {

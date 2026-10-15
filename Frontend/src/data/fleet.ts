@@ -18,9 +18,9 @@ export const ACCIDENT_MACHINE_CODES = ['EMP-081', 'EMP-085', 'EMP-089']
 
 const INITIAL: { kind: Exclude<CategoryKind, 'custom'>; cor: string; status?: MachineStatus }[] = [
   { kind: 'acidentes', cor: '#EF4444' },
-  { kind: 'ativas', cor: '#3A9CFF', status: 'Em uso' },
-  { kind: 'manutencao', cor: '#FFC93A', status: 'Manutenção' },
-  { kind: 'disponiveis', cor: '#22C55E', status: 'Disponível' },
+  { kind: 'ativas', cor: '#3A9CFF', status: 'em_uso' },
+  { kind: 'manutencao', cor: '#FFC93A', status: 'manutencao' },
+  { kind: 'disponiveis', cor: '#22C55E', status: 'disponivel' },
 ]
 
 export function initialBoard(machines: Machine[]): FleetCategory[] {
@@ -32,7 +32,7 @@ export function initialBoard(machines: Machine[]): FleetCategory[] {
     kind,
     nome: '',
     cor,
-    machineIds: (status ? rest.filter((m) => m.dispositivoConectado.status === status) : accidents).map((m) => m.id),
+    machineIds: (status ? rest.filter((m) => m.status === status) : accidents).map((m) => m.id),
   }))
 }
 

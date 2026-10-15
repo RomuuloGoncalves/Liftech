@@ -387,9 +387,9 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] `filterMachines` filtra por `machine.status`; só `disponivel` é ativável na área do funcionário
-- [ ] Testes de `data/` e dos componentes afetados atualizados sem perder contagem
-- [ ] Quick gate passa
+- [x] `filterMachines` filtra por `machine.status`; só `disponivel` é ativável na área do funcionário
+- [x] Testes de `data/` e dos componentes afetados atualizados sem perder contagem
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

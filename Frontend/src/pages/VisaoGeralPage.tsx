@@ -76,9 +76,9 @@ const VisaoGeralPage: React.FC = () => {
   const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
 
   const getStatusTranslation = (s: string) => {
-    if (s === 'Disponível') return t('machines.statusAvailable')
-    if (s === 'Em uso') return t('machines.statusInUse')
-    if (s === 'Manutenção' || s === 'Em manutenção') return t('machines.statusMaintenance')
+    if (s === 'disponivel') return t('machines.statusAvailable')
+    if (s === 'em_uso') return t('machines.statusInUse')
+    if (s === 'manutencao') return t('machines.statusMaintenance')
     return s
   }
 
@@ -88,9 +88,12 @@ const VisaoGeralPage: React.FC = () => {
       identificacao: values.identificacao,
       nome: values.nome,
       setor: values.setor,
+      status: 'disponivel',
+      categoriaId: null,
+      categoriaTravada: false,
+      alertaEm: null,
       dispositivoConectado: {
         enderecoMac: values.enderecoMac,
-        status: 'Disponível',
         nomeDispositivo: values.nomeDispositivo,
       },
       tempoSessaoMinutos: 0,

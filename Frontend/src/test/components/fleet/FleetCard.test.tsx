@@ -9,7 +9,7 @@ const machine: Machine = {
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', status: 'Disponível' },
+  status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7' },
   operadorConectado: { nome: 'Alexandre Mattos' },
   tempoSessaoMinutos: 34,
   tempoUsoTotalHoras: 24,
@@ -196,16 +196,16 @@ describe('FleetCard accident urgency header (RST-10)', () => {
 
 describe('FleetCard header colored by machine status (RST-12)', () => {
   const header = () => screen.getByRole('heading', { level: 3 }).closest('div[class*="topRow"]') as HTMLElement
-  const withStatus = (status: Machine['dispositivoConectado']['status']): Machine => ({
+  const withStatus = (status: Machine['status']): Machine => ({
     ...machine,
-    dispositivoConectado: { ...machine.dispositivoConectado, status },
+    status,
   })
 
   it.each([
-    ['Disponível', 'statusAvailable'],
-    ['Em uso', 'statusInUse'],
-    ['Manutenção', 'statusMaintenance'],
-    ['Offline', 'statusOffline'],
+    ['disponivel', 'statusAvailable'],
+    ['em_uso', 'statusInUse'],
+    ['manutencao', 'statusMaintenance'],
+    ['offline', 'statusOffline'],
   ] as const)('fills the header of a %s machine with %s', (status, cls) => {
     setup('custom', { machine: withStatus(status) })
     expect(header().className).toContain(cls)
@@ -214,7 +214,7 @@ describe('FleetCard header colored by machine status (RST-12)', () => {
   it.each(['ativas', 'manutencao', 'disponiveis', 'custom'] as const)(
     'keeps the machine status color when the card sits in the %s column',
     (kind) => {
-      setup(kind, { machine: withStatus('Em uso') })
+      setup(kind, { machine: withStatus('em_uso') })
       expect(header().className).toContain('statusInUse')
       for (const other of ['statusAvailable', 'statusMaintenance', 'statusOffline']) {
         expect(header().className).not.toContain(other)
@@ -223,7 +223,7 @@ describe('FleetCard header colored by machine status (RST-12)', () => {
   )
 
   it('keeps the urgency tone, not the status color, in the Acidentes column', () => {
-    setup('acidentes', { machine: withStatus('Disponível'), urgency: 'alta' })
+    setup('acidentes', { machine: withStatus('disponivel'), urgency: 'alta' })
     expect(header().className).toContain('warning')
     expect(header().className).not.toContain('statusAvailable')
   })

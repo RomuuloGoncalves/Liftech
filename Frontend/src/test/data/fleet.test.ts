@@ -32,13 +32,13 @@ describe('initialBoard', () => {
 
   it('places the other machines by status and leaves Offline machines out', () => {
     const accidents = new Set(idsOf(board, 'acidentes'))
-    const expected = (status: Machine['dispositivoConectado']['status']) =>
-      MACHINES.filter((m) => m.dispositivoConectado.status === status && !accidents.has(m.id)).map((m) => m.id)
+    const expected = (status: Machine['status']) =>
+      MACHINES.filter((m) => m.status === status && !accidents.has(m.id)).map((m) => m.id)
 
-    expect(idsOf(board, 'ativas')).toEqual(expected('Em uso'))
-    expect(idsOf(board, 'manutencao')).toEqual(expected('Manutenção'))
-    expect(idsOf(board, 'disponiveis')).toEqual(expected('Disponível'))
-    const offline = MACHINES.filter((m) => m.dispositivoConectado.status === 'Offline').map((m) => m.id)
+    expect(idsOf(board, 'ativas')).toEqual(expected('em_uso'))
+    expect(idsOf(board, 'manutencao')).toEqual(expected('manutencao'))
+    expect(idsOf(board, 'disponiveis')).toEqual(expected('disponivel'))
+    const offline = MACHINES.filter((m) => m.status === 'offline').map((m) => m.id)
     expect(offline.length).toBeGreaterThan(0)
     offline.forEach((id) => expect(allIds(board)).not.toContain(id))
   })
@@ -67,7 +67,7 @@ describe('moveMachine', () => {
   })
 
   it('places a machine without category into the target row', () => {
-    const offlineId = MACHINES.find((m) => m.dispositivoConectado.status === 'Offline')!.id
+    const offlineId = MACHINES.find((m) => m.status === 'offline')!.id
     const next = moveMachine(board, offlineId, 'ativas')
     expect(idsOf(next, 'ativas').at(-1)).toBe(offlineId)
   })
