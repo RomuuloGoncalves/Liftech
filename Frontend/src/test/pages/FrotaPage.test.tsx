@@ -12,6 +12,9 @@ import { machineService } from '../../services/machineService'
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), mover: vi.fn(), travar: vi.fn(), alterarStatus: vi.fn() },
 }))
+vi.mock('../../services/incidentService', () => ({
+  incidentService: { listar: vi.fn().mockResolvedValue([]), reportar: vi.fn() },
+}))
 vi.mock('../../services/categoryService', () => ({
   categoryService: { listar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
 }))

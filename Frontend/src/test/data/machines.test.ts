@@ -5,11 +5,54 @@ import {
   MACHINE_EVENTS,
   MACHINES,
   MACHINE_STATUSES,
+  eventUrgency,
   eventsForMachine,
   filterEvents,
   filterMachines,
+  incidentToEvent,
   type MachineEvent,
 } from '../../data/machines'
+import type { Incidente } from '../../services/incidentService'
+
+describe('incidentToEvent', () => {
+  const incident: Incidente = {
+    _id: 'i1',
+    machineId: 'm1',
+    maquina: { nome: 'Titan-X', identificacao: 'EMP-081', setor: 'Expedição' },
+    operador: { nome: 'Carlos Silva' },
+    dataIncidente: new Date('2026-10-15T09:30:05').toISOString(),
+    forcaImpacto: 3.2,
+    status: 'pendente',
+    origem: 'sensor',
+    descricao: null,
+  }
+
+  it('turns a sensor incident into an accident caused by a collision, in local date and time', () => {
+    const event = incidentToEvent(incident)
+    expect(event).toEqual({
+      id: 'i1',
+      machineId: 'm1',
+      tipo: 'acidente',
+      operador: 'Carlos Silva',
+      data: '2026-10-15',
+      inicio: '09:30:05',
+      fim: '09:30:05',
+      causa: 'colisao',
+    })
+    expect(eventUrgency(event)).toBe('alta')
+  })
+
+  it('leaves a collaborator report without cause, with urgency alta, and no operator as empty', () => {
+    const event = incidentToEvent({ ...incident, origem: 'funcionario', operador: null })
+    expect(event.causa).toBeUndefined()
+    expect(event.operador).toBe('')
+    expect(eventUrgency(event)).toBe('alta')
+  })
+
+  it('keeps the cause urgency for mock events', () => {
+    expect(eventUrgency({ ...incidentToEvent(incident), causa: 'tombamento' })).toBe('critica')
+  })
+})
 
 describe('MACHINES mock dataset', () => {
   it('has 16 machines, each with identificacao, setor and device data', () => {

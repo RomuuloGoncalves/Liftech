@@ -12,6 +12,9 @@ import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine 
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn() },
 }))
+vi.mock('../../services/incidentService', () => ({
+  incidentService: { listar: vi.fn().mockResolvedValue([]), reportar: vi.fn() },
+}))
 
 const listar = vi.mocked(machineService.listar)
 
@@ -419,12 +422,13 @@ describe('VisaoGeralPage: API', () => {
     expect(listar).toHaveBeenCalledTimes(1)
   })
 
-  it('detail history shows the mock events of the machine with the same identificacao, even with an API id', async () => {
+  it('detail repairs show the mock events of the machine with the same identificacao, even with an API id', async () => {
     const listItemsInDetail = async (machine: Machine) => {
       listar.mockResolvedValue([machine])
       const { unmount } = render(<VisaoGeralPage />)
       await screen.findAllByRole('article')
       openDetail(machine.identificacao)
+      fireEvent.click(screen.getByRole('tab', { name: 'Histórico de manutenção' }))
       const count = within(screen.getByRole('dialog')).getAllByRole('listitem').length
       unmount()
       return count
@@ -433,7 +437,7 @@ describe('VisaoGeralPage: API', () => {
     const withMockHistory = await listItemsInDetail(apiMachine())
     const withoutHistory = await listItemsInDetail(apiMachine({ identificacao: 'EMP-777' }))
 
-    const expectedEvents = filterEvents(eventsForMachine('4'), { tipo: 'acidente', ...DEFAULT_PERIOD }).length
+    const expectedEvents = filterEvents(eventsForMachine('4'), { tipo: 'manutencao', ...DEFAULT_PERIOD }).length
     expect(expectedEvents).toBeGreaterThan(0)
     expect(withMockHistory - withoutHistory).toBe(expectedEvents)
   })

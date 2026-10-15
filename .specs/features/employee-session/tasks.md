@@ -277,8 +277,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes: lista da API no detalhe e em Alertas, conversão, filtro de data; reparos seguem do mock
-- [ ] Build gate do Frontend passa
+- [x] Testes: lista da API no detalhe e em Alertas, conversão, filtro de data; reparos seguem do mock
+- [x] Build gate do Frontend passa
 
 **Tests**: unit
 **Gate**: build
