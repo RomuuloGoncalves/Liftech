@@ -195,9 +195,9 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `machineController.test.ts`: 200 com a máquina; 400 status inválido sem chamar o serviço; 400 id inválido; 404 fora do escopo; 400 corpo com `$`
-- [ ] Rota registrada em `machineRouter.ts`
-- [ ] Quick gate passa
+- [x] Testes em `machineController.test.ts`: 200 com a máquina; 400 status inválido sem chamar o serviço; 400 id inválido; 404 fora do escopo; 400 corpo com `$`
+- [x] Rota registrada em `machineRouter.ts`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

@@ -1,11 +1,16 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { Request, Response } from 'express';
-import { listar } from '../../src/feature/machine/machineController.js';
-import { listarMaquinas } from '../../src/feature/machine/machineService.js';
+import { listar, alterarStatus } from '../../src/feature/machine/machineController.js';
+import { listarMaquinas, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { aplicarStatus } from '../../src/feature/machine/statusService.js';
 import machineRouter from '../../src/feature/machine/machineRouter.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
-vi.mock('../../src/feature/machine/machineService.js', () => ({ listarMaquinas: vi.fn() }));
+vi.mock('../../src/feature/machine/machineService.js', () => ({ listarMaquinas: vi.fn(), obterMaquina: vi.fn() }));
+vi.mock('../../src/feature/machine/statusService.js', async (original) => ({ ...(await original<any>()), aplicarStatus: vi.fn() }));
+vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: {} }));
+vi.mock('../../src/schemas/incident.js', () => ({ Incident: {} }));
+vi.mock('../../src/schemas/category.js', () => ({ Category: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
 
 const ESCOPO: Escopo = { empresaId: 'e1', tipo: 'filiais', filiais: [{ _id: '665f1c2b9a1e4b00123456b1', nome: 'Matriz', matriz: true }] };
@@ -71,5 +76,73 @@ describe('machineRouter', () => {
 
         expect(layer.route.methods).toEqual({ get: true });
         expect(layer.route.stack[0].handle).toBe(listar);
+    });
+});
+
+const ID = '665f1c2b9a1e4b00123456f1';
+const MAQUINA = { id: ID, identificacao: 'EMP-081', status: 'manutencao' };
+
+function resposta() {
+    const json = vi.fn();
+    const status = vi.fn().mockReturnValue({ json });
+    return { res: { status, json } as unknown as Response, status, json };
+}
+const reqPut = (id: string, body: unknown) => ({ escopo: ESCOPO, params: { id }, body }) as unknown as Request;
+
+describe('machineController.alterarStatus', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(obterMaquina).mockResolvedValue(MAQUINA as any);
+    });
+
+    test('200 com a máquina depois de aplicar o status', async () => {
+        const { res, status, json } = resposta();
+
+        await alterarStatus(reqPut(ID, { status: 'manutencao' }), res);
+
+        expect(aplicarStatus).toHaveBeenCalledWith(ID, 'manutencao');
+        expect(status).toHaveBeenCalledWith(200);
+        expect(json).toHaveBeenCalledWith(MAQUINA);
+    });
+
+    test.each([['Manutenção'], ['acidente'], [undefined], [1]])('400 com status %s, sem gravar', async (valor) => {
+        const { res, status } = resposta();
+
+        await alterarStatus(reqPut(ID, { status: valor }), res);
+
+        expect(status).toHaveBeenCalledWith(400);
+        expect(aplicarStatus).not.toHaveBeenCalled();
+    });
+
+    test('400 com id inválido', async () => {
+        const { res, status } = resposta();
+        await alterarStatus(reqPut('abc', { status: 'alerta' }), res);
+        expect(status).toHaveBeenCalledWith(400);
+        expect(aplicarStatus).not.toHaveBeenCalled();
+    });
+
+    test('400 com chave $ no corpo', async () => {
+        const { res, status } = resposta();
+        await alterarStatus(reqPut(ID, { status: 'alerta', $set: {} }), res);
+        expect(status).toHaveBeenCalledWith(400);
+        expect(aplicarStatus).not.toHaveBeenCalled();
+    });
+
+    test('404 fora do escopo, sem gravar', async () => {
+        const { ErroHttp } = await import('../../src/utils/responseHandler.js');
+        vi.mocked(obterMaquina).mockRejectedValue(new ErroHttp(404, 'Máquina não encontrada.'));
+        const { res, status, json } = resposta();
+
+        await alterarStatus(reqPut(ID, { status: 'alerta' }), res);
+
+        expect(status).toHaveBeenCalledWith(404);
+        expect(json).toHaveBeenCalledWith({ error: 'Máquina não encontrada.' });
+        expect(aplicarStatus).not.toHaveBeenCalled();
+    });
+
+    test('rota PUT /:id/status ligada ao controller', () => {
+        const layer = (machineRouter as any).stack.find((l: any) => l.route?.path === '/:id/status');
+        expect(layer.route.methods).toEqual({ put: true });
+        expect(layer.route.stack[0].handle).toBe(alterarStatus);
     });
 });
