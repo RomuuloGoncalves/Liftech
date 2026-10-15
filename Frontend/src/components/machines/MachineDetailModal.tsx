@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
 import {
   DEFAULT_PERIOD,
+  MACHINE_STATUSES,
   filterEvents,
   type Machine,
   type MachineEvent,
   type MachineEventType,
+  type MachineStatus,
 } from '../../data/machines'
 import { formatDuration, formatEventDate, formatHours } from '../../utils/format'
 import StatusBadge from './StatusBadge'
@@ -19,6 +21,8 @@ interface MachineDetailModalProps {
   onEdit?: (machine: Machine) => void
   onDelete?: (machine: Machine) => void
   onClose: () => void
+  onChangeStatus?: (status: MachineStatus) => void
+  onToggleLock?: (valor: boolean) => void
   /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. `alerts`: igual, com a aba de alertas primeiro e sem selo de status. */
   variant?: 'overview' | 'fleet' | 'alerts'
 }
@@ -44,6 +48,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   onEdit,
   onDelete,
   onClose,
+  onChangeStatus,
+  onToggleLock,
   variant = 'overview',
 }) => {
   const { t, i18n } = useTranslation()
@@ -121,6 +127,36 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
           <dd>{enderecoMac}</dd>
         </div>
       </dl>
+
+      {(onChangeStatus || onToggleLock) && (
+        <div className={styles.statusControls}>
+          {onChangeStatus && (
+            <label className={styles.statusField}>
+              {t('machines.changeStatus')}
+              <select
+                className={styles.dateInput}
+                value={machine.status}
+                onChange={(event) => onChangeStatus(event.target.value as MachineStatus)}
+              >
+                {MACHINE_STATUSES.map((option) => (
+                  <option key={option} value={option}>
+                    {t(`machines.status.${option}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {onToggleLock && (
+            <button
+              type="button"
+              className={`${styles.action} ${styles.edit}`}
+              onClick={() => onToggleLock(!machine.categoriaTravada)}
+            >
+              {t(machine.categoriaTravada ? 'fleet.unlock' : 'fleet.lock')}
+            </button>
+          )}
+        </div>
+      )}
 
       <ul className={styles.info}>
         {infoRows.map((row) => (

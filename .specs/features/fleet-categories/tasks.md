@@ -483,8 +483,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: sem as props nada aparece; escolher status chama `onChangeStatus` com o código; o botão mostra o texto pelo estado e chama `onToggleLock` com o inverso
-- [ ] Quick gate passa
+- [x] Testes: sem as props nada aparece; escolher status chama `onChangeStatus` com o código; o botão mostra o texto pelo estado e chama `onToggleLock` com o inverso
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

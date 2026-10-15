@@ -252,3 +252,35 @@ describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
     expect(screen.getByRole('button', { name: 'Excluir Máquina' }).className).toContain('delete')
   })
 })
+
+describe('MachineDetailModal status and lock', () => {
+  it('renders neither control without the props', () => {
+    setup()
+    expect(screen.queryByLabelText('Alterar status')).toBeNull()
+    expect(screen.queryByRole('button', { name: /^(Travar|Destravar)$/ })).toBeNull()
+  })
+
+  it('calls onChangeStatus with the chosen code', () => {
+    const onChangeStatus = vi.fn()
+    setup({ onChangeStatus })
+    const select = screen.getByLabelText('Alterar status') as HTMLSelectElement
+    expect(select.value).toBe('disponivel')
+    expect(select.options).toHaveLength(5)
+    fireEvent.change(select, { target: { value: 'manutencao' } })
+    expect(onChangeStatus).toHaveBeenCalledWith('manutencao')
+  })
+
+  it('shows Travar when unlocked and toggles to true', () => {
+    const onToggleLock = vi.fn()
+    setup({ onToggleLock })
+    fireEvent.click(screen.getByRole('button', { name: 'Travar' }))
+    expect(onToggleLock).toHaveBeenCalledWith(true)
+  })
+
+  it('shows Destravar when locked and toggles to false', () => {
+    const onToggleLock = vi.fn()
+    setup({ onToggleLock, machine: { ...machine, categoriaTravada: true } })
+    fireEvent.click(screen.getByRole('button', { name: 'Destravar' }))
+    expect(onToggleLock).toHaveBeenCalledWith(false)
+  })
+})
