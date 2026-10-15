@@ -272,8 +272,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `telemetryController.test.ts`: igual ao limite chama `registrarImpacto`; abaixo e ausente não chamam; `-1`, `"7"`, `NaN` e `Infinity` → 400 sem gravar
-- [ ] Build gate do Backend passa
+- [x] Testes em `telemetryController.test.ts`: igual ao limite chama `registrarImpacto`; abaixo e ausente não chamam; `-1`, `"7"`, `NaN` e `Infinity` → 400 sem gravar
+- [x] Build gate do Backend passa
 
 **Tests**: unit
 **Gate**: build
