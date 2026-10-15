@@ -5,8 +5,8 @@ import { CalendarDays, Clock, Search } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
-import { MACHINES } from '../../data/machines'
-import { USAGE_HISTORY, filterUsageHistory } from '../../data/employeeArea'
+import { filterUsageHistory } from '../../data/employeeArea'
+import { useEmployeeData } from '../../hooks/useEmployeeData'
 import styles from './EmployeeHistoryPage.module.css'
 
 const EmployeeHistoryPage: React.FC = () => {
@@ -19,7 +19,8 @@ const EmployeeHistoryPage: React.FC = () => {
   const [machineQuery, setMachineQuery] = useState('')
   const loading = useFirstVisitLoading('employee-history')
 
-  const records = filterUsageHistory(USAGE_HISTORY, { from, to, startTime, endTime, machineQuery })
+  const { machines, records: all } = useEmployeeData()
+  const records = filterUsageHistory(all, { from, to, startTime, endTime, machineQuery })
   const formatDate = (date: string) =>
     new Date(`${date}T00:00:00Z`).toLocaleDateString(i18n.language, {
       day: 'numeric',
@@ -101,7 +102,7 @@ const EmployeeHistoryPage: React.FC = () => {
       ) : (
         <div className={styles.list}>
           {records.map((record) => {
-            const machine = MACHINES.find((item) => item.id === record.machineId)
+            const machine = machines.find((item) => item.id === record.machineId)
             if (!machine) return null
             return (
               <MachineListCard

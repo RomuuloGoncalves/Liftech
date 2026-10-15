@@ -6,6 +6,7 @@ import { MACHINES } from '../../../data/machines'
 import { ToastProvider } from '../../../components/common/Toast'
 import { resetWorkSession } from '../../../hooks/useWorkSession'
 import { sessionService } from '../../../services/sessionService'
+import { listSessions } from '../../fixtures/employeeSessions'
 
 vi.mock('../../../services/sessionService', () => ({
   sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
@@ -13,6 +14,8 @@ vi.mock('../../../services/sessionService', () => ({
 
 const atual = vi.mocked(sessionService.atual)
 const iniciar = vi.mocked(sessionService.iniciar)
+const listar = vi.mocked(sessionService.listar)
+const loaded = () => act(async () => {})
 
 const sessao = (machineId: string) => ({
   _id: 's1',
@@ -44,6 +47,7 @@ beforeEach(() => {
   resetWorkSession()
   atual.mockReset().mockResolvedValue(null)
   iniciar.mockReset()
+  listar.mockReset().mockImplementation(listSessions)
 })
 
 describe('MachineDetailSheet', () => {
@@ -57,32 +61,41 @@ describe('MachineDetailSheet', () => {
     expect(d.getByText('Mpa-5300')).toBeInTheDocument()
   })
 
-  it('lists the 4 usage records of the machine, with operator and time range', () => {
+  it('lists the 4 API sessions of the machine, with operator and time range', async () => {
     setup('1')
+    await loaded()
     const d = within(dialog())
     expect(d.getAllByRole('listitem')).toHaveLength(4)
     expect(d.getAllByText('Alexandre Gomes')).toHaveLength(4)
     expect(d.getByText('14:35:25 – 16:35:20 (2h 00min)')).toBeInTheDocument()
+    expect(listar).toHaveBeenCalledWith({ machineId: '1', from: undefined, to: undefined })
   })
 
-  it('narrows the history by period', () => {
+  it('narrows the history by period', async () => {
     setup('1')
+    await loaded()
     fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: '2025-09-13' } })
+    await loaded()
+    expect(listar).toHaveBeenLastCalledWith({ machineId: '1', from: '2025-09-13', to: undefined })
     expect(within(dialog()).getAllByRole('listitem')).toHaveLength(1)
     fireEvent.change(screen.getByLabelText('Data final'), { target: { value: '2025-09-14' } })
+    await loaded()
     expect(within(dialog()).getAllByRole('listitem')).toHaveLength(1)
   })
 
-  it('shows the empty message for an inverted period', () => {
+  it('shows the empty message for an inverted period', async () => {
     setup('1')
+    await loaded()
     fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: '2026-01-01' } })
     fireEvent.change(screen.getByLabelText('Data final'), { target: { value: '2025-01-01' } })
+    await loaded()
     expect(within(dialog()).queryByRole('listitem')).not.toBeInTheDocument()
     expect(within(dialog()).getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
-  it('shows the empty message for a machine without records', () => {
+  it('shows the empty message for a machine without records', async () => {
     setup('9')
+    await loaded()
     expect(within(dialog()).getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 

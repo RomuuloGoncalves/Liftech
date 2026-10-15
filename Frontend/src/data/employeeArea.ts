@@ -1,8 +1,10 @@
-import { MACHINES, type Machine } from './machines'
+import type { Machine } from './machines'
+import type { MaquinaResumo, Sessao } from '../services/sessionService'
 
 export interface UsageRecord {
   id: string
   machineId: string
+  maquina: MaquinaResumo | null
   operatorName: string
   date: string
   start: string
@@ -10,51 +12,32 @@ export interface UsageRecord {
   durationLabel: string
 }
 
-export interface WorkShift {
-  start: string
-  end: string
-  dailyHours: number
-  remainingHours: number
-}
-
-export interface LastMachineUsage {
-  machineId: string
-  nome: string
-  identificacao: string
-  date: string
-}
-
 export const EMPLOYEE_NAME = 'Alexandre Gomes'
 
-export const WORK_SHIFT: WorkShift = { start: '08:00', end: '17:00', dailyHours: 8, remainingHours: 4 }
+// 'sv' formats as YYYY-MM-DD and HH:mm:ss in the local time zone.
+const localDate = (date: Date) => date.toLocaleDateString('sv')
+const localTime = (date: Date) => date.toLocaleTimeString('sv')
 
-export const LAST_MACHINE_USAGE: LastMachineUsage = {
-  machineId: '4',
-  nome: 'Empilhadeira elétrica Tital-X',
-  identificacao: 'EMP-084',
-  date: '2026-09-05',
+export function formatDuration(minutes: number): string {
+  const total = Math.max(0, Math.round(minutes))
+  const [h, m] = [Math.floor(total / 60), total % 60]
+  return h > 0 ? `${h}h ${String(m).padStart(2, '0')}min` : `${m}min`
 }
 
-const RECORD_SLOTS: Array<[string, string, string]> = [
-  ['14:35:25', '16:35:20', '2h 00min'],
-  ['08:10:00', '08:55:00', '45min'],
-  ['09:00:00', '10:30:00', '1h 30min'],
-  ['13:15:30', '16:15:30', '3h 00min'],
-]
-
-const RECORD_DATES = ['2025-09-14', '2025-09-12', '2025-09-10', '2025-09-08']
-
-export const USAGE_HISTORY: UsageRecord[] = MACHINES.slice(0, 8).flatMap((machine, machineIndex) =>
-  RECORD_SLOTS.map(([start, end, durationLabel], slot) => ({
-    id: `usage-${machine.id}-${slot}`,
-    machineId: machine.id,
-    operatorName: EMPLOYEE_NAME,
-    date: RECORD_DATES[(machineIndex + slot) % RECORD_DATES.length],
-    start,
-    end,
-    durationLabel,
-  }))
-)
+export function toUsageRecord(session: Sessao, now = Date.now()): UsageRecord {
+  const start = new Date(session.inicio)
+  const end = session.fim ? new Date(session.fim) : null
+  return {
+    id: session._id,
+    machineId: session.machineId,
+    maquina: session.maquina,
+    operatorName: session.operador.nome,
+    date: localDate(start),
+    start: localTime(start),
+    end: end ? localTime(end) : '',
+    durationLabel: formatDuration(((end?.getTime() ?? now) - start.getTime()) / 60000),
+  }
+}
 
 export function filterAvailableMachines(machines: Machine[], query: string): Machine[] {
   const term = query.trim().toLowerCase()
@@ -67,10 +50,6 @@ export function filterAvailableMachines(machines: Machine[], query: string): Mac
         machine.identificacao.toLowerCase().includes(term) ||
         machine.setor.toLowerCase().includes(term))
   )
-}
-
-export function findAvailableMachine(id: string): Machine | undefined {
-  return MACHINES.find((machine) => machine.id === id && machine.status === 'disponivel')
 }
 
 export interface UsageFilters {
@@ -96,7 +75,7 @@ export function filterUsageHistory(records: UsageRecord[], filters: UsageFilters
     if (endTime && record.start > toSeconds(endTime)) return false
     if (term.length === 0) return true
 
-    const machine = MACHINES.find((item) => item.id === record.machineId)
+    const machine = record.maquina
     return (
       !!machine &&
       (machine.nome.toLowerCase().includes(term) ||

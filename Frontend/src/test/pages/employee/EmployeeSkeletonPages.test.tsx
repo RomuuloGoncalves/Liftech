@@ -14,8 +14,12 @@ import { MACHINES } from '../../../data/machines'
 import { sessionService } from '../../../services/sessionService'
 
 vi.mock('../../../services/sessionService', () => ({
-  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
+  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn().mockResolvedValue([]) },
 }))
+vi.mock('../../../services/machineService', async () => {
+  const { MACHINES } = await import('../../../data/machines')
+  return { machineService: { listar: vi.fn().mockResolvedValue(MACHINES) } }
+})
 
 const atual = vi.mocked(sessionService.atual)
 const loadSession = () => act(async () => {})
@@ -126,8 +130,9 @@ describe('employee screens skeleton', () => {
     expect(screen.getByLabelText('Nome')).toBeInTheDocument()
   })
 
-  it('machine detail sheet opens normally after the first load', () => {
+  it('machine detail sheet opens normally after the first load', async () => {
     at(`/funcionario/maquinas/${MACHINES[0].id}`, <EmployeeMachinesPage />, '/funcionario/maquinas/:id?')
+    await loadSession()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     finishLoading()
     expect(screen.getByRole('dialog')).toBeInTheDocument()

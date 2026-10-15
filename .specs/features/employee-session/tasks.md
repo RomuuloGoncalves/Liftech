@@ -241,8 +241,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes por tela com serviços mockados (lista, vazio, filtros do histórico)
-- [ ] Quick gate passa
+- [x] Testes por tela com serviços mockados (lista, vazio, filtros do histórico)
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

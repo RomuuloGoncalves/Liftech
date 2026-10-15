@@ -10,8 +10,12 @@ import { resetWorkSession } from '../../../hooks/useWorkSession'
 import { sessionService } from '../../../services/sessionService'
 
 vi.mock('../../../services/sessionService', () => ({
-  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
+  sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn().mockResolvedValue([]) },
 }))
+vi.mock('../../../services/machineService', async () => {
+  const { MACHINES } = await import('../../../data/machines')
+  return { machineService: { listar: vi.fn().mockResolvedValue(MACHINES) } }
+})
 
 const atual = vi.mocked(sessionService.atual)
 

@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, CalendarDays, Cpu, MapPin } from 'lucide-react'
 import BottomSheet from './BottomSheet'
-import { DEFAULT_PERIOD, type Machine } from '../../data/machines'
-import { USAGE_HISTORY, filterUsageHistory } from '../../data/employeeArea'
+import type { Machine } from '../../data/machines'
+import { toUsageRecord, type UsageRecord } from '../../data/employeeArea'
 import { useWorkSession } from '../../hooks/useWorkSession'
+import { sessionService } from '../../services/sessionService'
 import styles from './MachineDetailSheet.module.css'
 
 interface MachineDetailSheetProps {
@@ -17,13 +18,21 @@ const MachineDetailSheet: React.FC<MachineDetailSheetProps> = ({ machine, onClos
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { session, start } = useWorkSession()
-  const [from, setFrom] = useState(DEFAULT_PERIOD.from)
-  const [to, setTo] = useState(DEFAULT_PERIOD.to)
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
 
-  const records = useMemo(
-    () => filterUsageHistory(USAGE_HISTORY.filter((record) => record.machineId === machine.id), { from, to }),
-    [machine.id, from, to]
-  )
+  const [records, setRecords] = useState<UsageRecord[]>([])
+
+  useEffect(() => {
+    let stale = false
+    sessionService.listar({ machineId: machine.id, from: from || undefined, to: to || undefined }).then(
+      (list) => !stale && setRecords(list.map((s) => toUsageRecord(s))),
+      () => !stale && setRecords([])
+    )
+    return () => {
+      stale = true
+    }
+  }, [machine.id, from, to])
 
   const canActivate = machine.status === 'disponivel' && !session
 
