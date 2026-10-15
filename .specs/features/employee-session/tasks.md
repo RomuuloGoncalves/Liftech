@@ -78,8 +78,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes em `schemas.test.ts` cobrem os padrões, o maxlength e os dois índices parciais
-- [ ] Quick gate passa
+- [x] Testes em `schemas.test.ts` cobrem os padrões, o maxlength e os dois índices parciais
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

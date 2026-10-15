@@ -152,3 +152,43 @@ describe('forcaImpacto na telemetria', async () => {
         expect(new Telemetry({ dataDados: new Date(), forcaImpacto: 7 }).forcaImpacto).toBe(7);
     });
 });
+
+describe('sessão do funcionário', async () => {
+    const { WorkSession } = await import('../../src/schemas/workSession.js');
+    const id = () => new mongoose.Types.ObjectId();
+
+    test('user: operadorId é opcional e guarda o operator', async () => {
+        const empresaId = id();
+        expect(await erros(new User({ nome: 'Ana', role: 'colaborador', empresaId }))).toEqual([]);
+        const operadorId = id();
+        expect(new User({ nome: 'Ana', role: 'colaborador', empresaId, operadorId }).operadorId).toEqual(operadorId);
+    });
+
+    test('workSession: operador, empilhadeira, filial e inicio são obrigatórios; fim começa null', async () => {
+        expect((await erros(new WorkSession({}))).sort()).toEqual(['empilhadeiraId', 'filialId', 'inicio', 'operadorId']);
+        const sessao = new WorkSession({ operadorId: id(), empilhadeiraId: id(), filialId: id(), inicio: new Date() });
+        expect(await erros(sessao)).toEqual([]);
+        expect(sessao.fim).toBeNull();
+    });
+
+    test('workSession: filialId tem índice e há índices únicos parciais de sessão aberta', () => {
+        const indices = WorkSession.schema.indexes();
+        expect(indices).toContainEqual([{ filialId: 1 }, expect.anything()]);
+        for (const campo of ['operadorId', 'empilhadeiraId']) {
+            expect(indices).toContainEqual([{ [campo]: 1 }, expect.objectContaining({ unique: true, partialFilterExpression: { fim: null } })]);
+        }
+    });
+
+    test('incident: origem padrão sensor, aceita funcionario e recusa outra', async () => {
+        const filialId = id();
+        expect(new Incident({ filialId }).origem).toBe('sensor');
+        expect(await erros(new Incident({ filialId, origem: 'funcionario' }))).toEqual([]);
+        expect(await erros(new Incident({ filialId, origem: 'outro' }))).toEqual(['origem']);
+    });
+
+    test('incident: descricao até 500 caracteres', async () => {
+        const filialId = id();
+        expect(await erros(new Incident({ filialId, descricao: 'a'.repeat(500) }))).toEqual([]);
+        expect(await erros(new Incident({ filialId, descricao: 'a'.repeat(501) }))).toEqual(['descricao']);
+    });
+});

@@ -11,7 +11,9 @@ const userSchema = new Schema({
     senhaHash: { type: String, select: false },
     empresaId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'company', required: true },
     escopo: { type: String, enum: ['empresa', 'filiais'], default: 'filiais' },
-    filiaisIds: [{ type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch' }]
+    filiaisIds: [{ type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch' }],
+    // Colaborador: o operator que ele é (quem retira a máquina). O user serve só para o login.
+    operadorId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'operator' }
 })
 
 export const User = conn.mongoose.model("user", userSchema)
