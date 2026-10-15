@@ -70,8 +70,11 @@ export async function seedData() {
     if (senha) {
         for (const c of COLABORADORES) {
             const filiaisIds = FILIAIS_DOS_COLABORADORES[c.usuario]!.map((nome) => filialIds.get(nome));
+            // Liga ao operator de mesmo nome; sem par, fica sem operadorId.
+            const operadorId = operadorIds.get(c.nome);
             await upsert(User, { usuario: c.usuario }, {
                 ...c, role: 'colaborador', senhaHash: gerarHashSenha(senha), empresaId, escopo: 'filiais', filiaisIds,
+                ...(operadorId !== undefined && { operadorId }),
             });
             colaboradores++;
         }

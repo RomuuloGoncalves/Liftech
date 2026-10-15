@@ -73,8 +73,10 @@ Consequência para quem consome a API: nessas rotas, mandar os outros campos inv
 * Sucesso `200`:
 
 ```json
-{ "token": "<jwt>", "user": { "_id": "<id>", "nome": "<nome>", "role": "admin" } }
+{ "token": "<jwt>", "user": { "_id": "<id>", "nome": "<nome>", "role": "admin", "operador": null } }
 ```
+
+* `user.operador`: `{ "_id", "nome" }` do operator ligado ao colaborador (`operadorId`), ou `null` (admin, colaborador sem ligação ou operator apagado).
 
 * O JWT leva `{ sub: <_id>, role }` e expira em `JWT_EXPIRES_IN` (padrão `8h`), assinado com `JWT_SECRET`.
 * Erros:
@@ -266,6 +268,30 @@ Regras do corpo: `nome` obrigatório no `POST`, cortado nas pontas, até 40 cara
 
 Erros: `400` corpo inválido; `403` escopo `filiais` em `POST`/`PUT`/`DELETE`; `404` categoria de outra empresa; `409` nome repetido na empresa (sem diferenciar maiúscula de minúscula) ou status já ligado a outra categoria.
 
+### Sessões de uso (`/api/sessions`)
+
+Sessão do operador ligado ao usuário (`operadorId`). Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null (máquina apagada), "operador": { "nome" }, "inicio": ISO, "fim": ISO ou null }`.
+
+| Método | Rota | Corpo / query | Sucesso |
+|--------|------|---------------|---------|
+| `GET` | `/api/sessions/atual` | | `200` com a sessão aberta ou `null` |
+| `POST` | `/api/sessions` | `{ "machineId": "<id>" }` | `201`; grava `operadorConectadoId` e `sessaoIniciadaEm` na máquina e aplica `em_uso` |
+| `PUT` | `/api/sessions/atual/encerrar` | | `200`; grava `fim`, limpa operador e início da máquina e aplica `disponivel` só se ela está `em_uso` |
+| `GET` | `/api/sessions` | `?from=YYYY-MM-DD&to=YYYY-MM-DD&machineId=<id>` | `200`, mais recente primeiro. Sem `machineId`, só as sessões do operador; com ela, as de qualquer operador da máquina no escopo |
+
+Erros: `400` `machineId` ausente ou não ObjectId, data fora de `YYYY-MM-DD`; `403` usuário sem operador ligado; `404` máquina fora do escopo; `409` máquina não `disponivel`, operador ou máquina com sessão aberta, ou nenhuma sessão aberta ao encerrar. `from` > `to` devolve `[]`. Os dias usam o fuso do servidor.
+
+### Incidentes (`/api/incidents`)
+
+Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null, "operador": { "nome" } ou null, "dataIncidente": ISO, "forcaImpacto": número ou null, "status", "origem": "sensor" ou "funcionario", "descricao": texto ou null }`.
+
+| Método | Rota | Corpo / query | Sucesso |
+|--------|------|---------------|---------|
+| `POST` | `/api/incidents` | `{ "horario"?: "HH:mm", "descricao"?: "até 500 caracteres" }` | `201`; incidente `pendente`, `origem: "funcionario"`, na máquina da sessão aberta, `dataIncidente` hoje no `horario` (ou agora); a máquina vai para `alerta` |
+| `GET` | `/api/incidents` | `?machineId=<id>&from=YYYY-MM-DD&to=YYYY-MM-DD` | `200`, incidentes das filiais do escopo, mais recente primeiro |
+
+Erros: `400` `horario`, `descricao`, `machineId` ou data inválidos; `403` usuário sem operador; `409` nenhuma sessão aberta. `from` > `to` devolve `[]`.
+
 ## 9. Scripts do Backend
 
 Todos rodam dentro de `Backend/` (`yarn <script>`). A conexão usa `MONGODB_URI` e `MONGODB_NAME` do `Backend/.env` (veja `Backend/.env.example` para a lista de variáveis).
@@ -286,7 +312,7 @@ Os seeds **escrevem no banco configurado no `.env`**. Quem roda é o dono do pro
 * 8 operadores, 16 dispositivos e 16 empilhadeiras (`EMP-081` a `EMP-096`), com o mesmo conteúdo do mock do Frontend.
 * 5 leituras de telemetria por dispositivo e 2 incidentes por empilhadeira, com datas fixas. Só `EMP-081`, `EMP-085` e `EMP-089` ficam em `alerta`, com 1 incidente pendente cada.
 * O quadro inicial de categorias da empresa, com as máquinas posicionadas pelo status.
-* 11 colaboradores (login pelo campo `usuario`, senha vinda de `SEED_COLABORADOR_SENHA`).
+* 11 colaboradores (login pelo campo `usuario`, senha vinda de `SEED_COLABORADOR_SENHA`). Cada um é ligado (`operadorId`) ao operator de mesmo nome; quem não tem par fica sem ligação.
 * 2 solicitações de acesso pendentes.
 
 É **idempotente**: cada registro é gravado com upsert pela chave natural (nome do operador, MAC do dispositivo, identificação da empilhadeira, par dispositivo/data na telemetria, par empilhadeira/data no incidente, `usuario` do colaborador, par email/status na solicitação). Rodar de novo atualiza em vez de duplicar. Exceção esperada: `sessaoIniciadaEm` das empilhadeiras é recalculada a partir do momento da execução, então `tempoSessaoMinutos` volta a ser o do dataset. A conexão é fechada ao final, mesmo se o seed falhar.

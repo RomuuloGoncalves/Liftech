@@ -169,8 +169,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Teste do seed: colaborador com operator de mesmo nome ganha `operadorId`; sem par fica sem
-- [ ] Build gate do Backend passa
+- [x] Teste do seed: colaborador com operator de mesmo nome ganha `operadorId`; sem par fica sem
+- [x] Build gate do Backend passa
 
 **Tests**: unit
 **Gate**: build
