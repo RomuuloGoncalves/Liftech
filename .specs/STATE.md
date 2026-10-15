@@ -85,10 +85,58 @@
   - 18 testes novos (`App.test.tsx` + 3 arquivos de página), suite completa (264 testes) + lint + build passando. Verificação visual feita por mim mesmo no Browser pane contra os 3 screenshots do Figma (sem subagente dedicado — o usuário pediu monitoramento visual e isso supriu a necessidade).
   - Ver `.specs/features/login-cadastro/spec.md` (14 ACs, AUTH-01..14, todas marcadas Verified).
 
+### AD-008: Empresas e filiais (modelo de acesso)
+- **Date**: 2026-10-13
+- **Status**: Approved (decisões do dono; specs B, C e D ainda não escritos)
+- **Context**: Hoje não existe empresa ou filial no backend (só `accessRequest.nomeEmpresa`), o JWT não é verificado em nenhuma rota e o `RepositoryBase` não filtra. O Figma tem o seletor de filial na Sidebar (frames `341:7064`, `341:7309`, `341:7804`), não no Header.
+- **Decision**:
+  - Dois eixos independentes: `role` (`admin` | `colaborador`) diz o que o usuário vê; o escopo diz onde atua.
+  - Coleções novas `company` e `branch` (`empresaId`; a matriz é uma filial com `matriz: true`).
+  - `user` ganha `empresaId`, `escopo: 'empresa' | 'filiais'` e `filiaisIds[]` (um usuário pode ter várias filiais). `escopo: 'filiais'` com lista vazia não vê nada.
+  - Recursos (forklift, device, operator, sector, incident) têm um único `filialId`; telemetria isola pelo device.
+  - O JWT continua só com `sub`; o middleware busca o usuário a cada requisição, e o escopo vem daí. O filtro entra no `RepositoryBase`.
+  - Criar recurso com várias filiais exige `filialId` no corpo, validado contra as filiais do usuário.
+  - Cada filial tem admin próprio; só o admin da empresa move máquina ou funcionário entre filiais. Mesmo banco, com `empresaId` nos documentos. O setor pertence a uma filial e substitui o texto `unidade`.
+  - Front: o seletor fica na Sidebar, com "Todas as filiais", listar, criar inline, renomear e excluir; "Gerenciar" e "Criar" só para `escopo: 'empresa'`. Linha "Nome da companhia" no rodapé da Sidebar.
+  - Reverte o Out of Scope "Proteção de rotas" de `auth-login`.
+- **Plano**: A `employee-nav-settings` (só front) → B `branches-model` → C `access-scope` → D `branches-frontend`.
+
+### AD-009: Visão Geral lendo a API e seeds (`machines-api`)
+- **Date**: 2026-10-13
+- **Status**: Approved, implementado e verificado (ver `.specs/features/machines-api/validation.md`)
+- **Context**: A Visão Geral lia o mock `MACHINES`; o backend não tinha rota que juntasse forklift, device e operator.
+- **Decision**:
+  - `GET /api/machines` (feature `machine`: service, controller, router) devolve o formato `Machine` do front; rota separada de `/api/forklifts`, sem auth até a feature de escopo.
+  - O schema `forklift` ganhou `nome`, `setor` e `sessaoIniciadaEm` (opcionais); `tempoSessaoMinutos` é calculado na resposta.
+  - `yarn seed:data` (`Backend/src/scripts/seedData.ts`, dados em `seedDataset.ts`) faz upsert por chave natural em operator, device, forklift, telemetry, incident, user (colaboradores, senha em `SEED_COLABORADOR_SENHA`) e accessRequest, e chama o `seedAdmin`. O dono executa o seed; os testes usam models mockados.
+  - A Visão Geral busca as máquinas com skeleton, erro e nova tentativa; cadastrar, editar e excluir seguem só em memória; o histórico do detalhe segue mock, casado pela `identificacao`.
+  - Frota, Equipe, Alertas e as telas do funcionário seguem em mock.
+
+### AD-010: Filiais, escopo de acesso, skeletons e área do funcionário implementados
+- **Date**: 2026-10-13
+- **Status**: Implementado na branch `feature/visao-geral-api-e-seeds`; verificação independente **incompleta** (ver Handoff)
+- **Decision**:
+  - Implementados conforme AD-008: `branches-model` e `access-scope` (Backend), `branches-frontend`, `employee-nav-settings` e `skeleton-fidelity` (Frontend); specs em `.specs/features/<feature>/`.
+  - Todas as rotas `/api/*` exigem `Authorization: Bearer`, exceto `POST /api/auth/login`, `POST /api/access-requests`, `GET /api/health` e `GET /`; o escopo vem do usuário relido do banco a cada requisição.
+  - `PUT /api/users/:id` aceita só campos permitidos (sem `senhaHash`, `email`, `usuario`, chaves `$`).
+  - `yarn test` no Backend roda só os testes unitários; `yarn test:integration` toca o banco.
+  - Reverte o Out of Scope "Proteção de rotas" da spec `auth-login`.
+
+### AD-011: Status da máquina e categorias da Frota (`fleet-categories`)
+- **Date**: 2026-10-15
+- **Status**: Implementado e verificado (PASS em `.specs/features/fleet-categories/validation.md`)
+- **Context**: O status era texto livre em `device.status`, escrito só pelo seed, e as categorias da Frota viviam só em memória, nascendo do status.
+- **Decision**:
+  - O status é da máquina (`forklift.status`), com os códigos `disponivel`, `em_uso`, `manutencao`, `alerta`, `offline`. Muda por leitura do dispositivo (o backend decide: `forcaImpacto >= LIMITE_IMPACTO` vira `alerta` e cria incidente pendente) ou à mão. Toda mudança passa por `aplicarStatus`.
+  - Categorias pertencem à empresa (coleção `category`) e podem ligar status (`statusVinculados`, um status por categoria). Mudança de status leva a máquina destravada para a categoria ligada; `categoriaTravada` impede. Mover à mão não muda status.
+  - Só escopo empresa gerencia categorias; qualquer usuário do escopo move, trava e troca status.
+  - `device.status` deixa de ser lido pela API; `PUT /api/forklifts/:id` recusa campos de status e categoria.
+  - Fica para a feature seguinte: sessão do funcionário e ocorrência no backend; também fora: autenticação do dispositivo e offline por heartbeat.
+
 ## Handoff Snapshot
-- **Current Phase**: Execute da feature "Telas de Login e Cadastro" concluído (todas as 14 ACs implementadas e verificadas manualmente: testes + lint + build + checagem visual no browser contra o Figma).
-- **Next Phase**: Nenhuma ação pendente desta feature. Possível próximo passo (não iniciado): backend real de autenticação, hoje fora de escopo (ver Out of Scope em `login-cadastro/spec.md`).
-- **Files changed (uncommitted)**: `Frontend/src/App.tsx`, `Frontend/src/routes/appRoutes.tsx`, `Frontend/src/locales/*/translation.json` (7 arquivos, namespace `auth` novo), `Frontend/src/components/auth/` (novo: `AuthLayout.tsx`, `AuthLayout.module.css`, `AuthField.tsx`, `AuthForm.module.css`), `Frontend/src/pages/{LoginAdminPage,LoginColaboradorPage,SolicitarAcessoPage}.tsx`, `Frontend/src/test/App.test.tsx`, `Frontend/src/test/pages/{LoginAdminPage,LoginColaboradorPage,SolicitarAcessoPage}.test.tsx`, `.specs/features/login-cadastro/spec.md`, `.specs/STATE.md`.
-- **Não commitado de propósito**: regra do projeto (`CLAUDE.md`) proíbe `git commit` nesta sessão; o usuário revisa e commita manualmente.
-- **Mudanças não relacionadas no working tree (não minhas, não tocadas)**: `Backend/src/feature/user/*`, `Backend/src/models/userModel.ts`, `Backend/tests/unit/userService.test.ts`, `Backend/tests/integration/feature/user/user.test.ts` — alterados por outro processo durante esta sessão, fora do escopo desta feature.
-- **Test suite**: 264 testes passando (Frontend), lint limpo, build de produção ok. Backend não testado nesta sessão (fora de escopo).
+- **Branch**: `feature/fleet-categories` (local, nada enviado ao remoto, sem PR), a partir da `main`.
+- **Feature**: `fleet-categories` concluída (T1–T28) e verificada: PASS, 10/10 mutantes mortos.
+- **Gate final**: Backend `tsc --noEmit` limpo e 535 testes unitários; Frontend `tsc -b` e `eslint .` limpos e 1200 testes. O Frontend precisa do Node 24+ (o v20 quebra o vitest).
+- **Pendente para o dono**: rodar `yarn migrate:status` (ou `yarn seed:data` em dev) e definir `LIMITE_IMPACTO` no `.env` se 5 não servir; revisar o filtro de data da linha Acidentes (usa `alertaEm`, fim padrão = maior entre 2026-07-14 e hoje).
+- **Próxima feature**: sessão do funcionário e ocorrência no backend (decisão do dono); autenticação do dispositivo IoT e offline por heartbeat seguem fora.
+- **Achados anteriores ainda não tratados**: ver histórico do AD-010 (traduções `employee.*`, plurais de `fleet.*`, contraste, foco, testes duplicados).

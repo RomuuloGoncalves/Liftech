@@ -2,18 +2,12 @@ import React from 'react'
 import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
+import StatusBadge from './StatusBadge'
 import styles from './MachineCard.module.css'
 
 interface MachineCardProps {
   machine: Machine
   onOpen?: (machine: Machine) => void
-}
-
-const STATUS_CLASS: Record<Machine['dispositivoConectado']['status'], string> = {
-  Disponível: styles.statusAvailable,
-  'Em uso': styles.statusInUse,
-  Manutenção: styles.statusMaintenance,
-  Offline: styles.statusOffline,
 }
 
 function formatTempoSessao(minutos: number): string {
@@ -23,13 +17,6 @@ function formatTempoSessao(minutos: number): string {
 const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
   const { t } = useTranslation()
   const { identificacao, nome, setor, dispositivoConectado, tempoSessaoMinutos } = machine
-
-  const getStatusTranslation = (status: string) => {
-    if (status === 'Disponível') return t('machines.statusAvailable')
-    if (status === 'Em uso') return t('machines.statusInUse')
-    if (status === 'Manutenção' || status === 'Em manutenção') return t('machines.statusMaintenance')
-    return status
-  }
 
   return (
     <article className={styles.card}>
@@ -70,9 +57,7 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
       </dl>
 
       <div className={styles.bottomRow}>
-        <span className={`${styles.statusBadge} ${STATUS_CLASS[dispositivoConectado.status]}`}>
-          {getStatusTranslation(dispositivoConectado.status)}
-        </span>
+        <StatusBadge status={machine.status} />
         <span className={styles.session}>
           {t('machines.sessionTime')} <strong>{formatTempoSessao(tempoSessaoMinutos)}</strong>
         </span>

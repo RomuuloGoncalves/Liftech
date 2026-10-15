@@ -2,8 +2,10 @@ import { pathToFileURL } from 'node:url';
 import { User } from '../schemas/user.js';
 import { gerarHashSenha } from '../utils/senha.js';
 import { logger } from '../utils/logger.js';
+import { garantirEmpresa } from './seedEmpresa.js';
 
-export async function seedAdmin(): Promise<void> {
+// Sem `empresaId` (yarn seed, --seed), garante a empresa padrão e a matriz antes de criar o admin.
+export async function seedAdmin(empresaId?: unknown): Promise<void> {
     const { SEED_ADMIN_EMAIL, SEED_ADMIN_SENHA: senha, SEED_ADMIN_NOME: nome } = process.env;
     if (!SEED_ADMIN_EMAIL || !senha || !nome) {
         logger.warn('Seed do admin ignorado: defina SEED_ADMIN_EMAIL, SEED_ADMIN_SENHA e SEED_ADMIN_NOME.');
@@ -11,12 +13,14 @@ export async function seedAdmin(): Promise<void> {
     }
 
     const email = SEED_ADMIN_EMAIL.trim().toLowerCase();
+    const acesso = { empresaId: empresaId ?? (await garantirEmpresa()).empresaId, escopo: 'empresa' as const };
     if (await User.findOne({ email }).lean()) {
-        logger.info(`Admin ${email} já existe, seed ignorado.`);
+        await User.updateOne({ email }, { $set: acesso });
+        logger.info(`Admin ${email} já existe, escopo de empresa atualizado.`);
         return;
     }
 
-    await User.create({ nome, email, role: 'admin', senhaHash: gerarHashSenha(senha) });
+    await User.create({ nome, email, role: 'admin', ...acesso, senhaHash: gerarHashSenha(senha) });
     logger.info(`Admin ${email} criado.`);
 }
 

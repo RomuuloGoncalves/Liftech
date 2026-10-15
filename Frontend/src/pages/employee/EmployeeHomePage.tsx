@@ -5,8 +5,8 @@ import { ArrowRight, Clock } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
-import { LAST_MACHINE_USAGE, filterAvailableMachines } from '../../data/employeeArea'
-import { MACHINES } from '../../data/machines'
+import { filterAvailableMachines } from '../../data/employeeArea'
+import { useEmployeeData } from '../../hooks/useEmployeeData'
 import { formatAlertDate } from '../../utils/format'
 import styles from './EmployeeHomePage.module.css'
 
@@ -16,7 +16,9 @@ const EmployeeHomePage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const loading = useFirstVisitLoading('employee-home')
-  const available = filterAvailableMachines(MACHINES, '').slice(0, MAX_CARDS)
+  const { machines, records } = useEmployeeData()
+  const available = filterAvailableMachines(machines, '').slice(0, MAX_CARDS)
+  const last = records.find((record) => record.maquina)
 
   if (loading) {
     return (
@@ -33,23 +35,25 @@ const EmployeeHomePage: React.FC = () => {
         <p className={styles.subtitle}>{t('employee.home.subtitle')}</p>
       </header>
 
-      <section className={styles.last} aria-label={t('employee.home.lastMachine')}>
-        <div className={styles.banner}>
-          <Clock size={14} aria-hidden="true" />
-          <span className={styles.bannerText}>{t('employee.home.lastMachine')}</span>
-          <ArrowRight size={14} aria-hidden="true" />
-        </div>
-        <div className={styles.lastCard}>
-          <div className={styles.lastNames}>
-            <p className={styles.lastName}>{LAST_MACHINE_USAGE.nome}</p>
-            <p className={styles.lastId}>{LAST_MACHINE_USAGE.identificacao}</p>
+      {last?.maquina && (
+        <section className={styles.last} aria-label={t('employee.home.lastMachine')}>
+          <div className={styles.banner}>
+            <Clock size={14} aria-hidden="true" />
+            <span className={styles.bannerText}>{t('employee.home.lastMachine')}</span>
+            <ArrowRight size={14} aria-hidden="true" />
           </div>
-          <div className={styles.lastMeta}>
-            <p className={styles.lastDate}>{formatAlertDate(LAST_MACHINE_USAGE.date, i18n.language)}</p>
-            <p className={styles.lastId}>{t('employee.home.totalTime')}</p>
+          <div className={styles.lastCard}>
+            <div className={styles.lastNames}>
+              <p className={styles.lastName}>{last.maquina.nome}</p>
+              <p className={styles.lastId}>{last.maquina.identificacao}</p>
+            </div>
+            <div className={styles.lastMeta}>
+              <p className={styles.lastDate}>{formatAlertDate(last.date, i18n.language)}</p>
+              <p className={styles.lastId}>{t('employee.home.totalTime')}</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <div className={styles.stats}>
         <div className={styles.stat}>

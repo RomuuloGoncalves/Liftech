@@ -41,12 +41,12 @@ describe('MachineListCard styles', () => {
   })
 
   it.each([
-    ['.available', '--green-bg', '--green'],
-    ['.inUse', '--blue-bg', '--blue'],
-    ['.maintenance', '--yellow-bg', '--yellow'],
+    ['.disponivel', '--green-bg', '--green'],
+    ['.em_uso', '--blue-bg', '--blue'],
+    ['.manutencao', '--yellow-bg', '--yellow'],
     ['.offline', '--gray-bg', '--black-text'],
-  ])('%s chip uses %s and %s', (selector, bg, color) => {
-    const rule = block(css, selector)
+  ])('%s chip uses %s and %s from the shared StatusBadge', (selector, bg, color) => {
+    const rule = block(readFileSync(resolve(dir, '../machines/StatusBadge.module.css'), 'utf8'), selector)
     expect(rule).toContain(`background: var(${bg})`)
     expect(rule).toContain(`color: var(${color})`)
   })

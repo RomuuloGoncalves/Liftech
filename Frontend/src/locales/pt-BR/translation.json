@@ -8,7 +8,8 @@
     "save": "Salvar",
     "close": "Fechar",
     "loading": "Carregando...",
-    "closeNotification": "Fechar aviso"
+    "closeNotification": "Fechar aviso",
+    "retry": "Tentar novamente"
   },
   "navigation": {
     "overview": "Visão Geral",
@@ -33,6 +34,7 @@
     "operator": "Operador",
     "noOperator": "Sem operador",
     "emptyState": "Nenhuma máquina encontrada",
+    "loadError": "Não foi possível carregar as máquinas.",
     "newMachineTitle": "Nova Máquina",
     "newMachineSubtitle": "Cadastre uma nova empilhadeira para a sua frota.",
     "labelId": "ID",
@@ -64,7 +66,15 @@
     "openDetails": "Ver detalhes de {{name}}",
     "toastCreated": "Máquina \"{{name}}\" cadastrada",
     "toastSaved": "Máquina \"{{name}}\" salva",
-    "toastDeleted": "Máquina \"{{name}}\" excluída"
+    "toastDeleted": "Máquina \"{{name}}\" excluída",
+    "status": {
+      "disponivel": "Disponível",
+      "em_uso": "Em uso",
+      "manutencao": "Em manutenção",
+      "alerta": "Alerta",
+      "offline": "Offline"
+    },
+    "changeStatus": "Alterar status"
   },
   "alerts": {
     "accidents": "Acidentes",
@@ -238,7 +248,14 @@
     "toastCategoryCreated": "Categoria \"{{name}}\" criada",
     "toastCategoryDeleted": "Categoria \"{{name}}\" excluída",
     "toastMachinesAdded": "Máquinas adicionadas a \"{{name}}\"",
-    "toastMachineRemoved": "{{name}} removida da categoria"
+    "toastMachineRemoved": "{{name}} removida da categoria",
+    "lock": "Travar",
+    "unlock": "Destravar",
+    "editCategory": "Editar categoria",
+    "linkedStatus": "Status vinculados",
+    "statusTaken": "Já ligado a outra categoria",
+    "saveError": "Não foi possível salvar. Tente novamente.",
+    "noCategories": "Nenhuma categoria cadastrada"
   },
   "employee": {
     "sessionBar": {
@@ -247,8 +264,7 @@
     "nav": {
       "overview": "Visão geral",
       "machines": "Empilhadeiras",
-      "history": "Histórico",
-      "incident": "Ocorrência"
+      "history": "Histórico"
     },
     "common": {
       "available": "Disponível",
@@ -302,7 +318,9 @@
       "description": "O <b>registro do tempo de utilização</b> já está em andamento. Ao finalizar, lembre-se de <b>encerrar a operação</b>.",
       "timerLabel": "Tempo de sessão",
       "end": "Encerrar Sessão",
-      "reportIncident": "Reportar uma ocorrência"
+      "reportIncident": "Reportar uma ocorrência",
+      "startError": "Não foi possível iniciar a sessão. Tente novamente.",
+      "endError": "Não foi possível encerrar a sessão. Tente novamente."
     },
     "history": {
       "title": "Histórico",
@@ -328,12 +346,40 @@
       "cancel": "Cancelar",
       "submit": "Enviar ocorrência",
       "required": "Campo obrigatório",
-      "toastSent": "Ocorrência enviada com sucesso"
+      "toastSent": "Ocorrência enviada com sucesso",
+      "sendError": "Não foi possível enviar a ocorrência. Tente novamente."
     },
     "settings": {
       "title": "Configurações",
-      "close": "Fechar"
+      "close": "Fechar",
+      "general": "Geral",
+      "userData": "Dados do usuário",
+      "name": "Nome",
+      "phone": "Telefone",
+      "position": "Cargo",
+      "changeNoticeTitle": "Solicitação de alteração",
+      "changeNotice": "Para alterar seus dados, solicite a mudança ao supervisor responsável.",
+      "logout": "Deslogar-se",
+      "feedbackTitle": "Feedback & Sugestões",
+      "feedbackQuestion": "Como foi sua experiência?",
+      "privacy": "Política e Privacidade"
     }
+  },
+  "branches": {
+    "label": "Filiais",
+    "all": "Todas as filiais",
+    "manage": "Gerenciar Filiais",
+    "doneManaging": "Concluir",
+    "create": "Criar Filial",
+    "nameLabel": "Nome da filial",
+    "confirm": "Confirmar",
+    "rename": "Renomear {{name}}",
+    "remove": "Excluir {{name}}",
+    "deleteTitle": "Excluir filial",
+    "deleteMessage": "Deseja excluir a filial {{name}}?",
+    "saveError": "Não foi possível salvar a filial.",
+    "deleteError": "Não foi possível excluir a filial.",
+    "deleteBlocked": "Não foi possível excluir: a filial é a matriz ou ainda tem recursos."
   },
   "notFound": {
     "description": "A página que você está procurando não existe ou foi movida.",

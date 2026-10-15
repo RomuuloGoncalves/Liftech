@@ -7,7 +7,8 @@ describe('Integração: Mongoose Schema - Device', () => {
     test('Criação de device', async () => {
         const device = new Device({ 
             enderecoMac: '00:1B:44:11:3A:B7', 
-            status: 'ativo' 
+            status: 'ativo',
+            filialId: new conn.mongoose.Types.ObjectId()
         });
         const deviceSalvo = await device.save();
 

@@ -13,7 +13,7 @@ import styles from './EmployeeSessionPage.module.css'
 const EmployeeSessionPage: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { session, end, elapsedSeconds } = useWorkSession()
+  const { session, ready, end, elapsedSeconds } = useWorkSession()
   const loading = useFirstVisitLoading('employee-session')
 
   const [ending, setEnding] = useState(false)
@@ -29,14 +29,16 @@ const EmployeeSessionPage: React.FC = () => {
     return () => cancelAnimationFrame(frame)
   }, [session, loading])
 
+  if (!ready) return <EmployeeSkeleton variant="session" />
+
   if (!session) return ending ? null : <Navigate to="/funcionario/maquinas" replace />
 
   if (loading) return <EmployeeSkeleton variant="session" />
 
-  const endSession = () => {
+  const endSession = async () => {
     setEnding(true)
-    end()
-    navigate('/funcionario')
+    if (await end()) navigate('/funcionario')
+    else setEnding(false)
   }
 
   return (
@@ -52,7 +54,7 @@ const EmployeeSessionPage: React.FC = () => {
         {formatElapsed(elapsedSeconds)}
       </div>
       <div className={styles.actions}>
-        <button type="button" className={`${styles.button} ${styles.end}`} onClick={endSession}>
+        <button type="button" className={`${styles.button} ${styles.end}`} onClick={endSession} disabled={ending}>
           {t('employee.session.end')}
           <ArrowRight size={16} aria-hidden="true" />
         </button>

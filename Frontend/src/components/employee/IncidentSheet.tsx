@@ -2,8 +2,8 @@ import React, { useId, useState } from 'react'
 import { ArrowRight, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../common/Toast'
-import { EMPLOYEE_NAME } from '../../data/employeeArea'
-import { MACHINES } from '../../data/machines'
+import { authService } from '../../services/authService'
+import { incidentService } from '../../services/incidentService'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import { useWorkSession } from '../../hooks/useWorkSession'
 import BottomSheet from './BottomSheet'
@@ -21,13 +21,15 @@ type Values = Record<FieldName, string>
 
 const FIELDS: FieldName[] = ['name', 'sector', 'machine', 'time']
 
-const IncidentForm: React.FC<{ formId: string; onSubmitted: () => void }> = ({ formId, onSubmitted }) => {
+const IncidentForm: React.FC<{ formId: string; onSubmitted: (time: string) => void }> = ({ formId, onSubmitted }) => {
   const { t } = useTranslation()
   const { session } = useWorkSession()
   const baseId = useId()
   const [values, setValues] = useState<Values>(() => {
-    const machine = session ? MACHINES.find((item) => item.id === session.machineId) : undefined
-    return { name: EMPLOYEE_NAME, sector: machine?.setor ?? '', machine: machine?.nome ?? '', time: '' }
+    const machine = session?.maquina
+    const user = authService.getSession()
+    const name = user?.operador?.nome || user?.nome || ''
+    return { name, sector: machine?.setor ?? '', machine: machine?.nome ?? '', time: '' }
   })
   const [invalid, setInvalid] = useState<FieldName[]>([])
 
@@ -47,7 +49,7 @@ const IncidentForm: React.FC<{ formId: string; onSubmitted: () => void }> = ({ f
     event.preventDefault()
     const missing = FIELDS.filter((field) => values[field].trim() === '')
     setInvalid(missing)
-    if (missing.length === 0) onSubmitted()
+    if (missing.length === 0) onSubmitted(values.time)
   }
 
   return (
@@ -89,17 +91,24 @@ const IncidentForm: React.FC<{ formId: string; onSubmitted: () => void }> = ({ f
   )
 }
 
-const IncidentBody: React.FC<{ formId: string; onSubmitted: () => void }> = (props) => {
+const IncidentBody: React.FC<{ formId: string; onSubmitted: (time: string) => void }> = (props) => {
   const loading = useFirstVisitLoading('employee-incident')
-  return loading ? <EmployeeSkeleton variant="form" buttons={false} /> : <IncidentForm {...props} />
+  const { ready } = useWorkSession()
+  return loading || !ready ? <EmployeeSkeleton variant="form" buttons={false} /> : <IncidentForm {...props} />
 }
 
 const IncidentSheet: React.FC<IncidentSheetProps> = ({ open, onClose, onSubmitted }) => {
   const { t } = useTranslation()
-  const { show } = useToast()
+  const { show, showError } = useToast()
   const formId = useId()
 
-  const handleSubmitted = () => {
+  const handleSubmitted = async (horario: string) => {
+    try {
+      await incidentService.reportar({ horario })
+    } catch {
+      showError(t('employee.incident.sendError'))
+      return
+    }
     show(t('employee.incident.toastSent'))
     onSubmitted?.()
     onClose()

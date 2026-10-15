@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Sidebar from '../../../components/layout/Sidebar'
+import { ActiveBranchProvider } from '../../../context/ActiveBranchContext'
 import styles from '../../../components/layout/Sidebar.module.css'
 
 const STORAGE_KEY = 'liftech.sidebar.collapsed'
@@ -230,5 +231,91 @@ describe('Sidebar component', () => {
     expect(screen.queryByRole('button', { name: /abrir menu/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /fechar menu/i })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /colapsar menu/i })).toBeInTheDocument()
+  })
+})
+
+describe('Sidebar branch selector and company', () => {
+  const user = {
+    _id: 'u1',
+    nome: 'Ana',
+    role: 'admin',
+    empresa: { _id: 'e1', nome: 'Acme Logística' },
+    escopo: 'empresa',
+    filiais: [
+      { _id: 'f1', nome: 'Filial 01', matriz: true },
+      { _id: 'f2', nome: 'Filial 02', matriz: false },
+    ],
+  }
+
+  const renderWithSession = () =>
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <ActiveBranchProvider>
+          <Sidebar />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    setViewportWidth(DESKTOP_WIDTH)
+  })
+
+  it('shows the branch selector between the logo and the pages list when there is a session', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    const selector = screen.getByRole('button', { name: /Filiais/ })
+    expect(selector).toHaveTextContent('Todas as filiais')
+    const logo = screen.getByAltText('Liftech')
+    const pages = screen.getByText('Páginas')
+    expect(logo.compareDocumentPosition(selector) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(selector.compareDocumentPosition(pages) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('shows neither the selector nor the company row without a session', () => {
+    renderWithSession()
+
+    expect(screen.queryByRole('button', { name: /Filiais/ })).not.toBeInTheDocument()
+    expect(screen.queryByText('Acme Logística')).not.toBeInTheDocument()
+  })
+
+  it('shows a user icon and the company name in the footer', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    const company = screen.getByText('Acme Logística')
+    expect(company.parentElement?.querySelector('svg')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /feedback & sugestões/i }).parentElement).toContainElement(company)
+  })
+
+  it('shows only the icon, named by aria-label and title, when collapsed', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    expect(screen.queryByText('Acme Logística')).not.toBeInTheDocument()
+    const company = screen.getByRole('img', { name: 'Acme Logística' })
+    expect(company).toHaveAttribute('aria-label', 'Acme Logística')
+    expect(company).toHaveAttribute('title', 'Acme Logística')
+    expect(company.querySelector('svg')).toBeInTheDocument()
+  })
+
+  it('collapses the selector to the branch initial when the sidebar is collapsed', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    expect(screen.getByRole('button', { name: 'Todas as filiais' })).toHaveTextContent(/^T$/)
+  })
+
+  it('keeps a single list on the page, the navigation one', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+    fireEvent.click(screen.getByRole('button', { name: /Filiais/ }))
+
+    expect(screen.getAllByRole('list')).toHaveLength(1)
   })
 })

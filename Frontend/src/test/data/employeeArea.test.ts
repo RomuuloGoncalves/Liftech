@@ -1,18 +1,21 @@
-import { describe, expect, it } from 'vitest'
 import {
-  LAST_MACHINE_USAGE,
-  USAGE_HISTORY,
-  WORK_SHIFT,
   filterAvailableMachines,
   filterUsageHistory,
-  findAvailableMachine,
+  formatDuration,
+  toUsageRecord,
   type UsageRecord,
 } from '../../data/employeeArea'
 import { MACHINES } from '../../data/machines'
 
+const maquinaOf = (machineId: string) => {
+  const machine = MACHINES.find((item) => item.id === machineId)!
+  return { nome: machine.nome, identificacao: machine.identificacao, setor: machine.setor }
+}
+
 const record = (overrides: Partial<UsageRecord>): UsageRecord => ({
   id: 'r',
   machineId: '1',
+  maquina: maquinaOf(overrides.machineId ?? '1'),
   operatorName: 'Alexandre Gomes',
   date: '2025-09-14',
   start: '08:00:00',
@@ -21,22 +24,44 @@ const record = (overrides: Partial<UsageRecord>): UsageRecord => ({
   ...overrides,
 })
 
-describe('employee mock data', () => {
-  it('matches the Figma shift and last machine', () => {
-    expect(WORK_SHIFT).toEqual({ start: '08:00', end: '17:00', dailyHours: 8, remainingHours: 4 })
-    expect(LAST_MACHINE_USAGE.identificacao).toBe('EMP-084')
-    expect(LAST_MACHINE_USAGE.nome).toBe('Empilhadeira elétrica Tital-X')
-    expect(LAST_MACHINE_USAGE.date).toBe('2026-09-05')
+describe('toUsageRecord', () => {
+  const sessao = {
+    _id: 's1',
+    machineId: '1',
+    maquina: maquinaOf('1'),
+    operador: { nome: 'Carlos Silva' },
+    inicio: new Date('2025-09-14T14:35:25').toISOString(),
+    fim: new Date('2025-09-14T16:35:20').toISOString(),
+  }
+
+  it('converts an API session to a record in local date and time', () => {
+    expect(toUsageRecord(sessao)).toEqual({
+      id: 's1',
+      machineId: '1',
+      maquina: maquinaOf('1'),
+      operatorName: 'Carlos Silva',
+      date: '2025-09-14',
+      start: '14:35:25',
+      end: '16:35:20',
+      durationLabel: '2h 00min',
+    })
   })
 
-  it('has usage records of Alexandre Gomes on 2025-09-14 pointing to real machines', () => {
-    expect(USAGE_HISTORY.some((item) => item.date === '2025-09-14')).toBe(true)
-    USAGE_HISTORY.forEach((item) => {
-      expect(item.operatorName).toBe('Alexandre Gomes')
-      expect(item.start).toMatch(/^\d{2}:\d{2}:\d{2}$/)
-      expect(item.end).toMatch(/^\d{2}:\d{2}:\d{2}$/)
-      expect(MACHINES.some((machine) => machine.id === item.machineId)).toBe(true)
-    })
+  it('counts an open session until now and keeps a deleted machine as null', () => {
+    const now = new Date('2025-09-14T15:20:25').getTime()
+    const result = toUsageRecord({ ...sessao, maquina: null, fim: null }, now)
+    expect(result.end).toBe('')
+    expect(result.durationLabel).toBe('45min')
+    expect(result.maquina).toBeNull()
+  })
+})
+
+describe('formatDuration', () => {
+  it('formats minutes as hours and padded minutes', () => {
+    expect(formatDuration(45)).toBe('45min')
+    expect(formatDuration(90)).toBe('1h 30min')
+    expect(formatDuration(119.9)).toBe('2h 00min')
+    expect(formatDuration(-3)).toBe('0min')
   })
 })
 
@@ -44,16 +69,20 @@ describe('filterAvailableMachines', () => {
   it('returns only machines with status Disponível', () => {
     const result = filterAvailableMachines(MACHINES, '')
     expect(result.length).toBeGreaterThan(0)
-    result.forEach((machine) => expect(machine.dispositivoConectado.status).toBe('Disponível'))
-    expect(result).toHaveLength(MACHINES.filter((m) => m.dispositivoConectado.status === 'Disponível').length)
+    result.forEach((machine) => expect(machine.status).toBe('disponivel'))
+    expect(result).toHaveLength(MACHINES.filter((m) => m.status === 'disponivel').length)
   })
 
   it('searches name, identificacao and sector ignoring case', () => {
-    expect(filterAvailableMachines(MACHINES, 'emp-085').map((m) => m.id)).toEqual(['5'])
+    expect(filterAvailableMachines(MACHINES, 'emp-083').map((m) => m.id)).toEqual(['3'])
     expect(filterAvailableMachines(MACHINES, 'ATLAS').every((m) => m.nome.includes('Atlas'))).toBe(true)
     expect(filterAvailableMachines(MACHINES, 'armazenagem').map((m) => m.setor)).toEqual(
       expect.arrayContaining(['Armazenagem - Bloco C'])
     )
+  })
+
+  it('does not offer a machine in alerta', () => {
+    expect(filterAvailableMachines(MACHINES, 'EMP-081')).toEqual([])
   })
 
   it('does not return unavailable machines even when the query matches them', () => {
@@ -62,17 +91,6 @@ describe('filterAvailableMachines', () => {
 
   it('returns an empty list when nothing matches', () => {
     expect(filterAvailableMachines(MACHINES, 'zzz')).toEqual([])
-  })
-})
-
-describe('findAvailableMachine', () => {
-  it('finds an available machine by id', () => {
-    expect(findAvailableMachine('1')?.identificacao).toBe('EMP-081')
-  })
-
-  it('returns undefined for unknown ids and for unavailable machines', () => {
-    expect(findAvailableMachine('999')).toBeUndefined()
-    expect(findAvailableMachine('2')).toBeUndefined()
   })
 })
 
@@ -102,6 +120,10 @@ describe('filterUsageHistory', () => {
     expect(ids(filterUsageHistory(records, { startTime: '10:00' }))).toEqual(['b', 'c'])
     expect(ids(filterUsageHistory(records, { endTime: '10:30' }))).toEqual(['a', 'b'])
     expect(ids(filterUsageHistory(records, { startTime: '08:00', endTime: '08:00' }))).toEqual(['a'])
+  })
+
+  it('never matches a record whose machine was deleted', () => {
+    expect(filterUsageHistory([record({ maquina: null })], { machineQuery: 'emp' })).toEqual([])
   })
 
   it('filters by machine query ignoring case', () => {

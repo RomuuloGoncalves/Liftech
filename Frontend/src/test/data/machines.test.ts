@@ -4,11 +4,55 @@ import {
   DEFAULT_PERIOD,
   MACHINE_EVENTS,
   MACHINES,
+  MACHINE_STATUSES,
+  eventUrgency,
   eventsForMachine,
   filterEvents,
   filterMachines,
+  incidentToEvent,
   type MachineEvent,
 } from '../../data/machines'
+import type { Incidente } from '../../services/incidentService'
+
+describe('incidentToEvent', () => {
+  const incident: Incidente = {
+    _id: 'i1',
+    machineId: 'm1',
+    maquina: { nome: 'Titan-X', identificacao: 'EMP-081', setor: 'Expedição' },
+    operador: { nome: 'Carlos Silva' },
+    dataIncidente: new Date('2026-10-15T09:30:05').toISOString(),
+    forcaImpacto: 3.2,
+    status: 'pendente',
+    origem: 'sensor',
+    descricao: null,
+  }
+
+  it('turns a sensor incident into an accident caused by a collision, in local date and time', () => {
+    const event = incidentToEvent(incident)
+    expect(event).toEqual({
+      id: 'i1',
+      machineId: 'm1',
+      tipo: 'acidente',
+      operador: 'Carlos Silva',
+      data: '2026-10-15',
+      inicio: '09:30:05',
+      fim: '09:30:05',
+      causa: 'colisao',
+    })
+    expect(eventUrgency(event)).toBe('alta')
+  })
+
+  it('leaves a collaborator report without cause, with urgency alta, and no operator as empty', () => {
+    const event = incidentToEvent({ ...incident, origem: 'funcionario', operador: null })
+    expect(event.causa).toBeUndefined()
+    expect(event.operador).toBe('')
+    expect(eventUrgency(event)).toBe('alta')
+  })
+
+  it('keeps the cause urgency for mock events', () => {
+    expect(eventUrgency({ ...incidentToEvent(incident), causa: 'tombamento' })).toBe('critica')
+  })
+})
 
 describe('MACHINES mock dataset', () => {
   it('has 16 machines, each with identificacao, setor and device data', () => {
@@ -17,8 +61,17 @@ describe('MACHINES mock dataset', () => {
       expect(machine.identificacao).toBeTruthy()
       expect(machine.setor).toBeTruthy()
       expect(machine.dispositivoConectado.enderecoMac).toBeTruthy()
-      expect(machine.dispositivoConectado.status).toBeTruthy()
+      expect(MACHINE_STATUSES).toContain(machine.status)
+      expect(machine).not.toHaveProperty('dispositivoConectado.status')
     })
+  })
+
+  it('puts EMP-081, EMP-085 and EMP-089 in alerta, like the backend seed', () => {
+    expect(MACHINES.filter((m) => m.status === 'alerta').map((m) => m.identificacao)).toEqual(['EMP-081', 'EMP-085', 'EMP-089'])
+  })
+
+  it('lists the 5 status codes', () => {
+    expect(MACHINE_STATUSES).toEqual(['disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])
   })
 })
 
@@ -46,17 +99,21 @@ describe('filterMachines', () => {
     expect(cleared).toHaveLength(MACHINES.length)
   })
 
+  it('filters by alerta', () => {
+    expect(filterMachines(MACHINES, { status: 'alerta' }).map((m) => m.id)).toEqual(['1', '5', '9'])
+  })
+
   it('filters by status', () => {
-    const result = filterMachines(MACHINES, { status: 'Manutenção' })
+    const result = filterMachines(MACHINES, { status: 'manutencao' })
     expect(result.length).toBeGreaterThan(0)
-    result.forEach((machine) => expect(machine.dispositivoConectado.status).toBe('Manutenção'))
+    result.forEach((machine) => expect(machine.status).toBe('manutencao'))
   })
 
   it('combines query and status filters', () => {
-    const result = filterMachines(MACHINES, { query: 'bloco b', status: 'Disponível' })
+    const result = filterMachines(MACHINES, { query: 'bloco b', status: 'disponivel' })
     result.forEach((machine) => {
       expect(machine.setor.toLowerCase()).toContain('bloco b')
-      expect(machine.dispositivoConectado.status).toBe('Disponível')
+      expect(machine.status).toBe('disponivel')
     })
   })
 

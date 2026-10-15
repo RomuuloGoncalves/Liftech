@@ -5,7 +5,7 @@ import { conn } from '../../../../src/config/conn.js';
 describe('Integração: Mongoose Schema', () => {
     
     test('Criação de usuario', async () => {
-        const usuario = new User({ nome: 'Nome Teste', role: 'admin' });
+        const usuario = new User({ nome: 'Nome Teste', role: 'admin', empresaId: new conn.mongoose.Types.ObjectId() });
         const usuarioSalvo = await usuario.save();
 
         expect(usuarioSalvo._id).toBeDefined();

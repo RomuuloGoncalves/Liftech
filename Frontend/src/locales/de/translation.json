@@ -8,7 +8,8 @@
     "save": "Speichern",
     "close": "Schließen",
     "loading": "Wird geladen...",
-    "closeNotification": "Hinweis schließen"
+    "closeNotification": "Hinweis schließen",
+    "retry": "Erneut versuchen"
   },
   "navigation": {
     "overview": "Übersicht",
@@ -33,6 +34,7 @@
     "operator": "Bediener",
     "noOperator": "Kein Bediener",
     "emptyState": "Keine Maschinen gefunden",
+    "loadError": "Die Maschinen konnten nicht geladen werden.",
     "newMachineTitle": "Neue Maschine",
     "labelId": "ID",
     "labelName": "Name",
@@ -62,7 +64,15 @@
     "openDetails": "Details von {{name}} anzeigen",
     "toastCreated": "Maschine „{{name}}“ angelegt",
     "toastSaved": "Maschine „{{name}}“ gespeichert",
-    "toastDeleted": "Maschine „{{name}}“ gelöscht"
+    "toastDeleted": "Maschine „{{name}}“ gelöscht",
+    "status": {
+      "disponivel": "Verfügbar",
+      "em_uso": "In Benutzung",
+      "manutencao": "In Wartung",
+      "alerta": "Warnung",
+      "offline": "Nicht verbunden"
+    },
+    "changeStatus": "Status ändern"
   },
   "alerts": {
     "accidents": "Unfälle",
@@ -236,7 +246,54 @@
     "toastCategoryCreated": "Kategorie „{{name}}“ erstellt",
     "toastCategoryDeleted": "Kategorie „{{name}}“ gelöscht",
     "toastMachinesAdded": "Maschinen zu „{{name}}“ hinzugefügt",
-    "toastMachineRemoved": "{{name}} aus der Kategorie entfernt"
+    "toastMachineRemoved": "{{name}} aus der Kategorie entfernt",
+    "lock": "Sperren",
+    "unlock": "Entsperren",
+    "editCategory": "Kategorie bearbeiten",
+    "linkedStatus": "Verknüpfte Status",
+    "statusTaken": "Bereits mit einer anderen Kategorie verknüpft",
+    "saveError": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+    "noCategories": "Keine Kategorien vorhanden"
+  },
+  "employee": {
+    "settings": {
+      "title": "Einstellungen",
+      "close": "Schließen",
+      "general": "Allgemein",
+      "userData": "Benutzerdaten",
+      "name": "Name",
+      "phone": "Telefon",
+      "position": "Position",
+      "changeNoticeTitle": "Änderungsanfrage",
+      "changeNotice": "Um Ihre Daten zu ändern, wenden Sie sich an den zuständigen Vorgesetzten.",
+      "logout": "Abmelden",
+      "feedbackTitle": "Feedback & Vorschläge",
+      "feedbackQuestion": "Wie war Ihre Erfahrung?",
+      "privacy": "Datenschutzrichtlinie"
+    },
+    "session": {
+      "startError": "Die Sitzung konnte nicht gestartet werden. Bitte erneut versuchen.",
+      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen."
+    },
+    "incident": {
+      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen."
+    }
+  },
+  "branches": {
+    "label": "Filialen",
+    "all": "Alle Filialen",
+    "manage": "Filialen verwalten",
+    "doneManaging": "Fertig",
+    "create": "Filiale anlegen",
+    "nameLabel": "Name der Filiale",
+    "confirm": "Bestätigen",
+    "rename": "{{name}} umbenennen",
+    "remove": "{{name}} löschen",
+    "deleteTitle": "Filiale löschen",
+    "deleteMessage": "Filiale {{name}} löschen?",
+    "saveError": "Die Filiale konnte nicht gespeichert werden.",
+    "deleteError": "Die Filiale konnte nicht gelöscht werden.",
+    "deleteBlocked": "Löschen nicht möglich: Die Filiale ist die Zentrale oder hat noch Ressourcen."
   },
   "notFound": {
     "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",

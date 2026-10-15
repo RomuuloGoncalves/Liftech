@@ -2,7 +2,6 @@ import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight, Timer } from 'lucide-react'
-import { MACHINES } from '../../data/machines'
 import { formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
 import styles from './SessionBar.module.css'
 
@@ -15,7 +14,7 @@ const SessionBar: React.FC = () => {
   if (!session || pathname.startsWith(SESSION_PATH)) return null
 
   const title = t('employee.sessionBar.title')
-  const machine = MACHINES.find((m) => m.id === session.machineId)
+  const machine = session.maquina
   const elapsed = formatElapsed(elapsedSeconds)
 
   return (
