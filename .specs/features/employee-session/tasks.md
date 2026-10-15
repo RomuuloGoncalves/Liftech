@@ -259,8 +259,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes: envio chama a API com o horário; sucesso mostra toast e fecha; erro mantém aberto
-- [ ] Quick gate passa
+- [x] Testes: envio chama a API com o horário; sucesso mostra toast e fecha; erro mantém aberto
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

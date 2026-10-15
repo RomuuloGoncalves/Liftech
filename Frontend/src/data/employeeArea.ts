@@ -12,8 +12,6 @@ export interface UsageRecord {
   durationLabel: string
 }
 
-export const EMPLOYEE_NAME = 'Alexandre Gomes'
-
 // 'sv' formats as YYYY-MM-DD and HH:mm:ss in the local time zone.
 const localDate = (date: Date) => date.toLocaleDateString('sv')
 const localTime = (date: Date) => date.toLocaleTimeString('sv')

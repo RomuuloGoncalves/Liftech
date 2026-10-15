@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../../App'
 import { ToastProvider } from '../../../components/common/Toast'
 import IncidentSheet from '../../../components/employee/IncidentSheet'
-import { EMPLOYEE_NAME } from '../../../data/employeeArea'
+import { incidentService } from '../../../services/incidentService'
 import { MACHINES } from '../../../data/machines'
 import { resetWorkSession } from '../../../hooks/useWorkSession'
 import { sessionService } from '../../../services/sessionService'
@@ -18,6 +18,13 @@ vi.mock('../../../services/machineService', async () => {
 })
 
 const atual = vi.mocked(sessionService.atual)
+
+vi.mock('../../../services/incidentService', () => ({ incidentService: { reportar: vi.fn(), listar: vi.fn() } }))
+const reportar = vi.mocked(incidentService.reportar)
+const USER = { _id: 'u1', nome: 'Bruno', role: 'colaborador', operador: { _id: 'o1', nome: 'Carlos Silva' } }
+const submit = () => act(async () => {
+  fireEvent.click(footerButton('Enviar ocorrência'))
+})
 
 const machine = MACHINES[0]
 
@@ -47,6 +54,8 @@ describe('IncidentSheet', () => {
   beforeEach(() => {
     resetWorkSession()
     atual.mockReset().mockResolvedValue(null)
+    reportar.mockReset().mockResolvedValue({} as never)
+    localStorage.setItem('user', JSON.stringify(USER))
   })
 
   it('shows the 4 fields, placeholders and both buttons', async () => {
@@ -65,9 +74,15 @@ describe('IncidentSheet', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('without a session fills only the employee name', async () => {
+  it('falls back to the user name when there is no linked operator', async () => {
+    localStorage.setItem('user', JSON.stringify({ ...USER, operador: null }))
     await renderSheet()
-    expect(field('Nome funcionário').value).toBe(EMPLOYEE_NAME)
+    expect(field('Nome funcionário').value).toBe('Bruno')
+  })
+
+  it('without a session fills only the linked operator name', async () => {
+    await renderSheet()
+    expect(field('Nome funcionário').value).toBe('Carlos Silva')
     expect(field('Setor').value).toBe('')
     expect(field('Máquina').value).toBe('')
     expect(field('Horário').value).toBe('')
@@ -116,14 +131,33 @@ describe('IncidentSheet', () => {
     expect(screen.getAllByText('Campo obrigatório')).toHaveLength(1)
   })
 
-  it('a valid submit calls onSubmitted, closes and shows the toast', async () => {
+  it('a valid submit sends the time to the API, calls onSubmitted, closes and shows the toast', async () => {
     const { onClose, onSubmitted } = await renderSheet()
     fillAll()
-    fireEvent.click(footerButton('Enviar ocorrência'))
+    await submit()
+    expect(reportar).toHaveBeenCalledWith({ horario: '14:30' })
     expect(screen.queryByText('Campo obrigatório')).not.toBeInTheDocument()
     expect(onSubmitted).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
+  })
+
+  it('keeps the sheet open and shows the error toast when the API fails', async () => {
+    reportar.mockRejectedValue(new Error('409'))
+    const { onClose, onSubmitted } = await renderSheet()
+    fillAll()
+    await submit()
+    expect(onClose).not.toHaveBeenCalled()
+    expect(onSubmitted).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText('Não foi possível enviar a ocorrência. Tente novamente.')).toBeInTheDocument()
+    expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
+  })
+
+  it('does not call the API when a field is missing', async () => {
+    await renderSheet()
+    await submit()
+    expect(reportar).not.toHaveBeenCalled()
   })
 
   it('Cancelar closes without submitting', async () => {
@@ -132,6 +166,7 @@ describe('IncidentSheet', () => {
     fireEvent.click(footerButton('Cancelar'))
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(onSubmitted).not.toHaveBeenCalled()
+    expect(reportar).not.toHaveBeenCalled()
     expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
   })
 })
@@ -142,7 +177,8 @@ describe('Incident route', () => {
   beforeEach(() => {
     resetWorkSession()
     atual.mockReset().mockResolvedValue(null)
-    localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Bruno', role: 'colaborador', operador: null }))
+    reportar.mockReset().mockResolvedValue({} as never)
+    localStorage.setItem('user', JSON.stringify(USER))
   })
 
   const renderRoute = async () => {
@@ -161,7 +197,7 @@ describe('Incident route', () => {
     await renderRoute()
     expect(screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
     fillAll()
-    fireEvent.click(footerButton('Enviar ocorrência'))
+    await submit()
     expect(screen.getByTestId('path')).toHaveTextContent('/funcionario/historico')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
