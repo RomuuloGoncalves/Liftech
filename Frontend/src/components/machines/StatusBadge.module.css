@@ -1,0 +1,64 @@
+.badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.disponivel {
+  color: var(--green);
+  background: var(--green-bg);
+  border-color: var(--green-bg);
+}
+
+.em_uso {
+  color: var(--blue);
+  background: var(--blue-bg);
+  border-color: var(--blue-bg);
+}
+
+.manutencao {
+  color: var(--yellow);
+  background: var(--yellow-bg);
+  border-color: var(--yellow-bg);
+}
+
+.alerta {
+  color: var(--danger-solid);
+  background: var(--red-bg);
+  border-color: var(--red-bg);
+}
+
+.offline {
+  color: var(--black-text);
+  border-color: var(--gray-border);
+  background: var(--gray-bg);
+}
+
+.toneDisponivel {
+  background: var(--green);
+  color: var(--white);
+}
+
+.toneEmUso {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.toneManutencao {
+  background: var(--yellow);
+  color: var(--black-title);
+}
+
+.toneAlerta {
+  background: var(--danger-solid);
+  color: var(--white);
+}
+
+.toneOffline {
+  background: var(--black-text);
+  color: var(--white);
+}

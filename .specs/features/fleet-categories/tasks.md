@@ -426,8 +426,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: os 5 códigos mostram o rótulo traduzido e uma classe distinta; render em en-US
-- [ ] Quick gate passa
+- [x] Testes: os 5 códigos mostram o rótulo traduzido e uma classe distinta; render em en-US
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
