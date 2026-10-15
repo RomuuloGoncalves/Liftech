@@ -205,8 +205,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes: redireciona deslogado e admin; nome do operador; sair limpa e navega
-- [ ] Quick gate passa
+- [x] Testes: redireciona deslogado e admin; nome do operador; sair limpa e navega
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

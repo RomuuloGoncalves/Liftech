@@ -118,7 +118,10 @@ describe('IncidentSheet', () => {
 const Path = () => <output data-testid="path">{useLocation().pathname}</output>
 
 describe('Incident route', () => {
-  beforeEach(() => sessionStorage.clear())
+  beforeEach(() => {
+    sessionStorage.clear()
+    localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Bruno', role: 'colaborador', operador: null }))
+  })
   afterEach(() => sessionStorage.clear())
 
   const renderRoute = () =>

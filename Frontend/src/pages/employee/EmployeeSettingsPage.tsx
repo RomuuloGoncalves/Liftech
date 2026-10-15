@@ -32,7 +32,7 @@ const EmployeeSettingsPage: React.FC = () => {
 
   const user = readUser()
   const fields = [
-    ['name', user.nome],
+    ['name', user.operador?.nome ?? user.nome],
     ['phone', user.telefone],
     ['position', user.cargo],
   ] as const

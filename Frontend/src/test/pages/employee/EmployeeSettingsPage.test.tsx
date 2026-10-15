@@ -49,6 +49,12 @@ describe('EmployeeSettingsPage', () => {
     expect(field('Cargo').value).toBe('Operador')
   })
 
+  it('shows the linked operator name in Nome instead of the user name', () => {
+    localStorage.setItem('user', JSON.stringify({ ...USER, operador: { _id: 'o1', nome: 'Carlos Silva' } }))
+    setup()
+    expect(field('Nome').value).toBe('Carlos Silva')
+  })
+
   it('shows — in Telefone and Cargo when the stored user does not have them', () => {
     localStorage.setItem('user', JSON.stringify({ _id: '1', nome: 'Ana', role: 'admin' }))
     setup()
