@@ -124,30 +124,30 @@ O backend aceita o login do colaborador (`POST /api/auth/login` com `role: 'cola
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| LOG-01 | Login | Execute | Pending |
-| LOG-02 | Login | Execute | Pending |
-| LOG-03 | Login | Execute | Pending |
-| LOG-04 | Login | Execute | Pending |
-| LOG-05 | Login | Execute | Pending |
-| SES-01 | Sessão | Execute | Pending |
-| SES-02 | Sessão | Execute | Pending |
-| SES-03 | Sessão | Execute | Pending |
-| SES-04 | Sessão | Execute | Pending |
-| SES-05 | Sessão | Execute | Pending |
-| SES-06 | Sessão | Execute | Pending |
-| SES-07 | Sessão | Execute | Pending |
-| SES-08 | Sessão | Execute | Pending |
-| SES-09 | Sessão | Execute | Pending |
-| SES-10 | Sessão | Execute | Pending |
-| SES-11 | Sessão | Execute | Pending |
-| SES-12 | Sessão | Execute | Pending |
-| SES-13 | Sessão | Execute | Pending |
-| OCO-01 | Ocorrência | Execute | Pending |
-| OCO-02 | Ocorrência | Execute | Pending |
-| OCO-03 | Ocorrência | Execute | Pending |
-| OCO-04 | Ocorrência | Execute | Pending |
-| OCO-05 | Ocorrência | Execute | Pending |
-| OCO-06 | Ocorrência | Execute | Pending |
+| LOG-01 | Login | Execute | Verified |
+| LOG-02 | Login | Execute | Verified |
+| LOG-03 | Login | Execute | Verified |
+| LOG-04 | Login | Execute | Verified |
+| LOG-05 | Login | Execute | Verified |
+| SES-01 | Sessão | Execute | Verified |
+| SES-02 | Sessão | Execute | Verified |
+| SES-03 | Sessão | Execute | Verified |
+| SES-04 | Sessão | Execute | Verified |
+| SES-05 | Sessão | Execute | Verified |
+| SES-06 | Sessão | Execute | Verified |
+| SES-07 | Sessão | Execute | Verified |
+| SES-08 | Sessão | Execute | Verified |
+| SES-09 | Sessão | Execute | Verified |
+| SES-10 | Sessão | Execute | Verified |
+| SES-11 | Sessão | Execute | Verified |
+| SES-12 | Sessão | Execute | Verified |
+| SES-13 | Sessão | Execute | Verified |
+| OCO-01 | Ocorrência | Execute | Verified |
+| OCO-02 | Ocorrência | Execute | Verified |
+| OCO-03 | Ocorrência | Execute | Verified |
+| OCO-04 | Ocorrência | Execute | Verified |
+| OCO-05 | Ocorrência | Execute | Verified |
+| OCO-06 | Ocorrência | Execute | Verified |
 
 ---
 
