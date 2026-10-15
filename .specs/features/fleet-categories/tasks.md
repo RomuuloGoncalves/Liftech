@@ -119,8 +119,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes em `schemas.test.ts`: status fora do enum falha; `categoriaTravada` padrão `false`; índice em `categoriaId`; `forcaImpacto` aceito na telemetria
-- [ ] Quick gate passa
+- [x] Testes em `schemas.test.ts`: status fora do enum falha; `categoriaTravada` padrão `false`; índice em `categoriaId`; `forcaImpacto` aceito na telemetria
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

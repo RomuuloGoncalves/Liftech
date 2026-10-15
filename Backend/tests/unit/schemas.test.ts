@@ -121,3 +121,34 @@ describe('schema category', async () => {
         ]);
     });
 });
+
+describe('status e categoria na empilhadeira', () => {
+    const filialId = new mongoose.Types.ObjectId();
+
+    test('padrões: status null, sem categoria e destravada', () => {
+        const f = new Forklift({ filialId });
+        expect(f.status).toBeNull();
+        expect(f.categoriaId).toBeNull();
+        expect(f.categoriaTravada).toBe(false);
+    });
+
+    test.each(['disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])('status %s é aceito', async (status) => {
+        expect(await erros(new Forklift({ filialId, status }))).toEqual([]);
+    });
+
+    test('status fora da lista falha', async () => {
+        expect(await erros(new Forklift({ filialId, status: 'Disponível' }))).toEqual(['status']);
+    });
+
+    test('categoriaId tem índice', () => {
+        expect(Forklift.schema.indexes()).toContainEqual([{ categoriaId: 1 }, expect.anything()]);
+    });
+});
+
+describe('forcaImpacto na telemetria', async () => {
+    const { Telemetry } = await import('../../src/schemas/telemetry.js');
+
+    test('guarda forcaImpacto numérico', () => {
+        expect(new Telemetry({ dataDados: new Date(), forcaImpacto: 7 }).forcaImpacto).toBe(7);
+    });
+});
