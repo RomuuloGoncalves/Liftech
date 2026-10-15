@@ -1,38 +1,29 @@
 import type { Machine, MachineEvent, MachineStatus } from './machines'
+import type { Categoria } from '../services/categoryService'
 
-export type CategoryKind = 'acidentes' | 'ativas' | 'manutencao' | 'disponiveis' | 'custom'
+/** Chaves das categorias do quadro inicial: o nome vem de `fleet.category*` até alguém renomear. */
+export type CategoryKey = 'acidentes' | 'ativas' | 'manutencao' | 'disponiveis'
 
 export interface FleetCategory {
   id: string
-  kind: CategoryKind
-  /** Vazio nas categorias iniciais: o nome vem de `fleet.category.<kind>` no i18n. */
   nome: string
   cor: string
+  chave: CategoryKey | null
+  statusVinculados: MachineStatus[]
   machineIds: string[]
 }
 
 export const CATEGORY_COLORS = ['#3A9CFF', '#3AFF3A', '#FFC93A', '#FF7A3A', '#9B3AFF', '#FF3AC4', '#3AE7FF']
 
-/** Máquinas que o mock coloca em Acidentes, como no frame do Figma. */
-export const ACCIDENT_MACHINE_CODES = ['EMP-081', 'EMP-085', 'EMP-089']
-
-const INITIAL: { kind: Exclude<CategoryKind, 'custom'>; cor: string; status?: MachineStatus }[] = [
-  { kind: 'acidentes', cor: '#EF4444' },
-  { kind: 'ativas', cor: '#3A9CFF', status: 'em_uso' },
-  { kind: 'manutencao', cor: '#FFC93A', status: 'manutencao' },
-  { kind: 'disponiveis', cor: '#22C55E', status: 'disponivel' },
-]
-
-export function initialBoard(machines: Machine[]): FleetCategory[] {
-  const accidents = machines.filter((m) => ACCIDENT_MACHINE_CODES.includes(m.identificacao))
-  const rest = machines.filter((m) => !accidents.includes(m))
-
-  return INITIAL.map(({ kind, cor, status }) => ({
-    id: kind,
-    kind,
-    nome: '',
-    cor,
-    machineIds: (status ? rest.filter((m) => m.status === status) : accidents).map((m) => m.id),
+/** Uma linha por categoria, na ordem da API; máquina com `categoriaId` sem categoria fica de fora (sem categoria). */
+export function montarQuadro(categorias: Categoria[], maquinas: Machine[]): FleetCategory[] {
+  return categorias.map((c) => ({
+    id: c._id,
+    nome: c.nome,
+    cor: c.cor,
+    chave: c.chave as CategoryKey | null,
+    statusVinculados: c.statusVinculados,
+    machineIds: maquinas.filter((m) => m.categoriaId === c._id).map((m) => m.id),
   }))
 }
 
@@ -64,14 +55,7 @@ export function unassignedMachines(board: FleetCategory[], machines: Machine[]):
   return machines.filter((m) => !assigned.has(m.id))
 }
 
-export function createCategory(board: FleetCategory[], nome: string, cor: string): FleetCategory[] {
-  const next = Math.max(0, ...board.map((c) => Number(c.id.replace('custom-', '')) || 0)) + 1
-  return [...board, { id: `custom-${next}`, kind: 'custom', nome: nome.trim(), cor, machineIds: [] }]
-}
-
 export function deleteCategory(board: FleetCategory[], categoryId: string): FleetCategory[] {
-  const category = board.find((c) => c.id === categoryId)
-  if (category?.kind !== 'custom') return board
   return board.filter((c) => c.id !== categoryId)
 }
 

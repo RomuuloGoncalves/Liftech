@@ -540,8 +540,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: linhas na ordem das categorias; máquina com categoria apagada fica sem categoria; contadores só das máquinas recebidas
-- [ ] Quick gate passa
+- [x] Testes: linhas na ordem das categorias; máquina com categoria apagada fica sem categoria; contadores só das máquinas recebidas
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

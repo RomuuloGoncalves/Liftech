@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Calendar, CircleCheck, CircleDot, CirclePlus, Search, Trash2, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { lastAccidentDate, matchesMachine, type FleetCategory } from '../../data/fleet'
-import { DEFAULT_PERIOD, MACHINE_EVENTS, type Machine } from '../../data/machines'
+import { matchesMachine, type CategoryKey, type FleetCategory } from '../../data/fleet'
+import { DEFAULT_PERIOD, type Machine } from '../../data/machines'
 import styles from './FleetRow.module.css'
 
 interface FleetRowProps {
@@ -22,7 +22,7 @@ interface FleetRowProps {
   onDragLeaveRow?: (categoryId: string) => void
 }
 
-const ICONS: Partial<Record<FleetCategory['kind'], React.ReactNode>> = {
+const ICONS: Partial<Record<CategoryKey, React.ReactNode>> = {
   acidentes: <TriangleAlert size={12} />,
   ativas: <CircleDot size={12} />,
 }
@@ -43,14 +43,16 @@ const FleetRow: React.FC<FleetRowProps> = ({
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [from, setFrom] = useState(DEFAULT_PERIOD.from)
-  const [to, setTo] = useState(DEFAULT_PERIOD.to)
-  const isAccidents = category.kind === 'acidentes'
+  // Até hoje, para não esconder alertas mais novos que o período padrão.
+  const [to, setTo] = useState(() => [DEFAULT_PERIOD.to, new Date().toISOString().slice(0, 10)].sort()[1])
+  const isAccidents = category.chave === 'acidentes'
 
   const visible = machines.filter((machine) => {
     if (!matchesMachine(machine, query)) return false
     if (!isAccidents) return true
-    const accident = lastAccidentDate(machine.id, MACHINE_EVENTS)
-    return accident !== undefined && accident.data >= from && accident.data <= to
+    // Sem `alertaEm` (movida à mão para cá) não há data para filtrar: fica visível.
+    const day = machine.alertaEm?.slice(0, 10)
+    return day === undefined || (day >= from && day <= to)
   })
 
   const addButton = (
@@ -84,8 +86,8 @@ const FleetRow: React.FC<FleetRowProps> = ({
       }}
     >
       <header className={styles.header}>
-        <span className={`${styles.label} ${styles[category.kind] ?? ''}`}>
-          <span className={styles.labelIcon}>{ICONS[category.kind] ?? <CircleCheck size={12} />}</span>
+        <span className={`${styles.label} ${(category.chave && styles[category.chave]) ?? ''}`}>
+          <span className={styles.labelIcon}>{(category.chave && ICONS[category.chave]) ?? <CircleCheck size={12} />}</span>
           <span className={styles.labelText}>{label}</span>
           <span className={styles.count} aria-label={t('fleet.machineCount', { count: total })}>
             {total}
@@ -122,7 +124,7 @@ const FleetRow: React.FC<FleetRowProps> = ({
               />
             </div>
           )}
-          {category.kind === 'custom' && (
+          {category.chave === null && (
             <button type="button" className={styles.deleteButton} onClick={() => onDelete(category.id)}>
               <Trash2 size={11} />
               {t('fleet.deleteCategory')}

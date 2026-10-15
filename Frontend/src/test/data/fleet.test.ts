@@ -1,51 +1,72 @@
 import { describe, expect, it } from 'vitest'
-import { MACHINES, type Machine, type MachineEvent } from '../../data/machines'
+import { MACHINES as MOCK, type Machine, type MachineEvent } from '../../data/machines'
+import type { Categoria } from '../../services/categoryService'
 import {
   addMachines,
   categoryNameError,
-  createCategory,
   deleteCategory,
-  initialBoard,
   isHexColor,
   lastAccidentDate,
   matchesMachine,
+  montarQuadro,
   moveMachine,
   removeMachine,
   unassignedMachines,
   type FleetCategory,
 } from '../../data/fleet'
 
+const categoria = (chave: string, statusVinculados: Machine['status'][]): Categoria => ({
+  _id: chave,
+  nome: chave,
+  cor: '#3A9CFF',
+  chave,
+  statusVinculados,
+})
+const CATEGORIAS = [
+  categoria('acidentes', ['alerta']),
+  categoria('ativas', ['em_uso']),
+  categoria('manutencao', ['manutencao']),
+  categoria('disponiveis', ['disponivel']),
+]
+// Cada máquina na categoria ligada ao status dela; offline fica sem categoria.
+const MACHINES: Machine[] = MOCK.map((m) => ({
+  ...m,
+  categoriaId: CATEGORIAS.find((c) => c.statusVinculados.includes(m.status))?._id ?? null,
+}))
+const initialBoard = (machines: Machine[]) => montarQuadro(CATEGORIAS, machines)
+
 const idsOf = (board: FleetCategory[], id: string) => board.find((c) => c.id === id)!.machineIds
-const byCode = (code: string) => MACHINES.find((m) => m.identificacao === code)!.id
 const allIds = (board: FleetCategory[]) => board.flatMap((c) => c.machineIds)
 
-describe('initialBoard', () => {
-  const board = initialBoard(MACHINES)
-
-  it('creates Acidentes, Ativas, Manutenção, Disponíveis in this order', () => {
-    expect(board.map((c) => c.kind)).toEqual(['acidentes', 'ativas', 'manutencao', 'disponiveis'])
+describe('montarQuadro (FRT-04)', () => {
+  it('builds one row per category in the API order', () => {
+    const reversed = [...CATEGORIAS].reverse()
+    expect(montarQuadro(reversed, MACHINES).map((c) => c.id)).toEqual(reversed.map((c) => c._id))
   })
 
-  it('places EMP-081, EMP-085 and EMP-089 in Acidentes', () => {
-    expect(idsOf(board, 'acidentes')).toEqual([byCode('EMP-081'), byCode('EMP-085'), byCode('EMP-089')])
+  it('carries name, color, key and linked status of each category', () => {
+    const [row] = montarQuadro([{ ...CATEGORIAS[1], nome: 'Pátio', cor: '#FF7A3A', chave: null }], [])
+    expect(row).toEqual({ id: 'ativas', nome: 'Pátio', cor: '#FF7A3A', chave: null, statusVinculados: ['em_uso'], machineIds: [] })
   })
 
-  it('places the other machines by status and leaves Offline machines out', () => {
-    const accidents = new Set(idsOf(board, 'acidentes'))
-    const expected = (status: Machine['status']) =>
-      MACHINES.filter((m) => m.status === status && !accidents.has(m.id)).map((m) => m.id)
-
-    expect(idsOf(board, 'ativas')).toEqual(expected('em_uso'))
-    expect(idsOf(board, 'manutencao')).toEqual(expected('manutencao'))
-    expect(idsOf(board, 'disponiveis')).toEqual(expected('disponivel'))
-    const offline = MACHINES.filter((m) => m.status === 'offline').map((m) => m.id)
-    expect(offline.length).toBeGreaterThan(0)
-    offline.forEach((id) => expect(allIds(board)).not.toContain(id))
+  it('places each machine in the row of its categoriaId', () => {
+    const board = initialBoard(MACHINES)
+    for (const c of CATEGORIAS) {
+      expect(idsOf(board, c._id)).toEqual(MACHINES.filter((m) => m.categoriaId === c._id).map((m) => m.id))
+    }
   })
 
-  it('keeps every machine in at most one category', () => {
-    const ids = allIds(board)
-    expect(new Set(ids).size).toBe(ids.length)
+  it('treats a machine whose category was deleted as unassigned', () => {
+    const orphan = { ...MACHINES[0], categoriaId: 'apagada' }
+    const board = initialBoard([orphan])
+    expect(allIds(board)).toEqual([])
+    expect(unassignedMachines(board, [orphan])).toEqual([orphan])
+  })
+
+  it('counts only the machines it received', () => {
+    const some = MACHINES.filter((m) => m.categoriaId === 'ativas').slice(0, 1)
+    const board = initialBoard(some)
+    expect(board.map((c) => c.machineIds.length)).toEqual([0, 1, 0, 0])
   })
 })
 
@@ -116,34 +137,13 @@ describe('unassignedMachines', () => {
   })
 })
 
-describe('createCategory / deleteCategory', () => {
-  it('appends an empty custom category with the given name and color', () => {
+describe('deleteCategory', () => {
+  it('drops the row and leaves its machines without category', () => {
     const board = initialBoard(MACHINES)
-    const next = createCategory(board, 'Reserva', '#3AFF3A')
-    const created = next.at(-1)!
-    expect(next).toHaveLength(board.length + 1)
-    expect(created).toMatchObject({ kind: 'custom', nome: 'Reserva', cor: '#3AFF3A', machineIds: [] })
-  })
-
-  it('gives each created category a unique id', () => {
-    const board = createCategory(createCategory(initialBoard(MACHINES), 'A', '#3A9CFF'), 'B', '#3A9CFF')
-    const ids = board.map((c) => c.id)
-    expect(new Set(ids).size).toBe(ids.length)
-  })
-
-  it('deletes a custom category and leaves its machines without category', () => {
-    let board = createCategory(initialBoard(MACHINES), 'Reserva', '#3AFF3A')
-    const custom = board.at(-1)!
-    const offlineId = unassignedMachines(board, MACHINES)[0].id
-    board = addMachines(board, custom.id, [offlineId])
-    const next = deleteCategory(board, custom.id)
-    expect(next.find((c) => c.id === custom.id)).toBeUndefined()
-    expect(unassignedMachines(next, MACHINES).map((m) => m.id)).toContain(offlineId)
-  })
-
-  it('does not delete the initial categories', () => {
-    const board = initialBoard(MACHINES)
-    expect(deleteCategory(board, 'ativas')).toBe(board)
+    const machineId = idsOf(board, 'ativas')[0]
+    const next = deleteCategory(board, 'ativas')
+    expect(next.map((c) => c.id)).toEqual(['acidentes', 'manutencao', 'disponiveis'])
+    expect(unassignedMachines(next, MACHINES).map((m) => m.id)).toContain(machineId)
   })
 })
 
