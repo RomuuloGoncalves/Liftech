@@ -96,8 +96,8 @@ As fases rodam em paralelo (contrato fixo acima); a Phase 2 usa serviços mockad
 
 **Done when**:
 
-- [ ] Testes: colaborador ligado → `operador` preenchido; sem ligação ou admin → `null`; `req.usuario` montado
-- [ ] Quick gate passa
+- [x] Testes: colaborador ligado → `operador` preenchido; sem ligação ou admin → `null`; `req.usuario` montado
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

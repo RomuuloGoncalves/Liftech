@@ -64,6 +64,15 @@ describe('autenticar', () => {
         expect(req.escopo).toEqual({ empresaId: EMPRESA, tipo: 'filiais', filiais: [{ _id: MATRIZ, nome: 'Matriz', matriz: true }] });
     });
 
+    test('req.usuario: _id, role e operadorId (string, ou null sem ligação)', async () => {
+        const OPERADOR = '665f1c2b9a1e4b00123456c1';
+        mockarUsuario({ _id: USUARIO, role: 'colaborador', operadorId: OPERADOR, empresaId: EMPRESA });
+        expect((await chamar(`Bearer ${token()}`)).usuario).toEqual({ _id: USUARIO, role: 'colaborador', operadorId: OPERADOR });
+
+        mockarUsuario({ _id: USUARIO, role: 'admin', empresaId: EMPRESA });
+        expect((await chamar(`Bearer ${token()}`)).usuario).toEqual({ _id: USUARIO, role: 'admin', operadorId: null });
+    });
+
     test('lê o usuário a cada requisição: a segunda reflete a mudança de acesso', async () => {
         mockarUsuario({ _id: USUARIO, empresaId: EMPRESA, escopo: 'filiais', filiaisIds: [MATRIZ] });
         const primeira = await chamar(`Bearer ${token()}`);
