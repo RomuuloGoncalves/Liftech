@@ -157,8 +157,8 @@ T21 → T22 → T23 → T24 → T25 → T26 → T27 → T28
 
 **Done when**:
 
-- [ ] Testes: cria incidente com empilhadeira, operador conectado, filial, força e `dataIncidente = dataDados`; muda para `alerta` a partir de `manutencao` e `offline`; dispositivo sem empilhadeira não cria nada; segundo impacto cria outro incidente e mantém `alerta`
-- [ ] Quick gate passa
+- [x] Testes: cria incidente com empilhadeira, operador conectado, filial, força e `dataIncidente = dataDados`; muda para `alerta` a partir de `manutencao` e `offline`; dispositivo sem empilhadeira não cria nada; segundo impacto cria outro incidente e mantém `alerta`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

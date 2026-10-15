@@ -41,3 +41,20 @@ export async function aplicarStatus(forkliftId: string, novo: Status): Promise<v
     await Incident.updateMany({ empilhadeiraId: forkliftId, status: "pendente" }, { $set: { status: "resolvido" } });
   }
 }
+
+// Leitura de impacto acima do limite: registra o incidente e põe a máquina em alerta.
+// Um segundo impacto só cria outro incidente, porque `alerta` → `alerta` não muda nada.
+export async function registrarImpacto(dispositivoId: string, forcaImpacto: number, data: Date): Promise<void> {
+  const empilhadeira: any = await Forklift.findOne({ dispositivoConectadoId: dispositivoId }).lean();
+  if (!empilhadeira) return;
+
+  await Incident.create({
+    empilhadeiraId: empilhadeira._id,
+    operadorId: empilhadeira.operadorConectadoId,
+    filialId: empilhadeira.filialId,
+    forcaImpacto,
+    dataIncidente: data,
+    status: "pendente",
+  });
+  await aplicarStatus(String(empilhadeira._id), "alerta");
+}

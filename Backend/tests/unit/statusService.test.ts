@@ -4,7 +4,7 @@ import { Forklift } from '../../src/schemas/forklift.js';
 import { Incident } from '../../src/schemas/incident.js';
 import { Category } from '../../src/schemas/category.js';
 import { Branch } from '../../src/schemas/branch.js';
-import { aplicarStatus, ehStatus, limiteImpacto } from '../../src/feature/machine/statusService.js';
+import { aplicarStatus, ehStatus, limiteImpacto, registrarImpacto } from '../../src/feature/machine/statusService.js';
 
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { findById: vi.fn(), findOne: vi.fn(), updateOne: vi.fn() } }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { updateMany: vi.fn(), create: vi.fn() } }));
@@ -118,5 +118,61 @@ describe('limiteImpacto', () => {
         if (valor === undefined) delete process.env.LIMITE_IMPACTO;
         else vi.stubEnv('LIMITE_IMPACTO', valor);
         expect(limiteImpacto()).toBe(5);
+    });
+});
+
+describe('registrarImpacto', () => {
+    const DISPOSITIVO = new Types.ObjectId().toHexString();
+    const OPERADOR = new Types.ObjectId();
+    const DATA = new Date('2026-10-15T09:30:00Z');
+    const empilhadeira = (status: string) => ({
+        _id: new Types.ObjectId(ID), filialId: FILIAL, operadorConectadoId: OPERADOR, status,
+    });
+
+    beforeEach(() => vi.clearAllMocks());
+
+    test('cria incidente pendente com máquina, operador, filial, força e data da leitura', async () => {
+        vi.mocked(Forklift.findOne).mockReturnValue(lean(empilhadeira('disponivel')));
+        mockar({ status: 'disponivel' });
+
+        await registrarImpacto(DISPOSITIVO, 7, DATA);
+
+        expect(Forklift.findOne).toHaveBeenCalledWith({ dispositivoConectadoId: DISPOSITIVO });
+        expect(Incident.create).toHaveBeenCalledWith({
+            empilhadeiraId: new Types.ObjectId(ID),
+            operadorId: OPERADOR,
+            filialId: FILIAL,
+            forcaImpacto: 7,
+            dataIncidente: DATA,
+            status: 'pendente',
+        });
+    });
+
+    test.each(['disponivel', 'manutencao', 'offline', 'em_uso'])('de %s vai para alerta', async (status) => {
+        vi.mocked(Forklift.findOne).mockReturnValue(lean(empilhadeira(status)));
+        mockar({ status });
+
+        await registrarImpacto(DISPOSITIVO, 9, DATA);
+
+        expect(gravado().$set.status).toBe('alerta');
+    });
+
+    test('dispositivo sem empilhadeira: não cria incidente nem muda status', async () => {
+        vi.mocked(Forklift.findOne).mockReturnValue(lean(null));
+
+        await registrarImpacto(DISPOSITIVO, 9, DATA);
+
+        expect(Incident.create).not.toHaveBeenCalled();
+        expect(Forklift.updateOne).not.toHaveBeenCalled();
+    });
+
+    test('segundo impacto cria outro incidente e mantém alerta sem regravar', async () => {
+        vi.mocked(Forklift.findOne).mockReturnValue(lean(empilhadeira('alerta')));
+        mockar({ status: 'alerta' });
+
+        await registrarImpacto(DISPOSITIVO, 6, DATA);
+
+        expect(Incident.create).toHaveBeenCalledTimes(1);
+        expect(Forklift.updateOne).not.toHaveBeenCalled();
     });
 });
