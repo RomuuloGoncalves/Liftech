@@ -7,6 +7,7 @@ import { Branch } from '../../src/schemas/branch.js';
 import { Operator } from '../../src/schemas/operator.js';
 import { env } from '../../src/config/env.js';
 import { gerarHashSenha } from '../../src/utils/senha.js';
+import { ErroHttp } from '../../src/utils/responseHandler.js';
 
 vi.mock('../../src/schemas/user.js', () => ({ User: { findOne: vi.fn() } }));
 vi.mock('../../src/schemas/company.js', () => ({ Company: { findById: vi.fn() } }));
@@ -177,5 +178,26 @@ describe('authService.login', () => {
 
         expect((await login('admin', 'ana@empresa.com', 'segredo1')).user.operador).toBeNull();
         expect(Operator.findById).not.toHaveBeenCalled();
+    });
+
+    test('colaborador com acessoNegado e senha certa: lança 403 "Acesso negado." sem gerar token', async () => {
+        mockarBusca({ _id: ID, nome: 'Bruno', role: 'colaborador', acessoNegado: true, senhaHash: gerarHashSenha('segredo2') });
+        const assinar = vi.spyOn(jwt, 'sign');
+
+        const erro = await login('colaborador', 'bruno.op', 'segredo2').catch((e) => e);
+
+        expect(erro).toBeInstanceOf(ErroHttp);
+        expect(erro).toMatchObject({ status: 403, message: 'Acesso negado.' });
+        expect(assinar).not.toHaveBeenCalled();
+        assinar.mockRestore();
+    });
+
+    test('colaborador com acessoNegado e senha errada: segue "Credenciais inválidas."', async () => {
+        mockarBusca({ _id: ID, nome: 'Bruno', role: 'colaborador', acessoNegado: true, senhaHash: gerarHashSenha('segredo2') });
+
+        const erro = await login('colaborador', 'bruno.op', 'errada').catch((e) => e);
+
+        expect(erro).not.toBeInstanceOf(ErroHttp);
+        expect(erro.message).toBe('Credenciais inválidas.');
     });
 });

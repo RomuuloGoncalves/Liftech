@@ -174,7 +174,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | LOGIN-07 | P1 Login: sem login 404 | Design | Pending |
 | LOGIN-08 | P1 Login: remover | Design | Pending |
 | LOGIN-09 | P1 Login: sem senha na resposta | Design | Pending |
-| LOGIN-10 | P1 Login: auth recusa negado | Design | Pending |
+| LOGIN-10 | P1 Login: auth recusa negado | Design | Implementing |
 | LOGIN-11 | P1 Login: middleware recusa negado | Design | Implementing |
 | LOGIN-12 | P1 Login: front cria operador + login | Design | Pending |
 | LOGIN-13 | P1 Login: front troca senha | Design | Pending |

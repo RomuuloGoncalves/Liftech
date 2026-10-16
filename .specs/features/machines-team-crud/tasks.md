@@ -124,8 +124,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Teste: senha certa + `acessoNegado` → 403 sem token; senha errada + `acessoNegado` → 401 "Credenciais inválidas."
-- [ ] Gate build do Backend passa
+- [x] Teste: senha certa + `acessoNegado` → 403 sem token; senha errada + `acessoNegado` → 401 "Credenciais inválidas."
+- [x] Gate build do Backend passa
 
 **Tests**: unit
 **Gate**: build
