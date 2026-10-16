@@ -130,3 +130,29 @@ export async function criarMaquina(escopo: Escopo, dados: DadosMaquina & { filia
   }
   return obterMaquina(escopo, String(empilhadeira._id));
 }
+
+export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosMaquina) {
+  await obterMaquina(escopo, id);
+  const empilhadeira: any = await Forklift.findById(id).lean();
+  const dispositivoId = empilhadeira?.dispositivoConectadoId;
+
+  const doForklift: Record<string, unknown> = {};
+  for (const campo of ["nome", "identificacao", "setor"] as const) {
+    if (dados[campo] !== undefined) doForklift[campo] = dados[campo];
+  }
+  const doDevice: Record<string, unknown> = {};
+  if (dados.nomeDispositivo !== undefined) doDevice.nome = dados.nomeDispositivo;
+  if (dados.enderecoMac !== undefined) doDevice.enderecoMac = normalizarMac(dados.enderecoMac);
+
+  if (doForklift.identificacao !== undefined && (await Forklift.exists({ identificacao: doForklift.identificacao, _id: { $ne: id } }))) {
+    throw new ErroHttp(StatusCode.CONFLICT, `Já existe uma empilhadeira com a identificação "${doForklift.identificacao}".`);
+  }
+  if (doDevice.enderecoMac !== undefined && (await Device.exists({ enderecoMac: doDevice.enderecoMac, _id: { $ne: dispositivoId } }))) {
+    throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
+  }
+
+  if (Object.keys(doForklift).length > 0) await Forklift.updateOne({ _id: id }, { $set: doForklift });
+  // ponytail: máquina sem device ligado (dado antigo) ignora os campos do device; criar o device aqui se aparecer o caso.
+  if (Object.keys(doDevice).length > 0 && dispositivoId) await Device.updateOne({ _id: dispositivoId }, { $set: doDevice }).catch(traduzirErro);
+  return obterMaquina(escopo, id);
+}

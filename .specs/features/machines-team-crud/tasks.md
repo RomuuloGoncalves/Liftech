@@ -163,8 +163,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: cada campo vai ao documento certo; identificação/MAC de outra máquina → 409; o próprio MAC repetido passa; fora do escopo → 404
-- [ ] Gate quick passa
+- [x] Testes: cada campo vai ao documento certo; identificação/MAC de outra máquina → 409; o próprio MAC repetido passa; fora do escopo → 404
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick
