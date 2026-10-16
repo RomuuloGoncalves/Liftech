@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
+import type { Filial } from '../../services/authService'
 import styles from './NewMachinePanel.module.css'
 
 export interface NewMachineFormValues {
@@ -10,11 +11,15 @@ export interface NewMachineFormValues {
   setor: string
   nomeDispositivo: string
   enderecoMac: string
+  /** Only set on create when the branch picker is shown. */
+  filialId?: string
 }
 
 interface NewMachinePanelProps {
   /** When given, the panel edits this machine; `onCreate` receives the edited values. */
   machine?: Machine
+  /** With 2+ branches the create form asks which branch the machine belongs to. */
+  branches?: Filial[]
   onClose: () => void
   onCreate: (values: NewMachineFormValues) => void
 }
@@ -27,9 +32,10 @@ const EMPTY_FORM: NewMachineFormValues = {
   enderecoMac: '',
 }
 
-const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onCreate }) => {
+const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [], onClose, onCreate }) => {
   const { t } = useTranslation()
   const isEdit = machine !== undefined
+  const showBranch = !isEdit && branches.length >= 2
   const [values, setValues] = useState<NewMachineFormValues>(
     machine
       ? {
@@ -39,7 +45,9 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
           nomeDispositivo: machine.dispositivoConectado.nomeDispositivo ?? '',
           enderecoMac: machine.dispositivoConectado.enderecoMac,
         }
-      : EMPTY_FORM
+      : showBranch
+        ? { ...EMPTY_FORM, filialId: branches[0]._id }
+        : EMPTY_FORM
   )
   const title = isEdit ? t('machines.editMachineTitle') : t('machines.newMachineTitle')
   const subtitle = isEdit ? t('machines.editMachineSubtitle') : t('machines.newMachineSubtitle')
@@ -54,7 +62,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
   }, [onClose])
 
   const updateField = (field: keyof NewMachineFormValues) => (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setValues((prev) => ({ ...prev, [field]: event.target.value }))
   }
@@ -124,6 +132,19 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
               />
             </label>
 
+            {showBranch && (
+              <label className={styles.field}>
+                <span className={styles.label}>{t('machines.labelBranch')}</span>
+                <select className={styles.input} value={values.filialId} onChange={updateField('filialId')}>
+                  {branches.map((branch) => (
+                    <option key={branch._id} value={branch._id}>
+                      {branch.nome}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+
             <div className={styles.divider} />
 
             <label className={styles.field}>
@@ -145,6 +166,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
                 placeholder="AA:BB:CC:DD:EE:FF"
                 value={values.enderecoMac}
                 onChange={updateField('enderecoMac')}
+                required
               />
             </label>
           </div>

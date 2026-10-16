@@ -8,6 +8,7 @@ function fillRequiredFields() {
     target: { value: 'Empilhadeira Elétrica Titan-X' },
   })
   fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-100' } })
+  fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
 }
 
 describe('NewMachinePanel', () => {
@@ -23,14 +24,14 @@ describe('NewMachinePanel', () => {
     expect(screen.getByLabelText('MAC Address')).toBeInTheDocument()
   })
 
-  it('marks Nome and ID as required, and the rest as optional', () => {
+  it('marks Nome, ID and MAC Address as required, and the rest as optional', () => {
     render(<NewMachinePanel onClose={vi.fn()} onCreate={vi.fn()} />)
 
     expect(screen.getByLabelText('Nome')).toBeRequired()
     expect(screen.getByLabelText('ID')).toBeRequired()
     expect(screen.getByLabelText('Setor')).not.toBeRequired()
     expect(screen.getByLabelText('Nome Dispositivo')).not.toBeRequired()
-    expect(screen.getByLabelText('MAC Address')).not.toBeRequired()
+    expect(screen.getByLabelText('MAC Address')).toBeRequired()
   })
 
   it('calls onCreate with the typed values when the form is submitted with required fields filled', () => {
@@ -46,8 +47,19 @@ describe('NewMachinePanel', () => {
       identificacao: 'EMP-100',
       setor: 'Expedição - Bloco B',
       nomeDispositivo: '',
-      enderecoMac: '',
+      enderecoMac: 'AA:BB:CC:DD:EE',
     })
+  })
+
+  it('does not call onCreate when only the MAC Address is empty', () => {
+    const onCreate = vi.fn()
+    render(<NewMachinePanel onClose={vi.fn()} onCreate={onCreate} />)
+
+    fillRequiredFields()
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: '' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(onCreate).not.toHaveBeenCalled()
   })
 
   it('does not call onCreate when required fields are empty (native validation blocks submit)', () => {
@@ -150,5 +162,57 @@ describe('NewMachinePanel in edit mode', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(onCreate).not.toHaveBeenCalled()
+  })
+})
+
+describe('NewMachinePanel branch picker', () => {
+  const branches = [
+    { _id: 'f1', nome: 'Matriz', matriz: true },
+    { _id: 'f2', nome: 'Unidade Norte', matriz: false },
+  ]
+
+  it('shows the Filial select with the first branch selected and sends the chosen branch', () => {
+    const onCreate = vi.fn()
+    render(<NewMachinePanel branches={branches} onClose={vi.fn()} onCreate={onCreate} />)
+
+    const select = screen.getByLabelText('Filial')
+    expect(select).toHaveValue('f1')
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Matriz', 'Unidade Norte'])
+
+    fillRequiredFields()
+    fireEvent.change(select, { target: { value: 'f2' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f2', identificacao: 'EMP-100' }))
+  })
+
+  it('submits the first branch when the user does not change it', () => {
+    const onCreate = vi.fn()
+    render(<NewMachinePanel branches={branches} onClose={vi.fn()} onCreate={onCreate} />)
+
+    fillRequiredFields()
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f1' }))
+  })
+
+  it('hides the Filial select without branches or with a single branch', () => {
+    const { unmount } = render(<NewMachinePanel onClose={vi.fn()} onCreate={vi.fn()} />)
+    expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
+    unmount()
+
+    render(<NewMachinePanel branches={[branches[0]]} onClose={vi.fn()} onCreate={vi.fn()} />)
+    expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
+  })
+
+  it('hides the Filial select when editing a machine', () => {
+    const machine = {
+      id: 'm1', identificacao: 'EMP-081', nome: 'Titan-X', setor: 'Doca', status: 'disponivel',
+      categoriaId: null, categoriaTravada: false, alertaEm: null,
+      dispositivoConectado: { enderecoMac: 'AA:BB' }, tempoSessaoMinutos: 0,
+    } as unknown as Machine
+    render(<NewMachinePanel machine={machine} branches={branches} onClose={vi.fn()} onCreate={vi.fn()} />)
+
+    expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
   })
 })

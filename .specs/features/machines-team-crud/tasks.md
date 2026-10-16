@@ -296,9 +296,9 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: MAC vazio mostra erro e não envia; select aparece só com `branches` e envia a escolhida
-- [ ] Chaves novas nos 7 idiomas, traduzidas
-- [ ] Gate quick passa
+- [x] Testes: MAC vazio mostra erro e não envia; select aparece só com `branches` e envia a escolhida
+- [x] Chaves novas nos 7 idiomas, traduzidas
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

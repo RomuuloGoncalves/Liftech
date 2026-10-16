@@ -40,6 +40,7 @@
     "labelName": "Name",
     "labelSector": "Sector",
     "labelMac": "MAC Address",
+    "labelBranch": "Branch",
     "detailCode": "Code",
     "detailMac": "Mac",
     "detailSector": "Sector",

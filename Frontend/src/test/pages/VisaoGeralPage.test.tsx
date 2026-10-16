@@ -127,6 +127,7 @@ describe('VisaoGeralPage', () => {
 
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(screen.queryByRole('dialog', { name: 'Nova Máquina' })).not.toBeInTheDocument()
@@ -269,6 +270,7 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     openDetail('EMP-200')
 
@@ -322,6 +324,7 @@ describe('VisaoGeralPage notifications', () => {
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(toastTexts()).toEqual(['Máquina "EMP-999" cadastrada'])
   })
@@ -410,6 +413,7 @@ describe('VisaoGeralPage: API', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     openDetail('EMP-200')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))

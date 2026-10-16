@@ -42,6 +42,7 @@
     "labelSector": "Setor",
     "labelDeviceName": "Nome Dispositivo",
     "labelMac": "MAC Address",
+    "labelBranch": "Filial",
     "detailCode": "Código",
     "detailMac": "Mac",
     "detailSector": "Setor",
