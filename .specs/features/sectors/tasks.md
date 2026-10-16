@@ -151,8 +151,8 @@ T15
 **Requirement**: SECT-08
 
 **Done when**:
-- [ ] Testes dos critérios 8 e 9 da story Máquina ligada
-- [ ] Quick gate passa
+- [x] Testes dos critérios 8 e 9 da story Máquina ligada
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

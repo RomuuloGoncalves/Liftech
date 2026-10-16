@@ -134,7 +134,7 @@ describe('forkliftController: escopo', () => {
             expect(mockStatus).toHaveBeenCalledWith(200);
         });
 
-        test.each(['status', 'statusAlteradoEm', 'categoriaId', 'categoriaTravada', 'sessaoIniciadaEm'])(
+        test.each(['status', 'statusAlteradoEm', 'categoriaId', 'categoriaTravada', 'sessaoIniciadaEm', 'setorId'])(
             '400 com o campo protegido %s, sem chamar o service',
             async (campo) => {
                 await atualizar(req(escopoDe('empresa', [F1]), { params: { id: ID }, body: { nome: 'Nova', [campo]: null } }), res);
@@ -156,7 +156,8 @@ describe('forkliftController: escopo', () => {
         test('escopo empresa move para uma filial do escopo', async () => {
             await atualizar(req(escopoDe('empresa', [F1, F2]), { params: { id: ID }, body: { filialId: F2 } }), res);
 
-            expect(servicoForklift.atualizar).toHaveBeenCalledWith(ID, { filialId: F2 }, FILTRO([F1, F2]));
+            // Mover de filial desliga o setor, que é da filial antiga.
+            expect(servicoForklift.atualizar).toHaveBeenCalledWith(ID, { filialId: F2, setorId: null }, FILTRO([F1, F2]));
             expect(mockStatus).toHaveBeenCalledWith(200);
         });
 

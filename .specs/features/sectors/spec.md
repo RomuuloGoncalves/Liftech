@@ -35,7 +35,7 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 | Texto antigo sem migração | A API não lê mais `forklift.setor`; máquina sem `setorId` mostra `setor: ''` até rodar `migrate:sectors` | Uma fonte só para o nome; o dono roda a migração no deploy | n |
 | Campo `setor` (texto) no `PUT /api/machines/:id` | Sai da lista de campos aceitos; vira `setorId`. Mandar `setor` responde 400 "O campo 'setor' não pode ser alterado por esta rota." | O texto livre deixa de existir | n |
 | `setorId` em `PUT /api/forklifts/:id` | Entra em `CAMPOS_PROTEGIDOS` (400); só `/api/machines` liga setor, porque é lá que a filial é conferida | Mesmo padrão de status e categoria (AD-011) | n |
-| Máquina movida de filial por `PUT /api/forklifts/:id` | Grava `setorId: null` junto com a filial nova | O setor antigo é de outra filial | n |
+| Máquina movida de filial por `PUT /api/forklifts/:id` | Todo corpo com `filialId` grava `setorId: null` junto, mesmo se for a filial atual | O setor antigo é de outra filial; o controller não lê a filial atual e nenhuma tela usa essa rota | n |
 | Setor com máquinas mudando de filial | 409 "Setor com N máquina(s) ligada(s) não pode mudar de filial." | Mover deixaria máquinas ligadas a setor de outra filial | n |
 | Nome repetido | Índice único `{ filialId, nome }` com `collation: { locale: 'pt', strength: 2 }` (o mesmo de `category`); o erro 11000 vira 409 "Já existe um setor com este nome nesta filial." | Pedido do dono | y |
 | Ordem da lista | Por `nome` | Lista de nomes para select e cards | n |
@@ -95,7 +95,7 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 6. IF o corpo do `PUT /api/machines/:id` traz `setor` THEN the backend SHALL responder 400 "O campo 'setor' não pode ser alterado por esta rota.".
 7. The respostas de sessões e ocorrências SHALL trazer `maquina.setor` igual ao nome do setor ligado, ou `''` sem setor.
 8. IF `PUT /api/forklifts/:id` traz `setorId` THEN the backend SHALL responder 400 "O campo 'setorId' não pode ser alterado por esta rota.".
-9. WHEN `PUT /api/forklifts/:id` muda a filial da empilhadeira THEN the backend SHALL gravar `setorId: null`.
+9. WHEN `PUT /api/forklifts/:id` recebe `filialId` THEN the backend SHALL gravar `setorId: null` junto.
 10. WHEN o admin abre o cadastro ou a edição de máquina na Visão Geral THEN the frontend SHALL mostrar um select de setor com "Sem setor" e os setores da filial escolhida no formulário.
 11. WHEN a filial do formulário de máquina muda THEN the frontend SHALL limpar o setor escolhido.
 12. WHEN o setor de uma máquina é renomeado THEN the `GET /api/machines` SHALL devolver o nome novo em `setor`.
@@ -174,7 +174,7 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 | SECT-05 | P1: CRUD de setor (critério 15, admin) | Execute | Implemented |
 | SECT-06 | P1: Máquina ligada (critérios 1-4, setorId) | Execute | Implemented |
 | SECT-07 | P1: Máquina ligada (critérios 5-7, 12, resposta com nome) | Design | Pending |
-| SECT-08 | P1: Máquina ligada (critérios 8-9, `/api/forklifts`) | Design | Pending |
+| SECT-08 | P1: Máquina ligada (critérios 8-9, `/api/forklifts`) | Execute | Implemented |
 | SECT-09 | P1: Máquina ligada (critérios 10-11, select no front) | Design | Pending |
 | SECT-10 | P1: Setores na Equipe (critérios 1-3, 8) | Design | Pending |
 | SECT-11 | P1: Setores na Equipe (critérios 4-5, filial) | Design | Pending |
