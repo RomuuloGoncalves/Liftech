@@ -239,8 +239,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: cria user colaborador com os campos do design e hash verificável; 409 já tem login; 409 usuário em uso (checagem e 11000); troca de senha grava hash novo; `acessoNegado` gravado e `acesso` correspondente; 404 sem login; remove → `usuario: null`; resposta sem `senha`/`senhaHash`
-- [ ] Gate quick passa
+- [x] Testes: cria user colaborador com os campos do design e hash verificável; 409 já tem login; 409 usuário em uso (checagem e 11000); troca de senha grava hash novo; `acessoNegado` gravado e `acesso` correspondente; 404 sem login; remove → `usuario: null`; resposta sem `senha`/`senhaHash`
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

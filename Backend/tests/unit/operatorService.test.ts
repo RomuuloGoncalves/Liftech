@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { Types } from 'mongoose';
-import { listar, criar, atualizar, excluir } from '../../src/feature/operator/operatorService.js';
+import { listar, criar, atualizar, excluir, criarLogin, atualizarLogin, removerLogin } from '../../src/feature/operator/operatorService.js';
+import { verificarSenha } from '../../src/utils/senha.js';
 import { Operator } from '../../src/schemas/operator.js';
 import { User } from '../../src/schemas/user.js';
 import { WorkSession } from '../../src/schemas/workSession.js';
@@ -198,5 +199,131 @@ describe('excluir', () => {
 
         await expect(excluir(ESCOPO, ID)).rejects.toMatchObject({ status: 404, message: 'Operador não encontrado.' });
         expect(Operator.deleteOne).not.toHaveBeenCalled();
+    });
+});
+
+describe('criarLogin', () => {
+    test('cria o user colaborador ligado ao operador, com hash da senha, e devolve o operador com acesso Permitido', async () => {
+        mockarOperador(DOC, DOC);
+        vi.mocked(User.exists).mockResolvedValue(null);
+        vi.mocked(User.create).mockResolvedValue({} as any);
+        mockarLogins([{ operadorId: DOC._id, usuario: 'ana.souza', acessoNegado: false, senhaHash: 'x' }]);
+
+        const operador = await criarLogin(ESCOPO, ID, { usuario: 'ana.souza', senha: 'segredo123' });
+
+        const criado = vi.mocked(User.create).mock.calls[0]![0] as any;
+        expect(criado).toEqual({
+            nome: 'Ana Souza', role: 'colaborador', usuario: 'ana.souza', senhaHash: expect.any(String),
+            empresaId: 'e1', escopo: 'filiais', filiaisIds: [DOC.filialId], operadorId: ID,
+        });
+        expect(verificarSenha('segredo123', criado.senhaHash)).toBe(true);
+        expect(operador).toEqual({ ...FORMATADO, usuario: 'ana.souza', acesso: 'Permitido' });
+        expect(operador).not.toHaveProperty('senha');
+        expect(operador).not.toHaveProperty('senhaHash');
+    });
+
+    test('operador que já tem login: 409 sem criar', async () => {
+        mockarOperador(DOC);
+        vi.mocked(User.exists).mockResolvedValueOnce({ _id: 'u1' } as any);
+
+        await expect(criarLogin(ESCOPO, ID, { usuario: 'ana', senha: 'segredo123' }))
+            .rejects.toMatchObject({ status: 409, message: 'Este operador já tem login.' });
+        expect(User.exists).toHaveBeenCalledWith({ operadorId: ID });
+        expect(User.create).not.toHaveBeenCalled();
+    });
+
+    test('usuário já usado por outro user: 409 sem criar', async () => {
+        mockarOperador(DOC);
+        vi.mocked(User.exists).mockResolvedValueOnce(null).mockResolvedValueOnce({ _id: 'u2' } as any);
+
+        await expect(criarLogin(ESCOPO, ID, { usuario: 'ana', senha: 'segredo123' }))
+            .rejects.toMatchObject({ status: 409, message: 'Este usuário já está em uso.' });
+        expect(User.exists).toHaveBeenLastCalledWith({ usuario: 'ana' });
+        expect(User.create).not.toHaveBeenCalled();
+    });
+
+    test('índice único recusa o usuário numa corrida (11000): mesmo 409', async () => {
+        mockarOperador(DOC);
+        vi.mocked(User.exists).mockResolvedValue(null);
+        vi.mocked(User.create).mockRejectedValue(Object.assign(new Error('dup'), { code: 11000 }));
+
+        await expect(criarLogin(ESCOPO, ID, { usuario: 'ana', senha: 'segredo123' }))
+            .rejects.toMatchObject({ status: 409, message: 'Este usuário já está em uso.' });
+    });
+
+    test('operador fora do escopo: 404', async () => {
+        mockarOperador(null);
+
+        await expect(criarLogin(ESCOPO, ID, { usuario: 'ana', senha: 'segredo123' }))
+            .rejects.toMatchObject({ status: 404, message: 'Operador não encontrado.' });
+        expect(User.create).not.toHaveBeenCalled();
+    });
+});
+
+describe('atualizarLogin', () => {
+    test('senha nova grava um hash novo dessa senha', async () => {
+        mockarOperador(DOC, DOC);
+        vi.mocked(User.updateOne).mockResolvedValue({ matchedCount: 1 } as any);
+
+        await atualizarLogin(ESCOPO, ID, { senha: 'novaSenha99' });
+
+        const [filtro, { $set }] = vi.mocked(User.updateOne).mock.calls[0] as any;
+        expect(filtro).toEqual({ operadorId: ID });
+        expect(Object.keys($set)).toEqual(['senhaHash']);
+        expect(verificarSenha('novaSenha99', $set.senhaHash)).toBe(true);
+    });
+
+    test('acessoNegado é gravado e o acesso da resposta acompanha', async () => {
+        mockarOperador(DOC, DOC);
+        vi.mocked(User.updateOne).mockResolvedValue({ matchedCount: 1 } as any);
+        mockarLogins([{ operadorId: DOC._id, usuario: 'ana', acessoNegado: true }]);
+
+        const operador = await atualizarLogin(ESCOPO, ID, { acessoNegado: true });
+
+        expect(User.updateOne).toHaveBeenCalledWith({ operadorId: ID }, { $set: { acessoNegado: true } });
+        expect(operador).toMatchObject({ usuario: 'ana', acesso: 'Negado' });
+        expect(operador).not.toHaveProperty('senhaHash');
+    });
+
+    test('operador sem login: 404 "Operador sem login."', async () => {
+        mockarOperador(DOC);
+        vi.mocked(User.updateOne).mockResolvedValue({ matchedCount: 0 } as any);
+
+        await expect(atualizarLogin(ESCOPO, ID, { acessoNegado: false }))
+            .rejects.toMatchObject({ status: 404, message: 'Operador sem login.' });
+    });
+
+    test('operador fora do escopo: 404 sem gravar', async () => {
+        mockarOperador(null);
+
+        await expect(atualizarLogin(ESCOPO, ID, { acessoNegado: true }))
+            .rejects.toMatchObject({ status: 404, message: 'Operador não encontrado.' });
+        expect(User.updateOne).not.toHaveBeenCalled();
+    });
+});
+
+describe('removerLogin', () => {
+    test('apaga o user do operador e devolve usuario null e acesso Negado', async () => {
+        mockarOperador(DOC, DOC);
+        vi.mocked(User.deleteOne).mockResolvedValue({ deletedCount: 1 } as any);
+
+        const operador = await removerLogin(ESCOPO, ID);
+
+        expect(User.deleteOne).toHaveBeenCalledWith({ operadorId: ID });
+        expect(operador).toEqual(FORMATADO);
+    });
+
+    test('operador sem login: 404 "Operador sem login."', async () => {
+        mockarOperador(DOC);
+        vi.mocked(User.deleteOne).mockResolvedValue({ deletedCount: 0 } as any);
+
+        await expect(removerLogin(ESCOPO, ID)).rejects.toMatchObject({ status: 404, message: 'Operador sem login.' });
+    });
+
+    test('operador fora do escopo: 404 sem apagar', async () => {
+        mockarOperador(null);
+
+        await expect(removerLogin(ESCOPO, ID)).rejects.toMatchObject({ status: 404, message: 'Operador não encontrado.' });
+        expect(User.deleteOne).not.toHaveBeenCalled();
     });
 });

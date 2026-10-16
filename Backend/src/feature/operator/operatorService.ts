@@ -4,6 +4,7 @@ import { WorkSession } from "../../schemas/workSession.js";
 import { Branch } from "../../schemas/branch.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
+import { gerarHashSenha } from "../../utils/senha.js";
 
 export interface DadosOperador {
   nome?: string;
@@ -16,7 +17,15 @@ export interface DadosOperador {
 const CAMPOS_LIVRES = ["nome", "telefone", "cargo", "horarioEntrada", "horarioSaida"] as const;
 const MATRICULA = /^EMP-(\d+)$/;
 
+const USUARIO_EM_USO = "Este usuário já está em uso.";
+
 const naoEncontrado = () => new ErroHttp(StatusCode.NOT_FOUND, "Operador não encontrado.");
+const semLogin = () => new ErroHttp(StatusCode.NOT_FOUND, "Operador sem login.");
+
+// O índice único em user.usuario recusa o usuário repetido numa corrida (11000).
+function traduzirErro(error: any): never {
+  throw error.code === 11000 ? new ErroHttp(StatusCode.CONFLICT, USUARIO_EM_USO) : error;
+}
 
 // Junta o login de cada operador numa consulta só. Acesso 'Permitido' só com login e sem acessoNegado.
 async function formatar(operadores: any[]) {
@@ -91,4 +100,39 @@ export async function excluir(escopo: Escopo, id: string) {
   await Operator.deleteOne({ _id: id });
   await User.deleteMany({ operadorId: id });
   return { _id: id, message: "Operador excluído com sucesso." };
+}
+
+// Login do colaborador no mesmo formato do seed: só a filial do operador.
+export async function criarLogin(escopo: Escopo, id: string, dados: { usuario: string; senha: string }) {
+  const operador = await obter(escopo, id);
+  if (await User.exists({ operadorId: id })) throw new ErroHttp(StatusCode.CONFLICT, "Este operador já tem login.");
+  if (await User.exists({ usuario: dados.usuario })) throw new ErroHttp(StatusCode.CONFLICT, USUARIO_EM_USO);
+  await User.create({
+    nome: operador.nome,
+    role: "colaborador",
+    usuario: dados.usuario,
+    senhaHash: gerarHashSenha(dados.senha),
+    empresaId: escopo.empresaId,
+    escopo: "filiais",
+    filiaisIds: [operador.filialId],
+    operadorId: id,
+  }).catch(traduzirErro);
+  return obterFormatado(escopo, id);
+}
+
+export async function atualizarLogin(escopo: Escopo, id: string, dados: { senha?: string; acessoNegado?: boolean }) {
+  await obter(escopo, id);
+  const alteracoes: Record<string, unknown> = {};
+  if (dados.senha !== undefined) alteracoes.senhaHash = gerarHashSenha(dados.senha);
+  if (dados.acessoNegado !== undefined) alteracoes.acessoNegado = dados.acessoNegado;
+  const { matchedCount } = await User.updateOne({ operadorId: id }, { $set: alteracoes });
+  if (matchedCount === 0) throw semLogin();
+  return obterFormatado(escopo, id);
+}
+
+export async function removerLogin(escopo: Escopo, id: string) {
+  await obter(escopo, id);
+  const { deletedCount } = await User.deleteOne({ operadorId: id });
+  if (deletedCount === 0) throw semLogin();
+  return obterFormatado(escopo, id);
 }

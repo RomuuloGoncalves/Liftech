@@ -165,15 +165,15 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | OPER-10 | P1 Operador: só admin | Design | Implementing |
 | OPER-11 | P1 Operador: Equipe carrega da API | Design | Pending |
 | OPER-12 | P1 Operador: front otimista e rollback | Design | Pending |
-| LOGIN-01 | P1 Login: criar | Design | Pending |
-| LOGIN-02 | P1 Login: já tem login | Design | Pending |
-| LOGIN-03 | P1 Login: usuário em uso | Design | Pending |
+| LOGIN-01 | P1 Login: criar | Design | Implementing |
+| LOGIN-02 | P1 Login: já tem login | Design | Implementing |
+| LOGIN-03 | P1 Login: usuário em uso | Design | Implementing |
 | LOGIN-04 | P1 Login: validação | Design | Pending |
-| LOGIN-05 | P1 Login: trocar senha | Design | Pending |
+| LOGIN-05 | P1 Login: trocar senha | Design | Implementing |
 | LOGIN-06 | P1 Login: acesso negado | Design | Implementing |
-| LOGIN-07 | P1 Login: sem login 404 | Design | Pending |
-| LOGIN-08 | P1 Login: remover | Design | Pending |
-| LOGIN-09 | P1 Login: sem senha na resposta | Design | Pending |
+| LOGIN-07 | P1 Login: sem login 404 | Design | Implementing |
+| LOGIN-08 | P1 Login: remover | Design | Implementing |
+| LOGIN-09 | P1 Login: sem senha na resposta | Design | Implementing |
 | LOGIN-10 | P1 Login: auth recusa negado | Design | Implementing |
 | LOGIN-11 | P1 Login: middleware recusa negado | Design | Implementing |
 | LOGIN-12 | P1 Login: front cria operador + login | Design | Pending |
