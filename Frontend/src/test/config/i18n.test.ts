@@ -470,3 +470,31 @@ describe('i18n employee session texts', () => {
     }
   );
 });
+
+describe('sector translations', () => {
+  const SECTOR_KEYS = [
+    'machines.sectorNone',
+    'machines.filterSectorAll',
+    'machines.filterSectorLabel',
+    'team.sectorHasMachines',
+    'team.sectorMoveHasMachines',
+    'team.sectorNameTaken',
+    'team.labelSectorBranch',
+  ];
+  const valueOf = (data: unknown, key: string): string | undefined =>
+    key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown> | undefined)?.[part], data) as string | undefined;
+
+  it.each(ALL_LOCALES)('locale $code has every sector key, translated (not the pt-BR text outside pt-BR)', ({ code, data }) => {
+    for (const key of SECTOR_KEYS) {
+      const value = valueOf(data, key);
+      expect(value, `Locale "${code}" ${key} is missing or empty`).toBeTruthy();
+      if (code !== 'pt-BR') expect(value, `Locale "${code}" ${key} is still in Portuguese`).not.toBe(valueOf(ptBR, key));
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps the {{n}} placeholder in the machine count messages', ({ code, data }) => {
+    for (const key of ['team.sectorHasMachines', 'team.sectorMoveHasMachines']) {
+      expect(valueOf(data, key), `Locale "${code}" ${key} lost {{n}}`).toContain('{{n}}');
+    }
+  });
+});

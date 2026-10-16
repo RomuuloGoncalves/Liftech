@@ -134,6 +134,14 @@ describe('atualizar', () => {
         expect(Sector.findOneAndUpdate).not.toHaveBeenCalled();
     });
 
+    test('setor com 1 máquina mudando de filial: 409, sem gravar', async () => {
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(1 as any);
+        await expect(atualizar(EMPRESA, ID, { filialId: F2 })).rejects.toMatchObject({
+            status: 409, message: 'Setor com 1 máquina(s) ligada(s) não pode mudar de filial.',
+        });
+        expect(Sector.findOneAndUpdate).not.toHaveBeenCalled();
+    });
+
     test('fora do escopo ou inexistente: 404', async () => {
         vi.mocked(Sector.findOne).mockReturnValue(lean(null));
         await expect(atualizar(EMPRESA, ID, { nome: 'X' })).rejects.toMatchObject({ status: 404, message: 'Setor não encontrado.' });
@@ -154,6 +162,14 @@ describe('excluir', () => {
         vi.mocked(Forklift.countDocuments).mockResolvedValue(2 as any);
 
         await expect(excluir(EMPRESA, ID)).rejects.toMatchObject({ status: 409, message: 'Setor com 2 máquina(s) ligada(s).' });
+        expect(Sector.deleteOne).not.toHaveBeenCalled();
+    });
+
+    test('com 1 máquina: 409, sem apagar', async () => {
+        vi.mocked(Sector.exists).mockResolvedValue({ _id: ID } as any);
+        vi.mocked(Forklift.countDocuments).mockResolvedValue(1 as any);
+
+        await expect(excluir(EMPRESA, ID)).rejects.toMatchObject({ status: 409, message: 'Setor com 1 máquina(s) ligada(s).' });
         expect(Sector.deleteOne).not.toHaveBeenCalled();
     });
 
