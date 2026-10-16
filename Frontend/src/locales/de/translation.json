@@ -75,7 +75,10 @@
       "alerta": "Warnung",
       "offline": "Nicht verbunden"
     },
-    "changeStatus": "Status ändern"
+    "changeStatus": "Status ändern",
+    "sectorNone": "Kein Sektor",
+    "filterSectorAll": "Alle Sektoren",
+    "filterSectorLabel": "Nach Sektor filtern"
   },
   "alerts": {
     "accidents": "Unfälle",
@@ -149,7 +152,11 @@
     "loadError": "Die Mitarbeiter konnten nicht geladen werden.",
     "saveError": "Der Mitarbeiter konnte nicht gespeichert werden. Bitte erneut versuchen.",
     "loginError": "Mitarbeiter angelegt, aber der Login konnte nicht erstellt werden. Bearbeiten Sie ihn, um es erneut zu versuchen.",
-    "deleteInSession": "Mitarbeiter mit offener Sitzung: Beenden Sie die Sitzung vor dem Löschen."
+    "deleteInSession": "Mitarbeiter mit offener Sitzung: Beenden Sie die Sitzung vor dem Löschen.",
+    "labelSectorBranch": "Filiale",
+    "sectorNameTaken": "In dieser Filiale gibt es bereits einen Sektor mit diesem Namen",
+    "sectorHasMachines": "Sektor mit {{n}} verknüpften Maschine(n)",
+    "sectorMoveHasMachines": "Ein Sektor mit {{n}} verknüpften Maschine(n) kann die Filiale nicht wechseln"
   },
   "languages": {
     "title": "Sprache wählen",

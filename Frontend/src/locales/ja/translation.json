@@ -75,7 +75,10 @@
       "alerta": "アラート",
       "offline": "オフライン"
     },
-    "changeStatus": "ステータスを変更"
+    "changeStatus": "ステータスを変更",
+    "sectorNone": "セクターなし",
+    "filterSectorAll": "すべてのセクター",
+    "filterSectorLabel": "セクターで絞り込む"
   },
   "alerts": {
     "accidents": "事故",
@@ -149,7 +152,11 @@
     "loadError": "従業員を読み込めませんでした。",
     "saveError": "従業員を保存できませんでした。もう一度お試しください。",
     "loginError": "従業員は登録されましたが、ログインを作成できませんでした。編集してもう一度お試しください。",
-    "deleteInSession": "セッション中の従業員です。削除する前にセッションを終了してください。"
+    "deleteInSession": "セッション中の従業員です。削除する前にセッションを終了してください。",
+    "labelSectorBranch": "支店",
+    "sectorNameTaken": "この支店には同じ名前のセクターが既に存在します",
+    "sectorHasMachines": "このセクターには{{n}}台の機械が紐付いています",
+    "sectorMoveHasMachines": "{{n}}台の機械が紐付いたセクターは支店を変更できません"
   },
   "languages": {
     "title": "言語を選択",

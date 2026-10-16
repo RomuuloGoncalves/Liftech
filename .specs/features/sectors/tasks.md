@@ -223,8 +223,8 @@ T15
 **Requirement**: SECT-13
 
 **Done when**:
-- [ ] Teste de URL, método e corpo; i18n com paridade
-- [ ] Quick gate passa
+- [x] Teste de URL, método e corpo; i18n com paridade
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

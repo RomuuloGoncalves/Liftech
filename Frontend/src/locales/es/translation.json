@@ -75,7 +75,10 @@
       "alerta": "En alerta",
       "offline": "Sin conexión"
     },
-    "changeStatus": "Cambiar estado"
+    "changeStatus": "Cambiar estado",
+    "sectorNone": "Sin sector",
+    "filterSectorAll": "Todos los sectores",
+    "filterSectorLabel": "Filtrar por sector"
   },
   "alerts": {
     "accidents": "Accidentes",
@@ -149,7 +152,11 @@
     "loadError": "No se pudieron cargar los empleados.",
     "saveError": "No se pudo guardar el empleado. Inténtalo de nuevo.",
     "loginError": "Empleado registrado, pero no se pudo crear el acceso. Edítalo para intentarlo de nuevo.",
-    "deleteInSession": "Empleado con sesión abierta: finaliza la sesión antes de eliminarlo."
+    "deleteInSession": "Empleado con sesión abierta: finaliza la sesión antes de eliminarlo.",
+    "labelSectorBranch": "Sucursal",
+    "sectorNameTaken": "Ya existe un sector con este nombre en esta sucursal",
+    "sectorHasMachines": "Sector con {{n}} máquina(s) vinculada(s)",
+    "sectorMoveHasMachines": "Un sector con {{n}} máquina(s) vinculada(s) no puede cambiar de sucursal"
   },
   "languages": {
     "title": "Elige un idioma",

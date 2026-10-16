@@ -77,7 +77,10 @@
       "alerta": "Alerta",
       "offline": "Offline"
     },
-    "changeStatus": "Alterar status"
+    "changeStatus": "Alterar status",
+    "sectorNone": "Sem setor",
+    "filterSectorAll": "Todos os setores",
+    "filterSectorLabel": "Filtrar por setor"
   },
   "alerts": {
     "accidents": "Acidentes",
@@ -151,7 +154,11 @@
     "loadError": "Não foi possível carregar os funcionários.",
     "saveError": "Não foi possível salvar o funcionário. Tente novamente.",
     "loginError": "Funcionário cadastrado, mas não foi possível criar o login. Edite-o para tentar de novo.",
-    "deleteInSession": "Funcionário com sessão aberta: encerre a sessão antes de excluir."
+    "deleteInSession": "Funcionário com sessão aberta: encerre a sessão antes de excluir.",
+    "labelSectorBranch": "Filial",
+    "sectorNameTaken": "Já existe um setor com este nome nesta filial",
+    "sectorHasMachines": "Setor com {{n}} máquina(s) ligada(s)",
+    "sectorMoveHasMachines": "Setor com {{n}} máquina(s) ligada(s) não pode mudar de filial"
   },
   "languages": {
     "title": "Escolha um idioma",
