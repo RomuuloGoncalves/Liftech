@@ -145,7 +145,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | MACH-02 | P1 Máquina: status inicial e categoria | Design | Pending |
 | MACH-03 | P1 Máquina: campos obrigatórios | Design | Pending |
 | MACH-04 | P1 Máquina: identificação repetida | Design | Pending |
-| MACH-05 | P1 Máquina: MAC repetido | Design | Pending |
+| MACH-05 | P1 Máquina: MAC repetido | Design | Implementing |
 | MACH-06 | P1 Máquina: editar campos livres | Design | Pending |
 | MACH-07 | P1 Máquina: campos protegidos | Design | Pending |
 | MACH-08 | P1 Máquina: excluir forklift + device | Design | Pending |
@@ -153,7 +153,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | MACH-10 | P1 Máquina: 404 fora do escopo | Design | Pending |
 | MACH-11 | P1 Máquina: front otimista | Design | Pending |
 | MACH-12 | P1 Máquina: front rollback | Design | Pending |
-| OPER-01 | P1 Operador: listar | Design | Pending |
+| OPER-01 | P1 Operador: listar | Design | Implementing |
 | OPER-02 | P1 Operador: filtro de filial | Design | Pending |
 | OPER-03 | P1 Operador: criar com matrícula | Design | Pending |
 | OPER-04 | P1 Operador: validação | Design | Pending |
@@ -170,7 +170,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | LOGIN-03 | P1 Login: usuário em uso | Design | Pending |
 | LOGIN-04 | P1 Login: validação | Design | Pending |
 | LOGIN-05 | P1 Login: trocar senha | Design | Pending |
-| LOGIN-06 | P1 Login: acesso negado | Design | Pending |
+| LOGIN-06 | P1 Login: acesso negado | Design | Implementing |
 | LOGIN-07 | P1 Login: sem login 404 | Design | Pending |
 | LOGIN-08 | P1 Login: remover | Design | Pending |
 | LOGIN-09 | P1 Login: sem senha na resposta | Design | Pending |

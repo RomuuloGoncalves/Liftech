@@ -13,7 +13,9 @@ const userSchema = new Schema({
     escopo: { type: String, enum: ['empresa', 'filiais'], default: 'filiais' },
     filiaisIds: [{ type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch' }],
     // Colaborador: o operator que ele é (quem retira a máquina). O user serve só para o login.
-    operadorId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'operator' }
+    operadorId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'operator' },
+    // Bloqueia o login e as requisições sem apagar o user.
+    acessoNegado: { type: Boolean, default: false }
 })
 
 export const User = conn.mongoose.model("user", userSchema)

@@ -85,8 +85,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Paths novos existem; `acessoNegado` nasce `false`; índice único em `enderecoMac`
-- [ ] Gate quick passa
+- [x] Paths novos existem; `acessoNegado` nasce `false`; índice único em `enderecoMac`
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

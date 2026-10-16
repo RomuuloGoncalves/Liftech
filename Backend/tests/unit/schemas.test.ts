@@ -192,3 +192,30 @@ describe('sessão do funcionário', async () => {
         expect(await erros(new Incident({ filialId, descricao: 'a'.repeat(501) }))).toEqual(['descricao']);
     });
 });
+
+describe('cadastro de máquina e equipe', () => {
+    const filialId = new mongoose.Types.ObjectId();
+
+    test('operator: guarda matricula, telefone, cargo e horários sem espaços nas pontas', () => {
+        const o = new Operator({
+            filialId, nome: 'Ana', matricula: ' EMP-001 ', telefone: ' (11) 99999-0000 ',
+            cargo: ' Operadora ', horarioEntrada: ' 08:00 ', horarioSaida: ' 17:00 ',
+        });
+        expect(o.matricula).toBe('EMP-001');
+        expect(o.telefone).toBe('(11) 99999-0000');
+        expect(o.cargo).toBe('Operadora');
+        expect(o.horarioEntrada).toBe('08:00');
+        expect(o.horarioSaida).toBe('17:00');
+    });
+
+    test('user: acessoNegado nasce false e guarda true', () => {
+        const empresaId = new mongoose.Types.ObjectId();
+        expect(new User({ nome: 'Ana', role: 'colaborador', empresaId }).acessoNegado).toBe(false);
+        expect(new User({ nome: 'Ana', role: 'colaborador', empresaId, acessoNegado: true }).acessoNegado).toBe(true);
+    });
+
+    test('device: guarda nome e enderecoMac tem índice único', () => {
+        expect(new Device({ filialId, nome: 'Sensor 01' }).nome).toBe('Sensor 01');
+        expect(Device.schema.indexes()).toContainEqual([{ enderecoMac: 1 }, expect.objectContaining({ unique: true })]);
+    });
+});
