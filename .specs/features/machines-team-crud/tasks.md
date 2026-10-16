@@ -277,8 +277,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Teste: método, URL e corpo de cada chamada
-- [ ] Gate quick passa
+- [x] Teste: método, URL e corpo de cada chamada
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick
