@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { resetarBanco, COLECOES } from '../../src/scripts/resetData.js';
 import { seedData } from '../../src/scripts/seedData.js';
 
-const NOMES = ['company', 'branch', 'category', 'operator', 'device', 'forklift', 'telemetry', 'incident', 'workSession', 'user', 'accessRequest'];
+const NOMES = ['company', 'branch', 'category', 'sector', 'operator', 'device', 'forklift', 'telemetry', 'incident', 'workSession', 'user', 'accessRequest'];
 
 // Cada model é um mock que registra a ordem dos deleteMany; nada toca no banco.
 const { ordem, mockModel } = vi.hoisted(() => {
@@ -13,6 +13,7 @@ const { ordem, mockModel } = vi.hoisted(() => {
 vi.mock('../../src/schemas/company.js', () => ({ Company: mockModel('company') }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: mockModel('branch') }));
 vi.mock('../../src/schemas/category.js', () => ({ Category: mockModel('category') }));
+vi.mock('../../src/schemas/sector.js', () => ({ Sector: mockModel('sector') }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: mockModel('operator') }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: mockModel('device') }));
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: mockModel('forklift') }));
@@ -33,7 +34,7 @@ describe('resetarBanco', () => {
         });
     });
 
-    test('limpa as 11 collections da aplicação', () => {
+    test('limpa as 12 collections da aplicação, sector inclusive', () => {
         expect(COLECOES.map((m: any) => m.nome).sort()).toEqual([...NOMES].sort());
     });
 

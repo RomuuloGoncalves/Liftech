@@ -205,8 +205,8 @@ T15
 **Requirement**: SECT-16
 
 **Done when**:
-- [ ] Testes dos critérios 5-6 da story Migração em `seedData.test.ts` e `resetData.test.ts`
-- [ ] Build gate do Backend passa
+- [x] Testes dos critérios 5-6 da story Migração em `seedData.test.ts` e `resetData.test.ts`
+- [x] Build gate do Backend passa
 
 **Tests**: unit
 **Gate**: build

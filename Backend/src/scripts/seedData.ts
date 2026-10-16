@@ -2,6 +2,7 @@ import { pathToFileURL } from 'node:url';
 import { Operator } from '../schemas/operator.js';
 import { Device } from '../schemas/device.js';
 import { Forklift } from '../schemas/forklift.js';
+import { Sector } from '../schemas/sector.js';
 import { Telemetry } from '../schemas/telemetry.js';
 import { Incident } from '../schemas/incident.js';
 import { User } from '../schemas/user.js';
@@ -30,13 +31,21 @@ export async function seedData() {
         dispositivoIds.set(d.enderecoMac, await upsert(Device, { enderecoMac: d.enderecoMac }, { ...d, filialId: filialIds.get(filialDoDispositivo(d.enderecoMac)) }));
     }
 
+    // Um setor por texto do dataset em cada filial; a empilhadeira aponta para ele.
+    const setorIds = new Map<string, unknown>();
+    for (const e of EMPILHADEIRAS) {
+        const filialId = filialIds.get(filialDaEmpilhadeira(e));
+        const chave = `${filialId}|${e.setor}`;
+        if (!setorIds.has(chave)) setorIds.set(chave, await upsert(Sector, { filialId, nome: e.setor }, { filialId, nome: e.setor }));
+    }
+
     const agora = Date.now();
     const empilhadeiraIds: unknown[] = [];
     for (const e of EMPILHADEIRAS) {
         empilhadeiraIds.push(await upsert(Forklift, { identificacao: e.identificacao }, {
             identificacao: e.identificacao,
             nome: e.nome,
-            setor: e.setor,
+            setorId: setorIds.get(`${filialIds.get(filialDaEmpilhadeira(e))}|${e.setor}`),
             filialId: filialIds.get(filialDaEmpilhadeira(e)),
             dispositivoConectadoId: dispositivoIds.get(e.enderecoMac),
             status: e.status,
@@ -83,6 +92,7 @@ export async function seedData() {
     const contagem = {
         empresas: 1,
         filiais: filialIds.size,
+        setores: setorIds.size,
         operadores: OPERADORES.length,
         dispositivos: DISPOSITIVOS.length,
         empilhadeiras: EMPILHADEIRAS.length,
@@ -92,7 +102,7 @@ export async function seedData() {
         solicitacoes: SOLICITACOES.length,
     };
     logger.info(
-        `Seed concluído: ${contagem.empresas} empresa, ${contagem.filiais} filiais, ${contagem.operadores} operadores, ${contagem.dispositivos} dispositivos, ` +
+        `Seed concluído: ${contagem.empresas} empresa, ${contagem.filiais} filiais, ${contagem.setores} setores, ${contagem.operadores} operadores, ${contagem.dispositivos} dispositivos, ` +
         `${contagem.empilhadeiras} empilhadeiras, ${contagem.telemetria} leituras, ${contagem.incidentes} incidentes, ` +
         `${contagem.colaboradores} colaboradores, ${contagem.solicitacoes} solicitações.`
     );

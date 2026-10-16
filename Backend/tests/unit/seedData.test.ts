@@ -4,6 +4,7 @@ import { seedAdmin } from '../../src/scripts/seedAdmin.js';
 import { Operator } from '../../src/schemas/operator.js';
 import { Device } from '../../src/schemas/device.js';
 import { Forklift } from '../../src/schemas/forklift.js';
+import { Sector } from '../../src/schemas/sector.js';
 import { Telemetry } from '../../src/schemas/telemetry.js';
 import { Incident } from '../../src/schemas/incident.js';
 import { User } from '../../src/schemas/user.js';
@@ -18,6 +19,7 @@ import { criarQuadroInicial, posicionarSemCategoria } from '../../src/feature/ca
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { findOneAndUpdate: vi.fn() } }));
+vi.mock('../../src/schemas/sector.js', () => ({ Sector: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/telemetry.js', () => ({ Telemetry: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/schemas/user.js', () => ({ User: { findOneAndUpdate: vi.fn() } }));
@@ -33,7 +35,7 @@ const AGORA = new Date('2026-10-13T12:00:00Z');
 const SENHA = 'asdasdasd';
 const envOriginal = { ...process.env };
 
-const MODELOS = { Company, Branch, Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
+const MODELOS = { Company, Branch, Sector, Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
 
 function mockarModelos() {
     for (const [nome, m] of Object.entries(MODELOS)) {
@@ -179,6 +181,7 @@ describe('seedData', () => {
         expect(contagem).toEqual({
             empresas: 1,
             filiais: 3,
+            setores: 3,
             operadores: 12,
             dispositivos: 16,
             empilhadeiras: 16,
@@ -194,6 +197,19 @@ describe('seedData', () => {
         expect(chamadas(Incident)).toHaveLength(32);
         expect(chamadas(User)).toHaveLength(12);
         expect(chamadas(AccessRequest)).toHaveLength(2);
+    });
+
+    test('cria um setor por texto do dataset na filial da empilhadeira, com upsert por { filialId, nome }', async () => {
+        await seedData();
+
+        expect(chamadas(Sector).map((c) => c[0])).toEqual([
+            { filialId: filialId('Matriz'), nome: 'Expedição - Bloco B' },
+            { filialId: filialId('Unidade Centro'), nome: 'Recebimento - Bloco A' },
+            { filialId: filialId('Unidade Norte'), nome: 'Armazenagem - Bloco C' },
+        ]);
+        expect(chamadas(Sector)[0]![2]).toMatchObject({ upsert: true });
+        expect(chamadaDe(Forklift, { identificacao: 'EMP-083' })[1].$set.setorId)
+            .toBe(idDe('Sector', { filialId: filialId('Unidade Centro'), nome: 'Recebimento - Bloco A' }));
     });
 
     test('cada collection faz upsert pela chave natural do spec', async () => {
@@ -224,7 +240,7 @@ describe('seedData', () => {
         expect(comOperador).toMatchObject({
             identificacao: 'EMP-081',
             nome: 'Empilhadeira Elétrica Titan-X',
-            setor: 'Expedição - Bloco B',
+            setorId: idDe('Sector', { filialId: filialId('Matriz'), nome: 'Expedição - Bloco B' }),
             dispositivoConectadoId: idDe('Device', { enderecoMac: 'A2:C9:9B:1D:F7' }),
             operadorConectadoId: idDe('Operator', { nome: 'Carlos Silva' }),
         });
