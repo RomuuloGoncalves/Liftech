@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { atualizarMaquina, criarMaquina, definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { atualizarMaquina, criarMaquina, definirTrava, excluirMaquina, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
 import { Incident } from '../../src/schemas/incident.js';
@@ -11,6 +11,8 @@ vi.mock('../../src/schemas/category.js', () => ({ Category: { exists: vi.fn(), f
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } }));
 import { Device } from '../../src/schemas/device.js';
 import { Branch } from '../../src/schemas/branch.js';
+import { WorkSession } from '../../src/schemas/workSession.js';
+vi.mock('../../src/schemas/workSession.js', () => ({ WorkSession: { exists: vi.fn() } }));
 vi.mock('../../src/schemas/device.js', () => ({ Device: { exists: vi.fn(), create: vi.fn(), deleteOne: vi.fn(), updateOne: vi.fn() } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findById: vi.fn() } }));
@@ -523,5 +525,42 @@ describe('atualizarMaquina', () => {
         await expect(atualizarMaquina(ESCOPO, id, todos)).rejects.toMatchObject({ status: 404, message: 'Máquina não encontrada.' });
         expect(Forklift.updateOne).not.toHaveBeenCalled();
         expect(Device.updateOne).not.toHaveBeenCalled();
+    });
+});
+
+describe('excluirMaquina', () => {
+    const DEVICE = new Types.ObjectId();
+    const id = ID.toHexString();
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockarLista([base]);
+        vi.mocked(Forklift.findById).mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: ID, dispositivoConectadoId: DEVICE }) } as any);
+        vi.mocked(WorkSession.exists).mockResolvedValue(null);
+    });
+
+    test('sem sessão aberta: apaga o forklift e o device e devolve { _id, message }', async () => {
+        const resposta = await excluirMaquina(ESCOPO, id);
+
+        expect(WorkSession.exists).toHaveBeenCalledWith({ empilhadeiraId: id, fim: null });
+        expect(Forklift.deleteOne).toHaveBeenCalledWith({ _id: id });
+        expect(Device.deleteOne).toHaveBeenCalledWith({ _id: DEVICE });
+        expect(resposta).toEqual({ _id: id, message: 'Máquina excluída com sucesso.' });
+    });
+
+    test('com sessão aberta: 409 "Máquina com sessão aberta." sem apagar nada', async () => {
+        vi.mocked(WorkSession.exists).mockResolvedValue({ _id: new Types.ObjectId() } as any);
+
+        await expect(excluirMaquina(ESCOPO, id)).rejects.toMatchObject({ status: 409, message: 'Máquina com sessão aberta.' });
+        expect(Forklift.deleteOne).not.toHaveBeenCalled();
+        expect(Device.deleteOne).not.toHaveBeenCalled();
+    });
+
+    test('fora do escopo: 404 sem apagar', async () => {
+        mockarLista([]);
+
+        await expect(excluirMaquina(ESCOPO, id)).rejects.toMatchObject({ status: 404, message: 'Máquina não encontrada.' });
+        expect(Forklift.deleteOne).not.toHaveBeenCalled();
+        expect(Device.deleteOne).not.toHaveBeenCalled();
     });
 });

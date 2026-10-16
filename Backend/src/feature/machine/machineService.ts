@@ -1,6 +1,7 @@
 import { Forklift } from "../../schemas/forklift.js";
 import { Incident } from "../../schemas/incident.js";
 import { Category } from "../../schemas/category.js";
+import { WorkSession } from "../../schemas/workSession.js";
 import { Device } from "../../schemas/device.js";
 import "../../schemas/operator.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
@@ -155,4 +156,17 @@ export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosM
   // ponytail: máquina sem device ligado (dado antigo) ignora os campos do device; criar o device aqui se aparecer o caso.
   if (Object.keys(doDevice).length > 0 && dispositivoId) await Device.updateOne({ _id: dispositivoId }, { $set: doDevice }).catch(traduzirErro);
   return obterMaquina(escopo, id);
+}
+
+// Sessões e incidentes antigos ficam: o histórico mostra a máquina apagada como null.
+// ponytail: forklift e device apagados sem transação; uma falha no meio deixa o device órfão.
+export async function excluirMaquina(escopo: Escopo, id: string) {
+  await obterMaquina(escopo, id);
+  if (await WorkSession.exists({ empilhadeiraId: id, fim: null })) {
+    throw new ErroHttp(StatusCode.CONFLICT, "Máquina com sessão aberta.");
+  }
+  const empilhadeira: any = await Forklift.findById(id).lean();
+  await Forklift.deleteOne({ _id: id });
+  if (empilhadeira?.dispositivoConectadoId) await Device.deleteOne({ _id: empilhadeira.dispositivoConectadoId });
+  return { _id: id, message: "Máquina excluída com sucesso." };
 }

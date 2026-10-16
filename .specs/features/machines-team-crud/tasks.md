@@ -182,8 +182,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: sessão aberta → 409 sem `deleteOne`; sem sessão apaga os dois e devolve `{ _id, message }`; fora do escopo → 404
-- [ ] Gate quick passa
+- [x] Testes: sessão aberta → 409 sem `deleteOne`; sem sessão apaga os dois e devolve `{ _id, message }`; fora do escopo → 404
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick
