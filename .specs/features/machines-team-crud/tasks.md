@@ -143,9 +143,9 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: cria os dois documentos ligados na filial; status `disponivel` e categoria do status (ou `null`); identificação repetida → 409; MAC repetido (maiúsculas) → 409; 11000 → 409; falha do forklift apaga o device; resposta com `nomeDispositivo`
-- [ ] Testes do `statusService` seguem verdes
-- [ ] Gate quick passa
+- [x] Testes: cria os dois documentos ligados na filial; status `disponivel` e categoria do status (ou `null`); identificação repetida → 409; MAC repetido (maiúsculas) → 409; 11000 → 409; falha do forklift apaga o device; resposta com `nomeDispositivo`
+- [x] Testes do `statusService` seguem verdes
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

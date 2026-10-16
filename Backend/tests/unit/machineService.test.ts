@@ -1,17 +1,19 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
+import { criarMaquina, definirTrava, listarMaquinas, moverParaCategoria, obterMaquina } from '../../src/feature/machine/machineService.js';
 import { Types } from 'mongoose';
 import { Forklift } from '../../src/schemas/forklift.js';
 import { Incident } from '../../src/schemas/incident.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
-vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn(), updateOne: vi.fn(), countDocuments: vi.fn(), updateMany: vi.fn() } }));
+vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn(), updateOne: vi.fn(), countDocuments: vi.fn(), updateMany: vi.fn(), exists: vi.fn(), create: vi.fn(), deleteOne: vi.fn() } }));
 import { Category } from '../../src/schemas/category.js';
-vi.mock('../../src/schemas/category.js', () => ({ Category: { exists: vi.fn() } }));
+vi.mock('../../src/schemas/category.js', () => ({ Category: { exists: vi.fn(), findOne: vi.fn() } }));
 vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } }));
-vi.mock('../../src/schemas/device.js', () => ({ Device: {} }));
+import { Device } from '../../src/schemas/device.js';
+import { Branch } from '../../src/schemas/branch.js';
+vi.mock('../../src/schemas/device.js', () => ({ Device: { exists: vi.fn(), create: vi.fn(), deleteOne: vi.fn(), updateOne: vi.fn() } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
-vi.mock('../../src/schemas/branch.js', () => ({ Branch: {} }));
+vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findById: vi.fn() } }));
 
 const AGORA = new Date('2026-10-13T12:00:00Z');
 
@@ -341,5 +343,109 @@ describe('moverParaCategoria', () => {
         mockarLista([base]);
         await moverParaCategoria(ESCOPO, [ID.toHexString(), ID.toHexString()], null);
         expect(Forklift.updateMany).toHaveBeenCalledWith({ _id: { $in: [ID.toHexString()] } }, { $set: { categoriaId: null } });
+    });
+});
+
+describe('criarMaquina', () => {
+    const DEVICE = new Types.ObjectId();
+    const EMPRESA = new Types.ObjectId();
+    const CATEGORIA = new Types.ObjectId();
+    const dados = { nome: 'Titan-X', identificacao: 'EMP-200', setor: 'Doca 1', nomeDispositivo: 'Sensor 01', enderecoMac: ' aa:bb:cc:dd:ee ', filialId: F1 };
+    const lean = (valor: unknown) => ({ lean: vi.fn().mockResolvedValue(valor) }) as any;
+    const criada = { _id: ID, identificacao: 'EMP-200', nome: 'Titan-X', setor: 'Doca 1', filialId: new Types.ObjectId(F1), status: 'disponivel', categoriaId: CATEGORIA, dispositivoConectadoId: { _id: DEVICE, enderecoMac: 'AA:BB:CC:DD:EE', nome: 'Sensor 01' } };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.useFakeTimers();
+        vi.setSystemTime(AGORA);
+        vi.mocked(Forklift.exists).mockResolvedValue(null);
+        vi.mocked(Device.exists).mockResolvedValue(null);
+        vi.mocked(Device.create).mockResolvedValue({ _id: DEVICE } as any);
+        vi.mocked(Forklift.create).mockResolvedValue({ _id: ID } as any);
+        vi.mocked(Branch.findById).mockReturnValue(lean({ _id: F1, empresaId: EMPRESA }));
+        vi.mocked(Category.findOne).mockReturnValue(lean({ _id: CATEGORIA }));
+        mockarLista([criada]);
+    });
+    afterEach(() => vi.useRealTimers());
+
+    test('cria o device e o forklift ligados na filial, disponível e na categoria do status', async () => {
+        await criarMaquina(ESCOPO, dados);
+
+        expect(Device.create).toHaveBeenCalledWith({ enderecoMac: 'AA:BB:CC:DD:EE', nome: 'Sensor 01', filialId: F1 });
+        expect(Category.findOne).toHaveBeenCalledWith({ empresaId: EMPRESA, statusVinculados: 'disponivel' });
+        expect(Forklift.create).toHaveBeenCalledWith({
+            identificacao: 'EMP-200',
+            nome: 'Titan-X',
+            setor: 'Doca 1',
+            status: 'disponivel',
+            statusAlteradoEm: AGORA,
+            categoriaId: CATEGORIA,
+            filialId: F1,
+            dispositivoConectadoId: DEVICE,
+        });
+    });
+
+    test('devolve a máquina no formato do GET, com nomeDispositivo', async () => {
+        const maquina = await criarMaquina(ESCOPO, dados);
+
+        expect(Forklift.find).toHaveBeenCalledWith({ _id: ID.toHexString(), filialId: { $in: [F1, F2] } });
+        expect(maquina).toMatchObject({
+            id: ID.toHexString(),
+            identificacao: 'EMP-200',
+            filialId: F1,
+            status: 'disponivel',
+            categoriaId: CATEGORIA.toHexString(),
+            dispositivoConectado: { enderecoMac: 'AA:BB:CC:DD:EE', nomeDispositivo: 'Sensor 01' },
+        });
+    });
+
+    test('sem categoria ligada a disponivel: categoriaId null', async () => {
+        vi.mocked(Category.findOne).mockReturnValue(lean(null));
+
+        await criarMaquina(ESCOPO, dados);
+
+        expect(vi.mocked(Forklift.create).mock.calls[0]![0]).toMatchObject({ categoriaId: null });
+    });
+
+    test('identificação já usada: 409 sem gravar nada', async () => {
+        vi.mocked(Forklift.exists).mockResolvedValue({ _id: new Types.ObjectId() } as any);
+
+        await expect(criarMaquina(ESCOPO, dados)).rejects.toMatchObject({ status: 409, message: 'Já existe uma empilhadeira com a identificação "EMP-200".' });
+        expect(Forklift.exists).toHaveBeenCalledWith({ identificacao: 'EMP-200' });
+        expect(Device.create).not.toHaveBeenCalled();
+        expect(Forklift.create).not.toHaveBeenCalled();
+    });
+
+    test('MAC já usado (comparado em maiúsculas): 409 sem gravar nada', async () => {
+        vi.mocked(Device.exists).mockResolvedValue({ _id: new Types.ObjectId() } as any);
+
+        await expect(criarMaquina(ESCOPO, dados)).rejects.toMatchObject({ status: 409, message: 'Já existe um dispositivo com este endereço MAC.' });
+        expect(Device.exists).toHaveBeenCalledWith({ enderecoMac: 'AA:BB:CC:DD:EE' });
+        expect(Device.create).not.toHaveBeenCalled();
+        expect(Forklift.create).not.toHaveBeenCalled();
+    });
+
+    test('o Mongo recusa o MAC (11000): 409 com a mesma mensagem, sem criar o forklift', async () => {
+        vi.mocked(Device.create).mockRejectedValue(Object.assign(new Error('E11000'), { code: 11000 }));
+
+        await expect(criarMaquina(ESCOPO, dados)).rejects.toMatchObject({ status: 409, message: 'Já existe um dispositivo com este endereço MAC.' });
+        expect(Forklift.create).not.toHaveBeenCalled();
+    });
+
+    test('o forklift falha: apaga o device criado e repassa o erro', async () => {
+        vi.mocked(Forklift.create).mockRejectedValue(new Error('falha no forklift'));
+
+        await expect(criarMaquina(ESCOPO, dados)).rejects.toThrow('falha no forklift');
+        expect(Device.deleteOne).toHaveBeenCalledWith({ _id: DEVICE });
+    });
+});
+
+describe('nomeDispositivo na lista', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    test('vem de device.nome', async () => {
+        mockarLista([{ ...base, dispositivoConectadoId: { ...dispositivo, nome: 'Sensor 07' } }]);
+        const [item] = await listarMaquinas(ESCOPO);
+        expect(item!.dispositivoConectado).toEqual({ enderecoMac: 'A2:C9:9B:1D:F7', nomeDispositivo: 'Sensor 07' });
     });
 });

@@ -1,12 +1,29 @@
 import { Forklift } from "../../schemas/forklift.js";
 import { Incident } from "../../schemas/incident.js";
 import { Category } from "../../schemas/category.js";
-import "../../schemas/device.js";
+import { Device } from "../../schemas/device.js";
 import "../../schemas/operator.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
+import { categoriaDoStatus } from "./statusService.js";
 
 const MINUTO_MS = 60_000;
+const MAC_REPETIDO = "Já existe um dispositivo com este endereço MAC.";
+
+export interface DadosMaquina {
+  nome?: string;
+  identificacao?: string;
+  setor?: string;
+  nomeDispositivo?: string;
+  enderecoMac?: string;
+}
+
+const normalizarMac = (mac: string) => mac.trim().toUpperCase();
+
+// O índice único em device.enderecoMac recusa o MAC repetido numa corrida (11000).
+function traduzirErro(error: any): never {
+  throw error.code === 11000 ? new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO) : error;
+}
 
 // Monta as máquinas no formato do front. `alertaEm` vem do incidente pendente mais recente, numa consulta só.
 async function consultar(filtro: Record<string, unknown>) {
@@ -46,7 +63,7 @@ async function consultar(filtro: Record<string, unknown>) {
       categoriaId: f.categoriaId ? String(f.categoriaId) : null,
       categoriaTravada: f.categoriaTravada === true,
       alertaEm: status === "alerta" ? alertaEm.get(String(f._id)) ?? null : null,
-      dispositivoConectado: { enderecoMac: dispositivo?.enderecoMac ?? "" },
+      dispositivoConectado: { enderecoMac: dispositivo?.enderecoMac ?? "", nomeDispositivo: dispositivo?.nome },
       ...(operador && { operadorConectado: { nome: operador.nome } }),
       tempoSessaoMinutos: Math.max(0, Math.floor((agora - inicio) / MINUTO_MS)),
     };
@@ -84,4 +101,32 @@ export async function moverParaCategoria(escopo: Escopo, machineIds: string[], c
   }
   await Forklift.updateMany({ _id: { $in: ids } }, { $set: { categoriaId } });
   return consultar(doEscopo);
+}
+
+// ponytail: device e forklift sem transação; se o forklift falhar, apaga o device (compensação). Transação quando houver replica set.
+export async function criarMaquina(escopo: Escopo, dados: DadosMaquina & { filialId: string }) {
+  const enderecoMac = normalizarMac(dados.enderecoMac ?? "");
+  if (await Forklift.exists({ identificacao: dados.identificacao })) {
+    throw new ErroHttp(StatusCode.CONFLICT, `Já existe uma empilhadeira com a identificação "${dados.identificacao}".`);
+  }
+  if (await Device.exists({ enderecoMac })) throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
+
+  const dispositivo = await Device.create({ enderecoMac, nome: dados.nomeDispositivo, filialId: dados.filialId }).catch(traduzirErro);
+  let empilhadeira;
+  try {
+    empilhadeira = await Forklift.create({
+      identificacao: dados.identificacao,
+      nome: dados.nome,
+      setor: dados.setor,
+      status: "disponivel",
+      statusAlteradoEm: new Date(),
+      categoriaId: await categoriaDoStatus(dados.filialId, "disponivel"),
+      filialId: dados.filialId,
+      dispositivoConectadoId: dispositivo._id,
+    });
+  } catch (error) {
+    await Device.deleteOne({ _id: dispositivo._id });
+    return traduzirErro(error);
+  }
+  return obterMaquina(escopo, String(empilhadeira._id));
 }
