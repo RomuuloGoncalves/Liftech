@@ -10,11 +10,9 @@ import SectorFormModal, { type SectorFormValues } from '../components/team/Secto
 import SectorInfoModal from '../components/team/SectorInfoModal'
 import {
   ACCESS_VALUES,
-  EMPLOYEES,
   SECTORS,
   filterEmployees,
   filterSectors,
-  nextEmployeeCode,
   type Access,
   type Employee,
   type Sector,
@@ -33,12 +31,12 @@ type Dialog =
   | { kind: 'sectorInfo'; sector: Sector }
   | { kind: 'confirmDelete'; target: { type: 'employee'; item: Employee } | { type: 'sector'; item: Sector } }
 
-let nextEmployeeId = EMPLOYEES.length + 1
+let nextEmployeeId = 1
 let nextSectorId = SECTORS.length + 1
 
 const EquipePage: React.FC = () => {
   const { t } = useTranslation()
-  const [employees, setEmployees] = useState<Employee[]>(EMPLOYEES)
+  const [employees, setEmployees] = useState<Employee[]>([])
   const [employeeQuery, setEmployeeQuery] = useState('')
   const [accessFilter, setAccessFilter] = useState<AccessFilter>('Todos')
   const [sectors, setSectors] = useState<Sector[]>(SECTORS)
@@ -68,7 +66,8 @@ const EquipePage: React.FC = () => {
       const created: Employee = {
         ...values,
         id: String(nextEmployeeId++),
-        matricula: nextEmployeeCode(employees),
+        matricula: '',
+        filialId: '',
         acesso: 'Permitido',
       }
       setEmployees((prev) => [created, ...prev])

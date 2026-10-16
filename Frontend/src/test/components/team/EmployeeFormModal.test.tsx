@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EmployeeFormModal from '../../../components/team/EmployeeFormModal'
-import type { Employee } from '../../../data/team'
+import { employee } from '../../fixtures/employees'
 
-const alexandre: Employee = {
+const alexandre = employee({
   id: '1',
   matricula: 'EMP-084',
   nome: 'Alexandre Mattos',
@@ -12,10 +12,8 @@ const alexandre: Employee = {
   horarioEntrada: '08:00',
   horarioSaida: '17:00',
   usuario: 'AlexandreMattos',
-  senha: 'Alexandre123',
-  acesso: 'Permitido',
-}
-const ana: Employee = { ...alexandre, id: '2', matricula: 'EMP-085', nome: 'Ana', usuario: 'ana' }
+})
+const ana = employee({ ...alexandre, id: '2', matricula: 'EMP-085', nome: 'Ana', usuario: 'ana' })
 
 function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } })
@@ -135,13 +133,15 @@ describe('EmployeeFormModal (edit)', () => {
     expect(screen.getByLabelText('Horário Entrada')).toHaveValue('08:00')
     expect(screen.getByLabelText('Horário saída')).toHaveValue('17:00')
     expect(screen.getByLabelText('Usuário')).toHaveValue('AlexandreMattos')
-    expect(screen.getByLabelText('Senha')).toHaveValue('Alexandre123')
+    // The API never returns the password, so the field starts empty.
+    expect(screen.getByLabelText('Senha')).toHaveValue('')
   })
 
   it('does not report a duplicate when the employee keeps their own usuario', () => {
     const { onSave } = renderForm({ employee: alexandre })
 
     fill('Cargo', 'Supervisor')
+    fill('Senha', 'NovaSenha1')
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
 
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ usuario: 'AlexandreMattos', cargo: 'Supervisor' }))

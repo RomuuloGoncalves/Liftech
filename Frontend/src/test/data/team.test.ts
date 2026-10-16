@@ -1,40 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import {
-  EMPLOYEES,
-  SECTORS,
-  filterEmployees,
-  filterSectors,
-  isUsernameTaken,
-  nextEmployeeCode,
-  type Employee,
-} from '../../data/team'
-
-const make = (overrides: Partial<Employee>): Employee => ({
-  id: 'x',
-  matricula: 'EMP-001',
-  nome: 'Fulano',
-  telefone: '',
-  cargo: 'Ajudante',
-  horarioEntrada: '',
-  horarioSaida: '',
-  usuario: 'fulano',
-  senha: 'senha',
-  acesso: 'Permitido',
-  ...overrides,
-})
+import * as team from '../../data/team'
+import { SECTORS, filterEmployees, filterSectors, isUsernameTaken } from '../../data/team'
+import { employee as make } from '../fixtures/employees'
 
 describe('team mock dataset', () => {
-  it('has 11 employees with both access values and 8 sectors', () => {
-    expect(EMPLOYEES).toHaveLength(11)
-    expect(EMPLOYEES.some((e) => e.acesso === 'Permitido')).toBe(true)
-    expect(EMPLOYEES.some((e) => e.acesso === 'Negado')).toBe(true)
+  it('keeps the 8 mock sectors', () => {
     expect(SECTORS).toHaveLength(8)
+    expect(new Set(SECTORS.map((s) => s.id)).size).toBe(8)
   })
 
-  it('has unique employee ids, matriculas and usuarios', () => {
-    expect(new Set(EMPLOYEES.map((e) => e.id)).size).toBe(EMPLOYEES.length)
-    expect(new Set(EMPLOYEES.map((e) => e.matricula)).size).toBe(EMPLOYEES.length)
-    expect(new Set(EMPLOYEES.map((e) => e.usuario.toLowerCase())).size).toBe(EMPLOYEES.length)
+  it('no longer ships a mock employee list nor generates matriculas (the API does)', () => {
+    expect('EMPLOYEES' in team).toBe(false)
+    expect('nextEmployeeCode' in team).toBe(false)
   })
 })
 
@@ -106,17 +83,6 @@ describe('filterSectors', () => {
   })
 })
 
-describe('nextEmployeeCode', () => {
-  it('returns EMP-001 for an empty list', () => {
-    expect(nextEmployeeCode([])).toBe('EMP-001')
-  })
-
-  it('returns the highest matricula plus one, padded to 3 digits', () => {
-    const list = [make({ matricula: 'EMP-009' }), make({ matricula: 'EMP-084' }), make({ matricula: 'EMP-010' })]
-    expect(nextEmployeeCode(list)).toBe('EMP-085')
-  })
-})
-
 describe('isUsernameTaken', () => {
   const list = [make({ id: '1', usuario: 'AlexandreMattos' }), make({ id: '2', usuario: 'ana' })]
 
@@ -131,5 +97,11 @@ describe('isUsernameTaken', () => {
   it('ignores the employee being edited', () => {
     expect(isUsernameTaken(list, 'AlexandreMattos', '1')).toBe(false)
     expect(isUsernameTaken(list, 'ana', '1')).toBe(true)
+  })
+
+  it('skips employees without a login', () => {
+    const withoutLogin = [make({ id: '3', usuario: null }), ...list]
+    expect(isUsernameTaken(withoutLogin, 'carlos')).toBe(false)
+    expect(isUsernameTaken(withoutLogin, 'ana')).toBe(true)
   })
 })

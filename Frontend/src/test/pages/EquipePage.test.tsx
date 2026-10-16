@@ -6,7 +6,8 @@ import styles from '../../pages/EquipePage.module.css'
 
 const loading = vi.hoisted(() => ({ value: false }))
 vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
-import { EMPLOYEES, SECTORS } from '../../data/team'
+import { SECTORS } from '../../data/team'
+import { EMPLOYEES } from '../fixtures/employees'
 
 const employeeCards = () => screen.getAllByRole('switch')
 const searchEmployees = (text: string) =>

@@ -354,8 +354,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: filtros sobre fixture; card sem login com interruptor desabilitado; info sem linha de senha
-- [ ] Gate quick passa
+- [x] Testes: filtros sobre fixture; card sem login com interruptor desabilitado; info sem linha de senha
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

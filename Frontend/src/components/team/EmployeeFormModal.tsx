@@ -37,7 +37,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
     horarioEntrada: employee?.horarioEntrada ?? '',
     horarioSaida: employee?.horarioSaida ?? '',
     usuario: employee?.usuario ?? '',
-    senha: employee?.senha ?? '',
+    senha: '',
   })
   const [errors, setErrors] = useState<Errors>({})
   const [showPassword, setShowPassword] = useState(false)
