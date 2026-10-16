@@ -10,7 +10,7 @@ import { gerarHashSenha } from '../utils/senha.js';
 import { logger } from '../utils/logger.js';
 import { seedAdmin } from './seedAdmin.js';
 import {
-    COLABORADORES, DISPOSITIVOS, EMPILHADEIRAS, FILIAIS_DOS_COLABORADORES, FILIAIS_EXTRAS, OPERADORES, SOLICITACOES,
+    COLABORADORES, DISPOSITIVOS, EMPILHADEIRAS, FICHAS, FILIAIS_DOS_COLABORADORES, FILIAIS_EXTRAS, OPERADORES, SENHA_PADRAO, SOLICITACOES,
     filialDaEmpilhadeira, filialDoDispositivo, filialDoOperador, gerarIncidentes, gerarTelemetria,
 } from './seedDataset.js';
 import { garantirEmpresa, upsert } from './seedEmpresa.js';
@@ -21,7 +21,9 @@ export async function seedData() {
     await seedAdmin(empresaId);
 
     const operadorIds = new Map<string, unknown>();
-    for (const nome of OPERADORES) operadorIds.set(nome, await upsert(Operator, { nome }, { nome, filialId: filialIds.get(filialDoOperador(nome)) }));
+    for (const ficha of FICHAS) {
+        operadorIds.set(ficha.nome, await upsert(Operator, { nome: ficha.nome }, { ...ficha, filialId: filialIds.get(filialDoOperador(ficha.nome)) }));
+    }
 
     const dispositivoIds = new Map<string, unknown>();
     for (const d of DISPOSITIVOS) {
@@ -65,21 +67,15 @@ export async function seedData() {
         }
     }
 
-    let colaboradores = 0;
-    const senha = process.env.SEED_COLABORADOR_SENHA;
-    if (senha) {
-        for (const c of COLABORADORES) {
-            const filiaisIds = FILIAIS_DOS_COLABORADORES[c.usuario]!.map((nome) => filialIds.get(nome));
-            // Liga ao operator de mesmo nome; sem par, fica sem operadorId.
-            const operadorId = operadorIds.get(c.nome);
-            await upsert(User, { usuario: c.usuario }, {
-                ...c, role: 'colaborador', senhaHash: gerarHashSenha(senha), empresaId, escopo: 'filiais', filiaisIds,
-                ...(operadorId !== undefined && { operadorId }),
-            });
-            colaboradores++;
-        }
-    } else {
-        logger.warn('Colaboradores ignorados: defina SEED_COLABORADOR_SENHA.');
+    for (const c of COLABORADORES) {
+        const filiaisIds = FILIAIS_DOS_COLABORADORES[c.usuario]!.map((nome) => filialIds.get(nome));
+        // Liga ao operator de mesmo nome; sem par, fica sem operadorId.
+        const operadorId = operadorIds.get(c.nome);
+        await upsert(User, { usuario: c.usuario }, {
+            nome: c.nome, usuario: c.usuario, acessoNegado: c.acessoNegado === true,
+            role: 'colaborador', senhaHash: gerarHashSenha(SENHA_PADRAO), empresaId, escopo: 'filiais', filiaisIds,
+            ...(operadorId !== undefined && { operadorId }),
+        });
     }
 
     for (const s of SOLICITACOES) await upsert(AccessRequest, { email: s.email, status: s.status }, s);
@@ -92,7 +88,7 @@ export async function seedData() {
         empilhadeiras: EMPILHADEIRAS.length,
         telemetria,
         incidentes,
-        colaboradores,
+        colaboradores: COLABORADORES.length,
         solicitacoes: SOLICITACOES.length,
     };
     logger.info(

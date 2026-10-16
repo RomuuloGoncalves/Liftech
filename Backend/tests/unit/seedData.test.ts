@@ -30,7 +30,7 @@ vi.mock('../../src/config/conn.js', () => ({ conn: { mongoose: { disconnect: vi.
 vi.mock('../../src/utils/logger.js', () => ({ logger: { info: vi.fn(), warn: vi.fn() } }));
 
 const AGORA = new Date('2026-10-13T12:00:00Z');
-const SENHA = 'senha-de-teste-1';
+const SENHA = 'asdasdasd';
 const envOriginal = { ...process.env };
 
 const MODELOS = { Company, Branch, Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
@@ -56,7 +56,6 @@ describe('seedData', () => {
         vi.useFakeTimers();
         vi.setSystemTime(AGORA);
         mockarModelos();
-        process.env.SEED_COLABORADOR_SENHA = SENHA;
     });
 
     afterEach(() => {
@@ -132,33 +131,68 @@ describe('seedData', () => {
         expect(paulo.filiaisIds).toEqual([filialId('Unidade Centro'), filialId('Unidade Norte')]);
     });
 
-    test('o colaborador com operator de mesmo nome ganha operadorId; sem par fica sem', async () => {
+    test('todo colaborador ganha o operadorId do operator de mesmo nome', async () => {
         await seedData();
 
         expect(chamadaDe(User, { usuario: 'CarlosSilva' })[1].$set.operadorId).toBe(idDe('Operator', { nome: 'Carlos Silva' }));
-        expect(chamadaDe(User, { usuario: 'AlexandreMattos' })[1].$set).not.toHaveProperty('operadorId');
+        expect(chamadaDe(User, { usuario: 'AlexandreMattos' })[1].$set.operadorId).toBe(idDe('Operator', { nome: 'Alexandre Mattos' }));
+        for (const [, atualizacao] of chamadas(User)) expect(atualizacao.$set.operadorId).toBeDefined();
     });
 
-    test('cria 8 operadores, 16 dispositivos, 16 empilhadeiras, 80 leituras, 32 incidentes, 11 colaboradores e 2 solicitações', async () => {
+    test('colaborador@colaborador.com: login fixo com acesso, ligado a Alexandre Gomes, na matriz, com a senha asdasdasd', async () => {
+        await seedData();
+
+        const dados = chamadaDe(User, { usuario: 'colaborador@colaborador.com' })[1].$set;
+        expect(dados).toMatchObject({
+            nome: 'Alexandre Gomes', role: 'colaborador', acessoNegado: false,
+            operadorId: idDe('Operator', { nome: 'Alexandre Gomes' }), filiaisIds: [filialId('Matriz')],
+        });
+        expect(verificarSenha('asdasdasd', dados.senhaHash)).toBe(true);
+    });
+
+    test('grava acessoNegado true só para quem está Negado na Equipe', async () => {
+        await seedData();
+
+        expect(chamadaDe(User, { usuario: 'RafaelLima' })[1].$set.acessoNegado).toBe(true);
+        expect(chamadaDe(User, { usuario: 'DiegoMartins' })[1].$set.acessoNegado).toBe(true);
+        expect(chamadaDe(User, { usuario: 'CarlosSilva' })[1].$set.acessoNegado).toBe(false);
+    });
+
+    test('o operador leva a ficha da Equipe: matrícula, telefone, cargo e turno', async () => {
+        await seedData();
+
+        expect(chamadaDe(Operator, { nome: 'Carlos Silva' })[1].$set).toMatchObject({
+            nome: 'Carlos Silva', matricula: 'EMP-085', telefone: '(55) 15 988887777', cargo: 'Operador',
+            horarioEntrada: '07:00', horarioSaida: '16:00',
+        });
+    });
+
+    test('o dispositivo leva o nome Mpa-<n>', async () => {
+        await seedData();
+
+        expect(chamadaDe(Device, { enderecoMac: 'A2:C9:9B:1D:F7' })[1].$set.nome).toBe('Mpa-5300');
+    });
+
+    test('cria 12 operadores, 16 dispositivos, 16 empilhadeiras, 80 leituras, 32 incidentes, 12 colaboradores e 2 solicitações', async () => {
         const contagem = await seedData();
 
         expect(contagem).toEqual({
             empresas: 1,
             filiais: 3,
-            operadores: 8,
+            operadores: 12,
             dispositivos: 16,
             empilhadeiras: 16,
             telemetria: 80,
             incidentes: 32,
-            colaboradores: 11,
+            colaboradores: 12,
             solicitacoes: 2,
         });
-        expect(chamadas(Operator)).toHaveLength(8);
+        expect(chamadas(Operator)).toHaveLength(12);
         expect(chamadas(Device)).toHaveLength(16);
         expect(chamadas(Forklift)).toHaveLength(16);
         expect(chamadas(Telemetry)).toHaveLength(80);
         expect(chamadas(Incident)).toHaveLength(32);
-        expect(chamadas(User)).toHaveLength(11);
+        expect(chamadas(User)).toHaveLength(12);
         expect(chamadas(AccessRequest)).toHaveLength(2);
     });
 
@@ -262,7 +296,7 @@ describe('seedData', () => {
         ).toBe(idDe('Operator', { nome: 'João Pereira' }));
     });
 
-    test('com SEED_COLABORADOR_SENHA: colaboradores com role e senhaHash que valida a senha, sem a senha em texto', async () => {
+    test('colaboradores com role e senhaHash que valida asdasdasd, sem a senha em texto', async () => {
         await seedData();
 
         const [, atualizacao] = chamadaDe(User, { usuario: 'CarlosSilva' });
@@ -273,12 +307,12 @@ describe('seedData', () => {
         expect(JSON.stringify(dados)).not.toContain(SENHA);
     });
 
-    test('com SEED_COLABORADOR_SENHA: os 11 colaboradores têm senhaHash que valida a senha', async () => {
+    test('os 12 colaboradores têm senhaHash que valida asdasdasd', async () => {
         await seedData();
 
         const hashes = chamadas(User).map((c) => c[1].$set.senhaHash as string);
 
-        expect(hashes).toHaveLength(11);
+        expect(hashes).toHaveLength(12);
         for (const hash of hashes) expect(verificarSenha(SENHA, hash)).toBe(true);
     });
 
@@ -301,21 +335,21 @@ describe('seedData', () => {
         }
     });
 
-    test('sem SEED_COLABORADOR_SENHA: não cria colaboradores e registra um aviso', async () => {
+    test('sem SEED_COLABORADOR_SENHA: cria os 12 colaboradores mesmo assim, com a senha fixa', async () => {
         delete process.env.SEED_COLABORADOR_SENHA;
 
         const contagem = await seedData();
 
-        expect(chamadas(User)).toHaveLength(0);
-        expect(contagem.colaboradores).toBe(0);
-        expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('SEED_COLABORADOR_SENHA'));
+        expect(chamadas(User)).toHaveLength(12);
+        expect(contagem.colaboradores).toBe(12);
+        expect(logger.warn).not.toHaveBeenCalled();
     });
 
     test('registra a quantidade de documentos por collection', async () => {
         await seedData();
 
         const mensagem = vi.mocked(logger.info).mock.calls.map((c) => String(c[0])).join('\n');
-        for (const trecho of ['1 empresa', '3 filiais', '8 operadores', '16 dispositivos', '16 empilhadeiras', '80 leituras', '32 incidentes', '11 colaboradores', '2 solicitações']) {
+        for (const trecho of ['1 empresa', '3 filiais', '12 operadores', '16 dispositivos', '16 empilhadeiras', '80 leituras', '32 incidentes', '12 colaboradores', '2 solicitações']) {
             expect(mensagem).toContain(trecho);
         }
     });
