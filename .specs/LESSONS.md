@@ -80,6 +80,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: MIG-01 Backend/tests/unit/migrateStatus.test.ts:49 (migrations)
 - last seen: 2026-10-15T18:24:48Z
 
+### L-012 - When a feature adds i18n keys to a module, assert the full key set of that module matches pt-BR in every locale instead of a fixed key list
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-i18n` · harmful: 0
+- features: machines-team-crud
+- evidence: P1 Frontend/src/test/config/i18n.test.ts:149 (frontend-i18n)
+- last seen: 2026-10-16T12:20:49Z
+
+### L-013 - State in the spec how translation quality is verified, since a copied pt-BR string passes key-presence tests
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend-i18n` · harmful: 0
+- features: machines-team-crud
+- evidence: LOGIN-15 / mutant P2 (frontend-i18n)
+- last seen: 2026-10-16T12:20:49Z
+
+### L-014 - When a task changes a shared type, run the test suites of every consumer of that type in the task gate, not only the task's own tests
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `tasks-gate` · harmful: 0
+- features: machines-team-crud
+- evidence: T15 117a559 EquipePage.test.tsx 17 failed (tasks-gate)
+- last seen: 2026-10-16T12:20:49Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

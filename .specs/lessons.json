@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 12,
+  "next_id": 15,
   "lessons": [
     {
       "id": "L-001",
@@ -202,6 +202,60 @@
       ],
       "created": "2026-10-15T18:24:48Z",
       "last_seen": "2026-10-15T18:24:48Z"
+    },
+    {
+      "id": "L-012",
+      "key": "surviving_mutant::when a feature adds i18n keys to a module assert the full key set of that module matches pt br in every locale instead of a fixed key list",
+      "text": "When a feature adds i18n keys to a module, assert the full key set of that module matches pt-BR in every locale instead of a fixed key list",
+      "signal": "surviving_mutant",
+      "scope": "frontend-i18n",
+      "status": "candidate",
+      "features": [
+        "machines-team-crud"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "P1 Frontend/src/test/config/i18n.test.ts:149 (frontend-i18n)"
+      ],
+      "created": "2026-10-16T12:20:49Z",
+      "last_seen": "2026-10-16T12:20:49Z"
+    },
+    {
+      "id": "L-013",
+      "key": "spec_precision_gap::state in the spec how translation quality is verified since a copied pt br string passes key presence tests",
+      "text": "State in the spec how translation quality is verified, since a copied pt-BR string passes key-presence tests",
+      "signal": "spec_precision_gap",
+      "scope": "frontend-i18n",
+      "status": "candidate",
+      "features": [
+        "machines-team-crud"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LOGIN-15 / mutant P2 (frontend-i18n)"
+      ],
+      "created": "2026-10-16T12:20:49Z",
+      "last_seen": "2026-10-16T12:20:49Z"
+    },
+    {
+      "id": "L-014",
+      "key": "gate_fail::when a task changes a shared type run the test suites of every consumer of that type in the task gate not only the task s own tests",
+      "text": "When a task changes a shared type, run the test suites of every consumer of that type in the task gate, not only the task's own tests",
+      "signal": "gate_fail",
+      "scope": "tasks-gate",
+      "status": "candidate",
+      "features": [
+        "machines-team-crud"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "T15 117a559 EquipePage.test.tsx 17 failed (tasks-gate)"
+      ],
+      "created": "2026-10-16T12:20:49Z",
+      "last_seen": "2026-10-16T12:20:49Z"
     }
   ]
 }

@@ -141,47 +141,47 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| MACH-01 | P1 Máquina: criar forklift + device | Design | Implementing |
-| MACH-02 | P1 Máquina: status inicial e categoria | Design | Implementing |
-| MACH-03 | P1 Máquina: campos obrigatórios | Design | Implementing |
-| MACH-04 | P1 Máquina: identificação repetida | Design | Implementing |
-| MACH-05 | P1 Máquina: MAC repetido | Design | Implementing |
-| MACH-06 | P1 Máquina: editar campos livres | Design | Implementing |
-| MACH-07 | P1 Máquina: campos protegidos | Design | Implementing |
-| MACH-08 | P1 Máquina: excluir forklift + device | Design | Implementing |
-| MACH-09 | P1 Máquina: 409 com sessão aberta | Design | Implementing |
-| MACH-10 | P1 Máquina: 404 fora do escopo | Design | Implementing |
-| MACH-11 | P1 Máquina: front otimista | Design | Implementing |
-| MACH-12 | P1 Máquina: front rollback | Design | Implementing |
-| OPER-01 | P1 Operador: listar | Design | Implementing |
-| OPER-02 | P1 Operador: filtro de filial | Design | Implementing |
-| OPER-03 | P1 Operador: criar com matrícula | Design | Implementing |
-| OPER-04 | P1 Operador: validação | Design | Implementing |
-| OPER-05 | P1 Operador: editar campos livres | Design | Implementing |
-| OPER-06 | P1 Operador: nome no login | Design | Implementing |
-| OPER-07 | P1 Operador: excluir com login | Design | Implementing |
-| OPER-08 | P1 Operador: 409 com sessão aberta | Design | Implementing |
-| OPER-09 | P1 Operador: 404 fora do escopo | Design | Implementing |
-| OPER-10 | P1 Operador: só admin | Design | Implementing |
-| OPER-11 | P1 Operador: Equipe carrega da API | Design | Implementing |
-| OPER-12 | P1 Operador: front otimista e rollback | Design | Implementing |
-| LOGIN-01 | P1 Login: criar | Design | Implementing |
-| LOGIN-02 | P1 Login: já tem login | Design | Implementing |
-| LOGIN-03 | P1 Login: usuário em uso | Design | Implementing |
-| LOGIN-04 | P1 Login: validação | Design | Implementing |
-| LOGIN-05 | P1 Login: trocar senha | Design | Implementing |
-| LOGIN-06 | P1 Login: acesso negado | Design | Implementing |
-| LOGIN-07 | P1 Login: sem login 404 | Design | Implementing |
-| LOGIN-08 | P1 Login: remover | Design | Implementing |
-| LOGIN-09 | P1 Login: sem senha na resposta | Design | Implementing |
-| LOGIN-10 | P1 Login: auth recusa negado | Design | Implementing |
-| LOGIN-11 | P1 Login: middleware recusa negado | Design | Implementing |
-| LOGIN-12 | P1 Login: front cria operador + login | Design | Implementing |
-| LOGIN-13 | P1 Login: front troca senha | Design | Implementing |
-| LOGIN-14 | P1 Login: front alterna acesso | Design | Implementing |
-| LOGIN-15 | P1 Login: i18n 7 idiomas | Design | Implementing |
+| MACH-01 | P1 Máquina: criar forklift + device | Execute | Verified |
+| MACH-02 | P1 Máquina: status inicial e categoria | Execute | Verified |
+| MACH-03 | P1 Máquina: campos obrigatórios | Execute | Verified |
+| MACH-04 | P1 Máquina: identificação repetida | Execute | Verified |
+| MACH-05 | P1 Máquina: MAC repetido | Execute | Verified |
+| MACH-06 | P1 Máquina: editar campos livres | Execute | Verified |
+| MACH-07 | P1 Máquina: campos protegidos | Execute | Verified |
+| MACH-08 | P1 Máquina: excluir forklift + device | Execute | Verified |
+| MACH-09 | P1 Máquina: 409 com sessão aberta | Execute | Verified |
+| MACH-10 | P1 Máquina: 404 fora do escopo | Execute | Verified |
+| MACH-11 | P1 Máquina: front otimista | Execute | Verified |
+| MACH-12 | P1 Máquina: front rollback | Execute | Verified |
+| OPER-01 | P1 Operador: listar | Execute | Verified |
+| OPER-02 | P1 Operador: filtro de filial | Execute | Verified |
+| OPER-03 | P1 Operador: criar com matrícula | Execute | Verified |
+| OPER-04 | P1 Operador: validação | Execute | Verified |
+| OPER-05 | P1 Operador: editar campos livres | Execute | Verified |
+| OPER-06 | P1 Operador: nome no login | Execute | Verified |
+| OPER-07 | P1 Operador: excluir com login | Execute | Verified |
+| OPER-08 | P1 Operador: 409 com sessão aberta | Execute | Verified |
+| OPER-09 | P1 Operador: 404 fora do escopo | Execute | Verified |
+| OPER-10 | P1 Operador: só admin | Execute | Verified |
+| OPER-11 | P1 Operador: Equipe carrega da API | Execute | Verified |
+| OPER-12 | P1 Operador: front otimista e rollback | Execute | Verified |
+| LOGIN-01 | P1 Login: criar | Execute | Verified |
+| LOGIN-02 | P1 Login: já tem login | Execute | Verified |
+| LOGIN-03 | P1 Login: usuário em uso | Execute | Verified |
+| LOGIN-04 | P1 Login: validação | Execute | Verified |
+| LOGIN-05 | P1 Login: trocar senha | Execute | Verified |
+| LOGIN-06 | P1 Login: acesso negado | Execute | Verified |
+| LOGIN-07 | P1 Login: sem login 404 | Execute | Verified |
+| LOGIN-08 | P1 Login: remover | Execute | Verified |
+| LOGIN-09 | P1 Login: sem senha na resposta | Execute | Verified |
+| LOGIN-10 | P1 Login: auth recusa negado | Execute | Verified |
+| LOGIN-11 | P1 Login: middleware recusa negado | Execute | Verified |
+| LOGIN-12 | P1 Login: front cria operador + login | Execute | Verified |
+| LOGIN-13 | P1 Login: front troca senha | Execute | Verified |
+| LOGIN-14 | P1 Login: front alterna acesso | Execute | Verified |
+| LOGIN-15 | P1 Login: i18n 7 idiomas | Execute | Verified |
 
-**Coverage:** 39 total, 0 mapped to tasks, 39 unmapped ⚠️
+**Coverage:** 39 total, 39 mapped to tasks, 39 verified (ver `validation.md`)
 
 ---
 
