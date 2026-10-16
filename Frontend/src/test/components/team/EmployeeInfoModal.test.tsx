@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EmployeeInfoModal from '../../../components/team/EmployeeInfoModal'
-import type { Employee } from '../../../data/team'
+import { employee as make } from '../../fixtures/employees'
 
-const employee: Employee = {
+const employee = make({
   id: '1',
   matricula: 'EMP-084',
   nome: 'Alexandre Mattos',
@@ -12,9 +12,7 @@ const employee: Employee = {
   horarioEntrada: '08:00',
   horarioSaida: '17:00',
   usuario: 'AlexandreMattos',
-  senha: 'Alexandre123',
-  acesso: 'Permitido',
-}
+})
 
 describe('EmployeeInfoModal', () => {
   it('shows every field read-only', () => {
@@ -28,7 +26,6 @@ describe('EmployeeInfoModal', () => {
       'Horário Entrada': '08:00',
       'Horário saída': '17:00',
       Usuário: 'AlexandreMattos',
-      Senha: 'Alexandre123',
     }
     for (const [label, value] of Object.entries(expected)) {
       expect(screen.getByLabelText(label)).toHaveValue(value)
@@ -36,12 +33,17 @@ describe('EmployeeInfoModal', () => {
     }
   })
 
-  it('hides the password by default and toggles it with the eye icon', () => {
+  it('has no password row: the API never returns the password', () => {
     render(<EmployeeInfoModal employee={employee} onClose={vi.fn()} />)
 
-    expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'password')
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar senha' }))
-    expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'text')
+    expect(screen.queryByLabelText('Senha')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Mostrar senha' })).not.toBeInTheDocument()
+  })
+
+  it('shows an empty Usuário for an employee without a login', () => {
+    render(<EmployeeInfoModal employee={{ ...employee, usuario: null }} onClose={vi.fn()} />)
+
+    expect(screen.getByLabelText('Usuário')).toHaveValue('')
   })
 
   it('has no Cancelar or Confirmar buttons', () => {

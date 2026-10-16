@@ -2,10 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from '../../services/api';
 import { machineService } from '../../services/machineService';
 
-vi.mock('../../services/api', () => ({ default: { get: vi.fn(), put: vi.fn() } }));
+vi.mock('../../services/api', () => ({ default: { get: vi.fn(), put: vi.fn(), post: vi.fn(), delete: vi.fn() } }));
 
 const get = vi.mocked(api.get);
 const put = vi.mocked(api.put);
+const post = vi.mocked(api.post);
+const del = vi.mocked(api.delete);
 
 describe('machineService', () => {
   beforeEach(() => {
@@ -19,6 +21,7 @@ describe('machineService', () => {
         identificacao: 'EMP-081',
         nome: 'Empilhadeira Elétrica Titan-X',
         setor: 'Expedição - Bloco B',
+        setorId: 's1',
         status: 'disponivel' as const,
         categoriaId: null,
         categoriaTravada: false,
@@ -91,5 +94,74 @@ describe('machineService updates', () => {
 
     expect(put).toHaveBeenCalledWith('/machines/m1/trava', { categoriaTravada: false });
     expect(result).toEqual({ id: 'm1', categoriaTravada: false });
+  });
+});
+
+describe('machineService create, update and delete', () => {
+  const values = {
+    nome: 'Titan-X',
+    identificacao: 'EMP-200',
+    setorId: 's1',
+    nomeDispositivo: 'Sensor 01',
+    enderecoMac: 'AA:BB:CC:DD:EE',
+  };
+
+  beforeEach(() => {
+    put.mockReset();
+    post.mockReset();
+    del.mockReset();
+  });
+
+  it('criar posts the five fields and the branch on /machines and returns the machine', async () => {
+    post.mockResolvedValue({ data: { id: 'm9', identificacao: 'EMP-200' } });
+
+    const result = await machineService.criar(values, 'f2');
+
+    expect(post).toHaveBeenCalledWith('/machines', { ...values, filialId: 'f2' });
+    expect(result).toEqual({ id: 'm9', identificacao: 'EMP-200' });
+  });
+
+  it('criar without a branch leaves filialId out of the body', async () => {
+    post.mockResolvedValue({ data: { id: 'm9' } });
+
+    await machineService.criar({ ...values, filialId: 'ignored' } as never);
+
+    expect(post).toHaveBeenCalledWith('/machines', values);
+  });
+
+  it('atualizar puts the five fields on /machines/:id and returns the machine', async () => {
+    put.mockResolvedValue({ data: { id: 'm1', nome: 'Titan-Y' } });
+
+    const result = await machineService.atualizar('m1', { ...values, filialId: 'f2' } as never);
+
+    expect(put).toHaveBeenCalledWith('/machines/m1', values);
+    expect(result).toEqual({ id: 'm1', nome: 'Titan-Y' });
+  });
+
+  it('sends setorId null and never the sector text when no sector is picked', async () => {
+    post.mockResolvedValue({ data: { id: 'm9' } });
+    put.mockResolvedValue({ data: { id: 'm1' } });
+
+    await machineService.criar({ ...values, setorId: '' });
+    await machineService.atualizar('m1', { ...values, setorId: '' });
+
+    expect(post).toHaveBeenCalledWith('/machines', { ...values, setorId: null });
+    expect(put).toHaveBeenCalledWith('/machines/m1', { ...values, setorId: null });
+    expect(post.mock.calls[0][1]).not.toHaveProperty('setor');
+  });
+
+  it('remover deletes /machines/:id', async () => {
+    del.mockResolvedValue({ data: { _id: 'm1', message: 'ok' } });
+
+    await machineService.remover('m1');
+
+    expect(del).toHaveBeenCalledWith('/machines/m1');
+  });
+
+  it('remover propagates the API rejection', async () => {
+    const err = new Error('409');
+    del.mockRejectedValue(err);
+
+    await expect(machineService.remover('m1')).rejects.toBe(err);
   });
 });

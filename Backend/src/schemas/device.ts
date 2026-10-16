@@ -2,7 +2,8 @@ import { conn } from "../config/conn.js"
 const { Schema } = conn.mongoose
 
 const deviceSchema = new Schema({
-    enderecoMac: String,
+    nome: String,
+    enderecoMac: { type: String, unique: true },
     status: String,
     filialId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch', required: true, index: true }
 })

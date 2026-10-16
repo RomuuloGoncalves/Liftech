@@ -18,6 +18,13 @@ export function limiteImpacto(): number {
   return bruto && Number.isFinite(valor) ? valor : LIMITE_PADRAO;
 }
 
+// Categoria da empresa da filial ligada ao status, ou null.
+export async function categoriaDoStatus(filialId: unknown, status: Status) {
+  const filial: any = await Branch.findById(filialId).lean();
+  const categoria: any = filial && (await Category.findOne({ empresaId: filial.empresaId, statusVinculados: status }).lean());
+  return categoria?._id ?? null;
+}
+
 // Único caminho de mudança de status (manual ou leitura do dispositivo).
 // ponytail: grava o status e depois resolve os incidentes, sem transação; uma falha no meio deixa incidentes pendentes.
 export async function aplicarStatus(forkliftId: string, novo: Status): Promise<void> {
@@ -30,9 +37,8 @@ export async function aplicarStatus(forkliftId: string, novo: Status): Promise<v
 
   const alteracoes: Record<string, unknown> = { status: novo, statusAlteradoEm: new Date() };
   if (!empilhadeira.categoriaTravada) {
-    const filial: any = await Branch.findById(empilhadeira.filialId).lean();
-    const destino: any = filial && (await Category.findOne({ empresaId: filial.empresaId, statusVinculados: novo }).lean());
-    if (destino) alteracoes.categoriaId = destino._id;
+    const destino = await categoriaDoStatus(empilhadeira.filialId, novo);
+    if (destino) alteracoes.categoriaId = destino;
   }
 
   await Forklift.updateOne({ _id: forkliftId }, { $set: alteracoes });

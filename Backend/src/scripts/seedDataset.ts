@@ -3,10 +3,27 @@
 const TITAN = 'Empilhadeira Elétrica Titan-X';
 const ATLAS = 'Empilhadeira a Combustão Atlas-S';
 
-export const OPERADORES = [
-    'Carlos Silva', 'Ana Souza', 'João Pereira', 'Marina Costa',
-    'Rafael Lima', 'Beatriz Alves', 'Fernanda Dias', 'Alexandre Gomes',
+// Credenciais fixas de desenvolvimento: o reset deixa o banco sempre com estes acessos.
+export const SENHA_PADRAO = 'asdasdasd';
+export const ADMIN = { nome: 'Administrador', email: 'admin@admin.com' };
+
+// Ficha de cada operador, a mesma da Equipe do Figma (Frontend/src/data/team.ts). A ordem dos 8 primeiros alimenta o operador de reserva dos incidentes.
+export const FICHAS = [
+    { nome: 'Carlos Silva', matricula: 'EMP-085', telefone: '(55) 15 988887777', cargo: 'Operador', horarioEntrada: '07:00', horarioSaida: '16:00' },
+    { nome: 'Ana Souza', matricula: 'EMP-086', telefone: '(55) 15 977776666', cargo: 'Supervisora', horarioEntrada: '08:00', horarioSaida: '17:00' },
+    { nome: 'João Pereira', matricula: 'EMP-087', telefone: '(55) 15 966665555', cargo: 'Operador', horarioEntrada: '14:00', horarioSaida: '22:00' },
+    { nome: 'Marina Costa', matricula: 'EMP-088', telefone: '(55) 15 955554444', cargo: 'Ajudante', horarioEntrada: '08:00', horarioSaida: '17:00' },
+    { nome: 'Rafael Lima', matricula: 'EMP-089', telefone: '(55) 15 944443333', cargo: 'Operador', horarioEntrada: '22:00', horarioSaida: '06:00' },
+    { nome: 'Beatriz Alves', matricula: 'EMP-090', telefone: '(55) 15 933332222', cargo: 'Ajudante', horarioEntrada: '08:00', horarioSaida: '17:00' },
+    { nome: 'Fernanda Dias', matricula: 'EMP-091', telefone: '(55) 15 922221111', cargo: 'Conferente', horarioEntrada: '09:00', horarioSaida: '18:00' },
+    { nome: 'Alexandre Gomes', matricula: 'EMP-095', telefone: '(55) 15 977770000', cargo: 'Operador', horarioEntrada: '08:00', horarioSaida: '17:00' },
+    { nome: 'Alexandre Mattos', matricula: 'EMP-084', telefone: '(55) 15 999999999', cargo: 'Ajudante', horarioEntrada: '08:00', horarioSaida: '17:00' },
+    { nome: 'Paulo Nunes', matricula: 'EMP-092', telefone: '(55) 15 911110000', cargo: 'Operador', horarioEntrada: '07:00', horarioSaida: '16:00' },
+    { nome: 'Larissa Rocha', matricula: 'EMP-093', telefone: '(55) 15 900009999', cargo: 'Ajudante', horarioEntrada: '08:00', horarioSaida: '17:00' },
+    { nome: 'Diego Martins', matricula: 'EMP-094', telefone: '(55) 15 988880000', cargo: 'Conferente', horarioEntrada: '14:00', horarioSaida: '22:00' },
 ];
+
+export const OPERADORES = FICHAS.map((f) => f.nome);
 
 interface EmpilhadeiraSeed {
     identificacao: string;
@@ -38,21 +55,26 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
 ];
 
 // O dispositivo guarda só a conectividade; o status da máquina fica na empilhadeira.
-export const DISPOSITIVOS = EMPILHADEIRAS.map(({ enderecoMac, status }) => ({ enderecoMac, status: status === 'offline' ? 'offline' : 'online' }));
+export const DISPOSITIVOS = EMPILHADEIRAS.map(({ enderecoMac, status }, i) => ({
+    enderecoMac,
+    nome: `Mpa-${5300 + i}`,
+    status: status === 'offline' ? 'offline' : 'online',
+}));
 
-// Sem senha aqui: a senha dos colaboradores vem de SEED_COLABORADOR_SENHA.
+// Todos com SENHA_PADRAO. O acesso negado segue a Equipe do Figma; colaborador@colaborador.com é o login fixo de teste.
 export const COLABORADORES = [
     { nome: 'Alexandre Mattos', usuario: 'AlexandreMattos' },
     { nome: 'Carlos Silva', usuario: 'CarlosSilva' },
     { nome: 'Ana Souza', usuario: 'AnaSouza' },
     { nome: 'João Pereira', usuario: 'JoaoPereira' },
     { nome: 'Marina Costa', usuario: 'MarinaCosta' },
-    { nome: 'Rafael Lima', usuario: 'RafaelLima' },
-    { nome: 'Beatriz Alves', usuario: 'BeatrizAlves' },
-    { nome: 'Fernanda Dias', usuario: 'FernandaDias' },
-    { nome: 'Paulo Nunes', usuario: 'PauloNunes' },
-    { nome: 'Larissa Rocha', usuario: 'LarissaRocha' },
-    { nome: 'Diego Martins', usuario: 'DiegoMartins' },
+    { nome: 'Rafael Lima', usuario: 'RafaelLima', acessoNegado: true },
+    { nome: 'Beatriz Alves', usuario: 'BeatrizAlves', acessoNegado: true },
+    { nome: 'Fernanda Dias', usuario: 'FernandaDias', acessoNegado: true },
+    { nome: 'Paulo Nunes', usuario: 'PauloNunes', acessoNegado: true },
+    { nome: 'Larissa Rocha', usuario: 'LarissaRocha', acessoNegado: true },
+    { nome: 'Diego Martins', usuario: 'DiegoMartins', acessoNegado: true },
+    { nome: 'Alexandre Gomes', usuario: 'colaborador@colaborador.com' },
 ];
 
 export const EMPRESA_NOME = 'Liftech Logística';
@@ -74,10 +96,12 @@ export const filialDoDispositivo = (enderecoMac: string) => {
     return e ? filialDaEmpilhadeira(e) : MATRIZ_NOME;
 };
 
-// O operador fica na filial da primeira empilhadeira que o cita; sem empilhadeira, na matriz.
+// O operador fica na filial da primeira empilhadeira que o cita; sem empilhadeira, na primeira filial do seu login; sem login, na matriz.
 export const filialDoOperador = (nome: string) => {
     const e = EMPILHADEIRAS.find((x) => x.operador === nome);
-    return e ? filialDaEmpilhadeira(e) : MATRIZ_NOME;
+    if (e) return filialDaEmpilhadeira(e);
+    const usuario = COLABORADORES.find((c) => c.nome === nome)?.usuario;
+    return (usuario && FILIAIS_DOS_COLABORADORES[usuario]?.[0]) ?? MATRIZ_NOME;
 };
 
 // Filiais de cada colaborador (chave: usuario). PauloNunes tem duas, para testar o seletor.
@@ -93,6 +117,7 @@ export const FILIAIS_DOS_COLABORADORES: Record<string, string[]> = {
     PauloNunes: ['Unidade Centro', 'Unidade Norte'],
     LarissaRocha: ['Unidade Centro'],
     DiegoMartins: ['Unidade Norte'],
+    'colaborador@colaborador.com': [MATRIZ_NOME],
 };
 
 export const SOLICITACOES = [

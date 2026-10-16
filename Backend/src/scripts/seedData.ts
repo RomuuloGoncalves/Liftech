@@ -2,6 +2,7 @@ import { pathToFileURL } from 'node:url';
 import { Operator } from '../schemas/operator.js';
 import { Device } from '../schemas/device.js';
 import { Forklift } from '../schemas/forklift.js';
+import { Sector } from '../schemas/sector.js';
 import { Telemetry } from '../schemas/telemetry.js';
 import { Incident } from '../schemas/incident.js';
 import { User } from '../schemas/user.js';
@@ -10,7 +11,7 @@ import { gerarHashSenha } from '../utils/senha.js';
 import { logger } from '../utils/logger.js';
 import { seedAdmin } from './seedAdmin.js';
 import {
-    COLABORADORES, DISPOSITIVOS, EMPILHADEIRAS, FILIAIS_DOS_COLABORADORES, FILIAIS_EXTRAS, OPERADORES, SOLICITACOES,
+    COLABORADORES, DISPOSITIVOS, EMPILHADEIRAS, FICHAS, FILIAIS_DOS_COLABORADORES, FILIAIS_EXTRAS, OPERADORES, SENHA_PADRAO, SOLICITACOES,
     filialDaEmpilhadeira, filialDoDispositivo, filialDoOperador, gerarIncidentes, gerarTelemetria,
 } from './seedDataset.js';
 import { garantirEmpresa, upsert } from './seedEmpresa.js';
@@ -21,11 +22,21 @@ export async function seedData() {
     await seedAdmin(empresaId);
 
     const operadorIds = new Map<string, unknown>();
-    for (const nome of OPERADORES) operadorIds.set(nome, await upsert(Operator, { nome }, { nome, filialId: filialIds.get(filialDoOperador(nome)) }));
+    for (const ficha of FICHAS) {
+        operadorIds.set(ficha.nome, await upsert(Operator, { nome: ficha.nome }, { ...ficha, filialId: filialIds.get(filialDoOperador(ficha.nome)) }));
+    }
 
     const dispositivoIds = new Map<string, unknown>();
     for (const d of DISPOSITIVOS) {
         dispositivoIds.set(d.enderecoMac, await upsert(Device, { enderecoMac: d.enderecoMac }, { ...d, filialId: filialIds.get(filialDoDispositivo(d.enderecoMac)) }));
+    }
+
+    // Um setor por texto do dataset em cada filial; a empilhadeira aponta para ele.
+    const setorIds = new Map<string, unknown>();
+    for (const e of EMPILHADEIRAS) {
+        const filialId = filialIds.get(filialDaEmpilhadeira(e));
+        const chave = `${filialId}|${e.setor}`;
+        if (!setorIds.has(chave)) setorIds.set(chave, await upsert(Sector, { filialId, nome: e.setor }, { filialId, nome: e.setor }));
     }
 
     const agora = Date.now();
@@ -34,7 +45,7 @@ export async function seedData() {
         empilhadeiraIds.push(await upsert(Forklift, { identificacao: e.identificacao }, {
             identificacao: e.identificacao,
             nome: e.nome,
-            setor: e.setor,
+            setorId: setorIds.get(`${filialIds.get(filialDaEmpilhadeira(e))}|${e.setor}`),
             filialId: filialIds.get(filialDaEmpilhadeira(e)),
             dispositivoConectadoId: dispositivoIds.get(e.enderecoMac),
             status: e.status,
@@ -65,21 +76,15 @@ export async function seedData() {
         }
     }
 
-    let colaboradores = 0;
-    const senha = process.env.SEED_COLABORADOR_SENHA;
-    if (senha) {
-        for (const c of COLABORADORES) {
-            const filiaisIds = FILIAIS_DOS_COLABORADORES[c.usuario]!.map((nome) => filialIds.get(nome));
-            // Liga ao operator de mesmo nome; sem par, fica sem operadorId.
-            const operadorId = operadorIds.get(c.nome);
-            await upsert(User, { usuario: c.usuario }, {
-                ...c, role: 'colaborador', senhaHash: gerarHashSenha(senha), empresaId, escopo: 'filiais', filiaisIds,
-                ...(operadorId !== undefined && { operadorId }),
-            });
-            colaboradores++;
-        }
-    } else {
-        logger.warn('Colaboradores ignorados: defina SEED_COLABORADOR_SENHA.');
+    for (const c of COLABORADORES) {
+        const filiaisIds = FILIAIS_DOS_COLABORADORES[c.usuario]!.map((nome) => filialIds.get(nome));
+        // Liga ao operator de mesmo nome; sem par, fica sem operadorId.
+        const operadorId = operadorIds.get(c.nome);
+        await upsert(User, { usuario: c.usuario }, {
+            nome: c.nome, usuario: c.usuario, acessoNegado: c.acessoNegado === true,
+            role: 'colaborador', senhaHash: gerarHashSenha(SENHA_PADRAO), empresaId, escopo: 'filiais', filiaisIds,
+            ...(operadorId !== undefined && { operadorId }),
+        });
     }
 
     for (const s of SOLICITACOES) await upsert(AccessRequest, { email: s.email, status: s.status }, s);
@@ -87,16 +92,17 @@ export async function seedData() {
     const contagem = {
         empresas: 1,
         filiais: filialIds.size,
+        setores: setorIds.size,
         operadores: OPERADORES.length,
         dispositivos: DISPOSITIVOS.length,
         empilhadeiras: EMPILHADEIRAS.length,
         telemetria,
         incidentes,
-        colaboradores,
+        colaboradores: COLABORADORES.length,
         solicitacoes: SOLICITACOES.length,
     };
     logger.info(
-        `Seed concluído: ${contagem.empresas} empresa, ${contagem.filiais} filiais, ${contagem.operadores} operadores, ${contagem.dispositivos} dispositivos, ` +
+        `Seed concluído: ${contagem.empresas} empresa, ${contagem.filiais} filiais, ${contagem.setores} setores, ${contagem.operadores} operadores, ${contagem.dispositivos} dispositivos, ` +
         `${contagem.empilhadeiras} empilhadeiras, ${contagem.telemetria} leituras, ${contagem.incidentes} incidentes, ` +
         `${contagem.colaboradores} colaboradores, ${contagem.solicitacoes} solicitações.`
     );

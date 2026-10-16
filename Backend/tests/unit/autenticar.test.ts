@@ -1,7 +1,8 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { autenticar } from '../../src/core/autenticar.js';
+import { autenticar, exigirAdmin } from '../../src/core/autenticar.js';
+import { ErroHttp } from '../../src/utils/responseHandler.js';
 import { User } from '../../src/schemas/user.js';
 import { Branch } from '../../src/schemas/branch.js';
 import { env } from '../../src/config/env.js';
@@ -158,5 +159,41 @@ describe('autenticar', () => {
         expect(mockStatus).toHaveBeenCalledWith(500);
         expect(mockJson).toHaveBeenCalledWith({ error: 'JWT_SECRET não configurado.' });
         expect(User.findById).not.toHaveBeenCalled();
+    });
+
+    test('401 quando o usuário tem acessoNegado: true', async () => {
+        mockarUsuario({ _id: USUARIO, role: 'colaborador', empresaId: EMPRESA, acessoNegado: true });
+
+        await chamar(`Bearer ${token()}`);
+
+        respondeu401();
+    });
+
+    test('acessoNegado: false segue para next', async () => {
+        mockarUsuario({ _id: USUARIO, role: 'colaborador', empresaId: EMPRESA, acessoNegado: false });
+
+        await chamar(`Bearer ${token()}`);
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(mockStatus).not.toHaveBeenCalled();
+    });
+});
+
+describe('exigirAdmin', () => {
+    const MENSAGEM = 'Apenas administradores podem gerenciar a equipe.';
+
+    test('colaborador: lança 403 com a mensagem', () => {
+        let erro: unknown;
+        try {
+            exigirAdmin({ _id: USUARIO, role: 'colaborador', operadorId: null }, MENSAGEM);
+        } catch (e) {
+            erro = e;
+        }
+        expect(erro).toBeInstanceOf(ErroHttp);
+        expect(erro).toMatchObject({ status: 403, message: MENSAGEM });
+    });
+
+    test('admin passa', () => {
+        expect(() => exigirAdmin({ _id: USUARIO, role: 'admin', operadorId: null }, MENSAGEM)).not.toThrow();
     });
 });

@@ -120,6 +120,31 @@ describe('team module translations', () => {
   });
 });
 
+describe('machines and team CRUD translations', () => {
+  const NEW_KEYS = [
+    'machines.labelBranch', 'machines.saveError', 'machines.deleteInSession',
+    'team.usernameInvalid', 'team.passwordTooShort', 'team.phPasswordKeep', 'team.loadError',
+    'team.saveError', 'team.loginError', 'team.deleteInSession',
+  ];
+  const valueOf = (data: object, path: string) => {
+    const [module, key] = path.split('.');
+    return (data as Record<string, Record<string, string>>)[module]?.[key];
+  };
+
+  it('pt-BR defines every key the feature added', () => {
+    for (const path of NEW_KEYS) expect(valueOf(ptBR, path), `pt-BR ${path}`).toBeTruthy();
+  });
+
+  // Translated means present, non-empty and not the Portuguese text copied over.
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))('locale $code translates every new key', ({ code, data }) => {
+    for (const path of NEW_KEYS) {
+      const value = valueOf(data, path);
+      expect(value, `Locale "${code}" ${path} is missing or empty`).toBeTruthy();
+      expect(value, `Locale "${code}" ${path} copies the pt-BR text`).not.toBe(valueOf(ptBR, path));
+    }
+  });
+});
+
 describe('alerts module translations', () => {
   const flatten = (obj: object, prefix = ''): Record<string, unknown> =>
     Object.entries(obj).reduce<Record<string, unknown>>((acc, [key, value]) => {
@@ -444,4 +469,32 @@ describe('i18n employee session texts', () => {
       }
     }
   );
+});
+
+describe('sector translations', () => {
+  const SECTOR_KEYS = [
+    'machines.sectorNone',
+    'machines.filterSectorAll',
+    'machines.filterSectorLabel',
+    'team.sectorHasMachines',
+    'team.sectorMoveHasMachines',
+    'team.sectorNameTaken',
+    'team.labelSectorBranch',
+  ];
+  const valueOf = (data: unknown, key: string): string | undefined =>
+    key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown> | undefined)?.[part], data) as string | undefined;
+
+  it.each(ALL_LOCALES)('locale $code has every sector key, translated (not the pt-BR text outside pt-BR)', ({ code, data }) => {
+    for (const key of SECTOR_KEYS) {
+      const value = valueOf(data, key);
+      expect(value, `Locale "${code}" ${key} is missing or empty`).toBeTruthy();
+      if (code !== 'pt-BR') expect(value, `Locale "${code}" ${key} is still in Portuguese`).not.toBe(valueOf(ptBR, key));
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps the {{n}} placeholder in the machine count messages', ({ code, data }) => {
+    for (const key of ['team.sectorHasMachines', 'team.sectorMoveHasMachines']) {
+      expect(valueOf(data, key), `Locale "${code}" ${key} lost {{n}}`).toContain('{{n}}');
+    }
+  });
 });

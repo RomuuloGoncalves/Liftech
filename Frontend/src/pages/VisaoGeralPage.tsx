@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import axios from 'axios'
 import { useTranslation } from 'react-i18next'
-import { Plus, Search, Copy } from 'lucide-react'
+import { Plus, Search, Copy, MapPin } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
@@ -9,6 +10,7 @@ import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
 import { useActiveBranch } from '../context/ActiveBranchContext'
 import { machineService } from '../services/machineService'
+import { sectorService, type Setor } from '../services/sectorService'
 import {
   MACHINES,
   MACHINE_STATUSES,
@@ -26,19 +28,22 @@ type LoadState = 'loading' | 'ready' | 'error'
 const mockEventsFor = (machine: Machine) =>
   eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
-let nextMachineId = MACHINES.length + 1
+// Id da máquina recém-cadastrada até a API responder com o id de verdade.
+let nextTempId = 0
 
 const VisaoGeralPage: React.FC = () => {
   const { t } = useTranslation()
   const [allMachines, setAllMachines] = useState<Machine[]>([])
+  const [sectors, setSectors] = useState<Setor[]>([])
   const [loadState, setLoadState] = useState<LoadState>('loading')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('Todos')
+  const [sectorFilter, setSectorFilter] = useState('Todos')
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
   const { show, showError } = useToast()
-  const { activeBranch } = useActiveBranch()
+  const { activeBranch, branches } = useActiveBranch()
   const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
   const [attempt, setAttempt] = useState(0)
@@ -47,14 +52,17 @@ const VisaoGeralPage: React.FC = () => {
   if (loadedFilialId !== filialId) {
     setLoadedFilialId(filialId)
     setLoadState('loading')
+    setSectorFilter('Todos')
   }
 
   useEffect(() => {
     let stale = false
-    machineService.listar(filialId).then(
-      (machines) => {
+    // Without sectors the page still works: the select only offers "Sem setor".
+    Promise.all([machineService.listar(filialId), sectorService.listar(filialId).catch(() => [])]).then(
+      ([machines, sectorList]) => {
         if (stale) return
         setAllMachines(machines)
+        setSectors(sectorList)
         setLoadState('ready')
       },
       () => {
@@ -73,14 +81,34 @@ const VisaoGeralPage: React.FC = () => {
 
   const detailMachine = allMachines.find((machine) => machine.id === detailId)
 
-  const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
+  const machines = useMemo(
+    () => filterMachines(allMachines, { query, status, setorId: sectorFilter }),
+    [allMachines, query, status, sectorFilter]
+  )
+  // Names repeat across branches: with more than one branch on screen the option names the branch too.
+  const sectorLabel = (sector: Setor) =>
+    activeBranch === 'todas' && branches.length > 1 ? `${sector.nome} · ${sector.filial.nome}` : sector.nome
+
+  // Otimista: troca a máquina na lista, grava e usa a resposta; em falha volta a anterior.
+  const saveOptimistic = (previous: Machine, next: Machine, save: () => Promise<Machine>, errorKey: string) => {
+    const replace = (machine: Machine) =>
+      setAllMachines((prev) => prev.map((item) => (item.id === previous.id ? machine : item)))
+    replace(next)
+    save().then(replace, () => {
+      replace(previous)
+      showError(t(errorKey))
+    })
+  }
+
+  const sectorName = (setorId: string) => sectors.find((sector) => sector._id === setorId)?.nome ?? ''
 
   const handleCreateMachine = (values: NewMachineFormValues) => {
-    const newMachine: Machine = {
-      id: String(nextMachineId++),
+    const temp: Machine = {
+      id: `temp-${nextTempId++}`,
       identificacao: values.identificacao,
       nome: values.nome,
-      setor: values.setor,
+      setor: sectorName(values.setorId),
+      setorId: values.setorId || null,
       status: 'disponivel',
       categoriaId: null,
       categoriaTravada: false,
@@ -92,51 +120,56 @@ const VisaoGeralPage: React.FC = () => {
       tempoSessaoMinutos: 0,
       tempoUsoTotalHoras: 0,
     }
-    setAllMachines((prev) => [newMachine, ...prev])
+    setAllMachines((prev) => [temp, ...prev])
     setIsPanelOpen(false)
     show(t('machines.toastCreated', { name: values.identificacao }))
+    machineService.criar(values, values.filialId ?? filialId).then(
+      (saved) => setAllMachines((prev) => prev.map((machine) => (machine.id === temp.id ? saved : machine))),
+      () => {
+        setAllMachines((prev) => prev.filter((machine) => machine.id !== temp.id))
+        showError(t('machines.saveError'))
+      }
+    )
   }
 
   const handleEditMachine = (values: NewMachineFormValues) => {
-    setAllMachines((prev) =>
-      prev.map((machine) =>
-        machine.id === detailId
-          ? {
-              ...machine,
-              nome: values.nome,
-              identificacao: values.identificacao,
-              setor: values.setor,
-              dispositivoConectado: {
-                ...machine.dispositivoConectado,
-                enderecoMac: values.enderecoMac,
-                nomeDispositivo: values.nomeDispositivo,
-              },
-            }
-          : machine
-      )
-    )
+    if (!detailMachine) return
+    const edited: Machine = {
+      ...detailMachine,
+      nome: values.nome,
+      identificacao: values.identificacao,
+      setor: sectorName(values.setorId),
+      setorId: values.setorId || null,
+      dispositivoConectado: {
+        ...detailMachine.dispositivoConectado,
+        enderecoMac: values.enderecoMac,
+        nomeDispositivo: values.nomeDispositivo,
+      },
+    }
+    saveOptimistic(detailMachine, edited, () => machineService.atualizar(detailMachine.id, values), 'machines.saveError')
     setSubDialog(null)
     show(t('machines.toastSaved', { name: values.identificacao }))
   }
 
   const handleDeleteMachine = () => {
-    setAllMachines((prev) => prev.filter((machine) => machine.id !== detailId))
+    if (!detailMachine) return
+    const removed = detailMachine
+    const index = allMachines.indexOf(removed)
+    setAllMachines((prev) => prev.filter((machine) => machine.id !== removed.id))
     setSubDialog(null)
     setDetailId(null)
-    if (detailMachine) show(t('machines.toastDeleted', { name: detailMachine.identificacao }))
+    show(t('machines.toastDeleted', { name: removed.identificacao }))
+    machineService.remover(removed.id).catch((e) => {
+      setAllMachines((prev) => [...prev.slice(0, index), removed, ...prev.slice(index)])
+      showError(
+        t(axios.isAxiosError(e) && e.response?.status === 409 ? 'machines.deleteInSession' : 'machines.saveError')
+      )
+    })
   }
 
-  // Otimista: aplica o patch, grava e usa a resposta; em falha volta a máquina anterior.
   const updateMachine = (patch: Partial<Machine>, save: (id: string) => Promise<Machine>) => {
     if (!detailMachine) return
-    const previous = detailMachine
-    const replace = (next: Machine) =>
-      setAllMachines((prev) => prev.map((machine) => (machine.id === previous.id ? next : machine)))
-    replace({ ...previous, ...patch })
-    save(previous.id).then(replace, () => {
-      replace(previous)
-      showError(t('fleet.saveError'))
-    })
+    saveOptimistic(detailMachine, { ...detailMachine, ...patch }, () => save(detailMachine.id), 'fleet.saveError')
   }
 
   if (loadState === 'loading') {
@@ -145,6 +178,7 @@ const VisaoGeralPage: React.FC = () => {
         <PageSkeleton variant="grid" gridClassName={styles.grid}>
           <div className={styles.toolbar} data-skeleton-toolbar>
             <SkeletonBlock className={styles.searchSkeleton} />
+            <SkeletonBlock className={styles.selectSkeleton} />
             <SkeletonBlock className={styles.selectSkeleton} />
             <SkeletonBlock className={styles.buttonSkeleton} />
           </div>
@@ -200,6 +234,23 @@ const VisaoGeralPage: React.FC = () => {
           </select>
         </div>
 
+        <div className={styles.selectWrapper}>
+          <MapPin size={16} className={styles.selectLeftIcon} aria-hidden="true" />
+          <select
+            className={styles.statusSelect}
+            aria-label={t('machines.filterSectorLabel')}
+            value={sectorFilter}
+            onChange={(event) => setSectorFilter(event.target.value)}
+          >
+            <option value="Todos">{t('machines.filterSectorAll')}</option>
+            {sectors.map((sector) => (
+              <option key={sector._id} value={sector._id}>
+                {sectorLabel(sector)}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <button type="button" className={styles.registerButton} onClick={() => setIsPanelOpen(true)}>
           <Plus size={16} />
           {t('machines.registerButton')}
@@ -217,7 +268,13 @@ const VisaoGeralPage: React.FC = () => {
       )}
 
       {isPanelOpen && (
-        <NewMachinePanel onClose={() => setIsPanelOpen(false)} onCreate={handleCreateMachine} />
+        <NewMachinePanel
+          branches={activeBranch === 'todas' ? branches : undefined}
+          sectors={sectors}
+          defaultFilialId={filialId}
+          onClose={() => setIsPanelOpen(false)}
+          onCreate={handleCreateMachine}
+        />
       )}
 
       {detailMachine && subDialog === null && (
@@ -234,7 +291,13 @@ const VisaoGeralPage: React.FC = () => {
         />
       )}
       {detailMachine && subDialog === 'edit' && (
-        <NewMachinePanel machine={detailMachine} onClose={() => setSubDialog(null)} onCreate={handleEditMachine} />
+        <NewMachinePanel
+          machine={detailMachine}
+          sectors={sectors}
+          defaultFilialId={filialId}
+          onClose={() => setSubDialog(null)}
+          onCreate={handleEditMachine}
+        />
       )}
       {detailMachine && subDialog === 'delete' && (
         <ConfirmDialog

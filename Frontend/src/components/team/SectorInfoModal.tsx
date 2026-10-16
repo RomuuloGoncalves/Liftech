@@ -23,10 +23,10 @@ const SectorInfoModal: React.FC<SectorInfoModalProps> = ({ sector, onClose }) =>
           <input id={`${uid}-nome`} className={styles.input} value={sector.nome} readOnly />
         </div>
         <div className={styles.field}>
-          <label htmlFor={`${uid}-unidade`} className={styles.label}>
-            {t('team.labelUnit')}
+          <label htmlFor={`${uid}-filial`} className={styles.label}>
+            {t('team.labelSectorBranch')}
           </label>
-          <input id={`${uid}-unidade`} className={styles.input} value={sector.unidade} readOnly />
+          <input id={`${uid}-filial`} className={styles.input} value={sector.filial.nome} readOnly />
         </div>
       </div>
     </Modal>

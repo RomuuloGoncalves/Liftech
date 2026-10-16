@@ -1,5 +1,5 @@
-import React, { useId, useState } from 'react'
-import { Clock, Eye, EyeOff } from 'lucide-react'
+import React, { useId } from 'react'
+import { Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
 import type { Employee } from '../../data/team'
@@ -13,16 +13,10 @@ interface EmployeeInfoModalProps {
 const EmployeeInfoModal: React.FC<EmployeeInfoModalProps> = ({ employee, onClose }) => {
   const { t } = useTranslation()
   const uid = useId()
-  const [showPassword, setShowPassword] = useState(false)
 
-  const field = (name: string, label: string, value: string, options: { icon?: 'clock' | 'password' } = {}) => {
+  const field = (name: string, label: string, value: string, options: { icon?: 'clock' } = {}) => {
     const id = `${uid}-${name}`
-    const isPassword = options.icon === 'password'
-    const inputClass = [
-      styles.input,
-      options.icon === 'clock' ? styles.withLeftIcon : '',
-      isPassword ? styles.withRightIcon : '',
-    ].join(' ')
+    const inputClass = [styles.input, options.icon === 'clock' ? styles.withLeftIcon : ''].join(' ')
 
     return (
       <div className={styles.field}>
@@ -31,23 +25,7 @@ const EmployeeInfoModal: React.FC<EmployeeInfoModalProps> = ({ employee, onClose
         </label>
         <div className={styles.inputWrap}>
           {options.icon === 'clock' && <Clock size={14} className={styles.leftIcon} aria-hidden="true" />}
-          <input
-            id={id}
-            type={isPassword && !showPassword ? 'password' : 'text'}
-            className={inputClass}
-            value={value}
-            readOnly
-          />
-          {isPassword && (
-            <button
-              type="button"
-              className={styles.rightButton}
-              aria-label={showPassword ? t('team.hidePassword') : t('team.showPassword')}
-              onClick={() => setShowPassword((prev) => !prev)}
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          )}
+          <input id={id} type="text" className={inputClass} value={value} readOnly />
         </div>
       </div>
     )
@@ -64,8 +42,7 @@ const EmployeeInfoModal: React.FC<EmployeeInfoModalProps> = ({ employee, onClose
           {field('saida', t('team.labelExit'), employee.horarioSaida, { icon: 'clock' })}
         </div>
         <div className={styles.divider} />
-        {field('usuario', t('team.labelUsername'), employee.usuario)}
-        {field('senha', t('team.labelPassword'), employee.senha, { icon: 'password' })}
+        {field('usuario', t('team.labelUsername'), employee.usuario ?? '')}
       </div>
     </Modal>
   )

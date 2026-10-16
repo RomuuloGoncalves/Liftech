@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { Request, Response } from 'express';
 import { login } from '../../src/feature/auth/authController.js';
 import * as servicoAuth from '../../src/feature/auth/authService.js';
+import { ErroHttp } from '../../src/utils/responseHandler.js';
 
 vi.mock('../../src/schemas/user.js', () => ({ User: {} }));
 vi.mock('../../src/schemas/company.js', () => ({ Company: {} }));
@@ -67,5 +68,14 @@ describe('AuthController.login', () => {
 
         expect(mockStatus).toHaveBeenCalledWith(500);
         expect(mockJson).toHaveBeenCalledWith({ error: 'JWT_SECRET não configurado.' });
+    });
+
+    test('403 com "Acesso negado." quando o serviço lança ErroHttp 403', async () => {
+        vi.mocked(servicoAuth.login).mockRejectedValue(new ErroHttp(403, 'Acesso negado.'));
+
+        await chamar({ role: 'colaborador', login: 'bruno.op', senha: 'segredo2' });
+
+        expect(mockStatus).toHaveBeenCalledWith(403);
+        expect(mockJson).toHaveBeenCalledWith({ error: 'Acesso negado.' });
     });
 });

@@ -7,20 +7,57 @@ import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
 import styles from '../../pages/VisaoGeralPage.module.css'
 import { machineService } from '../../services/machineService'
+import { sectorService, type Setor } from '../../services/sectorService'
+import type { NewMachineFormValues } from '../../components/machines/NewMachinePanel'
 import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
 
 vi.mock('../../services/machineService', () => ({
-  machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn() },
+  machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
 }))
+vi.mock('../../services/sectorService', () => ({ sectorService: { listar: vi.fn() } }))
 vi.mock('../../services/incidentService', () => ({
   incidentService: { listar: vi.fn().mockResolvedValue([]), reportar: vi.fn() },
 }))
 
 const listar = vi.mocked(machineService.listar)
+const criar = vi.mocked(machineService.criar)
+const atualizar = vi.mocked(machineService.atualizar)
+const remover = vi.mocked(machineService.remover)
+const listarSetores = vi.mocked(sectorService.listar)
+
+const SECTORS: Setor[] = [
+  { _id: 'sd', nome: 'Doca Nova', filialId: 'f1', filial: { nome: 'Filial 01' } },
+  { _id: 'se', nome: 'Expedição - Bloco B', filialId: 'f1', filial: { nome: 'Filial 01' } },
+]
+
+// What the API answers by default: the machine as sent, with a server id.
+const savedFrom = (values: NewMachineFormValues, base: Partial<Machine> = {}): Machine =>
+  ({
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    tempoSessaoMinutos: 0,
+    ...base,
+    id: base.id ?? `srv-${values.identificacao}`,
+    nome: values.nome,
+    identificacao: values.identificacao,
+    setor: SECTORS.find((sector) => sector._id === values.setorId)?.nome ?? '',
+    setorId: values.setorId || null,
+    dispositivoConectado: { enderecoMac: values.enderecoMac, nomeDispositivo: values.nomeDispositivo },
+  }) as Machine
 
 beforeEach(() => {
+  listarSetores.mockReset()
+  listarSetores.mockResolvedValue(SECTORS)
   listar.mockReset()
   listar.mockResolvedValue(MACHINES)
+  criar.mockReset()
+  criar.mockImplementation(async (values) => savedFrom(values))
+  atualizar.mockReset()
+  atualizar.mockImplementation(async (id, values) => savedFrom(values, MACHINES.find((m) => m.id === id) ?? { id }))
+  remover.mockReset()
+  remover.mockResolvedValue(undefined)
 })
 
 const renderLoaded = async () => {
@@ -127,6 +164,7 @@ describe('VisaoGeralPage', () => {
 
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(screen.queryByRole('dialog', { name: 'Nova Máquina' })).not.toBeInTheDocument()
@@ -196,7 +234,7 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     expect(screen.getByRole('dialog', { name: 'Editar Máquina' })).toBeInTheDocument()
     expect(screen.getByLabelText('Código')).toHaveValue('EMP-084')
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
 
     const card = cardOf('EMP-084')
@@ -210,7 +248,7 @@ describe('VisaoGeralPage: machine detail', () => {
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
 
     const card = cardOf('EMP-084')
@@ -223,7 +261,7 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'emp-084' } })
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
     fireEvent.keyDown(window, { key: 'Escape' })
 
@@ -269,6 +307,7 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     openDetail('EMP-200')
 
@@ -287,12 +326,12 @@ describe('VisaoGeralPage skeleton', () => {
     expect(screen.queryAllByRole('article')).toEqual([])
   })
 
-  it('mirrors the toolbar (search, select, button) above the page grid class while the request is pending', () => {
+  it('mirrors the toolbar (search, status and sector selects, button) above the page grid class while the request is pending', () => {
     listar.mockReturnValue(new Promise(() => {}))
     const { container } = render(<VisaoGeralPage />)
     const toolbar = container.querySelector('[data-skeleton-toolbar]')!
     expect(toolbar).toHaveClass(styles.toolbar)
-    expect(toolbar.children).toHaveLength(3)
+    expect(toolbar.children).toHaveLength(4)
     const grid = container.querySelector(`.${styles.grid}`)!
     expect(grid.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
     expect(toolbar.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -322,6 +361,7 @@ describe('VisaoGeralPage notifications', () => {
     fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(toastTexts()).toEqual(['Máquina "EMP-999" cadastrada'])
   })
@@ -330,7 +370,7 @@ describe('VisaoGeralPage notifications', () => {
     await renderWithToasts()
     open('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
     expect(toastTexts()).toEqual(['Máquina "EMP-084" salva'])
   })
@@ -349,6 +389,7 @@ const apiMachine = (over: Partial<Machine> = {}): Machine => ({
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
+  setorId: null,
   status: 'manutencao', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA' },
   tempoSessaoMinutos: 5,
   ...over,
@@ -404,21 +445,29 @@ describe('VisaoGeralPage: API', () => {
     expect(screen.queryAllByRole('article')).toEqual([])
   })
 
-  it('does not call the API again when a machine is registered, edited or deleted', async () => {
+  it('registers, edits and deletes through the API without requesting the list again', async () => {
     await renderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    const created = { nome: 'Nova Empilhadeira', identificacao: 'EMP-200', setorId: '', nomeDispositivo: '', enderecoMac: 'AA:BB:CC:DD:EE' }
+    expect(criar).toHaveBeenCalledWith(created, undefined)
+    await screen.findByText('EMP-200(ID)')
+
     openDetail('EMP-200')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    expect(atualizar).toHaveBeenCalledWith('srv-EMP-200', { ...created, setorId: 'sd' })
+
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    expect(remover).toHaveBeenCalledWith('srv-EMP-200')
 
-    expect(screen.queryByText('EMP-200(ID)')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByText('EMP-200(ID)')).not.toBeInTheDocument())
     expect(listar).toHaveBeenCalledTimes(1)
   })
 
@@ -631,5 +680,291 @@ describe('VisaoGeralPage status and lock', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Travar' }))
     expect(machineService.travar).toHaveBeenCalledWith(base.id, true)
     expect(await screen.findByRole('button', { name: 'Destravar' })).toBeInTheDocument()
+  })
+})
+
+describe('VisaoGeralPage: saving through the API', () => {
+  const renderWithToasts = async () => {
+    render(
+      <ToastProvider>
+        <VisaoGeralPage />
+      </ToastProvider>
+    )
+    await screen.findAllByRole('article')
+  }
+  const toastTexts = () =>
+    within(screen.getByRole('status'))
+      .queryAllByRole('listitem')
+      .map((li) => li.textContent)
+  const register = () => {
+    fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+  }
+  const httpError = (status: number) => Object.assign(new Error(`HTTP ${status}`), { isAxiosError: true, response: { status } })
+  const SAVE_ERROR = 'Não foi possível salvar a máquina. Tente novamente.'
+
+  it('shows the new card before the API answers and swaps it for the answer', async () => {
+    let resolve!: (machine: Machine) => void
+    criar.mockReturnValue(new Promise<Machine>((r) => (resolve = r)))
+    await renderWithToasts()
+
+    register()
+    expect(within(cardOf('EMP-999')).getByText('Disponível')).toBeInTheDocument()
+
+    await act(async () => {
+      resolve({ ...apiMachine({ id: 'srv-1', identificacao: 'EMP-999', setor: 'Doca do servidor' }) })
+    })
+
+    expect(within(cardOf('EMP-999')).getByText('Doca do servidor')).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length + 1)
+  })
+
+  it('removes the new card and shows an error toast when the API refuses it', async () => {
+    criar.mockRejectedValue(httpError(409))
+    await renderWithToasts()
+
+    register()
+
+    await waitFor(() => expect(screen.queryByText('EMP-999(ID)')).not.toBeInTheDocument())
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
+    expect(toastTexts()).toContain(SAVE_ERROR)
+  })
+
+  it('puts the previous values back and shows an error toast when the edit fails', async () => {
+    atualizar.mockRejectedValue(httpError(500))
+    await renderWithToasts()
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+
+    await waitFor(() => expect(within(cardOf('EMP-084')).queryByText('Doca Nova')).not.toBeInTheDocument())
+    expect(within(cardOf('EMP-084')).getByText('Expedição - Bloco B')).toBeInTheDocument()
+    expect(toastTexts()).toContain(SAVE_ERROR)
+  })
+
+  it('brings the machine back with the open-session toast when the delete answers 409', async () => {
+    remover.mockRejectedValue(httpError(409))
+    await renderWithToasts()
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    expect(screen.queryByText('EMP-084(ID)')).not.toBeInTheDocument()
+
+    expect(await screen.findByText('EMP-084(ID)')).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
+    expect(toastTexts()).toContain('Máquina com sessão aberta: encerre a sessão antes de excluir.')
+  })
+
+  it('brings the machine back with the generic error toast when the delete fails otherwise', async () => {
+    remover.mockRejectedValue(new Error('Network Error'))
+    await renderWithToasts()
+
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(await screen.findByText('EMP-084(ID)')).toBeInTheDocument()
+    expect(toastTexts()).toContain(SAVE_ERROR)
+  })
+})
+
+describe('VisaoGeralPage: branch on register', () => {
+  const user = {
+    _id: 'u1',
+    nome: 'Ana',
+    role: 'admin',
+    empresa: { _id: 'e1', nome: 'Acme' },
+    escopo: 'empresa',
+    filiais: [
+      { _id: 'f1', nome: 'Filial 01', matriz: true },
+      { _id: 'f2', nome: 'Filial 02', matriz: false },
+    ],
+  }
+  const renderWithBranches = async () => {
+    render(
+      <MemoryRouter>
+        <ActiveBranchProvider>
+          <VisaoGeralPage />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+    await screen.findAllByRole('article')
+    fireEvent.click(screen.getByRole('button', { name: /cadastrar máquina/i }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
+  }
+
+  beforeEach(() => {
+    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.removeItem('liftech.activeBranch')
+  })
+
+  it('with "todas" and two branches the panel asks for the branch and sends the chosen one', async () => {
+    await renderWithBranches()
+
+    expect(screen.getByLabelText('Filial')).toHaveValue('f1')
+    fireEvent.change(screen.getByLabelText('Filial'), { target: { value: 'f2' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(criar).toHaveBeenCalledWith(expect.objectContaining({ identificacao: 'EMP-999', filialId: 'f2' }), 'f2')
+  })
+
+  it('with an active branch the panel has no Filial field and registers in the active branch', async () => {
+    localStorage.setItem('liftech.activeBranch', 'f2')
+    await renderWithBranches()
+
+    expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(criar).toHaveBeenCalledWith(expect.not.objectContaining({ filialId: expect.anything() }), 'f2')
+  })
+})
+
+describe('VisaoGeralPage: sectors in the machine form', () => {
+  const sectorOptions = () =>
+    [...screen.getByLabelText('Setor').querySelectorAll('option')].map((o) => o.textContent)
+
+  it('requests the sectors with the machines and offers them in the register form', async () => {
+    await renderLoaded()
+
+    expect(listarSetores).toHaveBeenCalledWith(undefined)
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    expect(sectorOptions()).toEqual(['Sem setor', 'Doca Nova', 'Expedição - Bloco B'])
+  })
+
+  it('still lists the machines when the sectors fail, with only "Sem setor" in the form', async () => {
+    listarSetores.mockRejectedValue(new Error('Network Error'))
+    await renderLoaded()
+
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    expect(sectorOptions()).toEqual(['Sem setor'])
+  })
+
+  it('shows the picked sector name on the new card before the API answers', async () => {
+    criar.mockReturnValue(new Promise<Machine>(() => {}))
+    await renderLoaded()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-300' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(criar).toHaveBeenCalledWith(expect.objectContaining({ setorId: 'sd' }), undefined)
+    expect(within(cardOf('EMP-300')).getByText('Doca Nova')).toBeInTheDocument()
+  })
+})
+
+describe('VisaoGeralPage: sector filter', () => {
+  const linked = [
+    apiMachine({ id: 'a', identificacao: 'EMP-001', setorId: 'sd', setor: 'Doca Nova', status: 'disponivel' }),
+    apiMachine({ id: 'b', identificacao: 'EMP-002', setorId: 'se', setor: 'Expedição - Bloco B', status: 'disponivel' }),
+    apiMachine({ id: 'c', identificacao: 'EMP-003', setorId: 'sd', setor: 'Doca Nova', status: 'manutencao' }),
+    apiMachine({ id: 'd', identificacao: 'EMP-004', setorId: null, setor: '', status: 'disponivel' }),
+  ]
+  const sectorFilter = () => screen.getByRole('combobox', { name: 'Filtrar por setor' })
+  const codes = () => screen.queryAllByText(/\(ID\)$/).map((el) => el.textContent)
+
+  it('shows "Todos os setores" and the sectors of the active branch', async () => {
+    await renderLoaded()
+
+    expect(sectorFilter()).toHaveValue('Todos')
+    expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+      'Todos os setores',
+      'Doca Nova',
+      'Expedição - Bloco B',
+    ])
+  })
+
+  it('shows only the machines of the chosen sector, together with the status filter', async () => {
+    listar.mockResolvedValue(linked)
+    await renderLoaded()
+
+    fireEvent.change(sectorFilter(), { target: { value: 'sd' } })
+    expect(codes()).toEqual(['EMP-001(ID)', 'EMP-003(ID)'])
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filtrar máquinas por status' }), { target: { value: 'manutencao' } })
+    expect(codes()).toEqual(['EMP-003(ID)'])
+  })
+
+  it('stops filtering by sector when "Todos os setores" is chosen', async () => {
+    listar.mockResolvedValue(linked)
+    await renderLoaded()
+
+    fireEvent.change(sectorFilter(), { target: { value: 'se' } })
+    expect(codes()).toEqual(['EMP-002(ID)'])
+    fireEvent.change(sectorFilter(), { target: { value: 'Todos' } })
+    expect(codes()).toHaveLength(4)
+  })
+
+  describe('with branches', () => {
+    const user = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin',
+      empresa: { _id: 'e1', nome: 'Acme' },
+      escopo: 'empresa',
+      filiais: [
+        { _id: 'f1', nome: 'Filial 01', matriz: true },
+        { _id: 'f2', nome: 'Filial 02', matriz: false },
+      ],
+    }
+    const SwitchTo = ({ id }: { id: string }) => {
+      const { setActiveBranch } = useActiveBranch()
+      return <button onClick={() => setActiveBranch(id)}>switch to {id}</button>
+    }
+    const renderWithBranches = async () => {
+      render(
+        <MemoryRouter>
+          <ActiveBranchProvider>
+            <SwitchTo id="f2" />
+            <VisaoGeralPage />
+          </ActiveBranchProvider>
+        </MemoryRouter>
+      )
+      await screen.findAllByRole('article')
+    }
+
+    beforeEach(() => {
+      localStorage.setItem('user', JSON.stringify(user))
+      listar.mockResolvedValue(linked)
+    })
+
+    it('names the branch in each option when every branch is on screen', async () => {
+      await renderWithBranches()
+
+      expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+        'Todos os setores',
+        'Doca Nova · Filial 01',
+        'Expedição - Bloco B · Filial 01',
+      ])
+    })
+
+    it('requests the sectors of the active branch and goes back to "Todos os setores" when it changes', async () => {
+      await renderWithBranches()
+      fireEvent.change(sectorFilter(), { target: { value: 'sd' } })
+      expect(codes()).toHaveLength(2)
+
+      fireEvent.click(screen.getByText('switch to f2'))
+      await screen.findAllByRole('article')
+
+      expect(listarSetores).toHaveBeenLastCalledWith('f2')
+      expect(sectorFilter()).toHaveValue('Todos')
+      expect(codes()).toHaveLength(4)
+      expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+        'Todos os setores',
+        'Doca Nova',
+        'Expedição - Bloco B',
+      ])
+    })
   })
 })

@@ -11,6 +11,7 @@ import { Branch } from '../../src/schemas/branch.js';
 vi.mock('../../src/config/conn.js', async () => ({ conn: { mongoose: (await import('mongoose')).default } }));
 vi.mock('../../src/schemas/user.js', () => ({ User: { findById: vi.fn(), findOne: vi.fn() } }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { find: vi.fn() } }));
+vi.mock('../../src/scripts/resetData.js', () => ({ resetarBanco: vi.fn().mockResolvedValue({ empresas: 1 }) }));
 vi.mock('../../src/utils/logger.js', async () => ({ logger: (await import('pino')).default({ level: 'silent' }) }));
 
 const SEGREDO = 'segredo-de-teste';
@@ -71,6 +72,14 @@ describe('app: rotas protegidas', () => {
         ['PUT', '/api/sessions/atual/encerrar'],
         ['GET', '/api/incidents'],
         ['POST', '/api/incidents'],
+        ['GET', '/api/operators'],
+        ['POST', '/api/operators'],
+        ['PUT', '/api/operators/665f1c2b9a1e4b0012345678/login'],
+        ['DELETE', '/api/operators/665f1c2b9a1e4b0012345678'],
+        ['GET', '/api/sectors'],
+        ['POST', '/api/sectors'],
+        ['PUT', '/api/sectors/665f1c2b9a1e4b0012345678'],
+        ['DELETE', '/api/sectors/665f1c2b9a1e4b0012345678'],
         ['GET', '/api/access-requests'],
         ['GET', '/api/auth/login'],
         ['GET', '/api/qualquer-coisa'],
@@ -95,6 +104,24 @@ describe('app: rotas protegidas', () => {
     });
 });
 
+describe('app: /api/operators', () => {
+    test('montada depois do autenticar: com token de quem não é admin chega ao handler e responde 403', async () => {
+        const resposta = await chamar('GET', '/api/operators', { token: token() });
+
+        expect(resposta.status).toBe(403);
+        expect(await resposta.json()).toEqual({ error: 'Apenas administradores podem gerenciar a equipe.' });
+    });
+});
+
+describe('app: /api/sectors', () => {
+    test('montada depois do autenticar: POST de quem não é admin chega ao handler e responde 403', async () => {
+        const resposta = await chamar('POST', '/api/sectors', { token: token(), body: { nome: 'Doca' } });
+
+        expect(resposta.status).toBe(403);
+        expect(await resposta.json()).toEqual({ error: 'Apenas administradores podem gerenciar setores.' });
+    });
+});
+
 describe('app: rotas públicas', () => {
     test('GET / responde sem token', async () => {
         const resposta = await chamar('GET', '/');
@@ -108,6 +135,15 @@ describe('app: rotas públicas', () => {
 
         expect(resposta.status).toBe(200);
         expect(await resposta.json()).toMatchObject({ ok: true });
+    });
+
+    test('GET /api/reset responde sem token e sem variável de ambiente (reset mockado, nada toca no banco)', async () => {
+        delete process.env.PERMITIR_RESET;
+
+        const resposta = await chamar('GET', '/api/reset');
+
+        expect(resposta.status).toBe(200);
+        expect(await resposta.json()).toEqual({ empresas: 1 });
     });
 
     test('POST /api/auth/login chega ao handler sem token (corpo vazio: 400 de validação, não 401)', async () => {

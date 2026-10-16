@@ -42,6 +42,7 @@
     "labelSector": "Setor",
     "labelDeviceName": "Nome Dispositivo",
     "labelMac": "MAC Address",
+    "labelBranch": "Filial",
     "detailCode": "Código",
     "detailMac": "Mac",
     "detailSector": "Setor",
@@ -67,6 +68,8 @@
     "toastCreated": "Máquina \"{{name}}\" cadastrada",
     "toastSaved": "Máquina \"{{name}}\" salva",
     "toastDeleted": "Máquina \"{{name}}\" excluída",
+    "saveError": "Não foi possível salvar a máquina. Tente novamente.",
+    "deleteInSession": "Máquina com sessão aberta: encerre a sessão antes de excluir.",
     "status": {
       "disponivel": "Disponível",
       "em_uso": "Em uso",
@@ -74,7 +77,10 @@
       "alerta": "Alerta",
       "offline": "Offline"
     },
-    "changeStatus": "Alterar status"
+    "changeStatus": "Alterar status",
+    "sectorNone": "Sem setor",
+    "filterSectorAll": "Todos os setores",
+    "filterSectorLabel": "Filtrar por setor"
   },
   "alerts": {
     "accidents": "Acidentes",
@@ -126,9 +132,7 @@
     "editSectorTitle": "Editar setor",
     "sectorInfoTitle": "Informações do setor",
     "labelSectorName": "Nome setor",
-    "labelUnit": "Unidade",
     "phSectorName": "Nome setor",
-    "phUnit": "Unidade",
     "createSector": "Criar setor",
     "required": "Campo obrigatório",
     "usernameTaken": "Este usuário já está em uso",
@@ -141,7 +145,18 @@
     "toastEmployeeDeleted": "Funcionário \"{{name}}\" excluído",
     "toastSectorCreated": "Setor \"{{name}}\" cadastrado",
     "toastSectorSaved": "Setor \"{{name}}\" salvo",
-    "toastSectorDeleted": "Setor \"{{name}}\" excluído"
+    "toastSectorDeleted": "Setor \"{{name}}\" excluído",
+    "usernameInvalid": "Use de 3 a 40 caracteres, sem espaços",
+    "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres",
+    "phPasswordKeep": "Deixe em branco para manter a atual",
+    "loadError": "Não foi possível carregar os funcionários.",
+    "saveError": "Não foi possível salvar o funcionário. Tente novamente.",
+    "loginError": "Funcionário cadastrado, mas não foi possível criar o login. Edite-o para tentar de novo.",
+    "deleteInSession": "Funcionário com sessão aberta: encerre a sessão antes de excluir.",
+    "labelSectorBranch": "Filial",
+    "sectorNameTaken": "Já existe um setor com este nome nesta filial",
+    "sectorHasMachines": "Setor com {{n}} máquina(s) ligada(s)",
+    "sectorMoveHasMachines": "Setor com {{n}} máquina(s) ligada(s) não pode mudar de filial"
   },
   "languages": {
     "title": "Escolha um idioma",

@@ -8,6 +8,7 @@ import FrotaPage from '../../pages/FrotaPage'
 import styles from '../../pages/FrotaPage.module.css'
 import { categoryService, type Categoria } from '../../services/categoryService'
 import { machineService } from '../../services/machineService'
+import { sectorService, type Setor } from '../../services/sectorService'
 
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), mover: vi.fn(), travar: vi.fn(), alterarStatus: vi.fn() },
@@ -15,12 +16,18 @@ vi.mock('../../services/machineService', () => ({
 vi.mock('../../services/incidentService', () => ({
   incidentService: { listar: vi.fn().mockResolvedValue([]), reportar: vi.fn() },
 }))
+vi.mock('../../services/sectorService', () => ({ sectorService: { listar: vi.fn() } }))
 vi.mock('../../services/categoryService', () => ({
   categoryService: { listar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
 }))
 
 const listarMaquinas = vi.mocked(machineService.listar)
 const listarCategorias = vi.mocked(categoryService.listar)
+const listarSetores = vi.mocked(sectorService.listar)
+const SETORES: Setor[] = [
+  { _id: 'sa', nome: 'Doca', filialId: 'f1', filial: { nome: 'Filial 01' } },
+  { _id: 'sb', nome: 'Pátio', filialId: 'f1', filial: { nome: 'Filial 01' } },
+]
 const mover = vi.mocked(machineService.mover)
 const travar = vi.mocked(machineService.travar)
 const alterarStatus = vi.mocked(machineService.alterarStatus)
@@ -50,6 +57,8 @@ const MACHINES: Machine[] = MOCK.map((m) => ({
 }))
 
 beforeEach(() => {
+  listarSetores.mockReset()
+  listarSetores.mockResolvedValue(SETORES)
   listarMaquinas.mockReset()
   listarCategorias.mockReset()
   listarMaquinas.mockResolvedValue(MACHINES)
@@ -498,7 +507,7 @@ describe('FrotaPage skeleton', () => {
     const { container } = render(<FrotaPage />)
     const toolbar = container.querySelector('[data-skeleton-toolbar]')!
     expect(toolbar).toHaveClass(styles.toolbar)
-    expect(toolbar.children).toHaveLength(3)
+    expect(toolbar.children).toHaveLength(4)
     const rows = container.querySelectorAll('[data-skeleton-row]')
     expect(rows).toHaveLength(4)
     expect(toolbar.compareDocumentPosition(rows[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -766,5 +775,109 @@ describe('FrotaPage persists moves, locks and status (MOV-07, MOV-08, AUT-07, ST
     await act(async () => fireEvent.change(statusSelect(), { target: { value: 'manutencao' } }))
     expect(statusSelect()).toHaveValue('em_uso')
     expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
+  })
+})
+
+describe('FrotaPage: sector filter', () => {
+  const SETOR_DE: Record<string, string> = { 'EMP-083': 'sa', 'EMP-091': 'sa', 'EMP-081': 'sa', 'EMP-088': 'sb' }
+  const linked = MACHINES.map((m) => ({ ...m, setorId: SETOR_DE[m.identificacao] ?? null }))
+  const sectorFilter = () => screen.getByRole('combobox', { name: 'Filtrar por setor' })
+  const optionTexts = () => [...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)
+  const pick = (value: string) => fireEvent.change(sectorFilter(), { target: { value } })
+
+  beforeEach(() => listarMaquinas.mockResolvedValue(linked))
+
+  it('shows "Todos os setores" and the sectors of the active branch', async () => {
+    await renderPage()
+
+    expect(listarSetores).toHaveBeenCalledWith(undefined)
+    expect(sectorFilter()).toHaveValue('Todos')
+    expect(optionTexts()).toEqual(['Todos os setores', 'Doca', 'Pátio'])
+  })
+
+  it('shows in each row only the machines of the chosen sector', async () => {
+    await renderPage()
+    const allAvailable = codesIn('Disponíveis')
+
+    pick('sa')
+    expect(codesIn('Disponíveis')).toEqual(allAvailable.filter((c) => ['EMP-083(ID)', 'EMP-091(ID)'].includes(c!)))
+    expect(codesIn('Acidentes')).toEqual(['EMP-081(ID)'])
+    expect(codesIn('Ativas')).toEqual([])
+  })
+
+  it('combines the sector with the text search', async () => {
+    await renderPage()
+
+    pick('sa')
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Buscar' }), { target: { value: '091' } })
+    expect(codesIn('Disponíveis')).toEqual(['EMP-091(ID)'])
+    expect(codesIn('Acidentes')).toEqual([])
+  })
+
+  it('stops filtering by sector with "Todos os setores"', async () => {
+    await renderPage()
+    const before = codesIn('Disponíveis')
+
+    pick('sb')
+    expect(codesIn('Disponíveis')).toEqual(['EMP-088(ID)'])
+    pick('Todos')
+    expect(codesIn('Disponíveis')).toEqual(before)
+  })
+
+  it('keeps the page working with an empty filter when the sectors fail to load', async () => {
+    listarSetores.mockRejectedValue(new Error('Network Error'))
+    await renderPage()
+
+    expect(optionTexts()).toEqual(['Todos os setores'])
+    expect(screen.getAllByRole('region')).toHaveLength(4)
+  })
+
+  describe('with branches', () => {
+    const user = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin',
+      empresa: { _id: 'e1', nome: 'Acme' },
+      escopo: 'empresa',
+      filiais: [
+        { _id: 'f1', nome: 'Filial 01', matriz: true },
+        { _id: 'f2', nome: 'Filial 02', matriz: false },
+      ],
+    }
+    const SwitchTo = ({ id }: { id: string }) => {
+      const { setActiveBranch } = useActiveBranch()
+      return <button onClick={() => setActiveBranch(id)}>switch to {id}</button>
+    }
+    const renderWithBranches = () =>
+      renderPage(
+        <MemoryRouter>
+          <ActiveBranchProvider>
+            <SwitchTo id="f2" />
+            <FrotaPage />
+          </ActiveBranchProvider>
+        </MemoryRouter>
+      )
+
+    beforeEach(() => localStorage.setItem('user', JSON.stringify(user)))
+
+    it('names the branch in each option when every branch is on screen', async () => {
+      await renderWithBranches()
+
+      expect(optionTexts()).toEqual(['Todos os setores', 'Doca · Filial 01', 'Pátio · Filial 01'])
+    })
+
+    it('requests the sectors of the new branch and goes back to "Todos os setores" when it changes', async () => {
+      await renderWithBranches()
+      pick('sb')
+      expect(codesIn('Disponíveis')).toEqual(['EMP-088(ID)'])
+
+      fireEvent.click(screen.getByText('switch to f2'))
+      await screen.findByRole('searchbox', { name: 'Buscar' })
+
+      expect(listarSetores).toHaveBeenLastCalledWith('f2')
+      expect(sectorFilter()).toHaveValue('Todos')
+      expect(optionTexts()).toEqual(['Todos os setores', 'Doca', 'Pátio'])
+      expect(codesIn('Disponíveis').length).toBeGreaterThan(1)
+    })
   })
 })

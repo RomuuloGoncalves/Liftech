@@ -13,6 +13,9 @@ vi.mock('../../src/schemas/workSession.js', () => ({
 }));
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn(), findById: vi.fn(), updateOne: vi.fn() } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: { find: vi.fn() } }));
+vi.mock('../../src/schemas/sector.js', () => ({ Sector: { find: vi.fn() } }));
+import { Sector } from '../../src/schemas/sector.js';
+const SETOR = '665f1c2b9a1e4b00123456c1';
 vi.mock('../../src/feature/machine/machineService.js', () => ({ obterMaquina: vi.fn() }));
 vi.mock('../../src/feature/machine/statusService.js', () => ({ aplicarStatus: vi.fn() }));
 
@@ -37,9 +40,10 @@ const FORMATADA = {
     fim: null,
 };
 
-function mockarRelacionados(maquinas: unknown[] = [{ _id: MAQUINA, nome: 'Titan', identificacao: 'EMP-081', setor: 'Expedição' }]) {
+function mockarRelacionados(maquinas: unknown[] = [{ _id: MAQUINA, nome: 'Titan', identificacao: 'EMP-081', setor: 'Texto legado', setorId: SETOR }]) {
     vi.mocked(Forklift.find).mockReturnValue(lean(maquinas));
     vi.mocked(Operator.find).mockReturnValue(lean([{ _id: OPERADOR, nome: 'Carlos Silva' }]));
+    vi.mocked(Sector.find).mockReturnValue(lean([{ _id: SETOR, nome: 'Expedição' }]));
 }
 
 const erro = async (promessa: Promise<unknown>) => {
@@ -66,6 +70,13 @@ describe('atual', () => {
 
         expect(await atual(usuario)).toEqual(FORMATADA);
         expect(WorkSession.findOne).toHaveBeenCalledWith({ operadorId: OPERADOR, fim: null });
+    });
+
+    test("máquina sem setor: maquina.setor ''", async () => {
+        mockarRelacionados([{ _id: MAQUINA, nome: 'Titan', identificacao: 'EMP-081', setor: 'Texto legado', setorId: null }]);
+        vi.mocked(WorkSession.findOne).mockReturnValue(lean(ABERTA));
+
+        expect((await atual(usuario))!.maquina).toEqual({ nome: 'Titan', identificacao: 'EMP-081', setor: '' });
     });
 
     test('sem sessão aberta: null', async () => {
