@@ -7,6 +7,7 @@ import "../../schemas/operator.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { categoriaDoStatus } from "./statusService.js";
+import { exigirSetorDaFilial, nomesDosSetores } from "../sector/sectorService.js";
 
 const MINUTO_MS = 60_000;
 const MAC_REPETIDO = "Já existe um dispositivo com este endereço MAC.";
@@ -14,7 +15,7 @@ const MAC_REPETIDO = "Já existe um dispositivo com este endereço MAC.";
 export interface DadosMaquina {
   nome?: string;
   identificacao?: string;
-  setor?: string;
+  setorId?: string | null;
   nomeDispositivo?: string;
   enderecoMac?: string;
 }
@@ -46,6 +47,7 @@ async function consultar(filtro: Record<string, unknown>) {
     }
   }
 
+  const setores = await nomesDosSetores(empilhadeiras.map((f) => f.setorId));
   const agora = Date.now();
 
   return empilhadeiras.map((f) => {
@@ -58,7 +60,8 @@ async function consultar(filtro: Record<string, unknown>) {
       id: String(f._id),
       identificacao: f.identificacao,
       nome: f.nome,
-      setor: f.setor,
+      setor: setores.get(String(f.setorId)) ?? "",
+      setorId: f.setorId ? String(f.setorId) : null,
       filialId: String(f.filialId),
       status,
       categoriaId: f.categoriaId ? String(f.categoriaId) : null,
@@ -111,6 +114,7 @@ export async function criarMaquina(escopo: Escopo, dados: DadosMaquina & { filia
     throw new ErroHttp(StatusCode.CONFLICT, `Já existe uma empilhadeira com a identificação "${dados.identificacao}".`);
   }
   if (await Device.exists({ enderecoMac })) throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
+  if (dados.setorId) await exigirSetorDaFilial(dados.setorId, dados.filialId);
 
   const dispositivo = await Device.create({ enderecoMac, nome: dados.nomeDispositivo, filialId: dados.filialId }).catch(traduzirErro);
   let empilhadeira;
@@ -118,7 +122,7 @@ export async function criarMaquina(escopo: Escopo, dados: DadosMaquina & { filia
     empilhadeira = await Forklift.create({
       identificacao: dados.identificacao,
       nome: dados.nome,
-      setor: dados.setor,
+      setorId: dados.setorId ?? null,
       status: "disponivel",
       statusAlteradoEm: new Date(),
       categoriaId: await categoriaDoStatus(dados.filialId, "disponivel"),
@@ -138,7 +142,7 @@ export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosM
   const dispositivoId = empilhadeira?.dispositivoConectadoId;
 
   const doForklift: Record<string, unknown> = {};
-  for (const campo of ["nome", "identificacao", "setor"] as const) {
+  for (const campo of ["nome", "identificacao", "setorId"] as const) {
     if (dados[campo] !== undefined) doForklift[campo] = dados[campo];
   }
   const doDevice: Record<string, unknown> = {};
@@ -151,6 +155,7 @@ export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosM
   if (doDevice.enderecoMac !== undefined && (await Device.exists({ enderecoMac: doDevice.enderecoMac, _id: { $ne: dispositivoId } }))) {
     throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
   }
+  if (dados.setorId) await exigirSetorDaFilial(dados.setorId, empilhadeira?.filialId);
 
   if (Object.keys(doForklift).length > 0) await Forklift.updateOne({ _id: id }, { $set: doForklift });
   // ponytail: máquina sem device ligado (dado antigo) ignora os campos do device; criar o device aqui se aparecer o caso.

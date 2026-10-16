@@ -133,8 +133,8 @@ T15
 **Requirement**: SECT-06, SECT-07
 
 **Done when**:
-- [ ] Testes dos critérios 1-6 e 12 da story Máquina ligada, e do setor apagado (`setor: ''`)
-- [ ] Quick gate passa
+- [x] Testes dos critérios 1-6 e 12 da story Máquina ligada, e do setor apagado (`setor: ''`)
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

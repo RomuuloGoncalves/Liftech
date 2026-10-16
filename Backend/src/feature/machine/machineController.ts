@@ -77,7 +77,8 @@ export async function mover(req: Request, res: Response) {
   }
 }
 
-const CAMPOS_MAQUINA = ["nome", "identificacao", "setor", "nomeDispositivo", "enderecoMac"] as const;
+const CAMPOS_MAQUINA = ["nome", "identificacao", "nomeDispositivo", "enderecoMac"] as const;
+const CAMPOS_EDITAVEIS: readonly string[] = [...CAMPOS_MAQUINA, "setorId"];
 const OBRIGATORIOS: readonly string[] = ["nome", "identificacao", "enderecoMac"];
 const MAC_MAXIMO = 32;
 
@@ -97,6 +98,13 @@ function lerDadosMaquina(corpo: Record<string, unknown>, obrigatorio: boolean): 
   if (dados.enderecoMac !== undefined && dados.enderecoMac.length > MAC_MAXIMO) {
     throw new ErroHttp(StatusCode.BAD_REQUEST, `O campo 'enderecoMac' deve ter até ${MAC_MAXIMO} caracteres.`);
   }
+  // null desliga a máquina do setor.
+  if (corpo.setorId !== undefined) {
+    if (corpo.setorId !== null && !ehObjectId(corpo.setorId)) {
+      throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'setorId' deve ser um ObjectId ou null.");
+    }
+    dados.setorId = corpo.setorId;
+  }
   return dados;
 }
 
@@ -115,7 +123,7 @@ export async function atualizar(req: Request, res: Response) {
   try {
     const id = lerId(req);
     const corpo = lerCorpo(req);
-    const fora = Object.keys(corpo).find((campo) => !(CAMPOS_MAQUINA as readonly string[]).includes(campo));
+    const fora = Object.keys(corpo).find((campo) => !CAMPOS_EDITAVEIS.includes(campo));
     if (fora) throw new ErroHttp(StatusCode.BAD_REQUEST, `O campo '${fora}' não pode ser alterado por esta rota.`);
     return respostaSucesso(res, StatusCode.OK, await atualizarMaquina(req.escopo, id, lerDadosMaquina(corpo, false)));
   } catch (error: any) {

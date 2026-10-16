@@ -84,3 +84,11 @@ export async function exigirSetorDaFilial(setorId: string, filialId: unknown) {
     throw new ErroHttp(StatusCode.BAD_REQUEST, "O setor informado não pertence à filial da máquina.");
   }
 }
+
+// Nome de cada setor pelo id, numa consulta só. Setor apagado não entra no mapa: quem lê mostra ''.
+export async function nomesDosSetores(setorIds: unknown[]): Promise<Map<string, string>> {
+  const ids = [...new Set(setorIds.filter(Boolean).map(String))];
+  if (ids.length === 0) return new Map();
+  const setores: any[] = await Sector.find({ _id: { $in: ids } }).lean();
+  return new Map(setores.map((s) => [String(s._id), s.nome]));
+}

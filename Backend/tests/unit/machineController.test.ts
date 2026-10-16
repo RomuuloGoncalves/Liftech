@@ -81,6 +81,7 @@ describe('machineRouter', () => {
 });
 
 const ID = '665f1c2b9a1e4b00123456f1';
+const SETOR = '665f1c2b9a1e4b00123456c1';
 const MAQUINA = { id: ID, identificacao: 'EMP-081', status: 'manutencao' };
 
 function resposta() {
@@ -258,9 +259,9 @@ describe('machineController.criar', () => {
     test('201 com a máquina; filial única do escopo quando o corpo não traz filialId', async () => {
         const { res, status, json } = resposta();
 
-        await criar(reqPost({ ...valido, setor: 'Doca 1', nomeDispositivo: 'Sensor 01' }), res);
+        await criar(reqPost({ ...valido, setorId: SETOR, nomeDispositivo: 'Sensor 01' }), res);
 
-        expect(criarMaquina).toHaveBeenCalledWith(ESCOPO, { ...valido, setor: 'Doca 1', nomeDispositivo: 'Sensor 01', filialId: FILIAL });
+        expect(criarMaquina).toHaveBeenCalledWith(ESCOPO, { ...valido, setorId: SETOR, nomeDispositivo: 'Sensor 01', filialId: FILIAL });
         expect(status).toHaveBeenCalledWith(201);
         expect(json).toHaveBeenCalledWith(MAQUINA);
     });
@@ -292,7 +293,8 @@ describe('machineController.criar', () => {
         ['enderecoMac vazio', { ...valido, enderecoMac: '  ' }],
         ['enderecoMac com mais de 32 caracteres', { ...valido, enderecoMac: 'A'.repeat(33) }],
         ['nome não texto', { ...valido, nome: 5 }],
-        ['setor não texto', { ...valido, setor: 1 }],
+        ['setorId que não é ObjectId', { ...valido, setorId: 'doca' }],
+        ['setorId número', { ...valido, setorId: 1 }],
     ])('400 com %s, sem gravar', async (_caso, body) => {
         const { res, status, json } = resposta();
 
@@ -301,6 +303,19 @@ describe('machineController.criar', () => {
         expect(status).toHaveBeenCalledWith(400);
         expect(json.mock.calls[0]![0]).toHaveProperty('error');
         expect(criarMaquina).not.toHaveBeenCalled();
+    });
+
+    test("setorId inválido: 400 com a mensagem do spec", async () => {
+        const { res, json } = resposta();
+        await criar(reqPost({ ...valido, setorId: 'doca' }), res);
+        expect(json).toHaveBeenCalledWith({ error: "O campo 'setorId' deve ser um ObjectId ou null." });
+    });
+
+    test('setorId null vai ao service (sem setor)', async () => {
+        const { res, status } = resposta();
+        await criar(reqPost({ ...valido, setorId: null }), res);
+        expect(criarMaquina).toHaveBeenCalledWith(ESCOPO, { ...valido, setorId: null, filialId: FILIAL });
+        expect(status).toHaveBeenCalledWith(201);
     });
 
     test('400 com chave $ no corpo', async () => {
@@ -335,7 +350,7 @@ describe('machineController.atualizar', () => {
 
     test('200 com a máquina; repassa só os campos livres', async () => {
         const { res, status, json } = resposta();
-        const corpo = { nome: 'Titan-Y', identificacao: 'EMP-300', setor: 'Doca 2', nomeDispositivo: 'Sensor 02', enderecoMac: 'AA:BB' };
+        const corpo = { nome: 'Titan-Y', identificacao: 'EMP-300', setorId: SETOR, nomeDispositivo: 'Sensor 02', enderecoMac: 'AA:BB' };
 
         await atualizar(reqPut(ID, corpo), res);
 
@@ -346,8 +361,23 @@ describe('machineController.atualizar', () => {
 
     test('campo ausente não vai ao service', async () => {
         const { res } = resposta();
+        await atualizar(reqPut(ID, { nome: 'Titan-Z' }), res);
+        expect(atualizarMaquina).toHaveBeenCalledWith(ESCOPO, ID, { nome: 'Titan-Z' });
+    });
+
+    test('setorId null desliga a máquina do setor', async () => {
+        const { res, status } = resposta();
+        await atualizar(reqPut(ID, { setorId: null }), res);
+        expect(atualizarMaquina).toHaveBeenCalledWith(ESCOPO, ID, { setorId: null });
+        expect(status).toHaveBeenCalledWith(200);
+    });
+
+    test("campo setor (texto): 400 com a mensagem do spec, sem gravar", async () => {
+        const { res, status, json } = resposta();
         await atualizar(reqPut(ID, { setor: 'Doca 3' }), res);
-        expect(atualizarMaquina).toHaveBeenCalledWith(ESCOPO, ID, { setor: 'Doca 3' });
+        expect(status).toHaveBeenCalledWith(400);
+        expect(json).toHaveBeenCalledWith({ error: "O campo 'setor' não pode ser alterado por esta rota." });
+        expect(atualizarMaquina).not.toHaveBeenCalled();
     });
 
     test.each(['status', 'categoriaId', 'categoriaTravada', 'operadorConectadoId', 'sessaoIniciadaEm', 'filialId', 'dispositivoConectadoId', 'qualquer'])(

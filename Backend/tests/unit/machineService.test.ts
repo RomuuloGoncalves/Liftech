@@ -16,6 +16,8 @@ vi.mock('../../src/schemas/workSession.js', () => ({ WorkSession: { exists: vi.f
 vi.mock('../../src/schemas/device.js', () => ({ Device: { exists: vi.fn(), create: vi.fn(), deleteOne: vi.fn(), updateOne: vi.fn() } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findById: vi.fn() } }));
+import { Sector } from '../../src/schemas/sector.js';
+vi.mock('../../src/schemas/sector.js', () => ({ Sector: { find: vi.fn(), exists: vi.fn() } }));
 
 const AGORA = new Date('2026-10-13T12:00:00Z');
 
@@ -38,20 +40,26 @@ const ESCOPO: Escopo = {
     tipo: 'filiais',
     filiais: [{ _id: F1, nome: 'Matriz', matriz: true }, { _id: F2, nome: 'Unidade Norte', matriz: false }],
 };
+const SETOR = new Types.ObjectId();
 const base = {
     _id: ID,
     identificacao: 'EMP-081',
     nome: 'Empilhadeira Elétrica Titan-X',
-    setor: 'Expedição - Bloco B',
+    setor: 'Texto legado que a API não lê',
+    setorId: SETOR,
     filialId: new Types.ObjectId(F1),
     dispositivoConectadoId: dispositivo,
     operadorConectadoId: operador,
     sessaoIniciadaEm: new Date(AGORA.getTime() - 34 * 60_000),
 };
 
+const mockarSetores = (setores: unknown[]) =>
+    vi.mocked(Sector.find).mockReturnValue({ lean: vi.fn().mockResolvedValue(setores) } as any);
+
 describe('listarMaquinas', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockarSetores([{ _id: SETOR, nome: 'Expedição - Bloco B' }]);
         vi.useFakeTimers();
         vi.setSystemTime(AGORA);
     });
@@ -70,6 +78,7 @@ describe('listarMaquinas', () => {
             identificacao: 'EMP-081',
             nome: 'Empilhadeira Elétrica Titan-X',
             setor: 'Expedição - Bloco B',
+            setorId: SETOR.toHexString(),
             filialId: F1,
             status: 'disponivel',
             categoriaId: null,
@@ -79,6 +88,42 @@ describe('listarMaquinas', () => {
             operadorConectado: { nome: 'Carlos Silva' },
             tempoSessaoMinutos: 34,
         });
+    });
+
+    test('setor é o nome do setor ligado, buscado numa consulta só', async () => {
+        mockarLista([base, { ...base, _id: new Types.ObjectId() }]);
+
+        await listarMaquinas(ESCOPO);
+
+        expect(Sector.find).toHaveBeenCalledTimes(1);
+        expect(Sector.find).toHaveBeenCalledWith({ _id: { $in: [SETOR.toHexString()] } });
+    });
+
+    test('setor renomeado: a resposta traz o nome novo', async () => {
+        mockarSetores([{ _id: SETOR, nome: 'Doca Norte' }]);
+        mockarLista([base]);
+
+        const [item] = await listarMaquinas(ESCOPO);
+
+        expect(item!.setor).toBe('Doca Norte');
+    });
+
+    test("sem setor: setor '' e setorId null, sem consultar setores", async () => {
+        mockarLista([{ ...base, setorId: null }]);
+
+        const [item] = await listarMaquinas(ESCOPO);
+
+        expect(item).toMatchObject({ setor: '', setorId: null });
+        expect(Sector.find).not.toHaveBeenCalled();
+    });
+
+    test("setor apagado: setor '' e o setorId gravado", async () => {
+        mockarSetores([]);
+        mockarLista([base]);
+
+        const [item] = await listarMaquinas(ESCOPO);
+
+        expect(item).toMatchObject({ setor: '', setorId: SETOR.toHexString() });
     });
 
     test('ordena por identificacao crescente e popula dispositivo e operador', async () => {
@@ -352,9 +397,9 @@ describe('criarMaquina', () => {
     const DEVICE = new Types.ObjectId();
     const EMPRESA = new Types.ObjectId();
     const CATEGORIA = new Types.ObjectId();
-    const dados = { nome: 'Titan-X', identificacao: 'EMP-200', setor: 'Doca 1', nomeDispositivo: 'Sensor 01', enderecoMac: ' aa:bb:cc:dd:ee ', filialId: F1 };
+    const dados = { nome: 'Titan-X', identificacao: 'EMP-200', setorId: SETOR.toHexString(), nomeDispositivo: 'Sensor 01', enderecoMac: ' aa:bb:cc:dd:ee ', filialId: F1 };
     const lean = (valor: unknown) => ({ lean: vi.fn().mockResolvedValue(valor) }) as any;
-    const criada = { _id: ID, identificacao: 'EMP-200', nome: 'Titan-X', setor: 'Doca 1', filialId: new Types.ObjectId(F1), status: 'disponivel', categoriaId: CATEGORIA, dispositivoConectadoId: { _id: DEVICE, enderecoMac: 'AA:BB:CC:DD:EE', nome: 'Sensor 01' } };
+    const criada = { _id: ID, identificacao: 'EMP-200', nome: 'Titan-X', setorId: SETOR, filialId: new Types.ObjectId(F1), status: 'disponivel', categoriaId: CATEGORIA, dispositivoConectadoId: { _id: DEVICE, enderecoMac: 'AA:BB:CC:DD:EE', nome: 'Sensor 01' } };
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -366,6 +411,8 @@ describe('criarMaquina', () => {
         vi.mocked(Forklift.create).mockResolvedValue({ _id: ID } as any);
         vi.mocked(Branch.findById).mockReturnValue(lean({ _id: F1, empresaId: EMPRESA }));
         vi.mocked(Category.findOne).mockReturnValue(lean({ _id: CATEGORIA }));
+        vi.mocked(Sector.exists).mockResolvedValue({ _id: SETOR } as any);
+        mockarSetores([{ _id: SETOR, nome: 'Doca 1' }]);
         mockarLista([criada]);
     });
     afterEach(() => vi.useRealTimers());
@@ -378,13 +425,32 @@ describe('criarMaquina', () => {
         expect(Forklift.create).toHaveBeenCalledWith({
             identificacao: 'EMP-200',
             nome: 'Titan-X',
-            setor: 'Doca 1',
+            setorId: SETOR.toHexString(),
             status: 'disponivel',
             statusAlteradoEm: AGORA,
             categoriaId: CATEGORIA,
             filialId: F1,
             dispositivoConectadoId: DEVICE,
         });
+    });
+
+    test('setor de outra filial ou inexistente: 400 sem criar nada', async () => {
+        vi.mocked(Sector.exists).mockResolvedValue(null);
+
+        await expect(criarMaquina(ESCOPO, dados)).rejects.toMatchObject({
+            status: 400, message: 'O setor informado não pertence à filial da máquina.',
+        });
+        expect(Sector.exists).toHaveBeenCalledWith({ _id: SETOR.toHexString(), filialId: F1 });
+        expect(Device.create).not.toHaveBeenCalled();
+        expect(Forklift.create).not.toHaveBeenCalled();
+    });
+
+    test('sem setorId: nasce sem setor e não confere setor', async () => {
+        const { setorId: _s, ...semSetor } = dados;
+        await criarMaquina(ESCOPO, semSetor);
+
+        expect(Sector.exists).not.toHaveBeenCalled();
+        expect(Forklift.create).toHaveBeenCalledWith(expect.objectContaining({ setorId: null }));
     });
 
     test('devolve a máquina no formato do GET, com nomeDispositivo', async () => {
@@ -455,23 +521,42 @@ describe('nomeDispositivo na lista', () => {
 describe('atualizarMaquina', () => {
     const DEVICE = new Types.ObjectId();
     const id = ID.toHexString();
-    const todos = { nome: 'Titan-Y', identificacao: 'EMP-300', setor: 'Doca 2', nomeDispositivo: 'Sensor 02', enderecoMac: ' aa:bb:cc:dd:ff ' };
+    const OUTRO_SETOR = new Types.ObjectId().toHexString();
+    const todos = { nome: 'Titan-Y', identificacao: 'EMP-300', setorId: OUTRO_SETOR, nomeDispositivo: 'Sensor 02', enderecoMac: ' aa:bb:cc:dd:ff ' };
 
     beforeEach(() => {
         vi.clearAllMocks();
         mockarLista([base]);
-        vi.mocked(Forklift.findById).mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: ID, dispositivoConectadoId: DEVICE }) } as any);
+        vi.mocked(Forklift.findById).mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: ID, filialId: F1, dispositivoConectadoId: DEVICE }) } as any);
+        vi.mocked(Sector.exists).mockResolvedValue({ _id: OUTRO_SETOR } as any);
+        mockarSetores([]);
         vi.mocked(Forklift.exists).mockResolvedValue(null);
         vi.mocked(Device.exists).mockResolvedValue(null);
         vi.mocked(Device.updateOne).mockResolvedValue({} as any);
     });
 
-    test('nome, identificação e setor vão ao forklift; nomeDispositivo e MAC (maiúsculas) ao device', async () => {
+    test('nome, identificação e setorId vão ao forklift; nomeDispositivo e MAC (maiúsculas) ao device', async () => {
         const maquina = await atualizarMaquina(ESCOPO, id, todos);
 
-        expect(Forklift.updateOne).toHaveBeenCalledWith({ _id: id }, { $set: { nome: 'Titan-Y', identificacao: 'EMP-300', setor: 'Doca 2' } });
+        expect(Sector.exists).toHaveBeenCalledWith({ _id: OUTRO_SETOR, filialId: F1 });
+        expect(Forklift.updateOne).toHaveBeenCalledWith({ _id: id }, { $set: { nome: 'Titan-Y', identificacao: 'EMP-300', setorId: OUTRO_SETOR } });
         expect(Device.updateOne).toHaveBeenCalledWith({ _id: DEVICE }, { $set: { nome: 'Sensor 02', enderecoMac: 'AA:BB:CC:DD:FF' } });
         expect(maquina.id).toBe(id);
+    });
+
+    test('setor de outra filial: 400 sem gravar nada', async () => {
+        vi.mocked(Sector.exists).mockResolvedValue(null);
+
+        await expect(atualizarMaquina(ESCOPO, id, todos)).rejects.toMatchObject({ status: 400 });
+        expect(Forklift.updateOne).not.toHaveBeenCalled();
+        expect(Device.updateOne).not.toHaveBeenCalled();
+    });
+
+    test('setorId null desliga do setor sem conferir setor', async () => {
+        await atualizarMaquina(ESCOPO, id, { setorId: null });
+
+        expect(Sector.exists).not.toHaveBeenCalled();
+        expect(Forklift.updateOne).toHaveBeenCalledWith({ _id: id }, { $set: { setorId: null } });
     });
 
     test('só o nome: o device não é tocado e o forklift recebe só o nome', async () => {
