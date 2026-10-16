@@ -52,7 +52,7 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Rotas públicas: login, solicitação de acesso e reset (só com PERMITIR_RESET=true). Tudo que vem depois de `autenticar` exige token.
+// Rotas públicas: login, solicitação de acesso e reset do banco. Tudo que vem depois de `autenticar` exige token.
 app.use('/api/auth', authRouter);
 app.use('/api/access-requests', accessRequestRouter);
 app.use('/api/reset', resetRouter);

@@ -11,6 +11,7 @@ import { Branch } from '../../src/schemas/branch.js';
 vi.mock('../../src/config/conn.js', async () => ({ conn: { mongoose: (await import('mongoose')).default } }));
 vi.mock('../../src/schemas/user.js', () => ({ User: { findById: vi.fn(), findOne: vi.fn() } }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { find: vi.fn() } }));
+vi.mock('../../src/scripts/resetData.js', () => ({ resetarBanco: vi.fn().mockResolvedValue({ empresas: 1 }) }));
 vi.mock('../../src/utils/logger.js', async () => ({ logger: (await import('pino')).default({ level: 'silent' }) }));
 
 const SEGREDO = 'segredo-de-teste';
@@ -123,13 +124,13 @@ describe('app: rotas públicas', () => {
         expect(await resposta.json()).toMatchObject({ ok: true });
     });
 
-    test('GET /api/reset chega ao handler sem token (sem PERMITIR_RESET: 404, não 401)', async () => {
+    test('GET /api/reset responde sem token e sem variável de ambiente (reset mockado, nada toca no banco)', async () => {
         delete process.env.PERMITIR_RESET;
 
         const resposta = await chamar('GET', '/api/reset');
 
-        expect(resposta.status).toBe(404);
-        expect(await resposta.json()).toEqual({ error: 'Rota não encontrada.' });
+        expect(resposta.status).toBe(200);
+        expect(await resposta.json()).toEqual({ empresas: 1 });
     });
 
     test('POST /api/auth/login chega ao handler sem token (corpo vazio: 400 de validação, não 401)', async () => {

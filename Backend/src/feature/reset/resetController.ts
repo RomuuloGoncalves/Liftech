@@ -4,9 +4,8 @@ import { resetarBanco } from "../../scripts/resetData.js";
 
 let emAndamento = false;
 
-// Rota pública que apaga o banco: só existe com PERMITIR_RESET=true no ambiente.
+// Rota pública que apaga o banco e roda o seed do zero (projeto pessoal, decisão do dono).
 export async function resetar(_req: Request, res: Response) {
-  if (process.env.PERMITIR_RESET !== "true") return respostaErro(res, StatusCode.NOT_FOUND, "Rota não encontrada.");
   if (emAndamento) return respostaErro(res, StatusCode.CONFLICT, "Reset em andamento.");
 
   emAndamento = true;

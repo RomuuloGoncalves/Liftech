@@ -315,7 +315,7 @@ Os acessos do seed são fixos (`SENHA_PADRAO` e `ADMIN` em `seedDataset.ts`): `a
 * 12 colaboradores (login pelo campo `usuario`, senha `asdasdasd`), cada um ligado (`operadorId`) ao operator de mesmo nome. `colaborador@colaborador.com` é o login fixo de teste (operador Alexandre Gomes, na Matriz). Quem está "Negado" na Equipe do Figma nasce com `acessoNegado: true`.
 * 2 solicitações de acesso pendentes.
 
-**Reset público** (`GET /api/reset`, sem token): apaga os documentos das 11 collections da aplicação (os índices ficam) e roda o `seedData` do zero, respondendo 200 com a contagem. Só existe com `PERMITIR_RESET=true` no ambiente; sem isso responde 404. Um segundo reset enquanto o primeiro roda responde 409. **Nunca ligue `PERMITIR_RESET` em produção**: qualquer pessoa com a URL apaga o banco.
+**Reset público** (`GET /api/reset`, sem token): apaga os documentos das 11 collections da aplicação (os índices ficam) e roda o `seedData` do zero, respondendo 200 com a contagem. Não depende de variável de ambiente: qualquer pessoa com a URL apaga o banco do ambiente em que a API roda (decisão do dono, projeto pessoal). Um segundo reset enquanto o primeiro roda responde 409.
 
 É **idempotente**: cada registro é gravado com upsert pela chave natural (nome do operador, MAC do dispositivo, identificação da empilhadeira, par dispositivo/data na telemetria, par empilhadeira/data no incidente, `usuario` do colaborador, par email/status na solicitação). Rodar de novo atualiza em vez de duplicar. Exceção esperada: `sessaoIniciadaEm` das empilhadeiras é recalculada a partir do momento da execução, então `tempoSessaoMinutos` volta a ser o do dataset. A conexão é fechada ao final, mesmo se o seed falhar.
 

@@ -29,7 +29,7 @@ Nem toda feature segue a cadeia completa. `authService` (login e emissão do JWT
 ### Seeds (`Backend/src/scripts/`)
 * `seedAdmin.ts` (`yarn seed`, ou `yarn dev:seed` junto do servidor): cria o admin fixo `admin@admin.com` / `asdasdasd`; se ele já existe, volta escopo e senha para os fixos.
 * `seedData.ts` (`yarn seed:data`): chama o `seedAdmin` e popula operadores, dispositivos, empilhadeiras, telemetria, incidentes, colaboradores (senha fixa `asdasdasd`, login de teste `colaborador@colaborador.com`) e solicitações de acesso, com upsert pela chave natural, então pode rodar de novo sem duplicar. Os dados de exemplo vêm de `seedDataset.ts`, os mesmos do mock do Frontend.
-* `resetData.ts` (`GET /api/reset`, pública, só com `PERMITIR_RESET=true`): apaga os documentos de todas as collections e roda o `seedData`.
+* `resetData.ts` (`GET /api/reset`, pública, sem token nem flag): apaga os documentos de todas as collections e roda o `seedData`.
 
 Os seeds escrevem no banco configurado no `.env`: rode só contra um ambiente de desenvolvimento.
 
