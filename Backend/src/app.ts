@@ -14,6 +14,7 @@ import branchRouter from './feature/branch/branchRouter.js';
 import categoryRouter from './feature/category/categoryRouter.js';
 import sessionRouter from './feature/session/sessionRouter.js';
 import incidentRouter from './feature/incident/incidentRouter.js';
+import operatorRouter from './feature/operator/operatorRouter.js';
 
 export const app = express();
 
@@ -64,3 +65,4 @@ app.use('/api/branches', branchRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/sessions', sessionRouter);
 app.use('/api/incidents', incidentRouter);
+app.use('/api/operators', operatorRouter);

@@ -71,6 +71,10 @@ describe('app: rotas protegidas', () => {
         ['PUT', '/api/sessions/atual/encerrar'],
         ['GET', '/api/incidents'],
         ['POST', '/api/incidents'],
+        ['GET', '/api/operators'],
+        ['POST', '/api/operators'],
+        ['PUT', '/api/operators/665f1c2b9a1e4b0012345678/login'],
+        ['DELETE', '/api/operators/665f1c2b9a1e4b0012345678'],
         ['GET', '/api/access-requests'],
         ['GET', '/api/auth/login'],
         ['GET', '/api/qualquer-coisa'],
@@ -92,6 +96,15 @@ describe('app: rotas protegidas', () => {
 
         expect(resposta.status).toBe(200);
         expect(await resposta.json()).toEqual([{ _id: MATRIZ, nome: 'Matriz', matriz: true }]);
+    });
+});
+
+describe('app: /api/operators', () => {
+    test('montada depois do autenticar: com token de quem não é admin chega ao handler e responde 403', async () => {
+        const resposta = await chamar('GET', '/api/operators', { token: token() });
+
+        expect(resposta.status).toBe(403);
+        expect(await resposta.json()).toEqual({ error: 'Apenas administradores podem gerenciar a equipe.' });
     });
 });
 

@@ -156,7 +156,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | OPER-01 | P1 Operador: listar | Design | Implementing |
 | OPER-02 | P1 Operador: filtro de filial | Design | Implementing |
 | OPER-03 | P1 Operador: criar com matrícula | Design | Implementing |
-| OPER-04 | P1 Operador: validação | Design | Pending |
+| OPER-04 | P1 Operador: validação | Design | Implementing |
 | OPER-05 | P1 Operador: editar campos livres | Design | Implementing |
 | OPER-06 | P1 Operador: nome no login | Design | Implementing |
 | OPER-07 | P1 Operador: excluir com login | Design | Implementing |
@@ -168,7 +168,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | LOGIN-01 | P1 Login: criar | Design | Implementing |
 | LOGIN-02 | P1 Login: já tem login | Design | Implementing |
 | LOGIN-03 | P1 Login: usuário em uso | Design | Implementing |
-| LOGIN-04 | P1 Login: validação | Design | Pending |
+| LOGIN-04 | P1 Login: validação | Design | Implementing |
 | LOGIN-05 | P1 Login: trocar senha | Design | Implementing |
 | LOGIN-06 | P1 Login: acesso negado | Design | Implementing |
 | LOGIN-07 | P1 Login: sem login 404 | Design | Implementing |

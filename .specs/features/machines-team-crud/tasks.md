@@ -258,8 +258,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: colaborador → 403 em toda rota; nome vazio, horário fora de `HH:mm`, usuário com espaço ou curto, senha < 8 ou > 72, `acessoNegado` não booleano → 400; campo extra no PUT → 400; id inválido → 400; happy path de cada rota; `app.test` cobre o mount (401 sem token)
-- [ ] Gate build do Backend passa
+- [x] Testes: colaborador → 403 em toda rota; nome vazio, horário fora de `HH:mm`, usuário com espaço ou curto, senha < 8 ou > 72, `acessoNegado` não booleano → 400; campo extra no PUT → 400; id inválido → 400; happy path de cada rota; `app.test` cobre o mount (401 sem token)
+- [x] Gate build do Backend passa
 
 **Tests**: unit
 **Gate**: build
