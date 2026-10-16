@@ -326,12 +326,12 @@ describe('VisaoGeralPage skeleton', () => {
     expect(screen.queryAllByRole('article')).toEqual([])
   })
 
-  it('mirrors the toolbar (search, select, button) above the page grid class while the request is pending', () => {
+  it('mirrors the toolbar (search, status and sector selects, button) above the page grid class while the request is pending', () => {
     listar.mockReturnValue(new Promise(() => {}))
     const { container } = render(<VisaoGeralPage />)
     const toolbar = container.querySelector('[data-skeleton-toolbar]')!
     expect(toolbar).toHaveClass(styles.toolbar)
-    expect(toolbar.children).toHaveLength(3)
+    expect(toolbar.children).toHaveLength(4)
     const grid = container.querySelector(`.${styles.grid}`)!
     expect(grid.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
     expect(toolbar.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -861,5 +861,110 @@ describe('VisaoGeralPage: sectors in the machine form', () => {
 
     expect(criar).toHaveBeenCalledWith(expect.objectContaining({ setorId: 'sd' }), undefined)
     expect(within(cardOf('EMP-300')).getByText('Doca Nova')).toBeInTheDocument()
+  })
+})
+
+describe('VisaoGeralPage: sector filter', () => {
+  const linked = [
+    apiMachine({ id: 'a', identificacao: 'EMP-001', setorId: 'sd', setor: 'Doca Nova', status: 'disponivel' }),
+    apiMachine({ id: 'b', identificacao: 'EMP-002', setorId: 'se', setor: 'Expedição - Bloco B', status: 'disponivel' }),
+    apiMachine({ id: 'c', identificacao: 'EMP-003', setorId: 'sd', setor: 'Doca Nova', status: 'manutencao' }),
+    apiMachine({ id: 'd', identificacao: 'EMP-004', setorId: null, setor: '', status: 'disponivel' }),
+  ]
+  const sectorFilter = () => screen.getByRole('combobox', { name: 'Filtrar por setor' })
+  const codes = () => screen.queryAllByText(/\(ID\)$/).map((el) => el.textContent)
+
+  it('shows "Todos os setores" and the sectors of the active branch', async () => {
+    await renderLoaded()
+
+    expect(sectorFilter()).toHaveValue('Todos')
+    expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+      'Todos os setores',
+      'Doca Nova',
+      'Expedição - Bloco B',
+    ])
+  })
+
+  it('shows only the machines of the chosen sector, together with the status filter', async () => {
+    listar.mockResolvedValue(linked)
+    await renderLoaded()
+
+    fireEvent.change(sectorFilter(), { target: { value: 'sd' } })
+    expect(codes()).toEqual(['EMP-001(ID)', 'EMP-003(ID)'])
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filtrar máquinas por status' }), { target: { value: 'manutencao' } })
+    expect(codes()).toEqual(['EMP-003(ID)'])
+  })
+
+  it('stops filtering by sector when "Todos os setores" is chosen', async () => {
+    listar.mockResolvedValue(linked)
+    await renderLoaded()
+
+    fireEvent.change(sectorFilter(), { target: { value: 'se' } })
+    expect(codes()).toEqual(['EMP-002(ID)'])
+    fireEvent.change(sectorFilter(), { target: { value: 'Todos' } })
+    expect(codes()).toHaveLength(4)
+  })
+
+  describe('with branches', () => {
+    const user = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin',
+      empresa: { _id: 'e1', nome: 'Acme' },
+      escopo: 'empresa',
+      filiais: [
+        { _id: 'f1', nome: 'Filial 01', matriz: true },
+        { _id: 'f2', nome: 'Filial 02', matriz: false },
+      ],
+    }
+    const SwitchTo = ({ id }: { id: string }) => {
+      const { setActiveBranch } = useActiveBranch()
+      return <button onClick={() => setActiveBranch(id)}>switch to {id}</button>
+    }
+    const renderWithBranches = async () => {
+      render(
+        <MemoryRouter>
+          <ActiveBranchProvider>
+            <SwitchTo id="f2" />
+            <VisaoGeralPage />
+          </ActiveBranchProvider>
+        </MemoryRouter>
+      )
+      await screen.findAllByRole('article')
+    }
+
+    beforeEach(() => {
+      localStorage.setItem('user', JSON.stringify(user))
+      listar.mockResolvedValue(linked)
+    })
+
+    it('names the branch in each option when every branch is on screen', async () => {
+      await renderWithBranches()
+
+      expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+        'Todos os setores',
+        'Doca Nova · Filial 01',
+        'Expedição - Bloco B · Filial 01',
+      ])
+    })
+
+    it('requests the sectors of the active branch and goes back to "Todos os setores" when it changes', async () => {
+      await renderWithBranches()
+      fireEvent.change(sectorFilter(), { target: { value: 'sd' } })
+      expect(codes()).toHaveLength(2)
+
+      fireEvent.click(screen.getByText('switch to f2'))
+      await screen.findAllByRole('article')
+
+      expect(listarSetores).toHaveBeenLastCalledWith('f2')
+      expect(sectorFilter()).toHaveValue('Todos')
+      expect(codes()).toHaveLength(4)
+      expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+        'Todos os setores',
+        'Doca Nova',
+        'Expedição - Bloco B',
+      ])
+    })
   })
 })

@@ -332,11 +332,14 @@ export function filterEvents(events: MachineEvent[], { tipo, from, to }: EventFi
 export interface MachineFilters {
   query?: string
   status?: MachineStatus | 'Todos'
+  /** 'Todos' or missing = any sector. */
+  setorId?: string
 }
 
 export function filterMachines(machines: Machine[], filters: MachineFilters): Machine[] {
   const query = filters.query?.trim().toLowerCase() ?? ''
   const status = filters.status ?? 'Todos'
+  const setorId = filters.setorId ?? 'Todos'
 
   return machines.filter((machine) => {
     const matchesQuery =
@@ -346,6 +349,8 @@ export function filterMachines(machines: Machine[], filters: MachineFilters): Ma
 
     const matchesStatus = status === 'Todos' || machine.status === status
 
-    return matchesQuery && matchesStatus
+    const matchesSector = setorId === 'Todos' || machine.setorId === setorId
+
+    return matchesQuery && matchesStatus && matchesSector
   })
 }

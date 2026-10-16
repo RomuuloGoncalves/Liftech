@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
-import { Plus, Search, Copy } from 'lucide-react'
+import { Plus, Search, Copy, MapPin } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
@@ -38,6 +38,7 @@ const VisaoGeralPage: React.FC = () => {
   const [loadState, setLoadState] = useState<LoadState>('loading')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('Todos')
+  const [sectorFilter, setSectorFilter] = useState('Todos')
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
@@ -51,6 +52,7 @@ const VisaoGeralPage: React.FC = () => {
   if (loadedFilialId !== filialId) {
     setLoadedFilialId(filialId)
     setLoadState('loading')
+    setSectorFilter('Todos')
   }
 
   useEffect(() => {
@@ -79,7 +81,13 @@ const VisaoGeralPage: React.FC = () => {
 
   const detailMachine = allMachines.find((machine) => machine.id === detailId)
 
-  const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
+  const machines = useMemo(
+    () => filterMachines(allMachines, { query, status, setorId: sectorFilter }),
+    [allMachines, query, status, sectorFilter]
+  )
+  // Names repeat across branches: with more than one branch on screen the option names the branch too.
+  const sectorLabel = (sector: Setor) =>
+    activeBranch === 'todas' && branches.length > 1 ? `${sector.nome} · ${sector.filial.nome}` : sector.nome
 
   // Otimista: troca a máquina na lista, grava e usa a resposta; em falha volta a anterior.
   const saveOptimistic = (previous: Machine, next: Machine, save: () => Promise<Machine>, errorKey: string) => {
@@ -171,6 +179,7 @@ const VisaoGeralPage: React.FC = () => {
           <div className={styles.toolbar} data-skeleton-toolbar>
             <SkeletonBlock className={styles.searchSkeleton} />
             <SkeletonBlock className={styles.selectSkeleton} />
+            <SkeletonBlock className={styles.selectSkeleton} />
             <SkeletonBlock className={styles.buttonSkeleton} />
           </div>
         </PageSkeleton>
@@ -220,6 +229,23 @@ const VisaoGeralPage: React.FC = () => {
             {MACHINE_STATUSES.map((option) => (
               <option key={option} value={option}>
                 {t(`machines.status.${option}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.selectWrapper}>
+          <MapPin size={16} className={styles.selectLeftIcon} aria-hidden="true" />
+          <select
+            className={styles.statusSelect}
+            aria-label={t('machines.filterSectorLabel')}
+            value={sectorFilter}
+            onChange={(event) => setSectorFilter(event.target.value)}
+          >
+            <option value="Todos">{t('machines.filterSectorAll')}</option>
+            {sectors.map((sector) => (
+              <option key={sector._id} value={sector._id}>
+                {sectorLabel(sector)}
               </option>
             ))}
           </select>

@@ -295,8 +295,8 @@ T15
 **Requirement**: SECT-09, SECT-14
 
 **Done when**:
-- [ ] Testes dos critérios 1-4 da story Filtro na Visão Geral e de `filterMachines`
-- [ ] Quick gate passa
+- [x] Testes dos critérios 1-4 da story Filtro na Visão Geral e de `filterMachines`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

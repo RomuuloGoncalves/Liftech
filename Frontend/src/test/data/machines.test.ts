@@ -76,6 +76,23 @@ describe('MACHINES mock dataset', () => {
 })
 
 describe('filterMachines', () => {
+  const linked = MACHINES.map((machine) => ({ ...machine, setorId: ['1', '2', '3'].includes(machine.id) ? 's1' : null }))
+
+  it('keeps only the machines of the chosen sector', () => {
+    expect(filterMachines(linked, { setorId: 's1' }).map((m) => m.id)).toEqual(['1', '2', '3'])
+  })
+
+  it('does not filter by sector with "Todos" or without setorId', () => {
+    expect(filterMachines(linked, { setorId: 'Todos' })).toHaveLength(MACHINES.length)
+    expect(filterMachines(linked, {})).toHaveLength(MACHINES.length)
+  })
+
+  it('combines the sector with the query and the status', () => {
+    expect(filterMachines(linked, { setorId: 's1', status: 'alerta' }).map((m) => m.id)).toEqual(['1'])
+    expect(filterMachines(linked, { setorId: 's1', query: 'emp-083' }).map((m) => m.id)).toEqual(['3'])
+    expect(filterMachines(linked, { setorId: 's1', query: 'emp-085' })).toEqual([])
+  })
+
   it('returns all machines when no filters are given', () => {
     expect(filterMachines(MACHINES, {})).toHaveLength(MACHINES.length)
   })
