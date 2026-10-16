@@ -373,8 +373,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: edição com senha vazia salva sem `senha`; senha curta mostra erro; usuário desabilitado com login; select de filial só no cadastro com `branches`
-- [ ] Gate quick passa
+- [x] Testes: edição com senha vazia salva sem `senha`; senha curta mostra erro; usuário desabilitado com login; select de filial só no cadastro com `branches`
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

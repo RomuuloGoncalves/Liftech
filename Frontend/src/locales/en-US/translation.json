@@ -142,7 +142,10 @@
     "toastEmployeeDeleted": "Employee \"{{name}}\" deleted",
     "toastSectorCreated": "Sector \"{{name}}\" registered",
     "toastSectorSaved": "Sector \"{{name}}\" saved",
-    "toastSectorDeleted": "Sector \"{{name}}\" deleted"
+    "toastSectorDeleted": "Sector \"{{name}}\" deleted",
+    "usernameInvalid": "Use 3 to 40 characters, no spaces",
+    "passwordTooShort": "The password must have at least 8 characters",
+    "phPasswordKeep": "Leave blank to keep the current one"
   },
   "languages": {
     "title": "Choose a language",

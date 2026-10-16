@@ -177,7 +177,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | LOGIN-10 | P1 Login: auth recusa negado | Design | Implementing |
 | LOGIN-11 | P1 Login: middleware recusa negado | Design | Implementing |
 | LOGIN-12 | P1 Login: front cria operador + login | Design | Implementing |
-| LOGIN-13 | P1 Login: front troca senha | Design | Pending |
+| LOGIN-13 | P1 Login: front troca senha | Design | Implementing |
 | LOGIN-14 | P1 Login: front alterna acesso | Design | Pending |
 | LOGIN-15 | P1 Login: i18n 7 idiomas | Design | Implementing |
 

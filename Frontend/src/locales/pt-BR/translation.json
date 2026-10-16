@@ -144,7 +144,10 @@
     "toastEmployeeDeleted": "Funcionário \"{{name}}\" excluído",
     "toastSectorCreated": "Setor \"{{name}}\" cadastrado",
     "toastSectorSaved": "Setor \"{{name}}\" salvo",
-    "toastSectorDeleted": "Setor \"{{name}}\" excluído"
+    "toastSectorDeleted": "Setor \"{{name}}\" excluído",
+    "usernameInvalid": "Use de 3 a 40 caracteres, sem espaços",
+    "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres",
+    "phPasswordKeep": "Deixe em branco para manter a atual"
   },
   "languages": {
     "title": "Escolha um idioma",

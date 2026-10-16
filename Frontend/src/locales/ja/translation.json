@@ -142,7 +142,10 @@
     "toastEmployeeDeleted": "担当者「{{name}}」を削除しました",
     "toastSectorCreated": "部署「{{name}}」を登録しました",
     "toastSectorSaved": "部署「{{name}}」を保存しました",
-    "toastSectorDeleted": "部署「{{name}}」を削除しました"
+    "toastSectorDeleted": "部署「{{name}}」を削除しました",
+    "usernameInvalid": "空白なしで3〜40文字にしてください",
+    "passwordTooShort": "パスワードは8文字以上にしてください",
+    "phPasswordKeep": "現在のパスワードを使う場合は空欄のまま"
   },
   "languages": {
     "title": "言語を選択",

@@ -142,7 +142,10 @@
     "toastEmployeeDeleted": "Сотрудник «{{name}}» удалён",
     "toastSectorCreated": "Участок «{{name}}» добавлен",
     "toastSectorSaved": "Участок «{{name}}» сохранён",
-    "toastSectorDeleted": "Участок «{{name}}» удалён"
+    "toastSectorDeleted": "Участок «{{name}}» удалён",
+    "usernameInvalid": "От 3 до 40 символов, без пробелов",
+    "passwordTooShort": "Пароль должен содержать не менее 8 символов",
+    "phPasswordKeep": "Оставьте пустым, чтобы сохранить текущий"
   },
   "languages": {
     "title": "Выберите язык",
