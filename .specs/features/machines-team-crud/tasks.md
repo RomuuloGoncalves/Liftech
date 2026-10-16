@@ -220,8 +220,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes 1:1 aos ACs: formato com `usuario`/`acesso`; filtro de filial só reduz; matrícula `EMP-001` sem operadores e `EMP-093` depois de `EMP-092`; nome propagado; 409 sem apagar; exclusão apaga o `user` do `operadorId`; 404 fora do escopo
-- [ ] Gate quick passa
+- [x] Testes 1:1 aos ACs: formato com `usuario`/`acesso`; filtro de filial só reduz; matrícula `EMP-001` sem operadores e `EMP-093` depois de `EMP-092`; nome propagado; 409 sem apagar; exclusão apaga o `user` do `operadorId`; 404 fora do escopo
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

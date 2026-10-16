@@ -154,14 +154,14 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | MACH-11 | P1 Máquina: front otimista | Design | Pending |
 | MACH-12 | P1 Máquina: front rollback | Design | Pending |
 | OPER-01 | P1 Operador: listar | Design | Implementing |
-| OPER-02 | P1 Operador: filtro de filial | Design | Pending |
-| OPER-03 | P1 Operador: criar com matrícula | Design | Pending |
+| OPER-02 | P1 Operador: filtro de filial | Design | Implementing |
+| OPER-03 | P1 Operador: criar com matrícula | Design | Implementing |
 | OPER-04 | P1 Operador: validação | Design | Pending |
-| OPER-05 | P1 Operador: editar campos livres | Design | Pending |
-| OPER-06 | P1 Operador: nome no login | Design | Pending |
-| OPER-07 | P1 Operador: excluir com login | Design | Pending |
-| OPER-08 | P1 Operador: 409 com sessão aberta | Design | Pending |
-| OPER-09 | P1 Operador: 404 fora do escopo | Design | Pending |
+| OPER-05 | P1 Operador: editar campos livres | Design | Implementing |
+| OPER-06 | P1 Operador: nome no login | Design | Implementing |
+| OPER-07 | P1 Operador: excluir com login | Design | Implementing |
+| OPER-08 | P1 Operador: 409 com sessão aberta | Design | Implementing |
+| OPER-09 | P1 Operador: 404 fora do escopo | Design | Implementing |
 | OPER-10 | P1 Operador: só admin | Design | Implementing |
 | OPER-11 | P1 Operador: Equipe carrega da API | Design | Pending |
 | OPER-12 | P1 Operador: front otimista e rollback | Design | Pending |
