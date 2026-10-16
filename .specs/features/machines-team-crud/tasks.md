@@ -104,9 +104,9 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Teste: user com `acessoNegado: true` → 401 e `next` não chamado; `false` → segue
-- [ ] Teste: `exigirAdmin` lança 403 com a mensagem para colaborador e passa para admin
-- [ ] Gate quick passa
+- [x] Teste: user com `acessoNegado: true` → 401 e `next` não chamado; `false` → segue
+- [x] Teste: `exigirAdmin` lança 403 com a mensagem para colaborador e passa para admin
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick
