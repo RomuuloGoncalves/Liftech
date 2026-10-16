@@ -40,6 +40,7 @@
     "labelName": "Nombre",
     "labelSector": "Sector",
     "labelMac": "Dirección MAC",
+    "labelBranch": "Sucursal",
     "detailCode": "Código",
     "detailMac": "Mac",
     "detailSector": "Sector",
@@ -65,6 +66,8 @@
     "toastCreated": "Máquina \"{{name}}\" registrada",
     "toastSaved": "Máquina \"{{name}}\" guardada",
     "toastDeleted": "Máquina \"{{name}}\" eliminada",
+    "saveError": "No se pudo guardar la máquina. Inténtalo de nuevo.",
+    "deleteInSession": "Máquina con sesión abierta: finaliza la sesión antes de eliminarla.",
     "status": {
       "disponivel": "Disponible",
       "em_uso": "En uso",
@@ -72,7 +75,10 @@
       "alerta": "En alerta",
       "offline": "Sin conexión"
     },
-    "changeStatus": "Cambiar estado"
+    "changeStatus": "Cambiar estado",
+    "sectorNone": "Sin sector",
+    "filterSectorAll": "Todos los sectores",
+    "filterSectorLabel": "Filtrar por sector"
   },
   "alerts": {
     "accidents": "Accidentes",
@@ -124,9 +130,7 @@
     "editSectorTitle": "Editar sector",
     "sectorInfoTitle": "Información del sector",
     "labelSectorName": "Nombre del sector",
-    "labelUnit": "Unidad",
     "phSectorName": "Nombre del sector",
-    "phUnit": "Unidad",
     "createSector": "Crear sector",
     "required": "Campo obligatorio",
     "usernameTaken": "Este usuario ya está en uso",
@@ -139,7 +143,18 @@
     "toastEmployeeDeleted": "Empleado \"{{name}}\" eliminado",
     "toastSectorCreated": "Sector \"{{name}}\" registrado",
     "toastSectorSaved": "Sector \"{{name}}\" guardado",
-    "toastSectorDeleted": "Sector \"{{name}}\" eliminado"
+    "toastSectorDeleted": "Sector \"{{name}}\" eliminado",
+    "usernameInvalid": "Usa de 3 a 40 caracteres, sin espacios",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "phPasswordKeep": "Déjala en blanco para mantener la actual",
+    "loadError": "No se pudieron cargar los empleados.",
+    "saveError": "No se pudo guardar el empleado. Inténtalo de nuevo.",
+    "loginError": "Empleado registrado, pero no se pudo crear el acceso. Edítalo para intentarlo de nuevo.",
+    "deleteInSession": "Empleado con sesión abierta: finaliza la sesión antes de eliminarlo.",
+    "labelSectorBranch": "Sucursal",
+    "sectorNameTaken": "Ya existe un sector con este nombre en esta sucursal",
+    "sectorHasMachines": "Sector con {{n}} máquina(s) vinculada(s)",
+    "sectorMoveHasMachines": "Un sector con {{n}} máquina(s) vinculada(s) no puede cambiar de sucursal"
   },
   "languages": {
     "title": "Elige un idioma",

@@ -98,6 +98,11 @@
   background: var(--blue);
 }
 
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .knob {
   position: absolute;
   top: 2px;

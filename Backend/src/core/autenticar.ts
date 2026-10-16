@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../schemas/user.js";
 import { env } from "../config/env.js";
-import { StatusCode, respostaErro } from "../utils/responseHandler.js";
+import { ErroHttp, StatusCode, respostaErro } from "../utils/responseHandler.js";
 import { carregarEscopo } from "./escopo.js";
 
 const NAO_AUTENTICADO = "Não autenticado.";
@@ -34,7 +34,7 @@ export async function autenticar(req: Request, res: Response, next: NextFunction
     if (typeof sub !== "string" || !OBJECT_ID.test(sub)) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);
 
     const usuario = await User.findById(sub).lean();
-    if (!usuario) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);
+    if (!usuario || usuario.acessoNegado === true) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);
 
     req.usuario = { _id: String(usuario._id), role: String(usuario.role), operadorId: usuario.operadorId ? String(usuario.operadorId) : null };
     req.escopo = await carregarEscopo(usuario);
@@ -43,4 +43,8 @@ export async function autenticar(req: Request, res: Response, next: NextFunction
     return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
   }
   next();
+}
+
+export function exigirAdmin(usuario: UsuarioRequisicao, mensagem: string) {
+  if (usuario.role !== "admin") throw new ErroHttp(StatusCode.FORBIDDEN, mensagem);
 }

@@ -40,6 +40,7 @@
     "labelName": "Name",
     "labelSector": "Sector",
     "labelMac": "MAC Address",
+    "labelBranch": "Branch",
     "detailCode": "Code",
     "detailMac": "Mac",
     "detailSector": "Sector",
@@ -65,6 +66,8 @@
     "toastCreated": "Machine \"{{name}}\" registered",
     "toastSaved": "Machine \"{{name}}\" saved",
     "toastDeleted": "Machine \"{{name}}\" deleted",
+    "saveError": "Could not save the machine. Please try again.",
+    "deleteInSession": "Machine has an open session: end the session before deleting.",
     "status": {
       "disponivel": "Available",
       "em_uso": "In use",
@@ -72,7 +75,10 @@
       "alerta": "Alert",
       "offline": "Disconnected"
     },
-    "changeStatus": "Change status"
+    "changeStatus": "Change status",
+    "sectorNone": "No sector",
+    "filterSectorAll": "All sectors",
+    "filterSectorLabel": "Filter by sector"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -124,9 +130,7 @@
     "editSectorTitle": "Edit sector",
     "sectorInfoTitle": "Sector information",
     "labelSectorName": "Sector name",
-    "labelUnit": "Unit",
     "phSectorName": "Sector name",
-    "phUnit": "Unit",
     "createSector": "Create sector",
     "required": "Required field",
     "usernameTaken": "This username is already in use",
@@ -139,7 +143,18 @@
     "toastEmployeeDeleted": "Employee \"{{name}}\" deleted",
     "toastSectorCreated": "Sector \"{{name}}\" registered",
     "toastSectorSaved": "Sector \"{{name}}\" saved",
-    "toastSectorDeleted": "Sector \"{{name}}\" deleted"
+    "toastSectorDeleted": "Sector \"{{name}}\" deleted",
+    "usernameInvalid": "Use 3 to 40 characters, no spaces",
+    "passwordTooShort": "The password must have at least 8 characters",
+    "phPasswordKeep": "Leave blank to keep the current one",
+    "loadError": "Could not load the employees.",
+    "saveError": "Could not save the employee. Please try again.",
+    "loginError": "Employee registered, but the login could not be created. Edit them to try again.",
+    "deleteInSession": "Employee has an open session: end the session before deleting.",
+    "labelSectorBranch": "Branch",
+    "sectorNameTaken": "A sector with this name already exists in this branch",
+    "sectorHasMachines": "Sector has {{n}} linked machine(s)",
+    "sectorMoveHasMachines": "A sector with {{n}} linked machine(s) cannot change branch"
   },
   "languages": {
     "title": "Choose a language",

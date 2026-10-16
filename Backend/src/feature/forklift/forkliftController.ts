@@ -103,7 +103,8 @@ export async function deletar(req: Request, res: Response) {
 }
 
 // Status, trava e categoria só mudam pelas rotas de /api/machines, que aplicam as regras deles.
-const CAMPOS_PROTEGIDOS = ["status", "statusAlteradoEm", "categoriaId", "categoriaTravada", "sessaoIniciadaEm"];
+// O setor só liga por /api/machines, que confere a filial.
+const CAMPOS_PROTEGIDOS = ["status", "statusAlteradoEm", "categoriaId", "categoriaTravada", "sessaoIniciadaEm", "setorId"];
 
 export async function atualizar(req: Request, res: Response) {
   try {
@@ -124,6 +125,8 @@ export async function atualizar(req: Request, res: Response) {
     if (corpo.filialId !== undefined) {
       exigirEmpresa(req.escopo, "Apenas o escopo de empresa pode mover uma empilhadeira de filial.");
       corpo.filialId = resolverFilial(req.escopo, corpo.filialId);
+      // O setor é da filial antiga.
+      corpo.setorId = null;
     }
     if (corpo.id !== undefined) {
       corpo.identificacao = corpo.id;

@@ -2,19 +2,30 @@ import React, { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
+import type { Filial } from '../../services/authService'
+import type { Setor } from '../../services/sectorService'
 import styles from './NewMachinePanel.module.css'
 
 export interface NewMachineFormValues {
   nome: string
   identificacao: string
-  setor: string
+  /** '' = no sector. */
+  setorId: string
   nomeDispositivo: string
   enderecoMac: string
+  /** Only set on create when the branch picker is shown. */
+  filialId?: string
 }
 
 interface NewMachinePanelProps {
   /** When given, the panel edits this machine; `onCreate` receives the edited values. */
   machine?: Machine
+  /** With 2+ branches the create form asks which branch the machine belongs to. */
+  branches?: Filial[]
+  /** Sectors of the page; the select shows those of the form's branch. */
+  sectors: Setor[]
+  /** Branch of a new machine when the form has no branch picker. */
+  defaultFilialId?: string
   onClose: () => void
   onCreate: (values: NewMachineFormValues) => void
 }
@@ -22,25 +33,30 @@ interface NewMachinePanelProps {
 const EMPTY_FORM: NewMachineFormValues = {
   nome: '',
   identificacao: '',
-  setor: '',
+  setorId: '',
   nomeDispositivo: '',
   enderecoMac: '',
 }
 
-const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onCreate }) => {
+const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [], sectors, defaultFilialId, onClose, onCreate }) => {
   const { t } = useTranslation()
   const isEdit = machine !== undefined
+  const showBranch = !isEdit && branches.length >= 2
   const [values, setValues] = useState<NewMachineFormValues>(
     machine
       ? {
           nome: machine.nome,
           identificacao: machine.identificacao,
-          setor: machine.setor,
+          setorId: machine.setorId ?? '',
           nomeDispositivo: machine.dispositivoConectado.nomeDispositivo ?? '',
           enderecoMac: machine.dispositivoConectado.enderecoMac,
         }
-      : EMPTY_FORM
+      : showBranch
+        ? { ...EMPTY_FORM, filialId: branches[0]._id }
+        : EMPTY_FORM
   )
+  const formFilialId = values.filialId ?? machine?.filialId ?? defaultFilialId
+  const branchSectors = formFilialId ? sectors.filter((sector) => sector.filialId === formFilialId) : sectors
   const title = isEdit ? t('machines.editMachineTitle') : t('machines.newMachineTitle')
   const subtitle = isEdit ? t('machines.editMachineSubtitle') : t('machines.newMachineSubtitle')
   const panelRef = useRef<HTMLDivElement>(null)
@@ -54,10 +70,14 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
   }, [onClose])
 
   const updateField = (field: keyof NewMachineFormValues) => (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setValues((prev) => ({ ...prev, [field]: event.target.value }))
   }
+
+  // A sector belongs to one branch: a new branch drops the picked sector.
+  const changeBranch = (event: React.ChangeEvent<HTMLSelectElement>) =>
+    setValues((prev) => ({ ...prev, filialId: event.target.value, setorId: '' }))
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) onClose()
@@ -115,14 +135,28 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
 
             <label className={styles.field}>
               <span className={styles.label}>{t('machines.labelSector')}</span>
-              <input
-                type="text"
-                className={styles.input}
-                placeholder="Ex: Expedição - Bloco B"
-                value={values.setor}
-                onChange={updateField('setor')}
-              />
+              <select className={styles.input} value={values.setorId} onChange={updateField('setorId')}>
+                <option value="">{t('machines.sectorNone')}</option>
+                {branchSectors.map((sector) => (
+                  <option key={sector._id} value={sector._id}>
+                    {sector.nome}
+                  </option>
+                ))}
+              </select>
             </label>
+
+            {showBranch && (
+              <label className={styles.field}>
+                <span className={styles.label}>{t('machines.labelBranch')}</span>
+                <select className={styles.input} value={values.filialId} onChange={changeBranch}>
+                  {branches.map((branch) => (
+                    <option key={branch._id} value={branch._id}>
+                      {branch.nome}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <div className={styles.divider} />
 
@@ -145,6 +179,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, onClose, onC
                 placeholder="AA:BB:CC:DD:EE:FF"
                 value={values.enderecoMac}
                 onChange={updateField('enderecoMac')}
+                required
               />
             </label>
           </div>

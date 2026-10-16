@@ -164,3 +164,17 @@
     width: 100%;
   }
 }
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.errorState p {
+  margin: 0;
+}

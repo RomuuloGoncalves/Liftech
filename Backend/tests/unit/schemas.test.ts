@@ -122,6 +122,36 @@ describe('schema category', async () => {
     });
 });
 
+describe('schema sector', async () => {
+    const { Sector } = await import('../../src/schemas/sector.js');
+    const filialId = new mongoose.Types.ObjectId();
+
+    test('nome e filialId são obrigatórios', async () => {
+        expect((await erros(new Sector({}))).sort()).toEqual(['filialId', 'nome']);
+        expect(await erros(new Sector({ filialId, nome: 'Doca' }))).toEqual([]);
+    });
+
+    test('nome com trim, vazio ou com mais de 60 caracteres falha', async () => {
+        expect(new Sector({ filialId, nome: '  Doca  ' }).nome).toBe('Doca');
+        expect(await erros(new Sector({ filialId, nome: '   ' }))).toEqual(['nome']);
+        expect(await erros(new Sector({ filialId, nome: 'a'.repeat(61) }))).toEqual(['nome']);
+        expect(await erros(new Sector({ filialId, nome: 'a'.repeat(60) }))).toEqual([]);
+    });
+
+    test('filialId tem índice e o nome é único por filial sem diferenciar caixa', () => {
+        expect(Sector.schema.path('filialId').options.index).toBe(true);
+        expect(Sector.schema.indexes()).toContainEqual([
+            { filialId: 1, nome: 1 },
+            expect.objectContaining({ unique: true, collation: { locale: 'pt', strength: 2 } }),
+        ]);
+    });
+
+    test('empilhadeira começa sem setor e setorId referencia sector', () => {
+        expect(new Forklift({ filialId }).setorId).toBeNull();
+        expect(Forklift.schema.path('setorId').options.ref).toBe('sector');
+    });
+});
+
 describe('status e categoria na empilhadeira', () => {
     const filialId = new mongoose.Types.ObjectId();
 
@@ -190,5 +220,32 @@ describe('sessão do funcionário', async () => {
         const filialId = id();
         expect(await erros(new Incident({ filialId, descricao: 'a'.repeat(500) }))).toEqual([]);
         expect(await erros(new Incident({ filialId, descricao: 'a'.repeat(501) }))).toEqual(['descricao']);
+    });
+});
+
+describe('cadastro de máquina e equipe', () => {
+    const filialId = new mongoose.Types.ObjectId();
+
+    test('operator: guarda matricula, telefone, cargo e horários sem espaços nas pontas', () => {
+        const o = new Operator({
+            filialId, nome: 'Ana', matricula: ' EMP-001 ', telefone: ' (11) 99999-0000 ',
+            cargo: ' Operadora ', horarioEntrada: ' 08:00 ', horarioSaida: ' 17:00 ',
+        });
+        expect(o.matricula).toBe('EMP-001');
+        expect(o.telefone).toBe('(11) 99999-0000');
+        expect(o.cargo).toBe('Operadora');
+        expect(o.horarioEntrada).toBe('08:00');
+        expect(o.horarioSaida).toBe('17:00');
+    });
+
+    test('user: acessoNegado nasce false e guarda true', () => {
+        const empresaId = new mongoose.Types.ObjectId();
+        expect(new User({ nome: 'Ana', role: 'colaborador', empresaId }).acessoNegado).toBe(false);
+        expect(new User({ nome: 'Ana', role: 'colaborador', empresaId, acessoNegado: true }).acessoNegado).toBe(true);
+    });
+
+    test('device: guarda nome e enderecoMac tem índice único', () => {
+        expect(new Device({ filialId, nome: 'Sensor 01' }).nome).toBe('Sensor 01');
+        expect(Device.schema.indexes()).toContainEqual([{ enderecoMac: 1 }, expect.objectContaining({ unique: true })]);
     });
 });

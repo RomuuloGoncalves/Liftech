@@ -8,7 +8,10 @@ export interface Machine {
   id: string
   identificacao: string
   nome: string
+  /** Name of the linked sector, '' without one. */
   setor: string
+  setorId: string | null
+  filialId?: string
   status: MachineStatus
   categoriaId: string | null
   categoriaTravada: boolean
@@ -24,7 +27,7 @@ export interface Machine {
   tempoUsoTotalHoras?: number
 }
 
-const BASE_MACHINES: Machine[] = [
+const BASE_MACHINES: Omit<Machine, 'setorId'>[] = [
   {
     id: '1',
     identificacao: 'EMP-081',
@@ -228,6 +231,7 @@ const BASE_MACHINES: Machine[] = [
 
 export const MACHINES: Machine[] = BASE_MACHINES.map((machine, index) => ({
   ...machine,
+  setorId: null,
   dispositivoConectado: { ...machine.dispositivoConectado, nomeDispositivo: `Mpa-${5300 + index}` },
   tempoUsoTotalHoras: 4 + ((index * 3) % 20),
 }))
@@ -328,11 +332,14 @@ export function filterEvents(events: MachineEvent[], { tipo, from, to }: EventFi
 export interface MachineFilters {
   query?: string
   status?: MachineStatus | 'Todos'
+  /** 'Todos' or missing = any sector. */
+  setorId?: string
 }
 
 export function filterMachines(machines: Machine[], filters: MachineFilters): Machine[] {
   const query = filters.query?.trim().toLowerCase() ?? ''
   const status = filters.status ?? 'Todos'
+  const setorId = filters.setorId ?? 'Todos'
 
   return machines.filter((machine) => {
     const matchesQuery =
@@ -342,6 +349,8 @@ export function filterMachines(machines: Machine[], filters: MachineFilters): Ma
 
     const matchesStatus = status === 'Todos' || machine.status === status
 
-    return matchesQuery && matchesStatus
+    const matchesSector = setorId === 'Todos' || machine.setorId === setorId
+
+    return matchesQuery && matchesStatus && matchesSector
   })
 }

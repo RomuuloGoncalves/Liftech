@@ -1,13 +1,16 @@
 import { describe, test, expect } from 'vitest';
 import {
+    ADMIN,
     COLABORADORES,
     DISPOSITIVOS,
     EMPILHADEIRAS,
     EMPRESA_NOME,
+    FICHAS,
     FILIAIS_DOS_COLABORADORES,
     FILIAIS_EXTRAS,
     MATRIZ_NOME,
     OPERADORES,
+    SENHA_PADRAO,
     SOLICITACOES,
     filialDaEmpilhadeira,
     filialDoDispositivo,
@@ -62,9 +65,32 @@ describe('seedDataset: empresa e filiais', () => {
 });
 
 describe('seedDataset: cadastros', () => {
-    test('8 operadores com nomes únicos', () => {
-        expect(OPERADORES).toHaveLength(8);
-        expect(new Set(OPERADORES).size).toBe(8);
+    test('12 operadores com nomes e matrículas únicos, cada um com a ficha da Equipe', () => {
+        expect(OPERADORES).toHaveLength(12);
+        expect(new Set(OPERADORES).size).toBe(12);
+        expect(new Set(FICHAS.map((f) => f.matricula)).size).toBe(12);
+        for (const f of FICHAS) {
+            expect(f.matricula).toMatch(/^EMP-\d{3}$/);
+            expect(f.horarioEntrada).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/);
+            expect(f.horarioSaida).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/);
+            expect(f.telefone && f.cargo).toBeTruthy();
+        }
+    });
+
+    test('a ordem dos 8 primeiros operadores não muda (alimenta o operador de reserva dos incidentes)', () => {
+        expect(OPERADORES.slice(0, 8)).toEqual([
+            'Carlos Silva', 'Ana Souza', 'João Pereira', 'Marina Costa', 'Rafael Lima', 'Beatriz Alves', 'Fernanda Dias', 'Alexandre Gomes',
+        ]);
+    });
+
+    test('o operador sem empilhadeira fica na primeira filial do seu login', () => {
+        expect(filialDoOperador('Diego Martins')).toBe('Unidade Norte');
+        expect(filialDoOperador('Paulo Nunes')).toBe('Unidade Centro');
+    });
+
+    test('cada dispositivo tem nome Mpa-<n> único', () => {
+        expect(DISPOSITIVOS[0]!.nome).toBe('Mpa-5300');
+        expect(new Set(DISPOSITIVOS.map((d) => d.nome)).size).toBe(16);
     });
 
     test('16 dispositivos com MAC único', () => {
@@ -95,10 +121,30 @@ describe('seedDataset: cadastros', () => {
         expect(EMPILHADEIRAS.filter((e) => e.status === 'alerta').map((e) => e.identificacao)).toEqual(['EMP-081', 'EMP-085', 'EMP-089']);
     });
 
-    test('11 colaboradores com usuário único e sem campo de senha', () => {
-        expect(COLABORADORES).toHaveLength(11);
-        expect(new Set(COLABORADORES.map((c) => c.usuario)).size).toBe(11);
-        for (const c of COLABORADORES) expect(Object.keys(c).sort()).toEqual(['nome', 'usuario']);
+    test('12 colaboradores com usuário único, sem campo de senha, cada um com um operador', () => {
+        expect(COLABORADORES).toHaveLength(12);
+        expect(new Set(COLABORADORES.map((c) => c.usuario)).size).toBe(12);
+        for (const c of COLABORADORES) {
+            expect(c).not.toHaveProperty('senha');
+            expect(OPERADORES).toContain(c.nome);
+        }
+    });
+
+    test('colaborador@colaborador.com é o login fixo, com acesso, ligado a Alexandre Gomes na matriz', () => {
+        const fixo = COLABORADORES.find((c) => c.usuario === 'colaborador@colaborador.com')!;
+        expect(fixo.nome).toBe('Alexandre Gomes');
+        expect(fixo).not.toHaveProperty('acessoNegado');
+        expect(FILIAIS_DOS_COLABORADORES['colaborador@colaborador.com']).toEqual([MATRIZ_NOME]);
+    });
+
+    test('acesso negado só para quem está Negado na Equipe do Figma', () => {
+        const negados = COLABORADORES.filter((c) => c.acessoNegado).map((c) => c.usuario);
+        expect(negados).toEqual(['RafaelLima', 'BeatrizAlves', 'FernandaDias', 'PauloNunes', 'LarissaRocha', 'DiegoMartins']);
+    });
+
+    test('credenciais fixas: admin@admin.com e senha asdasdasd', () => {
+        expect(ADMIN.email).toBe('admin@admin.com');
+        expect(SENHA_PADRAO).toBe('asdasdasd');
     });
 
     test('2 solicitações de acesso pendentes com email único', () => {

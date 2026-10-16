@@ -5,6 +5,7 @@ import { Operator } from "../../schemas/operator.js";
 import { carregarEscopo } from "../../core/escopo.js";
 import { env } from "../../config/env.js";
 import { verificarSenha } from "../../utils/senha.js";
+import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 
 export type RoleLogin = "admin" | "colaborador";
 
@@ -23,6 +24,8 @@ export async function login(role: RoleLogin, login: string, senha: string) {
   if (!usuario?.senhaHash || !verificarSenha(senha, usuario.senhaHash)) {
     throw new Error(CREDENCIAIS_INVALIDAS);
   }
+  // Depois da senha: quem erra a senha não descobre que o acesso foi negado.
+  if (usuario.acessoNegado) throw new ErroHttp(StatusCode.FORBIDDEN, "Acesso negado.");
 
   const _id = String(usuario._id);
   const token = jwt.sign({ sub: _id, role: usuario.role }, env.jwt_secret, {

@@ -10,7 +10,6 @@ vi.mock('../../src/schemas/company.js', () => ({ Company: { findOneAndUpdate: vi
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findOneAndUpdate: vi.fn() } }));
 vi.mock('../../src/config/conn.js', () => ({ conn: { mongoose: { disconnect: vi.fn() } } }));
 
-const VARIAVEIS = ['SEED_ADMIN_EMAIL', 'SEED_ADMIN_SENHA', 'SEED_ADMIN_NOME'] as const;
 const envOriginal = { ...process.env };
 
 function mockarBusca(documento: Record<string, unknown> | null) {
@@ -30,9 +29,6 @@ const EMPRESA_PADRAO = 'Company:{"nome":"Liftech Logística"}';
 describe('seedAdmin', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        process.env.SEED_ADMIN_EMAIL = '  Admin@Empresa.COM ';
-        process.env.SEED_ADMIN_SENHA = 'segredo1';
-        process.env.SEED_ADMIN_NOME = 'Administrador';
         mockarEmpresa();
     });
 
@@ -40,21 +36,33 @@ describe('seedAdmin', () => {
         process.env = { ...envOriginal };
     });
 
-    test('email não encontrado: cria admin com email normalizado e senha com hash', async () => {
+    test('admin@admin.com não encontrado: cria o admin fixo com a senha asdasdasd em hash', async () => {
         mockarBusca(null);
 
         await seedAdmin();
 
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'admin@empresa.com' });
+        expect(User.findOne).toHaveBeenCalledWith({ email: 'admin@admin.com' });
         expect(User.create).toHaveBeenCalledTimes(1);
         const criado = vi.mocked(User.create).mock.calls[0]![0] as any;
-        expect(criado).toMatchObject({ nome: 'Administrador', email: 'admin@empresa.com', role: 'admin' });
-        expect(criado.senhaHash).not.toBe('segredo1');
-        expect(verificarSenha('segredo1', criado.senhaHash)).toBe(true);
+        expect(criado).toMatchObject({ nome: 'Administrador', email: 'admin@admin.com', role: 'admin' });
+        expect(criado.senhaHash).not.toBe('asdasdasd');
+        expect(verificarSenha('asdasdasd', criado.senhaHash)).toBe(true);
+    });
+
+    test('ignora as antigas variáveis SEED_ADMIN_*: as credenciais são fixas', async () => {
+        process.env.SEED_ADMIN_EMAIL = 'outro@empresa.com';
+        process.env.SEED_ADMIN_SENHA = 'outra-senha';
+        mockarBusca(null);
+
+        await seedAdmin();
+
+        const criado = vi.mocked(User.create).mock.calls[0]![0] as any;
+        expect(criado.email).toBe('admin@admin.com');
+        expect(verificarSenha('asdasdasd', criado.senhaHash)).toBe(true);
     });
 
     test('usuário já existe: não cria', async () => {
-        mockarBusca({ _id: '1', email: 'admin@empresa.com' });
+        mockarBusca({ _id: '1', email: 'admin@admin.com' });
         await seedAdmin();
         expect(User.create).not.toHaveBeenCalled();
     });
@@ -68,12 +76,16 @@ describe('seedAdmin', () => {
         expect(Company.findOneAndUpdate).not.toHaveBeenCalled();
     });
 
-    test('admin que já existe: atualiza só empresaId e escopo empresa, sem recriar', async () => {
-        mockarBusca({ _id: '1', email: 'admin@empresa.com' });
+    test('admin que já existe: atualiza empresaId, escopo empresa e volta a senha para asdasdasd, sem recriar', async () => {
+        mockarBusca({ _id: '1', email: 'admin@admin.com' });
 
         await seedAdmin('empresa-1');
 
-        expect(User.updateOne).toHaveBeenCalledWith({ email: 'admin@empresa.com' }, { $set: { empresaId: 'empresa-1', escopo: 'empresa' } });
+        const [filtro, atualizacao] = vi.mocked(User.updateOne).mock.calls[0]! as any[];
+        expect(filtro).toEqual({ email: 'admin@admin.com' });
+        expect(atualizacao.$set).toMatchObject({ empresaId: 'empresa-1', escopo: 'empresa' });
+        expect(Object.keys(atualizacao.$set).sort()).toEqual(['empresaId', 'escopo', 'senhaHash']);
+        expect(verificarSenha('asdasdasd', atualizacao.$set.senhaHash)).toBe(true);
         expect(User.create).not.toHaveBeenCalled();
     });
 
@@ -85,12 +97,5 @@ describe('seedAdmin', () => {
         expect(Company.findOneAndUpdate).toHaveBeenCalledTimes(1);
         expect(Branch.findOneAndUpdate).toHaveBeenCalledTimes(1);
         expect(vi.mocked(User.create).mock.calls[0]![0]).toMatchObject({ empresaId: EMPRESA_PADRAO, escopo: 'empresa' });
-    });
-
-    test.each(VARIAVEIS)('sem %s: não cria nem consulta o banco', async (variavel) => {
-        delete process.env[variavel];
-        await seedAdmin();
-        expect(User.findOne).not.toHaveBeenCalled();
-        expect(User.create).not.toHaveBeenCalled();
     });
 });

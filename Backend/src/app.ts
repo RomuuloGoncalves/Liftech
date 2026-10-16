@@ -14,6 +14,9 @@ import branchRouter from './feature/branch/branchRouter.js';
 import categoryRouter from './feature/category/categoryRouter.js';
 import sessionRouter from './feature/session/sessionRouter.js';
 import incidentRouter from './feature/incident/incidentRouter.js';
+import operatorRouter from './feature/operator/operatorRouter.js';
+import sectorRouter from './feature/sector/sectorRouter.js';
+import resetRouter from './feature/reset/resetRouter.js';
 
 export const app = express();
 
@@ -50,9 +53,10 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Rotas públicas: login e solicitação de acesso. Tudo que vem depois de `autenticar` exige token.
+// Rotas públicas: login, solicitação de acesso e reset do banco. Tudo que vem depois de `autenticar` exige token.
 app.use('/api/auth', authRouter);
 app.use('/api/access-requests', accessRequestRouter);
+app.use('/api/reset', resetRouter);
 
 app.use('/api', autenticar);
 
@@ -64,3 +68,5 @@ app.use('/api/branches', branchRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/sessions', sessionRouter);
 app.use('/api/incidents', incidentRouter);
+app.use('/api/operators', operatorRouter);
+app.use('/api/sectors', sectorRouter);

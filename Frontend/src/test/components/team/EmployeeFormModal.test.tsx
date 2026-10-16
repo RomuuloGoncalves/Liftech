@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EmployeeFormModal from '../../../components/team/EmployeeFormModal'
-import type { Employee } from '../../../data/team'
+import { employee } from '../../fixtures/employees'
 
-const alexandre: Employee = {
+const alexandre = employee({
   id: '1',
   matricula: 'EMP-084',
   nome: 'Alexandre Mattos',
@@ -12,10 +12,8 @@ const alexandre: Employee = {
   horarioEntrada: '08:00',
   horarioSaida: '17:00',
   usuario: 'AlexandreMattos',
-  senha: 'Alexandre123',
-  acesso: 'Permitido',
-}
-const ana: Employee = { ...alexandre, id: '2', matricula: 'EMP-085', nome: 'Ana', usuario: 'ana' }
+})
+const ana = employee({ ...alexandre, id: '2', matricula: 'EMP-085', nome: 'Ana', usuario: 'ana' })
 
 function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } })
@@ -124,7 +122,75 @@ describe('EmployeeFormModal (create)', () => {
   })
 })
 
-describe('EmployeeFormModal (edit)', () => {
+describe('EmployeeFormModal (create) login rules', () => {
+  it.each(['maria silva', 'ab'])('flags the usuario "%s": spaces or under 3 characters', (usuario) => {
+    const { onSave } = renderForm()
+
+    fillRequired()
+    fill('Usuário', usuario)
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByText('Use de 3 a 40 caracteres, sem espaços')).toBeInTheDocument()
+    expect(screen.getByLabelText('Usuário')).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('flags a password under 8 characters', () => {
+    const { onSave } = renderForm()
+
+    fillRequired()
+    fill('Senha', 'Maria12')
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByText('A senha precisa ter pelo menos 8 caracteres')).toBeInTheDocument()
+    expect(screen.getByLabelText('Senha')).toHaveAttribute('aria-invalid', 'true')
+  })
+})
+
+describe('EmployeeFormModal (create) branch', () => {
+  const branches = [
+    { _id: 'f1', nome: 'Matriz', matriz: true },
+    { _id: 'f2', nome: 'Unidade Norte', matriz: false },
+  ]
+
+  it('asks for the branch with 2+ branches, first one by default', () => {
+    const { onSave } = renderForm({ branches })
+
+    expect(screen.getByLabelText('Filial')).toHaveValue('f1')
+    fillRequired()
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ nome: 'Maria Lima', filialId: 'f1' }))
+  })
+
+  it('sends the chosen branch', () => {
+    const { onSave } = renderForm({ branches })
+
+    fillRequired()
+    fireEvent.change(screen.getByLabelText('Filial'), { target: { value: 'f2' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f2' }))
+  })
+
+  it('has no branch field with a single branch', () => {
+    const { onSave } = renderForm({ branches: [branches[0]] })
+
+    expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
+    fillRequired()
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(onSave.mock.calls[0][0]).not.toHaveProperty('filialId')
+  })
+
+  it('has no branch field when editing', () => {
+    renderForm({ employee: alexandre, branches })
+
+    expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
+  })
+})
+
+describe('EmployeeFormModal (edit, employee with login)', () => {
   it('opens titled "Editar informações do funcionário" with the employee values', () => {
     renderForm({ employee: alexandre })
 
@@ -135,22 +201,91 @@ describe('EmployeeFormModal (edit)', () => {
     expect(screen.getByLabelText('Horário Entrada')).toHaveValue('08:00')
     expect(screen.getByLabelText('Horário saída')).toHaveValue('17:00')
     expect(screen.getByLabelText('Usuário')).toHaveValue('AlexandreMattos')
-    expect(screen.getByLabelText('Senha')).toHaveValue('Alexandre123')
+    // The API never returns the password, so the field starts empty.
+    expect(screen.getByLabelText('Senha')).toHaveValue('')
   })
 
-  it('does not report a duplicate when the employee keeps their own usuario', () => {
+  it('shows the usuario read-only and hints that an empty password keeps the current one', () => {
+    renderForm({ employee: alexandre })
+
+    expect(screen.getByLabelText('Usuário')).toBeDisabled()
+    expect(screen.getByLabelText('Senha')).toHaveAttribute('placeholder', 'Deixe em branco para manter a atual')
+  })
+
+  it('saves with an empty senha when the password is left blank', () => {
     const { onSave } = renderForm({ employee: alexandre })
 
     fill('Cargo', 'Supervisor')
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
 
-    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ usuario: 'AlexandreMattos', cargo: 'Supervisor' }))
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ usuario: 'AlexandreMattos', cargo: 'Supervisor', senha: '' })
+    )
   })
 
-  it('reports a duplicate when switching to another employee\'s usuario', () => {
+  it('saves the new password when one is typed', () => {
     const { onSave } = renderForm({ employee: alexandre })
 
+    fill('Senha', 'NovaSenha1')
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ senha: 'NovaSenha1' }))
+  })
+
+  it('flags a new password under 8 characters', () => {
+    const { onSave } = renderForm({ employee: alexandre })
+
+    fill('Senha', 'curta')
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByText('A senha precisa ter pelo menos 8 caracteres')).toBeInTheDocument()
+  })
+})
+
+describe('EmployeeFormModal (edit, employee without login)', () => {
+  const diego = employee({ id: '3', matricula: 'EMP-094', nome: 'Diego Martins', usuario: null, acesso: 'Negado' })
+
+  it('saves without a login when usuario and senha stay empty', () => {
+    const { onSave } = renderForm({ employee: diego })
+
+    expect(screen.getByLabelText('Usuário')).toBeEnabled()
+    expect(screen.getByLabelText('Usuário')).toHaveValue('')
+    fill('Cargo', 'Operador')
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ cargo: 'Operador', usuario: '', senha: '' }))
+  })
+
+  it('saves usuario and senha together to create the login', () => {
+    const { onSave } = renderForm({ employee: diego })
+
+    fill('Usuário', 'diego')
+    fill('Senha', 'Diego12345')
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ usuario: 'diego', senha: 'Diego12345' }))
+  })
+
+  it.each([
+    ['Usuário', 'diego', 'Senha'],
+    ['Senha', 'Diego12345', 'Usuário'],
+  ])('requires the other login field when only %s is filled', (filled, value, missing) => {
+    const { onSave } = renderForm({ employee: diego })
+
+    fill(filled, value)
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByLabelText(missing)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByText('Campo obrigatório')).toBeInTheDocument()
+  })
+
+  it("reports a duplicate when picking another employee's usuario", () => {
+    const { onSave } = renderForm({ employee: diego })
+
     fill('Usuário', 'ana')
+    fill('Senha', 'Diego12345')
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
 
     expect(onSave).not.toHaveBeenCalled()
