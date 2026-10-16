@@ -302,18 +302,20 @@ Os seeds **escrevem no banco configurado no `.env`**. Quem roda é o dono do pro
 
 | Comando | O que faz |
 |---------|-----------|
-| `yarn seed` | `src/scripts/seedAdmin.ts`. Cria o usuário admin. Precisa de `SEED_ADMIN_EMAIL`, `SEED_ADMIN_SENHA` e `SEED_ADMIN_NOME`; se faltar alguma, só avisa e não faz nada. Se já existe um usuário com aquele email, não faz nada (idempotente). |
+| `yarn seed` | `src/scripts/seedAdmin.ts`. Cria o admin fixo `admin@admin.com` com a senha `asdasdasd`. Se ele já existe, só volta escopo e senha para os fixos (idempotente). |
 | `yarn seed:data` | `src/scripts/seedData.ts`. Chama o seed do admin e depois popula as demais coleções. Veja abaixo. |
 | `yarn migrate:status` | `src/scripts/migrateStatus.ts`. Leva o `status` antigo do dispositivo (`Disponível`, `Em uso`, `Manutenção`, `Offline`) para a empilhadeira (sem dispositivo: `offline`) e cria o quadro inicial de categorias (Acidentes, Ativas, Manutenção, Disponíveis) nas empresas sem categoria, posicionando as máquinas pelo status. Idempotente. |
 | `yarn dev:seed` | Sobe o servidor com `--seed`, que roda só o seed do admin antes de ouvir a porta. |
 
-`yarn seed:data` precisa, além do acesso ao banco, das variáveis `SEED_ADMIN_*` (admin) e `SEED_COLABORADOR_SENHA` (senha comum dos colaboradores). Sem `SEED_COLABORADOR_SENHA`, os colaboradores são pulados com um aviso e o resto do seed segue. Dados criados, a partir de `seedDataset.ts`:
+Os acessos do seed são fixos (`SENHA_PADRAO` e `ADMIN` em `seedDataset.ts`): `admin@admin.com` / `asdasdasd` e `colaborador@colaborador.com` / `asdasdasd`. Dados criados, a partir de `seedDataset.ts`:
 
-* 8 operadores, 16 dispositivos e 16 empilhadeiras (`EMP-081` a `EMP-096`), com o mesmo conteúdo do mock do Frontend.
+* 12 operadores com a ficha da Equipe (matrícula, telefone, cargo e turno), 16 dispositivos (com nome `Mpa-5300` em diante) e 16 empilhadeiras (`EMP-081` a `EMP-096`), com o mesmo conteúdo do mock do Frontend.
 * 5 leituras de telemetria por dispositivo e 2 incidentes por empilhadeira, com datas fixas. Só `EMP-081`, `EMP-085` e `EMP-089` ficam em `alerta`, com 1 incidente pendente cada.
 * O quadro inicial de categorias da empresa, com as máquinas posicionadas pelo status.
-* 11 colaboradores (login pelo campo `usuario`, senha vinda de `SEED_COLABORADOR_SENHA`). Cada um é ligado (`operadorId`) ao operator de mesmo nome; quem não tem par fica sem ligação.
+* 12 colaboradores (login pelo campo `usuario`, senha `asdasdasd`), cada um ligado (`operadorId`) ao operator de mesmo nome. `colaborador@colaborador.com` é o login fixo de teste (operador Alexandre Gomes, na Matriz). Quem está "Negado" na Equipe do Figma nasce com `acessoNegado: true`.
 * 2 solicitações de acesso pendentes.
+
+**Reset público** (`GET /api/reset`, sem token): apaga os documentos das 11 collections da aplicação (os índices ficam) e roda o `seedData` do zero, respondendo 200 com a contagem. Só existe com `PERMITIR_RESET=true` no ambiente; sem isso responde 404. Um segundo reset enquanto o primeiro roda responde 409. **Nunca ligue `PERMITIR_RESET` em produção**: qualquer pessoa com a URL apaga o banco.
 
 É **idempotente**: cada registro é gravado com upsert pela chave natural (nome do operador, MAC do dispositivo, identificação da empilhadeira, par dispositivo/data na telemetria, par empilhadeira/data no incidente, `usuario` do colaborador, par email/status na solicitação). Rodar de novo atualiza em vez de duplicar. Exceção esperada: `sessaoIniciadaEm` das empilhadeiras é recalculada a partir do momento da execução, então `tempoSessaoMinutos` volta a ser o do dataset. A conexão é fechada ao final, mesmo se o seed falhar.
 

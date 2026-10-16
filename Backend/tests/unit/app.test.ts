@@ -123,6 +123,15 @@ describe('app: rotas públicas', () => {
         expect(await resposta.json()).toMatchObject({ ok: true });
     });
 
+    test('GET /api/reset chega ao handler sem token (sem PERMITIR_RESET: 404, não 401)', async () => {
+        delete process.env.PERMITIR_RESET;
+
+        const resposta = await chamar('GET', '/api/reset');
+
+        expect(resposta.status).toBe(404);
+        expect(await resposta.json()).toEqual({ error: 'Rota não encontrada.' });
+    });
+
     test('POST /api/auth/login chega ao handler sem token (corpo vazio: 400 de validação, não 401)', async () => {
         const resposta = await chamar('POST', '/api/auth/login', { body: {} });
 

@@ -15,6 +15,7 @@ import categoryRouter from './feature/category/categoryRouter.js';
 import sessionRouter from './feature/session/sessionRouter.js';
 import incidentRouter from './feature/incident/incidentRouter.js';
 import operatorRouter from './feature/operator/operatorRouter.js';
+import resetRouter from './feature/reset/resetRouter.js';
 
 export const app = express();
 
@@ -51,9 +52,10 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Rotas públicas: login e solicitação de acesso. Tudo que vem depois de `autenticar` exige token.
+// Rotas públicas: login, solicitação de acesso e reset (só com PERMITIR_RESET=true). Tudo que vem depois de `autenticar` exige token.
 app.use('/api/auth', authRouter);
 app.use('/api/access-requests', accessRequestRouter);
+app.use('/api/reset', resetRouter);
 
 app.use('/api', autenticar);
 

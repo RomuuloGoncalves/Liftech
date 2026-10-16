@@ -27,8 +27,9 @@ O fluxo de uma requisição é Router -> Controller -> Service -> Repository (de
 Nem toda feature segue a cadeia completa. `authService` (login e emissão do JWT) e `machineService` (lista as máquinas da Visão Geral juntando empilhadeira, dispositivo e operador) são funções que usam o schema direto, sem classe nem repositório. O `accessRequestController` também grava no schema direto.
 
 ### Seeds (`Backend/src/scripts/`)
-* `seedAdmin.ts` (`yarn seed`, ou `yarn dev:seed` junto do servidor): cria o admin a partir de `SEED_ADMIN_EMAIL`, `SEED_ADMIN_SENHA` e `SEED_ADMIN_NOME`; se o email já existe, não faz nada.
-* `seedData.ts` (`yarn seed:data`): chama o `seedAdmin` e popula operadores, dispositivos, empilhadeiras, telemetria, incidentes, colaboradores (senha em `SEED_COLABORADOR_SENHA`) e solicitações de acesso, com upsert pela chave natural, então pode rodar de novo sem duplicar. Os dados de exemplo vêm de `seedDataset.ts`, os mesmos do mock do Frontend.
+* `seedAdmin.ts` (`yarn seed`, ou `yarn dev:seed` junto do servidor): cria o admin fixo `admin@admin.com` / `asdasdasd`; se ele já existe, volta escopo e senha para os fixos.
+* `seedData.ts` (`yarn seed:data`): chama o `seedAdmin` e popula operadores, dispositivos, empilhadeiras, telemetria, incidentes, colaboradores (senha fixa `asdasdasd`, login de teste `colaborador@colaborador.com`) e solicitações de acesso, com upsert pela chave natural, então pode rodar de novo sem duplicar. Os dados de exemplo vêm de `seedDataset.ts`, os mesmos do mock do Frontend.
+* `resetData.ts` (`GET /api/reset`, pública, só com `PERMITIR_RESET=true`): apaga os documentos de todas as collections e roda o `seedData`.
 
 Os seeds escrevem no banco configurado no `.env`: rode só contra um ambiente de desenvolvimento.
 
