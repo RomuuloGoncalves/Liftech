@@ -142,9 +142,19 @@
   - `user.acessoNegado` bloqueia o login (403 "Acesso negado.") e o token em uso (401 no `autenticar`).
   - Visão Geral e Equipe gravam pela API com atualização otimista e rollback com toast; o cadastro na Equipe espera a API. Setores seguem em mock.
 
+### AD-013: Setores pela API (`sectors`)
+- **Date**: 2026-10-16
+- **Status**: Implementado e verificado (PASS em `.specs/features/sectors/validation.md`, 42/42 mutantes mortos na rodada 2)
+- **Decision**:
+  - Coleção `sector` (`nome` até 60, `filialId`; único `{ filialId, nome }` com collation pt/2). `/api/sectors`: GET para todo o escopo (colaborador inclusive); POST, PUT e DELETE só admin; mover de filial só escopo empresa e sem máquinas (409); excluir com máquinas responde 409 com a contagem.
+  - `forklift.setorId` (opcional) substitui o texto `forklift.setor`, que deixa de ser lido. `/api/machines` aceita `setorId` da mesma filial (400 se não) e devolve `setor` = nome do setor ligado (ou `''`) e `setorId`; sessões e ocorrências também. `PUT /api/forklifts` protege `setorId` e o zera quando o corpo traz `filialId`.
+  - `yarn migrate:sectors` leva os textos antigos para setores (idempotente); seed e reset criam e limpam setores.
+  - Front: aba Setores pela API com otimista e rollback; seletor de filial no formulário conforme escopo; select de setor no cadastro de máquina; filtro por setor na Visão Geral e na Frota.
+
 ## Handoff Snapshot
-- **Branch**: `feature/machines-team-crud` (local, nada enviado ao remoto, sem PR), a partir da `feature/employee-session`.
-- **Feature**: `machines-team-crud` concluída (T1–T17) e verificada: PASS, 34/36 mutantes mortos na rodada 1 e os 2 sobreviventes mortos na rodada 2.
-- **Gate final**: Backend `tsc --noEmit` limpo e 770 testes unitários; Frontend `tsc -b` e `eslint .` limpos e 1312 testes.
-- **Pendente para o dono**: conferir que não há `enderecoMac` repetido em `device` antes do índice único subir (consulta: `db.device.aggregate([{ $group: { _id: { $toUpper: "$enderecoMac" }, n: { $sum: 1 } } }, { $match: { n: { $gt: 1 } } }])`).
-- **Observações abertas**: o commit da T15 (`117a559`) ficou com testes vermelhos (corrigido na T17); `isUsernameTaken` do front ignora caixa e o backend não; o formulário não checa o limite de 72 caracteres da senha.
+- **Branch**: `feature/machines-team-crud` (local, nada enviado ao remoto, sem PR).
+- **Feature**: `sectors` concluída (T1–T15) e verificada: PASS na rodada 2 (rodada 1 FAIL por 5 mutantes vivos, corrigidos só com testes).
+- **Gate final**: Backend `tsc --noEmit` limpo e 866 testes unitários; Frontend `tsc -b` e `eslint .` limpos e 1378 testes.
+- **Pendente para o dono**: rodar `yarn migrate:sectors` nos dados existentes (sem isso, máquinas antigas aparecem sem setor); antes, conferir textos repetidos com caixa diferente na mesma filial, que viram um setor só: `db.forklift.aggregate([{ $match: { setor: { $type: "string" } } }, { $group: { _id: { f: "$filialId", s: { $toLower: { $trim: { input: "$setor" } } } }, textos: { $addToSet: "$setor" } } }, { $match: { "textos.1": { $exists: true } } }])`.
+- **Ainda pendente da `machines-team-crud`**: conferir que não há `enderecoMac` repetido em `device` antes do índice único subir (`db.device.aggregate([{ $group: { _id: { $toUpper: "$enderecoMac" }, n: { $sum: 1 } } }, { $match: { n: { $gt: 1 } } }])`); `isUsernameTaken` do front ignora caixa e o backend não; o formulário não checa o limite de 72 caracteres da senha.
+- **Observações abertas**: o toast de erro do setor lê a contagem do texto da mensagem da API (`/Setor com (\d+)/`); o diagrama `.jpg` da modelagem não mostra setores.
