@@ -167,11 +167,11 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| SECT-01 | P1: CRUD de setor (critérios 1-3, listar) | Design | Pending |
-| SECT-02 | P1: CRUD de setor (critérios 4-6, criar) | Design | Pending |
-| SECT-03 | P1: CRUD de setor (critérios 7-11, editar e mover) | Design | Pending |
+| SECT-01 | P1: CRUD de setor (critérios 1-3, listar) | Execute | Implemented |
+| SECT-02 | P1: CRUD de setor (critérios 4-6, criar) | Execute | Implemented |
+| SECT-03 | P1: CRUD de setor (critérios 7-11, editar e mover) | Execute | Implemented |
 | SECT-04 | P1: CRUD de setor (critérios 12-14, excluir) | Execute | Implemented |
-| SECT-05 | P1: CRUD de setor (critério 15, admin) | Design | Pending |
+| SECT-05 | P1: CRUD de setor (critério 15, admin) | Execute | Implemented |
 | SECT-06 | P1: Máquina ligada (critérios 1-4, setorId) | Design | Pending |
 | SECT-07 | P1: Máquina ligada (critérios 5-7, 12, resposta com nome) | Design | Pending |
 | SECT-08 | P1: Máquina ligada (critérios 8-9, `/api/forklifts`) | Design | Pending |

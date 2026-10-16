@@ -15,6 +15,7 @@ import categoryRouter from './feature/category/categoryRouter.js';
 import sessionRouter from './feature/session/sessionRouter.js';
 import incidentRouter from './feature/incident/incidentRouter.js';
 import operatorRouter from './feature/operator/operatorRouter.js';
+import sectorRouter from './feature/sector/sectorRouter.js';
 import resetRouter from './feature/reset/resetRouter.js';
 
 export const app = express();
@@ -68,3 +69,4 @@ app.use('/api/categories', categoryRouter);
 app.use('/api/sessions', sessionRouter);
 app.use('/api/incidents', incidentRouter);
 app.use('/api/operators', operatorRouter);
+app.use('/api/sectors', sectorRouter);

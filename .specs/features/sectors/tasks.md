@@ -115,8 +115,8 @@ T15
 **Requirement**: SECT-01, SECT-02, SECT-03, SECT-05
 
 **Done when**:
-- [ ] Testes: 400 de nome, `filialId` inválido, campo extra e `$`; 403 de colaborador; listar aberto a colaborador; rota montada no `app.test.ts`
-- [ ] Quick gate passa
+- [x] Testes: 400 de nome, `filialId` inválido, campo extra e `$`; 403 de colaborador; listar aberto a colaborador; rota montada no `app.test.ts`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

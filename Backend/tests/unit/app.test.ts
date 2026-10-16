@@ -76,6 +76,10 @@ describe('app: rotas protegidas', () => {
         ['POST', '/api/operators'],
         ['PUT', '/api/operators/665f1c2b9a1e4b0012345678/login'],
         ['DELETE', '/api/operators/665f1c2b9a1e4b0012345678'],
+        ['GET', '/api/sectors'],
+        ['POST', '/api/sectors'],
+        ['PUT', '/api/sectors/665f1c2b9a1e4b0012345678'],
+        ['DELETE', '/api/sectors/665f1c2b9a1e4b0012345678'],
         ['GET', '/api/access-requests'],
         ['GET', '/api/auth/login'],
         ['GET', '/api/qualquer-coisa'],
@@ -106,6 +110,15 @@ describe('app: /api/operators', () => {
 
         expect(resposta.status).toBe(403);
         expect(await resposta.json()).toEqual({ error: 'Apenas administradores podem gerenciar a equipe.' });
+    });
+});
+
+describe('app: /api/sectors', () => {
+    test('montada depois do autenticar: POST de quem não é admin chega ao handler e responde 403', async () => {
+        const resposta = await chamar('POST', '/api/sectors', { token: token(), body: { nome: 'Doca' } });
+
+        expect(resposta.status).toBe(403);
+        expect(await resposta.json()).toEqual({ error: 'Apenas administradores podem gerenciar setores.' });
     });
 });
 
