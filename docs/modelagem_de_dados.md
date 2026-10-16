@@ -52,6 +52,8 @@ Empilhadeira física e o status de seu uso.
 - `statusAlteradoEm` (Date): Quando o status mudou pela última vez.
 - `categoriaId` (ObjectId): Referência para a `Category` (coluna do kanban). `null` = sem categoria.
 - `categoriaTravada` (Boolean): Com `true`, mudança de status não move a máquina de categoria. Padrão `false`.
+- `setorId` (ObjectId, indexado): Referência para o `Sector` da máquina, sempre da mesma filial. Padrão `null` = sem setor. Mover a empilhadeira de filial grava `null`.
+- `setor` (String): Texto legado do setor. A API não lê mais; o nome exibido vem do `Sector` em `setorId`. O campo fica no banco depois da migração.
 
 ### 6. Incident (`incident.ts`)
 Registro de anomalias, como batidas ou paradas bruscas.
@@ -90,7 +92,18 @@ Coluna do kanban da Frota, da empresa toda.
 - `chave` (String): Chave das categorias iniciais para tradução; `null` depois de renomeada.
 - `statusVinculados` (String[]): Status que levam a máquina para esta categoria. Cada status fica em no máximo uma categoria da empresa.
 
-Os recursos (`Forklift`, `Device`, `Operator`, `Incident`) guardam só o `filialId`; a empresa de um recurso vem da sua filial. A `Telemetry` é isolada pelo seu `Device`.
+### 10. Sector (`sector.ts`)
+Setor de uma filial; agrupa máquinas.
+- `nome` (String, obrigatório): Cortado nas pontas, até 60 caracteres.
+- `filialId` (ObjectId, obrigatório, indexado): Referência para a `Branch` do setor.
+- Índice único `{ filialId, nome }` com `collation: { locale: 'pt', strength: 2 }`: nome único na filial sem diferenciar maiúscula de minúscula.
+
+Setor com máquinas ligadas não pode ser excluído nem mudar de filial.
+
+Os recursos (`Forklift`, `Device`, `Operator`, `Incident`, `Sector`) guardam só o `filialId`; a empresa de um recurso vem da sua filial. A `Telemetry` é isolada pelo seu `Device`.
 
 ## Migração para filiais
 O banco anterior às filiais não tem `empresaId` nos usuários nem `filialId` nos recursos. O dono roda `yarn migrate:branches` (em `Backend`): o script cria a empresa padrão e a matriz, define nos admins `escopo: empresa`, nos demais usuários `escopo: filiais` com a matriz, e põe todos os recursos sem filial na matriz. Só documentos sem o campo são alterados, então rodar de novo não muda nada. O `yarn seed:data` usa a mesma empresa e matriz.
+
+## Migração para setores
+Antes dos setores, `forklift.setor` era texto livre. O dono roda `yarn migrate:sectors` (em `Backend`): para cada empilhadeira com `setorId` vazio e `setor` preenchido, o script acha ou cria o `Sector` com aquele texto (com `trim`, sem diferenciar maiúscula de minúscula) na filial dela e grava `setorId`. Texto vazio ou com mais de 60 caracteres fica sem setor. Rodar de novo não muda nada. O `yarn seed:data` cria os setores do dataset e já liga `setorId`.

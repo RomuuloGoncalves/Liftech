@@ -216,6 +216,7 @@ Sucesso `200`: array ordenado por `identificacao`, uma entrada por empilhadeira:
     "identificacao": "EMP-081",
     "nome": "Empilhadeira Elétrica Titan-X",
     "setor": "Expedição - Bloco B",
+    "setorId": "<_id do setor> ou null",
     "filialId": "<_id da filial>",
     "status": "alerta",
     "categoriaId": "<_id da categoria> ou null",
@@ -229,11 +230,20 @@ Sucesso `200`: array ordenado por `identificacao`, uma entrada por empilhadeira:
 ```
 
 Regras do formato:
+* `setor` é o nome do setor ligado em `setorId`, ou `""` sem setor (ou com o setor apagado). O texto antigo `forklift.setor` não é mais lido.
 * `status` é da empilhadeira: `disponivel`, `em_uso`, `manutencao`, `alerta` ou `offline`. Empilhadeira sem status gravado vem como `disponivel`.
 * `alertaEm` é a `dataIncidente` do incidente pendente mais recente; só é preenchido com `status: "alerta"` (senão `null`).
 * `dispositivoConectado.enderecoMac` é `""` quando não há dispositivo. O `status` do dispositivo não é mais lido.
 * `operadorConectado` só aparece quando há operador ligado.
 * `tempoSessaoMinutos` é `floor((agora - sessaoIniciadaEm) / 60000)`, nunca negativo, `0` sem sessão.
+
+### Setor da máquina
+
+`POST /api/machines` e `PUT /api/machines/:id` aceitam `setorId`:
+* ObjectId de um setor da filial da máquina, ou `null` (no `PUT`, `null` desliga a máquina do setor). Sem o campo, o `POST` cria a máquina sem setor e o `PUT` não mexe no setor.
+* Valor que não é ObjectId nem `null`: `400` `O campo 'setorId' deve ser um ObjectId ou null.`.
+* Setor que não existe ou é de outra filial: `400` `O setor informado não pertence à filial da máquina.`, sem gravar nada.
+* O campo de texto `setor` não é mais aceito no `PUT`: `400` `O campo 'setor' não pode ser alterado por esta rota.`.
 
 ### Mudança de status
 
@@ -251,7 +261,7 @@ Toda mudança de status, manual ou por leitura do dispositivo, segue a mesma reg
 
 Erros: `400` para corpo inválido ou chave iniciada por `$`; `404` para máquina fora do escopo ou categoria de outra empresa (em `/categoria`, nenhuma máquina é gravada se uma falhar).
 
-`PUT /api/forklifts/:id` recusa com `400` os campos `status`, `statusAlteradoEm`, `categoriaId`, `categoriaTravada` e `sessaoIniciadaEm`: eles só mudam pelas rotas acima.
+`PUT /api/forklifts/:id` recusa com `400` os campos `status`, `statusAlteradoEm`, `categoriaId`, `categoriaTravada`, `sessaoIniciadaEm` e `setorId` (`O campo '<campo>' não pode ser alterado por esta rota.`): eles só mudam pelas rotas de `/api/machines`. Um corpo com `filialId` grava `setorId: null` junto, mesmo que a filial seja a atual, porque o setor antigo é de outra filial.
 
 ### Categorias (`/api/categories`)
 
@@ -268,9 +278,28 @@ Regras do corpo: `nome` obrigatório no `POST`, cortado nas pontas, até 40 cara
 
 Erros: `400` corpo inválido; `403` escopo `filiais` em `POST`/`PUT`/`DELETE`; `404` categoria de outra empresa; `409` nome repetido na empresa (sem diferenciar maiúscula de minúscula) ou status já ligado a outra categoria.
 
+### Setores (`/api/sectors`)
+
+Setores pertencem a uma filial e agrupam máquinas. Formato: `{ "_id", "nome", "filialId", "filial": { "nome" } }`.
+
+| Método | Caminho | Quem | Sucesso |
+|--------|---------|------|---------|
+| `GET` | `/api/sectors` | qualquer usuário autenticado | `200`, setores das filiais do escopo, ordenados por `nome`. `?filialId=<ObjectId>` reduz a uma filial; filial fora do escopo devolve `[]` |
+| `POST` | `/api/sectors` | `role: "admin"` | `201`. Corpo `{ "nome", "filialId"? }`; `filialId` é obrigatório, exceto para quem tem escopo `filiais` com uma filial só, que usa ela |
+| `PUT` | `/api/sectors/:id` | `role: "admin"` | `200`. Corpo só com `nome` e/ou `filialId` |
+| `DELETE` | `/api/sectors/:id` | `role: "admin"` | `200` com `{ "_id": "<id>", "message": "Setor excluído com sucesso." }` |
+
+Regras: `nome` cortado nas pontas, obrigatório, até 60 caracteres, único na filial sem diferenciar maiúscula de minúscula. Mudar `filialId` no `PUT` só vale no escopo `empresa` e só para setor sem máquinas ligadas. `filialId` igual ao atual não conta como mudança.
+
+Erros:
+* `400`: `filialId` da query não é ObjectId (`O filialId fornecido não é um ObjectId válido do MongoDB.`); `:id` que não é ObjectId; `O campo 'nome' é obrigatório e deve ter até 60 caracteres.`; campo diferente de `nome` e `filialId` no `PUT` (`O campo '<campo>' não pode ser alterado.`); chave iniciada por `$`; `Informe a filial (filialId).`; `O campo 'filialId' deve ser um ObjectId válido do MongoDB.`.
+* `403`: `Apenas administradores podem gerenciar setores.` (`POST`, `PUT`, `DELETE`); `Apenas o escopo de empresa pode mover um setor de filial.`; `A filial informada está fora do seu escopo.` (`filialId` do corpo).
+* `404`: `Setor não encontrado.` (não existe ou é de filial fora do escopo).
+* `409`: `Já existe um setor com este nome nesta filial.`; `Setor com N máquina(s) ligada(s) não pode mudar de filial.` (`PUT`); `Setor com N máquina(s) ligada(s).` (`DELETE`, nada é apagado).
+
 ### Sessões de uso (`/api/sessions`)
 
-Sessão do operador ligado ao usuário (`operadorId`). Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null (máquina apagada), "operador": { "nome" }, "inicio": ISO, "fim": ISO ou null }`.
+Sessão do operador ligado ao usuário (`operadorId`). Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null (máquina apagada), "operador": { "nome" }, "inicio": ISO, "fim": ISO ou null }`. `maquina.setor` é o nome do setor ligado, ou `""`.
 
 | Método | Rota | Corpo / query | Sucesso |
 |--------|------|---------------|---------|
@@ -283,7 +312,7 @@ Erros: `400` `machineId` ausente ou não ObjectId, data fora de `YYYY-MM-DD`; `4
 
 ### Incidentes (`/api/incidents`)
 
-Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null, "operador": { "nome" } ou null, "dataIncidente": ISO, "forcaImpacto": número ou null, "status", "origem": "sensor" ou "funcionario", "descricao": texto ou null }`.
+Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null, "operador": { "nome" } ou null, "dataIncidente": ISO, "forcaImpacto": número ou null, "status", "origem": "sensor" ou "funcionario", "descricao": texto ou null }`. `maquina.setor` é o nome do setor ligado, ou `""`.
 
 | Método | Rota | Corpo / query | Sucesso |
 |--------|------|---------------|---------|
@@ -305,6 +334,7 @@ Os seeds **escrevem no banco configurado no `.env`**. Quem roda é o dono do pro
 | `yarn seed` | `src/scripts/seedAdmin.ts`. Cria o admin fixo `admin@admin.com` com a senha `asdasdasd`. Se ele já existe, só volta escopo e senha para os fixos (idempotente). |
 | `yarn seed:data` | `src/scripts/seedData.ts`. Chama o seed do admin e depois popula as demais coleções. Veja abaixo. |
 | `yarn migrate:status` | `src/scripts/migrateStatus.ts`. Leva o `status` antigo do dispositivo (`Disponível`, `Em uso`, `Manutenção`, `Offline`) para a empilhadeira (sem dispositivo: `offline`) e cria o quadro inicial de categorias (Acidentes, Ativas, Manutenção, Disponíveis) nas empresas sem categoria, posicionando as máquinas pelo status. Idempotente. |
+| `yarn migrate:sectors` | `src/scripts/migrateSectors.ts`. Leva o texto `forklift.setor` (com `trim`) para um `sector` da filial da empilhadeira e grava `setorId`. Textos iguais sem diferenciar maiúscula de minúscula viram um setor só; texto vazio ou com mais de 60 caracteres fica sem setor e entra em `ignoradas` no log. Só toca empilhadeiras com `setorId` vazio e reaproveita o setor que já existe, então rodar de novo não altera nada. |
 | `yarn dev:seed` | Sobe o servidor com `--seed`, que roda só o seed do admin antes de ouvir a porta. |
 
 Os acessos do seed são fixos (`SENHA_PADRAO` e `ADMIN` em `seedDataset.ts`): `admin@admin.com` / `asdasdasd` e `colaborador@colaborador.com` / `asdasdasd`. Dados criados, a partir de `seedDataset.ts`:
@@ -312,12 +342,13 @@ Os acessos do seed são fixos (`SENHA_PADRAO` e `ADMIN` em `seedDataset.ts`): `a
 * 12 operadores com a ficha da Equipe (matrícula, telefone, cargo e turno), 16 dispositivos (com nome `Mpa-5300` em diante) e 16 empilhadeiras (`EMP-081` a `EMP-096`), com o mesmo conteúdo do mock do Frontend.
 * 5 leituras de telemetria por dispositivo e 2 incidentes por empilhadeira, com datas fixas. Só `EMP-081`, `EMP-085` e `EMP-089` ficam em `alerta`, com 1 incidente pendente cada.
 * O quadro inicial de categorias da empresa, com as máquinas posicionadas pelo status.
+* Um setor por texto de setor distinto do dataset, na filial da empilhadeira, com `setorId` ligado.
 * 12 colaboradores (login pelo campo `usuario`, senha `asdasdasd`), cada um ligado (`operadorId`) ao operator de mesmo nome. `colaborador@colaborador.com` é o login fixo de teste (operador Alexandre Gomes, na Matriz). Quem está "Negado" na Equipe do Figma nasce com `acessoNegado: true`.
 * 2 solicitações de acesso pendentes.
 
-**Reset público** (`GET /api/reset`, sem token): apaga os documentos das 11 collections da aplicação (os índices ficam) e roda o `seedData` do zero, respondendo 200 com a contagem. Não depende de variável de ambiente: qualquer pessoa com a URL apaga o banco do ambiente em que a API roda (decisão do dono, projeto pessoal). Um segundo reset enquanto o primeiro roda responde 409.
+**Reset público** (`GET /api/reset`, sem token): apaga os documentos das 12 collections da aplicação (os índices ficam) e roda o `seedData` do zero, respondendo 200 com a contagem. Não depende de variável de ambiente: qualquer pessoa com a URL apaga o banco do ambiente em que a API roda (decisão do dono, projeto pessoal). Um segundo reset enquanto o primeiro roda responde 409.
 
-É **idempotente**: cada registro é gravado com upsert pela chave natural (nome do operador, MAC do dispositivo, identificação da empilhadeira, par dispositivo/data na telemetria, par empilhadeira/data no incidente, `usuario` do colaborador, par email/status na solicitação). Rodar de novo atualiza em vez de duplicar. Exceção esperada: `sessaoIniciadaEm` das empilhadeiras é recalculada a partir do momento da execução, então `tempoSessaoMinutos` volta a ser o do dataset. A conexão é fechada ao final, mesmo se o seed falhar.
+É **idempotente**: cada registro é gravado com upsert pela chave natural (nome do operador, MAC do dispositivo, identificação da empilhadeira, par filial/nome no setor, par dispositivo/data na telemetria, par empilhadeira/data no incidente, `usuario` do colaborador, par email/status na solicitação). Rodar de novo atualiza em vez de duplicar. Exceção esperada: `sessaoIniciadaEm` das empilhadeiras é recalculada a partir do momento da execução, então `tempoSessaoMinutos` volta a ser o do dataset. A conexão é fechada ao final, mesmo se o seed falhar.
 
 ### Testes
 

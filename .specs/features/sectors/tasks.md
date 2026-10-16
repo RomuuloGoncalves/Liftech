@@ -331,7 +331,7 @@ T15
 **Requirement**: SECT-17
 
 **Done when**:
-- [ ] Os dois docs descrevem o que foi implementado
+- [x] Os dois docs descrevem o que foi implementado
 
 **Tests**: none
 **Gate**: build
