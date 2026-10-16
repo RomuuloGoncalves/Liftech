@@ -98,6 +98,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: T15 117a559 EquipePage.test.tsx 17 failed (tasks-gate)
 - last seen: 2026-10-16T12:20:49Z
 
+### L-015 - Test count-based guards (count > 0 → 409) at the boundary count = 1, not only at 0 and a larger N.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-service` · harmful: 0
+- features: sectors
+- evidence: validation.md B8,B24 (Backend/src/feature/sector/sectorService.ts:58,76) (backend-service)
+- last seen: 2026-10-16T15:18:11Z
+
+### L-016 - Every new i18n key needs a per-locale parity test that checks presence, translation and placeholders, in each module the feature touches.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `i18n` · harmful: 0
+- features: sectors
+- evidence: validation.md F16,F17,F18 (Frontend/src/test/config/i18n.test.ts) (i18n)
+- last seen: 2026-10-16T15:18:11Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

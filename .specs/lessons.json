@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 15,
+  "next_id": 17,
   "lessons": [
     {
       "id": "L-001",
@@ -256,6 +256,42 @@
       ],
       "created": "2026-10-16T12:20:49Z",
       "last_seen": "2026-10-16T12:20:49Z"
+    },
+    {
+      "id": "L-015",
+      "key": "surviving_mutant::test count based guards count 0 409 at the boundary count 1 not only at 0 and a larger n",
+      "text": "Test count-based guards (count > 0 → 409) at the boundary count = 1, not only at 0 and a larger N.",
+      "signal": "surviving_mutant",
+      "scope": "backend-service",
+      "status": "candidate",
+      "features": [
+        "sectors"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md B8,B24 (Backend/src/feature/sector/sectorService.ts:58,76) (backend-service)"
+      ],
+      "created": "2026-10-16T15:18:11Z",
+      "last_seen": "2026-10-16T15:18:11Z"
+    },
+    {
+      "id": "L-016",
+      "key": "surviving_mutant::every new i18n key needs a per locale parity test that checks presence translation and placeholders in each module the feature touches",
+      "text": "Every new i18n key needs a per-locale parity test that checks presence, translation and placeholders, in each module the feature touches.",
+      "signal": "surviving_mutant",
+      "scope": "i18n",
+      "status": "candidate",
+      "features": [
+        "sectors"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md F16,F17,F18 (Frontend/src/test/config/i18n.test.ts) (i18n)"
+      ],
+      "created": "2026-10-16T15:18:11Z",
+      "last_seen": "2026-10-16T15:18:11Z"
     }
   ]
 }

@@ -48,6 +48,10 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 | Atualização otimista | Criar, editar e excluir setor aplicam na hora e desfazem com toast se a API falhar | Pedido do dono | y |
 | Select de setor na máquina | Lista os setores da filial escolhida no formulário, com a opção "Sem setor"; trocar a filial do formulário limpa o setor escolhido | O backend recusa setor de outra filial | n |
 | Rótulo no filtro | O filtro mostra `nome`; com mais de uma filial na tela mostra `nome · filial` | Nomes podem repetir entre filiais | n |
+| Texto do toast de erro do setor | Traduzido no front: 409 com contagem usa `team.sectorHasMachines` / `team.sectorMoveHasMachines` com `{{n}}` lido da mensagem da API (`/Setor com (\d+)/`); outro 409 usa `team.sectorNameTaken`; o resto `team.saveError` | A API só manda `{ error }`; o regex depende do texto do backend (`ponytail`: devolver `maquinas` no corpo do 409 se o texto mudar) | n |
+| "Traduzida" (i18n) | Valor não vazio, diferente do pt-BR fora do pt-BR, e com os mesmos placeholders | Critério testável para o AC 9 de Setores na Equipe | n |
+| `setor` no `POST /api/machines` | Ignorado (como qualquer campo fora da lista no POST); só o `PUT` responde 400 | O POST nunca recusou campos extras | n |
+| Ordem dos toasts | O toast de sucesso sai na hora (otimista) e, se a API falhar, vem o toast de erro e a lista volta | Mesmo fluxo dos funcionários (AD-012) | n |
 
 **Open questions:** none - all resolved or logged above.
 
