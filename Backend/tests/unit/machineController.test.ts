@@ -311,6 +311,13 @@ describe('machineController.criar', () => {
         expect(json).toHaveBeenCalledWith({ error: "O campo 'setorId' deve ser um ObjectId ou null." });
     });
 
+    test('setor (texto) no POST é ignorado: não chega ao service', async () => {
+        const { res, status } = resposta();
+        await criar(reqPost({ ...valido, setor: 'Doca 1' }), res);
+        expect(criarMaquina).toHaveBeenCalledWith(ESCOPO, { ...valido, filialId: FILIAL });
+        expect(status).toHaveBeenCalledWith(201);
+    });
+
     test('setorId null vai ao service (sem setor)', async () => {
         const { res, status } = resposta();
         await criar(reqPost({ ...valido, setorId: null }), res);
