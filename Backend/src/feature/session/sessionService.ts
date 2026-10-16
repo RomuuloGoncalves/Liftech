@@ -7,6 +7,7 @@ import type { UsuarioRequisicao } from "../../core/autenticar.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { obterMaquina } from "../machine/machineService.js";
 import { aplicarStatus } from "../machine/statusService.js";
+import { nomesDosSetores } from "../sector/sectorService.js";
 
 export interface FiltroLista {
   from?: unknown;
@@ -57,6 +58,7 @@ async function formatar(sessoes: any[]) {
     Forklift.find({ _id: { $in: sessoes.map((s) => s.empilhadeiraId) } }).lean(),
     Operator.find({ _id: { $in: sessoes.map((s) => s.operadorId) } }).lean(),
   ]);
+  const setores = await nomesDosSetores(maquinas.map((m) => m.setorId));
   const porId = (lista: any[]) => new Map(lista.map((d) => [String(d._id), d]));
   const maquinaDe = porId(maquinas);
   const operadorDe = porId(operadores);
@@ -66,7 +68,7 @@ async function formatar(sessoes: any[]) {
     return {
       _id: String(s._id),
       machineId: String(s.empilhadeiraId),
-      maquina: maquina ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: maquina.setor } : null,
+      maquina: maquina ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: setores.get(String(maquina.setorId)) ?? "" } : null,
       operador: { nome: operadorDe.get(String(s.operadorId))?.nome ?? "" },
       inicio: new Date(s.inicio).toISOString(),
       fim: s.fim ? new Date(s.fim).toISOString() : null,

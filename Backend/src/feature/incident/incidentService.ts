@@ -7,6 +7,7 @@ import type { UsuarioRequisicao } from "../../core/autenticar.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { aplicarStatus } from "../machine/statusService.js";
 import { exigirOperador, lerMachineId, lerPeriodo, type FiltroLista } from "../session/sessionService.js";
+import { nomesDosSetores } from "../sector/sectorService.js";
 
 export interface DadosOcorrencia {
   horario?: string;
@@ -18,6 +19,7 @@ async function formatar(incidentes: any[]) {
     Forklift.find({ _id: { $in: incidentes.map((i) => i.empilhadeiraId) } }).lean(),
     Operator.find({ _id: { $in: incidentes.map((i) => i.operadorId).filter(Boolean) } }).lean(),
   ]);
+  const setores = await nomesDosSetores(maquinas.map((m) => m.setorId));
   const maquinaDe = new Map(maquinas.map((m) => [String(m._id), m]));
   const operadorDe = new Map(operadores.map((o) => [String(o._id), o]));
 
@@ -27,7 +29,7 @@ async function formatar(incidentes: any[]) {
     return {
       _id: String(i._id),
       machineId: String(i.empilhadeiraId),
-      maquina: maquina ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: maquina.setor } : null,
+      maquina: maquina ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: setores.get(String(maquina.setorId)) ?? "" } : null,
       operador: operador ? { nome: operador.nome } : null,
       dataIncidente: new Date(i.dataIncidente).toISOString(),
       forcaImpacto: i.forcaImpacto ?? null,

@@ -12,6 +12,9 @@ vi.mock('../../src/schemas/incident.js', () => ({ Incident: { create: vi.fn(), f
 vi.mock('../../src/schemas/workSession.js', () => ({ WorkSession: { findOne: vi.fn() } }));
 vi.mock('../../src/schemas/forklift.js', () => ({ Forklift: { find: vi.fn() } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: { find: vi.fn() } }));
+vi.mock('../../src/schemas/sector.js', () => ({ Sector: { find: vi.fn() } }));
+import { Sector } from '../../src/schemas/sector.js';
+const SETOR = '665f1c2b9a1e4b00123456c1';
 vi.mock('../../src/feature/machine/machineService.js', () => ({ obterMaquina: vi.fn() }));
 vi.mock('../../src/feature/machine/statusService.js', () => ({ aplicarStatus: vi.fn() }));
 
@@ -24,7 +27,7 @@ const FILIAL = '665f1c2b9a1e4b00123456b1';
 const INCIDENTE = '665f1c2b9a1e4b00123456f1';
 const escopo: Escopo = { empresaId: 'e1', tipo: 'filiais', filiais: [{ _id: FILIAL, nome: 'Matriz', matriz: true }] };
 const usuario = { _id: 'u1', role: 'colaborador', operadorId: OPERADOR };
-const MAQUINA_DOC = { _id: MAQUINA, nome: 'Titan', identificacao: 'EMP-081', setor: 'Expedição' };
+const MAQUINA_DOC = { _id: MAQUINA, nome: 'Titan', identificacao: 'EMP-081', setor: 'Texto legado', setorId: SETOR };
 const MAQUINA_FORMATADA = { nome: 'Titan', identificacao: 'EMP-081', setor: 'Expedição' };
 
 const erro = async (promessa: Promise<unknown>) => {
@@ -43,6 +46,7 @@ beforeEach(() => {
     vi.setSystemTime(AGORA);
     vi.mocked(Forklift.find).mockReturnValue(lean([MAQUINA_DOC]));
     vi.mocked(Operator.find).mockReturnValue(lean([{ _id: OPERADOR, nome: 'Carlos Silva' }]));
+    vi.mocked(Sector.find).mockReturnValue(lean([{ _id: SETOR, nome: 'Expedição' }]));
 });
 afterEach(() => vi.useRealTimers());
 
@@ -101,6 +105,14 @@ describe('listar', () => {
         }]);
         expect(Incident.find).toHaveBeenCalledWith({ filialId: { $in: [FILIAL] } });
         expect(sort).toHaveBeenCalledWith({ dataIncidente: -1 });
+    });
+
+    test("máquina sem setor: maquina.setor ''", async () => {
+        vi.mocked(Forklift.find).mockReturnValue(lean([{ ...MAQUINA_DOC, setorId: null }]));
+
+        const [incidente] = await listar(escopo, {});
+
+        expect(incidente!.maquina).toEqual({ nome: 'Titan', identificacao: 'EMP-081', setor: '' });
     });
 
     test('filtra por máquina e por dia inclusivo', async () => {

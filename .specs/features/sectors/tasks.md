@@ -169,8 +169,8 @@ T15
 **Requirement**: SECT-07
 
 **Done when**:
-- [ ] Testes do critério 7 da story Máquina ligada nos dois serviços
-- [ ] Build gate do Backend passa
+- [x] Testes do critério 7 da story Máquina ligada nos dois serviços
+- [x] Build gate do Backend passa
 
 **Tests**: unit
 **Gate**: build
