@@ -66,6 +66,8 @@
     "toastCreated": "Maschine „{{name}}“ angelegt",
     "toastSaved": "Maschine „{{name}}“ gespeichert",
     "toastDeleted": "Maschine „{{name}}“ gelöscht",
+    "saveError": "Die Maschine konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "deleteInSession": "Maschine mit offener Sitzung: Beenden Sie die Sitzung vor dem Löschen.",
     "status": {
       "disponivel": "Verfügbar",
       "em_uso": "In Benutzung",

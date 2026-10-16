@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import { Plus, Search, Copy } from 'lucide-react'
 import MachineCard from '../components/machines/MachineCard'
@@ -26,7 +27,8 @@ type LoadState = 'loading' | 'ready' | 'error'
 const mockEventsFor = (machine: Machine) =>
   eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
-let nextMachineId = MACHINES.length + 1
+// Id da máquina recém-cadastrada até a API responder com o id de verdade.
+let nextTempId = 0
 
 const VisaoGeralPage: React.FC = () => {
   const { t } = useTranslation()
@@ -38,7 +40,7 @@ const VisaoGeralPage: React.FC = () => {
   const [detailId, setDetailId] = useState<string | null>(null)
   const [subDialog, setSubDialog] = useState<'edit' | 'delete' | null>(null)
   const { show, showError } = useToast()
-  const { activeBranch } = useActiveBranch()
+  const { activeBranch, branches } = useActiveBranch()
   const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
   const [attempt, setAttempt] = useState(0)
@@ -75,9 +77,20 @@ const VisaoGeralPage: React.FC = () => {
 
   const machines = useMemo(() => filterMachines(allMachines, { query, status }), [allMachines, query, status])
 
+  // Otimista: troca a máquina na lista, grava e usa a resposta; em falha volta a anterior.
+  const saveOptimistic = (previous: Machine, next: Machine, save: () => Promise<Machine>, errorKey: string) => {
+    const replace = (machine: Machine) =>
+      setAllMachines((prev) => prev.map((item) => (item.id === previous.id ? machine : item)))
+    replace(next)
+    save().then(replace, () => {
+      replace(previous)
+      showError(t(errorKey))
+    })
+  }
+
   const handleCreateMachine = (values: NewMachineFormValues) => {
-    const newMachine: Machine = {
-      id: String(nextMachineId++),
+    const temp: Machine = {
+      id: `temp-${nextTempId++}`,
       identificacao: values.identificacao,
       nome: values.nome,
       setor: values.setor,
@@ -92,51 +105,55 @@ const VisaoGeralPage: React.FC = () => {
       tempoSessaoMinutos: 0,
       tempoUsoTotalHoras: 0,
     }
-    setAllMachines((prev) => [newMachine, ...prev])
+    setAllMachines((prev) => [temp, ...prev])
     setIsPanelOpen(false)
     show(t('machines.toastCreated', { name: values.identificacao }))
+    machineService.criar(values, values.filialId ?? filialId).then(
+      (saved) => setAllMachines((prev) => prev.map((machine) => (machine.id === temp.id ? saved : machine))),
+      () => {
+        setAllMachines((prev) => prev.filter((machine) => machine.id !== temp.id))
+        showError(t('machines.saveError'))
+      }
+    )
   }
 
   const handleEditMachine = (values: NewMachineFormValues) => {
-    setAllMachines((prev) =>
-      prev.map((machine) =>
-        machine.id === detailId
-          ? {
-              ...machine,
-              nome: values.nome,
-              identificacao: values.identificacao,
-              setor: values.setor,
-              dispositivoConectado: {
-                ...machine.dispositivoConectado,
-                enderecoMac: values.enderecoMac,
-                nomeDispositivo: values.nomeDispositivo,
-              },
-            }
-          : machine
-      )
-    )
+    if (!detailMachine) return
+    const edited: Machine = {
+      ...detailMachine,
+      nome: values.nome,
+      identificacao: values.identificacao,
+      setor: values.setor,
+      dispositivoConectado: {
+        ...detailMachine.dispositivoConectado,
+        enderecoMac: values.enderecoMac,
+        nomeDispositivo: values.nomeDispositivo,
+      },
+    }
+    saveOptimistic(detailMachine, edited, () => machineService.atualizar(detailMachine.id, values), 'machines.saveError')
     setSubDialog(null)
     show(t('machines.toastSaved', { name: values.identificacao }))
   }
 
   const handleDeleteMachine = () => {
-    setAllMachines((prev) => prev.filter((machine) => machine.id !== detailId))
+    if (!detailMachine) return
+    const removed = detailMachine
+    const index = allMachines.indexOf(removed)
+    setAllMachines((prev) => prev.filter((machine) => machine.id !== removed.id))
     setSubDialog(null)
     setDetailId(null)
-    if (detailMachine) show(t('machines.toastDeleted', { name: detailMachine.identificacao }))
+    show(t('machines.toastDeleted', { name: removed.identificacao }))
+    machineService.remover(removed.id).catch((e) => {
+      setAllMachines((prev) => [...prev.slice(0, index), removed, ...prev.slice(index)])
+      showError(
+        t(axios.isAxiosError(e) && e.response?.status === 409 ? 'machines.deleteInSession' : 'machines.saveError')
+      )
+    })
   }
 
-  // Otimista: aplica o patch, grava e usa a resposta; em falha volta a máquina anterior.
   const updateMachine = (patch: Partial<Machine>, save: (id: string) => Promise<Machine>) => {
     if (!detailMachine) return
-    const previous = detailMachine
-    const replace = (next: Machine) =>
-      setAllMachines((prev) => prev.map((machine) => (machine.id === previous.id ? next : machine)))
-    replace({ ...previous, ...patch })
-    save(previous.id).then(replace, () => {
-      replace(previous)
-      showError(t('fleet.saveError'))
-    })
+    saveOptimistic(detailMachine, { ...detailMachine, ...patch }, () => save(detailMachine.id), 'fleet.saveError')
   }
 
   if (loadState === 'loading') {
@@ -217,7 +234,11 @@ const VisaoGeralPage: React.FC = () => {
       )}
 
       {isPanelOpen && (
-        <NewMachinePanel onClose={() => setIsPanelOpen(false)} onCreate={handleCreateMachine} />
+        <NewMachinePanel
+          branches={activeBranch === 'todas' ? branches : undefined}
+          onClose={() => setIsPanelOpen(false)}
+          onCreate={handleCreateMachine}
+        />
       )}
 
       {detailMachine && subDialog === null && (

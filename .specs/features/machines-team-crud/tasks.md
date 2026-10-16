@@ -316,8 +316,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: card aparece antes da resposta e é trocado por ela; falha remove e mostra toast; editar com falha volta; excluir 409 volta e mostra "sessão aberta"; com "Todas as filiais" e 2+ filiais o painel mostra Filial
-- [ ] Gate build do Frontend passa
+- [x] Testes: card aparece antes da resposta e é trocado por ela; falha remove e mostra toast; editar com falha volta; excluir 409 volta e mostra "sessão aberta"; com "Todas as filiais" e 2+ filiais o painel mostra Filial
+- [x] Gate build do Frontend passa
 
 **Tests**: unit
 **Gate**: build

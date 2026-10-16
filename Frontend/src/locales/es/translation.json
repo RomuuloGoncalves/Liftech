@@ -66,6 +66,8 @@
     "toastCreated": "Máquina \"{{name}}\" registrada",
     "toastSaved": "Máquina \"{{name}}\" guardada",
     "toastDeleted": "Máquina \"{{name}}\" eliminada",
+    "saveError": "No se pudo guardar la máquina. Inténtalo de nuevo.",
+    "deleteInSession": "Máquina con sesión abierta: finaliza la sesión antes de eliminarla.",
     "status": {
       "disponivel": "Disponible",
       "em_uso": "En uso",

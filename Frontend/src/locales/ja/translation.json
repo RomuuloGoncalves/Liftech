@@ -66,6 +66,8 @@
     "toastCreated": "機械「{{name}}」を登録しました",
     "toastSaved": "機械「{{name}}」を保存しました",
     "toastDeleted": "機械「{{name}}」を削除しました",
+    "saveError": "マシンを保存できませんでした。もう一度お試しください。",
+    "deleteInSession": "セッション中のマシンです。削除する前にセッションを終了してください。",
     "status": {
       "disponivel": "利用可能",
       "em_uso": "使用中",

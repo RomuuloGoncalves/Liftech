@@ -68,6 +68,8 @@
     "toastCreated": "Máquina \"{{name}}\" cadastrada",
     "toastSaved": "Máquina \"{{name}}\" salva",
     "toastDeleted": "Máquina \"{{name}}\" excluída",
+    "saveError": "Não foi possível salvar a máquina. Tente novamente.",
+    "deleteInSession": "Máquina com sessão aberta: encerre a sessão antes de excluir.",
     "status": {
       "disponivel": "Disponível",
       "em_uso": "Em uso",

@@ -66,6 +66,8 @@
     "toastCreated": "Machine « {{name}} » enregistrée",
     "toastSaved": "Machine « {{name}} » enregistrée",
     "toastDeleted": "Machine « {{name}} » supprimée",
+    "saveError": "Impossible d'enregistrer la machine. Veuillez réessayer.",
+    "deleteInSession": "Machine avec une session ouverte : terminez la session avant de la supprimer.",
     "status": {
       "disponivel": "Disponible",
       "em_uso": "En utilisation",

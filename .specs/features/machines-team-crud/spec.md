@@ -152,7 +152,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | MACH-09 | P1 Máquina: 409 com sessão aberta | Design | Implementing |
 | MACH-10 | P1 Máquina: 404 fora do escopo | Design | Implementing |
 | MACH-11 | P1 Máquina: front otimista | Design | Implementing |
-| MACH-12 | P1 Máquina: front rollback | Design | Pending |
+| MACH-12 | P1 Máquina: front rollback | Design | Implementing |
 | OPER-01 | P1 Operador: listar | Design | Implementing |
 | OPER-02 | P1 Operador: filtro de filial | Design | Implementing |
 | OPER-03 | P1 Operador: criar com matrícula | Design | Implementing |
