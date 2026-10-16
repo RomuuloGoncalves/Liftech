@@ -97,8 +97,8 @@ T15
 **Requirement**: SECT-01, SECT-02, SECT-03, SECT-04
 
 **Done when**:
-- [ ] Testes 1:1 com os critérios 1, 2, 4, 6, 7, 9, 10, 11, 12, 13 e 14 da story CRUD
-- [ ] Quick gate passa
+- [x] Testes 1:1 com os critérios 1, 2, 4, 6, 7, 9, 10, 11, 12, 13 e 14 da story CRUD
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
