@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import axios from 'axios'
 import { Plus, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
@@ -19,10 +20,12 @@ import {
 } from '../data/team'
 import PageSkeleton, { SkeletonBlock, SkeletonCards } from '../components/common/PageSkeleton'
 import { useToast } from '../components/common/Toast'
-import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
+import { useActiveBranch } from '../context/ActiveBranchContext'
+import { operatorService } from '../services/operatorService'
 import styles from './EquipePage.module.css'
 
 type AccessFilter = Access | 'Todos'
+type LoadState = 'loading' | 'ready' | 'error'
 
 type Dialog =
   | { kind: 'employeeForm'; employee?: Employee }
@@ -31,7 +34,6 @@ type Dialog =
   | { kind: 'sectorInfo'; sector: Sector }
   | { kind: 'confirmDelete'; target: { type: 'employee'; item: Employee } | { type: 'sector'; item: Sector } }
 
-let nextEmployeeId = 1
 let nextSectorId = SECTORS.length + 1
 
 const EquipePage: React.FC = () => {
@@ -42,8 +44,40 @@ const EquipePage: React.FC = () => {
   const [sectors, setSectors] = useState<Sector[]>(SECTORS)
   const [sectorQuery, setSectorQuery] = useState('')
   const [dialog, setDialog] = useState<Dialog | null>(null)
-  const loading = useFirstVisitLoading('equipe')
-  const { show } = useToast()
+  const [loadState, setLoadState] = useState<LoadState>('loading')
+  const { show, showError } = useToast()
+  const { activeBranch, branches } = useActiveBranch()
+  const filialId = activeBranch === 'todas' ? undefined : activeBranch
+  const [loadedFilialId, setLoadedFilialId] = useState(filialId)
+  const [attempt, setAttempt] = useState(0)
+
+  // A different active branch goes back to the skeleton before the effect refetches.
+  if (loadedFilialId !== filialId) {
+    setLoadedFilialId(filialId)
+    setLoadState('loading')
+  }
+
+  useEffect(() => {
+    let stale = false
+    operatorService.listar(filialId).then(
+      (list) => {
+        if (stale) return
+        setEmployees(list)
+        setLoadState('ready')
+      },
+      () => {
+        if (!stale) setLoadState('error')
+      }
+    )
+    return () => {
+      stale = true
+    }
+  }, [filialId, attempt])
+
+  const retry = () => {
+    setLoadState('loading')
+    setAttempt((value) => value + 1)
+  }
 
   const visibleEmployees = useMemo(
     () => filterEmployees(employees, { query: employeeQuery, access: accessFilter }),
@@ -52,28 +86,79 @@ const EquipePage: React.FC = () => {
 
   const visibleSectors = useMemo(() => filterSectors(sectors, { query: sectorQuery }), [sectors, sectorQuery])
 
-  const toggleAccess = (employee: Employee) =>
-    setEmployees((prev) =>
-      prev.map((e) => (e.id === employee.id ? { ...e, acesso: e.acesso === 'Permitido' ? 'Negado' : 'Permitido' } : e))
+  const replaceEmployee = (employee: Employee) =>
+    setEmployees((prev) => prev.map((e) => (e.id === employee.id ? employee : e)))
+
+  // Optimistic: shows `next`, saves, then uses the API answer; on failure puts `previous` back.
+  const saveOptimistic = (previous: Employee, next: Employee, save: () => Promise<Employee>, errorKey = 'team.saveError') => {
+    replaceEmployee(next)
+    save().then(replaceEmployee, (e) => {
+      replaceEmployee(previous)
+      showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? errorKey : 'team.saveError'))
+    })
+  }
+
+  const toggleAccess = (employee: Employee) => {
+    const denying = employee.acesso === 'Permitido'
+    saveOptimistic(employee, { ...employee, acesso: denying ? 'Negado' : 'Permitido' }, () =>
+      operatorService.atualizarLogin(employee.id, { acessoNegado: denying })
     )
+  }
+
+  // Create waits for the API: the operator first, then its login. A refused login keeps the employee without one.
+  // ponytail: no in-flight guard, a double click on Confirmar registers twice; disable the button if it shows up.
+  const createEmployee = async (values: EmployeeFormValues) => {
+    let created: Employee
+    try {
+      created = await operatorService.criar(values, values.filialId ?? filialId)
+    } catch {
+      showError(t('team.saveError'))
+      return
+    }
+    try {
+      const withLogin = await operatorService.criarLogin(created.id, values.usuario, values.senha)
+      setEmployees((prev) => [withLogin, ...prev])
+      show(t('team.toastEmployeeCreated', { name: withLogin.nome }))
+      setDialog(null)
+    } catch (e) {
+      setEmployees((prev) => [created, ...prev])
+      if (axios.isAxiosError(e) && e.response?.status === 409) {
+        // The operator exists now: the open form turns into its edit, so Confirmar only creates the login.
+        showError(t('team.usernameTaken'))
+        setDialog({ kind: 'employeeForm', employee: created })
+      } else {
+        showError(t('team.loginError'))
+        setDialog(null)
+      }
+    }
+  }
+
+  const editEmployee = (employee: Employee, values: EmployeeFormValues) => {
+    const createsLogin = employee.usuario === null && values.usuario !== ''
+    const edited: Employee = {
+      ...employee,
+      nome: values.nome,
+      telefone: values.telefone,
+      cargo: values.cargo,
+      horarioEntrada: values.horarioEntrada,
+      horarioSaida: values.horarioSaida,
+      ...(createsLogin && { usuario: values.usuario, acesso: 'Permitido' }),
+    }
+    const save = async () => {
+      const saved = await operatorService.atualizar(employee.id, values)
+      if (createsLogin) return operatorService.criarLogin(employee.id, values.usuario, values.senha)
+      if (employee.usuario !== null && values.senha !== '') return operatorService.atualizarLogin(employee.id, { senha: values.senha })
+      return saved
+    }
+    saveOptimistic(employee, edited, save, 'team.usernameTaken')
+    show(t('team.toastEmployeeSaved', { name: values.nome }))
+    setDialog(null)
+  }
 
   const saveEmployee = (values: EmployeeFormValues) => {
-    if (dialog?.kind === 'employeeForm' && dialog.employee) {
-      const id = dialog.employee.id
-      setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, ...values } : e)))
-      show(t('team.toastEmployeeSaved', { name: values.nome }))
-    } else {
-      const created: Employee = {
-        ...values,
-        id: String(nextEmployeeId++),
-        matricula: '',
-        filialId: '',
-        acesso: 'Permitido',
-      }
-      setEmployees((prev) => [created, ...prev])
-      show(t('team.toastEmployeeCreated', { name: values.nome }))
-    }
-    setDialog(null)
+    if (dialog?.kind !== 'employeeForm') return
+    if (dialog.employee) editEmployee(dialog.employee, values)
+    else void createEmployee(values)
   }
 
   const saveSector = (values: SectorFormValues) => {
@@ -92,8 +177,13 @@ const EquipePage: React.FC = () => {
     if (dialog?.kind !== 'confirmDelete') return
     const { type, item } = dialog.target
     if (type === 'employee') {
+      const index = employees.indexOf(item)
       setEmployees((prev) => prev.filter((e) => e.id !== item.id))
       show(t('team.toastEmployeeDeleted', { name: item.nome }))
+      operatorService.remover(item.id).catch((e) => {
+        setEmployees((prev) => [...prev.slice(0, index), item, ...prev.slice(index)])
+        showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? 'team.deleteInSession' : 'team.saveError'))
+      })
     } else {
       setSectors((prev) => prev.filter((sector) => sector.id !== item.id))
       show(t('team.toastSectorDeleted', { name: item.nome }))
@@ -103,7 +193,7 @@ const EquipePage: React.FC = () => {
 
   const closeDialog = () => setDialog(null)
 
-  if (loading) {
+  if (loadState === 'loading') {
     return (
       <div className={styles.page}>
         <PageSkeleton>
@@ -129,6 +219,19 @@ const EquipePage: React.FC = () => {
             <SkeletonCards card="sector" className={styles.grid} />
           </div>
         </PageSkeleton>
+      </div>
+    )
+  }
+
+  if (loadState === 'error') {
+    return (
+      <div className={styles.page}>
+        <div role="alert" className={styles.errorState}>
+          <p>{t('team.loadError')}</p>
+          <button type="button" className={styles.registerButton} onClick={retry}>
+            {t('common.retry')}
+          </button>
+        </div>
       </div>
     )
   }
@@ -232,7 +335,13 @@ const EquipePage: React.FC = () => {
       </section>
 
       {dialog?.kind === 'employeeForm' && (
-        <EmployeeFormModal employee={dialog.employee} existing={employees} onSave={saveEmployee} onClose={closeDialog} />
+        <EmployeeFormModal
+          employee={dialog.employee}
+          existing={employees}
+          branches={!dialog.employee && activeBranch === 'todas' ? branches : undefined}
+          onSave={saveEmployee}
+          onClose={closeDialog}
+        />
       )}
       {dialog?.kind === 'employeeInfo' && <EmployeeInfoModal employee={dialog.employee} onClose={closeDialog} />}
       {dialog?.kind === 'sectorForm' && (

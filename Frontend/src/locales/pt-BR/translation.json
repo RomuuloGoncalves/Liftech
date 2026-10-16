@@ -147,7 +147,11 @@
     "toastSectorDeleted": "Setor \"{{name}}\" excluído",
     "usernameInvalid": "Use de 3 a 40 caracteres, sem espaços",
     "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres",
-    "phPasswordKeep": "Deixe em branco para manter a atual"
+    "phPasswordKeep": "Deixe em branco para manter a atual",
+    "loadError": "Não foi possível carregar os funcionários.",
+    "saveError": "Não foi possível salvar o funcionário. Tente novamente.",
+    "loginError": "Funcionário cadastrado, mas não foi possível criar o login. Edite-o para tentar de novo.",
+    "deleteInSession": "Funcionário com sessão aberta: encerre a sessão antes de excluir."
   },
   "languages": {
     "title": "Escolha um idioma",

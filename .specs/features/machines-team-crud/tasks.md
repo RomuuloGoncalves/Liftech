@@ -392,8 +392,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes 1:1 aos ACs de front; setores seguem do mock
-- [ ] Gate build do Frontend passa
+- [x] Testes 1:1 aos ACs de front; setores seguem do mock
+- [x] Gate build do Frontend passa
 
 **Tests**: unit
 **Gate**: build

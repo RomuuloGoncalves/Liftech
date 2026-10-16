@@ -145,7 +145,11 @@
     "toastSectorDeleted": "Sector \"{{name}}\" deleted",
     "usernameInvalid": "Use 3 to 40 characters, no spaces",
     "passwordTooShort": "The password must have at least 8 characters",
-    "phPasswordKeep": "Leave blank to keep the current one"
+    "phPasswordKeep": "Leave blank to keep the current one",
+    "loadError": "Could not load the employees.",
+    "saveError": "Could not save the employee. Please try again.",
+    "loginError": "Employee registered, but the login could not be created. Edit them to try again.",
+    "deleteInSession": "Employee has an open session: end the session before deleting."
   },
   "languages": {
     "title": "Choose a language",

@@ -145,7 +145,11 @@
     "toastSectorDeleted": "部署「{{name}}」を削除しました",
     "usernameInvalid": "空白なしで3〜40文字にしてください",
     "passwordTooShort": "パスワードは8文字以上にしてください",
-    "phPasswordKeep": "現在のパスワードを使う場合は空欄のまま"
+    "phPasswordKeep": "現在のパスワードを使う場合は空欄のまま",
+    "loadError": "従業員を読み込めませんでした。",
+    "saveError": "従業員を保存できませんでした。もう一度お試しください。",
+    "loginError": "従業員は登録されましたが、ログインを作成できませんでした。編集してもう一度お試しください。",
+    "deleteInSession": "セッション中の従業員です。削除する前にセッションを終了してください。"
   },
   "languages": {
     "title": "言語を選択",

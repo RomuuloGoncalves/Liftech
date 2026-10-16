@@ -145,7 +145,11 @@
     "toastSectorDeleted": "Secteur « {{name}} » supprimé",
     "usernameInvalid": "Utilisez 3 à 40 caractères, sans espaces",
     "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
-    "phPasswordKeep": "Laissez vide pour garder l'actuel"
+    "phPasswordKeep": "Laissez vide pour garder l'actuel",
+    "loadError": "Impossible de charger les employés.",
+    "saveError": "Impossible d'enregistrer l'employé. Veuillez réessayer.",
+    "loginError": "Employé enregistré, mais l'identifiant n'a pas pu être créé. Modifiez-le pour réessayer.",
+    "deleteInSession": "Employé avec une session ouverte : terminez la session avant de le supprimer."
   },
   "languages": {
     "title": "Choisissez une langue",
