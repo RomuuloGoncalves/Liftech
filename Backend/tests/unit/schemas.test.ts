@@ -122,6 +122,36 @@ describe('schema category', async () => {
     });
 });
 
+describe('schema sector', async () => {
+    const { Sector } = await import('../../src/schemas/sector.js');
+    const filialId = new mongoose.Types.ObjectId();
+
+    test('nome e filialId são obrigatórios', async () => {
+        expect((await erros(new Sector({}))).sort()).toEqual(['filialId', 'nome']);
+        expect(await erros(new Sector({ filialId, nome: 'Doca' }))).toEqual([]);
+    });
+
+    test('nome com trim, vazio ou com mais de 60 caracteres falha', async () => {
+        expect(new Sector({ filialId, nome: '  Doca  ' }).nome).toBe('Doca');
+        expect(await erros(new Sector({ filialId, nome: '   ' }))).toEqual(['nome']);
+        expect(await erros(new Sector({ filialId, nome: 'a'.repeat(61) }))).toEqual(['nome']);
+        expect(await erros(new Sector({ filialId, nome: 'a'.repeat(60) }))).toEqual([]);
+    });
+
+    test('filialId tem índice e o nome é único por filial sem diferenciar caixa', () => {
+        expect(Sector.schema.path('filialId').options.index).toBe(true);
+        expect(Sector.schema.indexes()).toContainEqual([
+            { filialId: 1, nome: 1 },
+            expect.objectContaining({ unique: true, collation: { locale: 'pt', strength: 2 } }),
+        ]);
+    });
+
+    test('empilhadeira começa sem setor e setorId referencia sector', () => {
+        expect(new Forklift({ filialId }).setorId).toBeNull();
+        expect(Forklift.schema.path('setorId').options.ref).toBe('sector');
+    });
+});
+
 describe('status e categoria na empilhadeira', () => {
     const filialId = new mongoose.Types.ObjectId();
 

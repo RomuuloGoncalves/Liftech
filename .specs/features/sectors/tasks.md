@@ -79,8 +79,8 @@ T15
 **Requirement**: SECT-02
 
 **Done when**:
-- [ ] `schemas.test.ts` cobre obrigatórios, limite de 60, trim, índice único com collation e `forklift.setorId` padrão `null`
-- [ ] Quick gate passa
+- [x] `schemas.test.ts` cobre obrigatórios, limite de 60, trim, índice único com collation e `forklift.setorId` padrão `null`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
