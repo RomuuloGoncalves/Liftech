@@ -313,8 +313,8 @@ T15
 **Requirement**: SECT-14
 
 **Done when**:
-- [ ] Testes dos critérios 1-4 da story Filtro na Frota
-- [ ] Build gate do Frontend passa
+- [x] Testes dos critérios 1-4 da story Filtro na Frota
+- [x] Build gate do Frontend passa
 
 **Tests**: unit
 **Gate**: build

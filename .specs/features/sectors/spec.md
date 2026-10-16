@@ -180,7 +180,7 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 | SECT-11 | P1: Setores na Equipe (critérios 4-5, filial) | Execute | Implemented |
 | SECT-12 | P1: Setores na Equipe (critérios 6-7, otimista) | Execute | Implemented |
 | SECT-13 | P1: Setores na Equipe (critério 9, i18n) | Execute | Implemented |
-| SECT-14 | P2: Filtro por setor | Design | Pending |
+| SECT-14 | P2: Filtro por setor | Execute | Implemented |
 | SECT-15 | P2: Migração (critérios 1-4) | Execute | Implemented |
 | SECT-16 | P2: Seed e reset (critérios 5-6) | Execute | Implemented |
 | SECT-17 | Docs: `docs/api.md` e `docs/modelagem_de_dados.md` | Design | Pending |

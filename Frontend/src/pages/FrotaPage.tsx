@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { CirclePlus, Plus, Search, Copy } from 'lucide-react'
+import { CirclePlus, Plus, Search, Copy, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
@@ -25,6 +25,7 @@ import { MACHINES, eventsForMachine, type Machine } from '../data/machines'
 import { authService } from '../services/authService'
 import { categoryService, type Categoria } from '../services/categoryService'
 import { machineService } from '../services/machineService'
+import { sectorService, type Setor } from '../services/sectorService'
 import styles from './FrotaPage.module.css'
 
 type Dialog =
@@ -54,13 +55,15 @@ const FrotaPage: React.FC = () => {
   const { t } = useTranslation()
   const [board, setBoard] = useState<FleetCategory[]>([])
   const [machines, setMachines] = useState<Machine[]>([])
+  const [sectors, setSectors] = useState<Setor[]>([])
   const [loadState, setLoadState] = useState<LoadState>('loading')
-  const { activeBranch } = useActiveBranch()
+  const { activeBranch, branches } = useActiveBranch()
   const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
   const [attempt, setAttempt] = useState(0)
   const [query, setQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
+  const [sectorFilter, setSectorFilter] = useState('Todos')
   const [dialog, setDialog] = useState<Dialog>(null)
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [overRowId, setOverRowId] = useState<string | null>(null)
@@ -72,14 +75,21 @@ const FrotaPage: React.FC = () => {
   if (loadedFilialId !== filialId) {
     setLoadedFilialId(filialId)
     setLoadState('loading')
+    setSectorFilter('Todos')
   }
 
   useEffect(() => {
     let stale = false
-    Promise.all([categoryService.listar(), machineService.listar(filialId)]).then(
-      ([categorias, maquinas]) => {
+    // Sem setores a página segue: o filtro fica só com "Todos os setores".
+    Promise.all([
+      categoryService.listar(),
+      machineService.listar(filialId),
+      sectorService.listar(filialId).catch(() => []),
+    ]).then(
+      ([categorias, maquinas, setores]) => {
         if (stale) return
         setMachines(maquinas)
+        setSectors(setores)
         setBoard(montarQuadro(categorias, maquinas))
         setLoadState('ready')
       },
@@ -109,6 +119,9 @@ const FrotaPage: React.FC = () => {
 
   const labelOf = (category: FleetCategory) => (category.chave ? t(LABEL_KEYS[category.chave]) : category.nome)
   const close = () => setDialog(null)
+  // Nomes repetem entre filiais: com mais de uma filial na tela a opção mostra a filial.
+  const sectorLabel = (sector: Setor) =>
+    activeBranch === 'todas' && branches.length > 1 ? `${sector.nome} · ${sector.filial.nome}` : sector.nome
   const visibleRows = categoryFilter === 'all' ? board : board.filter((c) => c.id === categoryFilter)
 
   const sourceRowId = draggingId ? board.find((c) => c.machineIds.includes(draggingId))?.id : undefined
@@ -210,6 +223,7 @@ const FrotaPage: React.FC = () => {
           <div className={styles.toolbar} data-skeleton-toolbar>
             <SkeletonBlock className={styles.searchSkeleton} />
             <SkeletonBlock className={styles.selectSkeleton} />
+            <SkeletonBlock className={styles.selectSkeleton} />
             <SkeletonBlock className={styles.buttonSkeleton} />
           </div>
         </PageSkeleton>
@@ -259,6 +273,22 @@ const FrotaPage: React.FC = () => {
             ))}
           </select>
         </div>
+        <div className={styles.selectWrapper}>
+          <MapPin size={16} className={styles.selectLeftIcon} aria-hidden="true" />
+          <select
+            className={styles.filter}
+            aria-label={t('machines.filterSectorLabel')}
+            value={sectorFilter}
+            onChange={(event) => setSectorFilter(event.target.value)}
+          >
+            <option value="Todos">{t('machines.filterSectorAll')}</option>
+            {sectors.map((sector) => (
+              <option key={sector._id} value={sector._id}>
+                {sectorLabel(sector)}
+              </option>
+            ))}
+          </select>
+        </div>
         {canManage && (
           <button type="button" className={styles.createButton} onClick={() => openForm()}>
             <Plus size={16} />
@@ -277,7 +307,10 @@ const FrotaPage: React.FC = () => {
             label={labelOf(category)}
             machines={category.machineIds
               .map((id) => machinesById.get(id)!)
-              .filter((machine) => matchesMachine(machine, query))}
+              .filter(
+                (machine) =>
+                  matchesMachine(machine, query) && (sectorFilter === 'Todos' || machine.setorId === sectorFilter)
+              )}
             total={category.machineIds.length}
             renderCard={renderCard(category)}
             onDrop={handleDrop}
