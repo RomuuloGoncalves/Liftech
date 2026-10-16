@@ -163,7 +163,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | OPER-08 | P1 Operador: 409 com sessão aberta | Design | Implementing |
 | OPER-09 | P1 Operador: 404 fora do escopo | Design | Implementing |
 | OPER-10 | P1 Operador: só admin | Design | Implementing |
-| OPER-11 | P1 Operador: Equipe carrega da API | Design | Pending |
+| OPER-11 | P1 Operador: Equipe carrega da API | Design | Implementing |
 | OPER-12 | P1 Operador: front otimista e rollback | Design | Pending |
 | LOGIN-01 | P1 Login: criar | Design | Implementing |
 | LOGIN-02 | P1 Login: já tem login | Design | Implementing |
@@ -176,7 +176,7 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | LOGIN-09 | P1 Login: sem senha na resposta | Design | Implementing |
 | LOGIN-10 | P1 Login: auth recusa negado | Design | Implementing |
 | LOGIN-11 | P1 Login: middleware recusa negado | Design | Implementing |
-| LOGIN-12 | P1 Login: front cria operador + login | Design | Pending |
+| LOGIN-12 | P1 Login: front cria operador + login | Design | Implementing |
 | LOGIN-13 | P1 Login: front troca senha | Design | Pending |
 | LOGIN-14 | P1 Login: front alterna acesso | Design | Pending |
 | LOGIN-15 | P1 Login: i18n 7 idiomas | Design | Implementing |
