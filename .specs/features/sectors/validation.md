@@ -2,12 +2,13 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/sectors/spec.md`
-**Diff range**: `f5163bd..b353e5f` (3529dfb through b353e5f, 16 commits: planning docs + T1-T15)
+**Diff range**: `f5163bd..HEAD` (HEAD = 73e9f7f at round 2: planning docs, T1-T15, round-1 report 3c44a53, test fixes 743f8b0, spec decisions 73e9f7f)
+**Round**: 2 of 3
 **Verifier**: independent sub-agent (author ≠ verifier)
 
-**Verdict**: FAIL
+**Verdict**: PASS
 
-Every acceptance criterion has spec-anchored evidence and both gates are green, but the discrimination sensor left 4 of 42 mutants alive. The surviving mutants are weak tests, not wrong behavior: the implementation is correct on every mutated line. Four small test fixes close the gaps (see Fix Plans).
+Round 2: all 46 acceptance criteria have spec-anchored evidence, both full gates are green, and the full sensor kills 42 of 42 mutants. Round 1 failed on 5 surviving mutants (B8, B24, F16, F17, F18; round 1 reported "38/42", the correct count was 37/42). Commit 743f8b0 added the missing tests and 73e9f7f put the 4 spec-precision gaps into the spec as explicit assumptions.
 
 ---
 
@@ -37,9 +38,9 @@ Every acceptance criterion has spec-anchored evidence and both gates are green, 
 | 8 | extra field or `$` key → 400, nothing saved | `sectorController.test.ts:315-325` | ✅ |
 | 9 | empresa scope moves via `resolverFilial`, 200 | `sectorService.test.ts:107-108` - `$set: { filialId: F2 }`, `filial.nome 'Unidade Centro'` | ✅ |
 | 10 | non-empresa moving → 403 exact message | `sectorService.test.ts:112-115` | ✅ |
-| 11 | move with N machines → 409 "Setor com N máquina(s) ligada(s) não pode mudar de filial.", nothing saved | `sectorService.test.ts:131-134` (N=3) | ⚠️ boundary N=1 untested (mutant B8 survived) |
+| 11 | move with N machines → 409 "Setor com N máquina(s) ligada(s) não pode mudar de filial.", nothing saved | `sectorService.test.ts:131-134` (N=3), `:137-143` (N=1) | ✅ (round 2; B8 killed) |
 | 12 | delete without machines → 200 `{ _id, message }` | `sectorService.test.ts:147-149`; `sectorController.test.ts:346-348` | ✅ |
-| 13 | delete with N machines → 409 "Setor com N máquina(s) ligada(s).", nothing deleted | `sectorService.test.ts:156-157` (N=2) | ⚠️ boundary N=1 untested (mutant B24 survived) |
+| 13 | delete with N machines → 409 "Setor com N máquina(s) ligada(s).", nothing deleted | `sectorService.test.ts:156-157` (N=2), `:168-174` (N=1) | ✅ (round 2; B24 killed) |
 | 14 | missing / out of scope → 404 "Setor não encontrado." | `sectorService.test.ts:139` (PUT, message), `:162-163` (DELETE) | ✅ |
 | 15 | non-admin writes → 403 exact message | `sectorController.test.ts:250-255`; mounted route `app.test.ts:116-121` | ✅ |
 
@@ -72,7 +73,7 @@ Every acceptance criterion has spec-anchored evidence and both gates are green, 
 | 6 | optimistic apply, then API response | `EquipePage.test.tsx:854` (create swaps in API answer), `:898`, `:910`, `:949` | ✅ |
 | 7 | rollback + toast; delete 409 shows count | `EquipePage.test.tsx:873-896`, `:920-947`, `:960-985` - `toastTexts()` contains `'Setor com 3 máquina(s) ligada(s)'`, card back at index 4 | ✅ (see spec-precision gap 1) |
 | 8 | no `SECTORS` mock, no `unidade` | `Frontend/src/data/team.ts` no longer exports them; `grep -rn "SECTORS\|unidade" Frontend/src --exclude-dir=test` → no hits | ✅ |
-| 9 | new keys in 7 locales, translated | `Frontend/src/test/config/i18n.test.ts:104-110` covers `team.*` key parity only | ❌ `machines.sectorNone/filterSectorAll/filterSectorLabel` parity and `{{n}}` placeholder untested (mutants F16, F17, F18 survived) |
+| 9 | new keys in 7 locales, translated | `Frontend/src/test/config/i18n.test.ts:487-493` - the 7 sector keys are truthy in every locale and `.not.toBe(ptBR value)` outside pt-BR; `:495-499` - `toContain('{{n}}')`; `team.*` parity `:104-110` | ✅ (round 2; F16-F18 killed; "traduzida" now defined at `spec.md:52`) |
 
 ### P2: Filtro por setor
 
@@ -99,11 +100,15 @@ Every acceptance criterion has spec-anchored evidence and both gates are green, 
 - [x] Concurrent duplicate name → 409 via unique index: `schemas.test.ts:141-145` (index) + `sectorService.test.ts:73-78` (11000 → 409; mutant B1 killed).
 - [x] Deleted sector still referenced → `setor: ''` and stored `setorId`: `machineService.test.ts:120-127`.
 
-**Status**: ❌ AC P1-Equipe-9 has no evidence for the `machines.*` keys; ⚠️ boundary gaps on CRUD-11/13; 3 spec-precision gaps flagged.
+**Status**: ✅ All ACs covered (round 2).
 
 ---
 
 ## Spec-Precision Gaps
+
+**Round 2**: all four are resolved as explicit assumptions in `spec.md:51-54`, and the code matches each one. Residual note: gap 3 (POST ignores `setor`) has no dedicated test. The behavior is the generic pass-list in `machineController.ts:80` and is low risk, so it is not a blocker. Gap 1 keeps the regex coupling to the backend text on purpose; the spec records the upgrade path (`maquinas` in the 409 body).
+
+Round 1 findings:
 
 1. **Equipe AC7 "toast com a mensagem do erro"**: the spec does not say whether the toast shows the API text or a translated one. The implementation shows i18n text (`team.sectorHasMachines` with `n` parsed from the API message by `/Setor com (\d+)/`, `Frontend/src/pages/EquipePage.tsx:171`) and a generic `team.saveError` for non-409 failures. Tests assert that choice. If the backend wording changes, the count silently disappears (falls back to `sectorNameTaken`). Suggest: pin in the spec that the toast is translated and that the count comes from a structured field (e.g. `{ error, maquinas: N }`).
 2. **Equipe AC9 "traduzidas"**: no measurable definition. Suggest: "differs from pt-BR in every non-pt locale and keeps every `{{placeholder}}`".
@@ -162,7 +167,22 @@ Isolated temp `git worktree` at HEAD (node_modules symlinked), one mutation at a
 | F18 | `locales/fr/translation.json` | `team.sectorHasMachines` loses `{{n}}` | ❌ Survived |
 
 **Sensor depth**: expanded (≥5; scope/admin/data-integrity paths)
-**Result**: 38/42 killed - FAIL ❌
+**Round 1 sensor outcome**: 37/42 killed (B8, B24, F16, F17, F18 survived) - FAIL ❌
+
+### Round 2 (HEAD 73e9f7f)
+
+All 42 mutants re-run in a fresh temp worktree (same script, same targeted test files). The worktree was removed afterwards, and real-tree `git status --porcelain` matched the clean baseline.
+
+| Mutation | Round 1 | Round 2 |
+| -------- | ------- | ------- |
+| B8 move 409 `> 0` → `> 1` | ❌ Survived | ✅ Killed by `sectorService.test.ts:137` |
+| B24 delete 409 `> 0` → `> 1` | ❌ Survived | ✅ Killed by `sectorService.test.ts:168` |
+| F16 de `machines.filterSectorAll` removed | ❌ Survived | ✅ Killed by `i18n.test.ts:487` |
+| F17 ja `machines.sectorNone` in Portuguese | ❌ Survived | ✅ Killed by `i18n.test.ts:487` |
+| F18 fr `team.sectorHasMachines` without `{{n}}` | ❌ Survived | ✅ Killed by `i18n.test.ts:495` |
+| B1-B7, B9-B23, F1-F15 (37 previously killed) | ✅ Killed | ✅ Killed (no regression) |
+
+**Result**: 42/42 killed (round 2) - PASS ✅
 
 ---
 
@@ -174,7 +194,7 @@ Isolated temp `git worktree` at HEAD (node_modules symlinked), one mutation at a
 | Surgical changes | ✅ |
 | No scope creep | ✅ |
 | Matches patterns (category service/controller, `exigirAdmin`, optimistic `saveOptimistic` style) | ✅ |
-| Spec-anchored outcome check | ⚠️ boundary N=1 and i18n gaps above |
+| Spec-anchored outcome check | ✅ (round 2) |
 | Per-layer coverage (service 1:1; controller happy + 400/403/404/409) | ✅ |
 | Every test maps to a requirement | ✅ |
 | Documented guidelines: `Backend/package.json` (unit only), `.specs/STATE.md` AD-010/AD-012 | ✅ |
@@ -185,6 +205,7 @@ Isolated temp `git worktree` at HEAD (node_modules symlinked), one mutation at a
 
 - **Backend**: `cd Backend && npx tsc --noEmit && yarn test` → exit 0; 47 files, **863 passed**, 0 failed, 0 skipped (only `tests/unit`; no DB access).
 - **Frontend** (Node v25.9.0): `npx tsc -b && npx eslint . && npx vitest run` → exit 0; 92 files, **1364 passed**, 0 failed, 0 skipped.
+- **Round 2** (HEAD 73e9f7f): Backend → exit 0, **865 passed** (+2); Frontend → exit 0, **1378 passed** (+14: 2 `it.each` × 7 locales). 0 failed, 0 skipped.
 - **Test integrity**: no tests deleted. Existing tests were updated from `setor` text to `setorId` to follow the spec (e.g. `machineController.test.ts:375` now asserts the 400 that replaced the old pass-through). No assertions were weakened.
 
 ---
@@ -197,6 +218,8 @@ Isolated temp `git worktree` at HEAD (node_modules symlinked), one mutation at a
 ---
 
 ## Fix Plans
+
+**Round 2**: Fix 1-3 applied in 743f8b0 and verified (the mutants they target are killed). No open fix tasks.
 
 ### Fix 1: Machine-count guards untested at N=1 (B8, B24) - Major
 
@@ -220,19 +243,19 @@ Isolated temp `git worktree` at HEAD (node_modules symlinked), one mutation at a
 | Requirement | New Status |
 | ----------- | ---------- |
 | SECT-01, SECT-02, SECT-05 to SECT-12, SECT-14 to SECT-17 | ✅ Verified |
-| SECT-03 (CRUD 11), SECT-04 (CRUD 13) | ❌ Needs Fix (test boundary N=1) |
-| SECT-13 (i18n) | ❌ Needs Fix (parity/placeholder test) |
+| SECT-03 (CRUD 11), SECT-04 (CRUD 13) | ✅ Verified (round 2) |
+| SECT-13 (i18n) | ✅ Verified (round 2) |
 
 ---
 
 ## Summary
 
-**Overall**: ❌ Not Ready (test-strength gaps only; behavior is correct)
+**Overall**: ✅ Ready (round 2)
 
-**Spec-anchored check**: 43/46 ACs fully matched; 2 boundary gaps, 1 AC without evidence for part of its keys, 4 spec-precision gaps flagged
-**Sensor**: 38/42 mutations killed
-**Gate**: Backend 863 passed, Frontend 1364 passed
+**Spec-anchored check**: 46/46 ACs matched; the 4 round-1 spec-precision gaps are resolved in `spec.md:51-54`
+**Sensor**: 42/42 mutations killed (round 1: 37/42)
+**Gate**: Backend 865 passed, Frontend 1378 passed
 
 **What works**: the full sectors CRUD with scope, admin and 409 rules; machine linking with the same-branch check; name resolution in machines, sessions and incidents; forklift protection; idempotent migration; seed and reset; Equipe optimistic flow with rollback; branch-aware sector selects; sector filters in Visão Geral and Frota.
 
-**Next steps**: apply Fix 1-3 (tests only), then re-run the Verifier.
+**Next steps**: none for this feature. Optional: one test asserting `POST /api/machines` ignores `setor` (`spec.md:53`).
