@@ -8,7 +8,10 @@ export interface Machine {
   id: string
   identificacao: string
   nome: string
+  /** Name of the linked sector, '' without one. */
   setor: string
+  setorId: string | null
+  filialId?: string
   status: MachineStatus
   categoriaId: string | null
   categoriaTravada: boolean
@@ -24,7 +27,7 @@ export interface Machine {
   tempoUsoTotalHoras?: number
 }
 
-const BASE_MACHINES: Machine[] = [
+const BASE_MACHINES: Omit<Machine, 'setorId'>[] = [
   {
     id: '1',
     identificacao: 'EMP-081',
@@ -228,6 +231,7 @@ const BASE_MACHINES: Machine[] = [
 
 export const MACHINES: Machine[] = BASE_MACHINES.map((machine, index) => ({
   ...machine,
+  setorId: null,
   dispositivoConectado: { ...machine.dispositivoConectado, nomeDispositivo: `Mpa-${5300 + index}` },
   tempoUsoTotalHoras: 4 + ((index * 3) % 20),
 }))

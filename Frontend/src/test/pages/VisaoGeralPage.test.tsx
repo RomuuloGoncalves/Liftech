@@ -7,12 +7,14 @@ import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
 import styles from '../../pages/VisaoGeralPage.module.css'
 import { machineService } from '../../services/machineService'
+import { sectorService, type Setor } from '../../services/sectorService'
 import type { NewMachineFormValues } from '../../components/machines/NewMachinePanel'
 import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
 
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
 }))
+vi.mock('../../services/sectorService', () => ({ sectorService: { listar: vi.fn() } }))
 vi.mock('../../services/incidentService', () => ({
   incidentService: { listar: vi.fn().mockResolvedValue([]), reportar: vi.fn() },
 }))
@@ -21,6 +23,12 @@ const listar = vi.mocked(machineService.listar)
 const criar = vi.mocked(machineService.criar)
 const atualizar = vi.mocked(machineService.atualizar)
 const remover = vi.mocked(machineService.remover)
+const listarSetores = vi.mocked(sectorService.listar)
+
+const SECTORS: Setor[] = [
+  { _id: 'sd', nome: 'Doca Nova', filialId: 'f1', filial: { nome: 'Filial 01' } },
+  { _id: 'se', nome: 'Expedição - Bloco B', filialId: 'f1', filial: { nome: 'Filial 01' } },
+]
 
 // What the API answers by default: the machine as sent, with a server id.
 const savedFrom = (values: NewMachineFormValues, base: Partial<Machine> = {}): Machine =>
@@ -34,11 +42,14 @@ const savedFrom = (values: NewMachineFormValues, base: Partial<Machine> = {}): M
     id: base.id ?? `srv-${values.identificacao}`,
     nome: values.nome,
     identificacao: values.identificacao,
-    setor: values.setor,
+    setor: SECTORS.find((sector) => sector._id === values.setorId)?.nome ?? '',
+    setorId: values.setorId || null,
     dispositivoConectado: { enderecoMac: values.enderecoMac, nomeDispositivo: values.nomeDispositivo },
   }) as Machine
 
 beforeEach(() => {
+  listarSetores.mockReset()
+  listarSetores.mockResolvedValue(SECTORS)
   listar.mockReset()
   listar.mockResolvedValue(MACHINES)
   criar.mockReset()
@@ -223,7 +234,7 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     expect(screen.getByRole('dialog', { name: 'Editar Máquina' })).toBeInTheDocument()
     expect(screen.getByLabelText('Código')).toHaveValue('EMP-084')
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
 
     const card = cardOf('EMP-084')
@@ -237,7 +248,7 @@ describe('VisaoGeralPage: machine detail', () => {
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
 
     const card = cardOf('EMP-084')
@@ -250,7 +261,7 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'emp-084' } })
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
     fireEvent.keyDown(window, { key: 'Escape' })
 
@@ -359,7 +370,7 @@ describe('VisaoGeralPage notifications', () => {
     await renderWithToasts()
     open('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
     expect(toastTexts()).toEqual(['Máquina "EMP-084" salva'])
   })
@@ -378,6 +389,7 @@ const apiMachine = (over: Partial<Machine> = {}): Machine => ({
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
+  setorId: null,
   status: 'manutencao', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA' },
   tempoSessaoMinutos: 5,
   ...over,
@@ -441,15 +453,15 @@ describe('VisaoGeralPage: API', () => {
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
-    const created = { nome: 'Nova Empilhadeira', identificacao: 'EMP-200', setor: '', nomeDispositivo: '', enderecoMac: 'AA:BB:CC:DD:EE' }
+    const created = { nome: 'Nova Empilhadeira', identificacao: 'EMP-200', setorId: '', nomeDispositivo: '', enderecoMac: 'AA:BB:CC:DD:EE' }
     expect(criar).toHaveBeenCalledWith(created, undefined)
     await screen.findByText('EMP-200(ID)')
 
     openDetail('EMP-200')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
-    expect(atualizar).toHaveBeenCalledWith('srv-EMP-200', { ...created, setor: 'Doca Nova' })
+    expect(atualizar).toHaveBeenCalledWith('srv-EMP-200', { ...created, setorId: 'sd' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
@@ -727,7 +739,7 @@ describe('VisaoGeralPage: saving through the API', () => {
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
-    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'Doca Nova' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
 
     await waitFor(() => expect(within(cardOf('EMP-084')).queryByText('Doca Nova')).not.toBeInTheDocument())
@@ -812,5 +824,42 @@ describe('VisaoGeralPage: branch on register', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(criar).toHaveBeenCalledWith(expect.not.objectContaining({ filialId: expect.anything() }), 'f2')
+  })
+})
+
+describe('VisaoGeralPage: sectors in the machine form', () => {
+  const sectorOptions = () =>
+    [...screen.getByLabelText('Setor').querySelectorAll('option')].map((o) => o.textContent)
+
+  it('requests the sectors with the machines and offers them in the register form', async () => {
+    await renderLoaded()
+
+    expect(listarSetores).toHaveBeenCalledWith(undefined)
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    expect(sectorOptions()).toEqual(['Sem setor', 'Doca Nova', 'Expedição - Bloco B'])
+  })
+
+  it('still lists the machines when the sectors fail, with only "Sem setor" in the form', async () => {
+    listarSetores.mockRejectedValue(new Error('Network Error'))
+    await renderLoaded()
+
+    expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    expect(sectorOptions()).toEqual(['Sem setor'])
+  })
+
+  it('shows the picked sector name on the new card before the API answers', async () => {
+    criar.mockReturnValue(new Promise<Machine>(() => {}))
+    await renderLoaded()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova' } })
+    fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-300' } })
+    fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
+    fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(criar).toHaveBeenCalledWith(expect.objectContaining({ setorId: 'sd' }), undefined)
+    expect(within(cardOf('EMP-300')).getByText('Doca Nova')).toBeInTheDocument()
   })
 })

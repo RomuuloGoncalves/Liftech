@@ -3,8 +3,8 @@ import type { Machine, MachineStatus } from '../data/machines';
 import type { NewMachineFormValues } from '../components/machines/NewMachinePanel';
 
 // Only the fields the backend stores; the branch goes separately, on create.
-const corpo = ({ nome, identificacao, setor, nomeDispositivo, enderecoMac }: NewMachineFormValues) =>
-  ({ nome, identificacao, setor, nomeDispositivo, enderecoMac });
+const corpo = ({ nome, identificacao, setorId, nomeDispositivo, enderecoMac }: NewMachineFormValues) =>
+  ({ nome, identificacao, setorId: setorId || null, nomeDispositivo, enderecoMac });
 
 export const machineService = {
   async listar(filialId?: string): Promise<Machine[]> {

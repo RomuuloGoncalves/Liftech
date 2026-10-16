@@ -277,8 +277,8 @@ T15
 **Requirement**: SECT-09
 
 **Done when**:
-- [ ] Testes dos critérios 10 e 11 da story Máquina ligada e do corpo do `machineService`
-- [ ] Quick gate passa
+- [x] Testes dos critérios 10 e 11 da story Máquina ligada e do corpo do `machineService`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

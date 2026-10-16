@@ -8,6 +8,7 @@ const machine = (status: MachineStatus = 'disponivel'): Machine => ({
   identificacao: 'ID-0001',
   nome: 'Empilhadeira 01',
   setor: 'Galpão A',
+  setorId: null,
   status,
   categoriaId: null,
   categoriaTravada: false,

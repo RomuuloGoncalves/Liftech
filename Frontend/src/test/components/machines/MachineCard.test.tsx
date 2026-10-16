@@ -8,6 +8,7 @@ const baseMachine: Machine = {
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
+  setorId: null,
   status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7' },
   operadorConectado: { nome: 'Carlos Silva' },
   tempoSessaoMinutos: 34,

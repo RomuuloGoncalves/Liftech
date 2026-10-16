@@ -10,6 +10,7 @@ import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
 import { useActiveBranch } from '../context/ActiveBranchContext'
 import { machineService } from '../services/machineService'
+import { sectorService, type Setor } from '../services/sectorService'
 import {
   MACHINES,
   MACHINE_STATUSES,
@@ -33,6 +34,7 @@ let nextTempId = 0
 const VisaoGeralPage: React.FC = () => {
   const { t } = useTranslation()
   const [allMachines, setAllMachines] = useState<Machine[]>([])
+  const [sectors, setSectors] = useState<Setor[]>([])
   const [loadState, setLoadState] = useState<LoadState>('loading')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('Todos')
@@ -53,10 +55,12 @@ const VisaoGeralPage: React.FC = () => {
 
   useEffect(() => {
     let stale = false
-    machineService.listar(filialId).then(
-      (machines) => {
+    // Without sectors the page still works: the select only offers "Sem setor".
+    Promise.all([machineService.listar(filialId), sectorService.listar(filialId).catch(() => [])]).then(
+      ([machines, sectorList]) => {
         if (stale) return
         setAllMachines(machines)
+        setSectors(sectorList)
         setLoadState('ready')
       },
       () => {
@@ -88,12 +92,15 @@ const VisaoGeralPage: React.FC = () => {
     })
   }
 
+  const sectorName = (setorId: string) => sectors.find((sector) => sector._id === setorId)?.nome ?? ''
+
   const handleCreateMachine = (values: NewMachineFormValues) => {
     const temp: Machine = {
       id: `temp-${nextTempId++}`,
       identificacao: values.identificacao,
       nome: values.nome,
-      setor: values.setor,
+      setor: sectorName(values.setorId),
+      setorId: values.setorId || null,
       status: 'disponivel',
       categoriaId: null,
       categoriaTravada: false,
@@ -123,7 +130,8 @@ const VisaoGeralPage: React.FC = () => {
       ...detailMachine,
       nome: values.nome,
       identificacao: values.identificacao,
-      setor: values.setor,
+      setor: sectorName(values.setorId),
+      setorId: values.setorId || null,
       dispositivoConectado: {
         ...detailMachine.dispositivoConectado,
         enderecoMac: values.enderecoMac,
@@ -236,6 +244,8 @@ const VisaoGeralPage: React.FC = () => {
       {isPanelOpen && (
         <NewMachinePanel
           branches={activeBranch === 'todas' ? branches : undefined}
+          sectors={sectors}
+          defaultFilialId={filialId}
           onClose={() => setIsPanelOpen(false)}
           onCreate={handleCreateMachine}
         />
@@ -255,7 +265,13 @@ const VisaoGeralPage: React.FC = () => {
         />
       )}
       {detailMachine && subDialog === 'edit' && (
-        <NewMachinePanel machine={detailMachine} onClose={() => setSubDialog(null)} onCreate={handleEditMachine} />
+        <NewMachinePanel
+          machine={detailMachine}
+          sectors={sectors}
+          defaultFilialId={filialId}
+          onClose={() => setSubDialog(null)}
+          onCreate={handleEditMachine}
+        />
       )}
       {detailMachine && subDialog === 'delete' && (
         <ConfirmDialog

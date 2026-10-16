@@ -21,6 +21,7 @@ describe('machineService', () => {
         identificacao: 'EMP-081',
         nome: 'Empilhadeira Elétrica Titan-X',
         setor: 'Expedição - Bloco B',
+        setorId: 's1',
         status: 'disponivel' as const,
         categoriaId: null,
         categoriaTravada: false,
@@ -100,7 +101,7 @@ describe('machineService create, update and delete', () => {
   const values = {
     nome: 'Titan-X',
     identificacao: 'EMP-200',
-    setor: 'Doca 1',
+    setorId: 's1',
     nomeDispositivo: 'Sensor 01',
     enderecoMac: 'AA:BB:CC:DD:EE',
   };
@@ -135,6 +136,18 @@ describe('machineService create, update and delete', () => {
 
     expect(put).toHaveBeenCalledWith('/machines/m1', values);
     expect(result).toEqual({ id: 'm1', nome: 'Titan-Y' });
+  });
+
+  it('sends setorId null and never the sector text when no sector is picked', async () => {
+    post.mockResolvedValue({ data: { id: 'm9' } });
+    put.mockResolvedValue({ data: { id: 'm1' } });
+
+    await machineService.criar({ ...values, setorId: '' });
+    await machineService.atualizar('m1', { ...values, setorId: '' });
+
+    expect(post).toHaveBeenCalledWith('/machines', { ...values, setorId: null });
+    expect(put).toHaveBeenCalledWith('/machines/m1', { ...values, setorId: null });
+    expect(post.mock.calls[0][1]).not.toHaveProperty('setor');
   });
 
   it('remover deletes /machines/:id', async () => {

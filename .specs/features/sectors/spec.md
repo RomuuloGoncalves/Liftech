@@ -175,7 +175,7 @@ A aba Setores da Equipe lê o mock `SECTORS` (`{ id, nome, unidade }`) e criar, 
 | SECT-06 | P1: Máquina ligada (critérios 1-4, setorId) | Execute | Implemented |
 | SECT-07 | P1: Máquina ligada (critérios 5-7, 12, resposta com nome) | Execute | Implemented |
 | SECT-08 | P1: Máquina ligada (critérios 8-9, `/api/forklifts`) | Execute | Implemented |
-| SECT-09 | P1: Máquina ligada (critérios 10-11, select no front) | Design | Pending |
+| SECT-09 | P1: Máquina ligada (critérios 10-11, select no front) | Execute | Implemented |
 | SECT-10 | P1: Setores na Equipe (critérios 1-3, 8) | Execute | Implemented |
 | SECT-11 | P1: Setores na Equipe (critérios 4-5, filial) | Execute | Implemented |
 | SECT-12 | P1: Setores na Equipe (critérios 6-7, otimista) | Execute | Implemented |
