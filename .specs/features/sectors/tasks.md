@@ -187,8 +187,8 @@ T15
 **Requirement**: SECT-15
 
 **Done when**:
-- [ ] Testes dos critérios 1-4 da story Migração, incluindo a segunda execução sem `create`/`updateOne`
-- [ ] Quick gate passa
+- [x] Testes dos critérios 1-4 da story Migração, incluindo a segunda execução sem `create`/`updateOne`
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick
