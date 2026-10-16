@@ -143,11 +143,11 @@ O modelo vigente é: o `operator` é a pessoa que retira a máquina; o `user` co
 | -------------- | ----- | ----- | ------ |
 | MACH-01 | P1 Máquina: criar forklift + device | Design | Implementing |
 | MACH-02 | P1 Máquina: status inicial e categoria | Design | Implementing |
-| MACH-03 | P1 Máquina: campos obrigatórios | Design | Pending |
+| MACH-03 | P1 Máquina: campos obrigatórios | Design | Implementing |
 | MACH-04 | P1 Máquina: identificação repetida | Design | Implementing |
 | MACH-05 | P1 Máquina: MAC repetido | Design | Implementing |
 | MACH-06 | P1 Máquina: editar campos livres | Design | Implementing |
-| MACH-07 | P1 Máquina: campos protegidos | Design | Pending |
+| MACH-07 | P1 Máquina: campos protegidos | Design | Implementing |
 | MACH-08 | P1 Máquina: excluir forklift + device | Design | Implementing |
 | MACH-09 | P1 Máquina: 409 com sessão aberta | Design | Implementing |
 | MACH-10 | P1 Máquina: 404 fora do escopo | Design | Implementing |

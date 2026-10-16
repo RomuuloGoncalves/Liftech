@@ -201,8 +201,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Testes: POST 201; campo obrigatório ausente/vazio → 400; PUT com campo protegido ou desconhecido → 400 com o nome do campo; id inválido → 400; `$` → 400; DELETE 200; erros do service repassados
-- [ ] Gate build do Backend passa
+- [x] Testes: POST 201; campo obrigatório ausente/vazio → 400; PUT com campo protegido ou desconhecido → 400 com o nome do campo; id inválido → 400; `$` → 400; DELETE 200; erros do service repassados
+- [x] Gate build do Backend passa
 
 **Tests**: unit
 **Gate**: build
