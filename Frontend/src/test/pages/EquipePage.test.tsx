@@ -272,7 +272,7 @@ describe('EquipePage: sectors section', () => {
     expect(sectorCards()).toHaveLength(SECTORS.length)
   })
 
-  it('filters sectors by nome and unidade, ignoring case', async () => {
+  it('filters sectors by nome and branch name, ignoring case', async () => {
     await renderLoaded()
 
     searchSectors('DOCA')
@@ -294,7 +294,6 @@ describe('EquipePage: sectors section', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Setor' }))
     expect(screen.getByRole('dialog', { name: 'Cadastrar um novo setor' })).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Setor-novo' } })
-    fireEvent.change(screen.getByLabelText('Unidade'), { target: { value: 'Unidade Sul' } })
     fireEvent.click(screen.getByRole('button', { name: 'Criar setor' }))
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -328,8 +327,8 @@ describe('EquipePage: sectors section', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Doca de Carga' }))
     expect(screen.getByRole('dialog', { name: 'Informações do setor' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Unidade')).toHaveValue('Unidade Centro')
-    expect(screen.getByLabelText('Unidade')).toHaveAttribute('readonly')
+    expect(screen.getByLabelText('Filial')).toHaveValue('Unidade Centro')
+    expect(screen.getByLabelText('Filial')).toHaveAttribute('readonly')
   })
 
   it('shows one dialog at a time', async () => {
@@ -439,7 +438,6 @@ describe('EquipePage notifications', () => {
     await renderWithToasts()
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Setor' }))
     fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Setor-novo' } })
-    fireEvent.change(screen.getByLabelText('Unidade'), { target: { value: 'Unidade Sul' } })
     fireEvent.click(screen.getByRole('button', { name: 'Criar setor' }))
     expect(toastTexts()).toEqual(['Setor "Setor-novo" cadastrado'])
   })

@@ -241,8 +241,8 @@ T15
 **Requirement**: SECT-10, SECT-11
 
 **Done when**:
-- [ ] Testes dos critérios 3, 4 e 5 da story Setores na Equipe
-- [ ] Quick gate passa
+- [x] Testes dos critérios 3, 4 e 5 da story Setores na Equipe
+- [x] Quick gate passa
 
 **Tests**: unit
 **Gate**: quick

@@ -2,17 +2,17 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import SectorInfoModal from '../../../components/team/SectorInfoModal'
 
-const sector = { id: '1', nome: 'Expedição B - Acesso 3', unidade: 'Unidade Votorantin' }
+const sector = { _id: '1', nome: 'Expedição B - Acesso 3', filialId: 'f1', filial: { nome: 'Unidade Votorantin' } }
 
 describe('SectorInfoModal', () => {
-  it('shows nome and unidade in read-only fields', () => {
+  it('shows nome and the branch name in read-only fields', () => {
     render(<SectorInfoModal sector={sector} onClose={vi.fn()} />)
 
     expect(screen.getByRole('dialog', { name: 'Informações do setor' })).toBeInTheDocument()
     expect(screen.getByLabelText('Nome setor')).toHaveValue('Expedição B - Acesso 3')
     expect(screen.getByLabelText('Nome setor')).toHaveAttribute('readonly')
-    expect(screen.getByLabelText('Unidade')).toHaveValue('Unidade Votorantin')
-    expect(screen.getByLabelText('Unidade')).toHaveAttribute('readonly')
+    expect(screen.getByLabelText('Filial')).toHaveValue('Unidade Votorantin')
+    expect(screen.getByLabelText('Filial')).toHaveAttribute('readonly')
   })
 
   it('has no action buttons besides the close icon', () => {

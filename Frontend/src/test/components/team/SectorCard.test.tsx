@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import SectorCard from '../../../components/team/SectorCard'
 
-const sector = { id: '1', nome: 'Doca de Carga', unidade: 'Unidade Centro' }
+const sector = { _id: '1', nome: 'Doca de Carga', filialId: 'f2', filial: { nome: 'Unidade Centro' } }
 
 function setup() {
   const handlers = { onOpen: vi.fn(), onEdit: vi.fn(), onDelete: vi.fn() }
@@ -11,9 +11,10 @@ function setup() {
 }
 
 describe('SectorCard', () => {
-  it('shows the sector name', () => {
+  it('shows the sector name and its branch name', () => {
     setup()
     expect(screen.getByText('Doca de Carga')).toBeInTheDocument()
+    expect(screen.getByText('Unidade Centro')).toBeInTheDocument()
   })
 
   it('calls onOpen when the card body is clicked', () => {
@@ -36,7 +37,7 @@ describe('SectorCard', () => {
     const open = screen.getByRole('button', { name: 'Ver detalhes de Doca de Carga' })
 
     expect(open.querySelector('svg')).toBeNull()
-    expect(open.children).toHaveLength(1)
+    expect(open.children).toHaveLength(2)
     expect(container.querySelectorAll('svg')).toHaveLength(2)
   })
 

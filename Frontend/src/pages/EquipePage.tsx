@@ -46,7 +46,7 @@ const EquipePage: React.FC = () => {
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const [loadState, setLoadState] = useState<LoadState>('loading')
   const { show, showError } = useToast()
-  const { activeBranch, branches } = useActiveBranch()
+  const { activeBranch, branches, canManage } = useActiveBranch()
   const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
   const [attempt, setAttempt] = useState(0)
@@ -162,12 +162,13 @@ const EquipePage: React.FC = () => {
   }
 
   const saveSector = (values: SectorFormValues) => {
+    const filial = { nome: branches.find((b) => b._id === values.filialId)?.nome ?? '' }
     if (dialog?.kind === 'sectorForm' && dialog.sector) {
-      const id = dialog.sector.id
-      setSectors((prev) => prev.map((sector) => (sector.id === id ? { ...sector, ...values } : sector)))
+      const id = dialog.sector._id
+      setSectors((prev) => prev.map((sector) => (sector._id === id ? { ...sector, ...values, filial } : sector)))
       show(t('team.toastSectorSaved', { name: values.nome }))
     } else {
-      setSectors((prev) => [{ ...values, id: String(nextSectorId++) }, ...prev])
+      setSectors((prev) => [{ ...values, filial, _id: String(nextSectorId++) }, ...prev])
       show(t('team.toastSectorCreated', { name: values.nome }))
     }
     setDialog(null)
@@ -185,7 +186,7 @@ const EquipePage: React.FC = () => {
         showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? 'team.deleteInSession' : 'team.saveError'))
       })
     } else {
-      setSectors((prev) => prev.filter((sector) => sector.id !== item.id))
+      setSectors((prev) => prev.filter((sector) => sector._id !== item._id))
       show(t('team.toastSectorDeleted', { name: item.nome }))
     }
     setDialog(null)
@@ -323,7 +324,7 @@ const EquipePage: React.FC = () => {
           <div className={styles.grid}>
             {visibleSectors.map((sector) => (
               <SectorCard
-                key={sector.id}
+                key={sector._id}
                 sector={sector}
                 onOpen={(item) => setDialog({ kind: 'sectorInfo', sector: item })}
                 onEdit={(item) => setDialog({ kind: 'sectorForm', sector: item })}
@@ -345,7 +346,14 @@ const EquipePage: React.FC = () => {
       )}
       {dialog?.kind === 'employeeInfo' && <EmployeeInfoModal employee={dialog.employee} onClose={closeDialog} />}
       {dialog?.kind === 'sectorForm' && (
-        <SectorFormModal sector={dialog.sector} onSave={saveSector} onClose={closeDialog} />
+        <SectorFormModal
+          sector={dialog.sector}
+          branches={branches}
+          canMove={canManage}
+          defaultFilialId={filialId}
+          onSave={saveSector}
+          onClose={closeDialog}
+        />
       )}
       {dialog?.kind === 'sectorInfo' && <SectorInfoModal sector={dialog.sector} onClose={closeDialog} />}
       {dialog?.kind === 'confirmDelete' && (

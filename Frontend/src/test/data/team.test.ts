@@ -6,7 +6,7 @@ import { employee as make } from '../fixtures/employees'
 describe('team mock dataset', () => {
   it('keeps the 8 mock sectors', () => {
     expect(SECTORS).toHaveLength(8)
-    expect(new Set(SECTORS.map((s) => s.id)).size).toBe(8)
+    expect(new Set(SECTORS.map((s) => s._id)).size).toBe(8)
   })
 
   it('no longer ships a mock employee list nor generates matriculas (the API does)', () => {
@@ -62,8 +62,8 @@ describe('filterEmployees', () => {
 
 describe('filterSectors', () => {
   const list = [
-    { id: '1', nome: 'Expedição - Bloco B', unidade: 'Unidade Votorantin' },
-    { id: '2', nome: 'Recebimento', unidade: 'Unidade Centro' },
+    { _id: '1', nome: 'Expedição - Bloco B', filialId: 'f1', filial: { nome: 'Unidade Votorantin' } },
+    { _id: '2', nome: 'Recebimento', filialId: 'f2', filial: { nome: 'Unidade Centro' } },
   ]
 
   it('returns everything when the query is empty', () => {
@@ -71,11 +71,11 @@ describe('filterSectors', () => {
   })
 
   it('matches nome, ignoring case', () => {
-    expect(filterSectors(list, { query: 'expedição' }).map((s) => s.id)).toEqual(['1'])
+    expect(filterSectors(list, { query: 'expedição' }).map((s) => s._id)).toEqual(['1'])
   })
 
-  it('matches unidade', () => {
-    expect(filterSectors(list, { query: 'centro' }).map((s) => s.id)).toEqual(['2'])
+  it('matches the branch name', () => {
+    expect(filterSectors(list, { query: 'centro' }).map((s) => s._id)).toEqual(['2'])
   })
 
   it('returns an empty list when nothing matches', () => {

@@ -1,3 +1,5 @@
+import type { Setor } from '../services/sectorService'
+
 export type Access = 'Permitido' | 'Negado'
 
 export const ACCESS_VALUES: Access[] = ['Permitido', 'Negado']
@@ -16,21 +18,20 @@ export interface Employee {
   acesso: Access
 }
 
-export interface Sector {
-  id: string
-  nome: string
-  unidade: string
-}
+export type Sector = Setor
+
+const mockSector = (_id: string, nome: string, filialId: string, filial: string): Sector =>
+  ({ _id, nome, filialId, filial: { nome: filial } })
 
 export const SECTORS: Sector[] = [
-  { id: '1', nome: 'Expedição - Bloco B', unidade: 'Unidade Votorantin' },
-  { id: '2', nome: 'Recebimento - Bloco A', unidade: 'Unidade Votorantin' },
-  { id: '3', nome: 'Armazenagem - Bloco C', unidade: 'Unidade Votorantin' },
-  { id: '4', nome: 'Expedição B - Acesso 3', unidade: 'Unidade Votorantin' },
-  { id: '5', nome: 'Doca de Carga', unidade: 'Unidade Centro' },
-  { id: '6', nome: 'Câmara Fria', unidade: 'Unidade Centro' },
-  { id: '7', nome: 'Separação', unidade: 'Unidade Norte' },
-  { id: '8', nome: 'Manutenção', unidade: 'Unidade Norte' },
+  mockSector('1', 'Expedição - Bloco B', 'f1', 'Unidade Votorantin'),
+  mockSector('2', 'Recebimento - Bloco A', 'f1', 'Unidade Votorantin'),
+  mockSector('3', 'Armazenagem - Bloco C', 'f1', 'Unidade Votorantin'),
+  mockSector('4', 'Expedição B - Acesso 3', 'f1', 'Unidade Votorantin'),
+  mockSector('5', 'Doca de Carga', 'f2', 'Unidade Centro'),
+  mockSector('6', 'Câmara Fria', 'f2', 'Unidade Centro'),
+  mockSector('7', 'Separação', 'f3', 'Unidade Norte'),
+  mockSector('8', 'Manutenção', 'f3', 'Unidade Norte'),
 ]
 
 export interface EmployeeFilters {
@@ -64,7 +65,7 @@ export function filterSectors(sectors: Sector[], filters: SectorFilters): Sector
     (sector) =>
       query.length === 0 ||
       sector.nome.toLowerCase().includes(query) ||
-      sector.unidade.toLowerCase().includes(query)
+      sector.filial.nome.toLowerCase().includes(query)
   )
 }
 

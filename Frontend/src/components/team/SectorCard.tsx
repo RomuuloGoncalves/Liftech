@@ -24,6 +24,7 @@ const SectorCard: React.FC<SectorCardProps> = ({ sector, onOpen, onEdit, onDelet
         onClick={() => onOpen(sector)}
       >
         <span className={styles.name}>{name}</span>
+        <span className={styles.branch}>{sector.filial.nome}</span>
       </button>
       <div className={styles.actions}>
         <button
