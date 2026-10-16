@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import * as team from '../../data/team'
-import { SECTORS, filterEmployees, filterSectors, isUsernameTaken } from '../../data/team'
+import { filterEmployees, filterSectors, isUsernameTaken } from '../../data/team'
 import { employee as make } from '../fixtures/employees'
 
 describe('team mock dataset', () => {
-  it('keeps the 8 mock sectors', () => {
-    expect(SECTORS).toHaveLength(8)
-    expect(new Set(SECTORS.map((s) => s._id)).size).toBe(8)
+  it('no longer ships the mock sectors (the API does)', () => {
+    expect('SECTORS' in team).toBe(false)
   })
 
   it('no longer ships a mock employee list nor generates matriculas (the API does)', () => {

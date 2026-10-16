@@ -20,20 +20,6 @@ export interface Employee {
 
 export type Sector = Setor
 
-const mockSector = (_id: string, nome: string, filialId: string, filial: string): Sector =>
-  ({ _id, nome, filialId, filial: { nome: filial } })
-
-export const SECTORS: Sector[] = [
-  mockSector('1', 'Expedição - Bloco B', 'f1', 'Unidade Votorantin'),
-  mockSector('2', 'Recebimento - Bloco A', 'f1', 'Unidade Votorantin'),
-  mockSector('3', 'Armazenagem - Bloco C', 'f1', 'Unidade Votorantin'),
-  mockSector('4', 'Expedição B - Acesso 3', 'f1', 'Unidade Votorantin'),
-  mockSector('5', 'Doca de Carga', 'f2', 'Unidade Centro'),
-  mockSector('6', 'Câmara Fria', 'f2', 'Unidade Centro'),
-  mockSector('7', 'Separação', 'f3', 'Unidade Norte'),
-  mockSector('8', 'Manutenção', 'f3', 'Unidade Norte'),
-]
-
 export interface EmployeeFilters {
   query?: string
   access?: Access | 'Todos'

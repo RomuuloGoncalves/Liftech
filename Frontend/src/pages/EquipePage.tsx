@@ -11,7 +11,6 @@ import SectorFormModal, { type SectorFormValues } from '../components/team/Secto
 import SectorInfoModal from '../components/team/SectorInfoModal'
 import {
   ACCESS_VALUES,
-  SECTORS,
   filterEmployees,
   filterSectors,
   type Access,
@@ -22,6 +21,7 @@ import PageSkeleton, { SkeletonBlock, SkeletonCards } from '../components/common
 import { useToast } from '../components/common/Toast'
 import { useActiveBranch } from '../context/ActiveBranchContext'
 import { operatorService } from '../services/operatorService'
+import { sectorService } from '../services/sectorService'
 import styles from './EquipePage.module.css'
 
 type AccessFilter = Access | 'Todos'
@@ -34,14 +34,14 @@ type Dialog =
   | { kind: 'sectorInfo'; sector: Sector }
   | { kind: 'confirmDelete'; target: { type: 'employee'; item: Employee } | { type: 'sector'; item: Sector } }
 
-let nextSectorId = SECTORS.length + 1
+let nextTempSector = 1
 
 const EquipePage: React.FC = () => {
   const { t } = useTranslation()
   const [employees, setEmployees] = useState<Employee[]>([])
   const [employeeQuery, setEmployeeQuery] = useState('')
   const [accessFilter, setAccessFilter] = useState<AccessFilter>('Todos')
-  const [sectors, setSectors] = useState<Sector[]>(SECTORS)
+  const [sectors, setSectors] = useState<Sector[]>([])
   const [sectorQuery, setSectorQuery] = useState('')
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const [loadState, setLoadState] = useState<LoadState>('loading')
@@ -59,10 +59,11 @@ const EquipePage: React.FC = () => {
 
   useEffect(() => {
     let stale = false
-    operatorService.listar(filialId).then(
-      (list) => {
+    Promise.all([operatorService.listar(filialId), sectorService.listar(filialId)]).then(
+      ([employeeList, sectorList]) => {
         if (stale) return
-        setEmployees(list)
+        setEmployees(employeeList)
+        setSectors(sectorList)
         setLoadState('ready')
       },
       () => {
@@ -161,14 +162,39 @@ const EquipePage: React.FC = () => {
     else void createEmployee(values)
   }
 
+  const replaceSector = (id: string, sector: Sector) =>
+    setSectors((prev) => prev.map((s) => (s._id === id ? sector : s)))
+
+  // The 409 with a machine count names it; any other 409 is the repeated name.
+  const sectorError = (e: unknown, machinesKey: string) => {
+    if (!axios.isAxiosError(e) || e.response?.status !== 409) return t('team.saveError')
+    const n = /Setor com (\d+)/.exec(String(e.response.data?.error ?? ''))?.[1]
+    return n ? t(machinesKey, { n }) : t('team.sectorNameTaken')
+  }
+
   const saveSector = (values: SectorFormValues) => {
+    if (dialog?.kind !== 'sectorForm') return
     const filial = { nome: branches.find((b) => b._id === values.filialId)?.nome ?? '' }
-    if (dialog?.kind === 'sectorForm' && dialog.sector) {
-      const id = dialog.sector._id
-      setSectors((prev) => prev.map((sector) => (sector._id === id ? { ...sector, ...values, filial } : sector)))
+    const previous = dialog.sector
+    if (previous) {
+      replaceSector(previous._id, { ...previous, ...values, filial })
+      // Only the company scope may move a sector; the others keep it where it is.
+      sectorService
+        .atualizar(previous._id, canManage ? values : { nome: values.nome })
+        .then((saved) => replaceSector(previous._id, saved), (e) => {
+          replaceSector(previous._id, previous)
+          showError(sectorError(e, 'team.sectorMoveHasMachines'))
+        })
       show(t('team.toastSectorSaved', { name: values.nome }))
     } else {
-      setSectors((prev) => [{ ...values, filial, _id: String(nextSectorId++) }, ...prev])
+      const tempId = `temp-${nextTempSector++}`
+      setSectors((prev) => [{ ...values, filial, _id: tempId }, ...prev])
+      sectorService
+        .criar({ nome: values.nome, filialId: values.filialId || undefined })
+        .then((saved) => replaceSector(tempId, saved), (e) => {
+          setSectors((prev) => prev.filter((s) => s._id !== tempId))
+          showError(sectorError(e, 'team.sectorHasMachines'))
+        })
       show(t('team.toastSectorCreated', { name: values.nome }))
     }
     setDialog(null)
@@ -186,8 +212,13 @@ const EquipePage: React.FC = () => {
         showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? 'team.deleteInSession' : 'team.saveError'))
       })
     } else {
+      const index = sectors.indexOf(item)
       setSectors((prev) => prev.filter((sector) => sector._id !== item._id))
       show(t('team.toastSectorDeleted', { name: item.nome }))
+      sectorService.remover(item._id).catch((e) => {
+        setSectors((prev) => [...prev.slice(0, index), item, ...prev.slice(index)])
+        showError(sectorError(e, 'team.sectorHasMachines'))
+      })
     }
     setDialog(null)
   }
