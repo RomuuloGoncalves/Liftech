@@ -100,6 +100,26 @@
   cursor: pointer;
 }
 
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.searchSkeleton,
+.selectSkeleton,
+.buttonSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.searchSkeleton {
+  width: 300px;
+}
+
+.selectSkeleton {
+  width: 142px;
+}
+
+.buttonSkeleton {
+  width: 175px;
+}
+
 .rows {
   display: flex;
   flex-direction: column;
@@ -125,4 +145,25 @@
 
 .addCategory:active {
   transform: scale(0.94);
+}
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.errorState p {
+  margin: 0;
+}
+
+.noCategories {
+  margin: 0;
+  padding: 48px 0;
+  text-align: center;
+  color: var(--text);
+  font-size: var(--fs-base);
 }

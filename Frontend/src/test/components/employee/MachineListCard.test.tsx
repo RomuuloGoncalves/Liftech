@@ -3,12 +3,16 @@ import { describe, expect, it, vi } from 'vitest'
 import MachineListCard from '../../../components/employee/MachineListCard'
 import type { Machine, MachineStatus } from '../../../data/machines'
 
-const machine = (status: MachineStatus = 'Disponível'): Machine => ({
+const machine = (status: MachineStatus = 'disponivel'): Machine => ({
   id: '1',
   identificacao: 'ID-0001',
   nome: 'Empilhadeira 01',
   setor: 'Galpão A',
-  dispositivoConectado: { enderecoMac: 'AA:BB', status },
+  setorId: null,
+  status,
+  categoriaId: null,
+  categoriaTravada: false,
+  dispositivoConectado: { enderecoMac: 'AA:BB' },
   tempoSessaoMinutos: 0,
 })
 
@@ -35,10 +39,11 @@ describe('MachineListCard', () => {
   })
 
   it.each<[MachineStatus, string]>([
-    ['Disponível', 'Disponível'],
-    ['Em uso', 'Em uso'],
-    ['Manutenção', 'Manutenção'],
-    ['Offline', 'Offline'],
+    ['disponivel', 'Disponível'],
+    ['em_uso', 'Em uso'],
+    ['manutencao', 'Em manutenção'],
+    ['offline', 'Offline'],
+    ['alerta', 'Alerta'],
   ])('shows the %s status chip', (status, label) => {
     setup({ machine: machine(status) })
     expect(screen.getByText(label)).toBeInTheDocument()
@@ -46,7 +51,7 @@ describe('MachineListCard', () => {
 
   it('shows date and time only when provided', () => {
     const { unmount } = render(
-      <MachineListCard machine={machine('Offline')} actionLabel="Ir" onAction={vi.fn()} />
+      <MachineListCard machine={machine('offline')} actionLabel="Ir" onAction={vi.fn()} />
     )
     expect(screen.queryByText('Data e Hora')).not.toBeInTheDocument()
     unmount()

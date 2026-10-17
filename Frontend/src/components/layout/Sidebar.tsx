@@ -10,9 +10,12 @@ import {
   MessageCircle,
   Menu,
   PanelLeft,
+  User,
   Users,
   X,
 } from 'lucide-react'
+import BranchSelector from './BranchSelector'
+import { useActiveBranch } from '../../context/ActiveBranchContext'
 import logo from '../../assets/logo.svg'
 import logoName from '../../assets/logo-name.svg'
 import styles from './Sidebar.module.css'
@@ -59,6 +62,7 @@ function writeStoredCollapsed(value: boolean): void {
 const Sidebar: React.FC = () => {
   const location = useLocation()
   const { t } = useTranslation()
+  const { user } = useActiveBranch()
   const [collapsed, setCollapsed] = useState<boolean>(readStoredCollapsed)
   const [isMobile, setIsMobile] = useState<boolean>(() => window.innerWidth < MOBILE_BREAKPOINT)
   const [mobileOpen, setMobileOpen] = useState<boolean>(false)
@@ -153,6 +157,8 @@ const Sidebar: React.FC = () => {
           )}
         </div>
 
+        <BranchSelector collapsed={showCollapsedLayout} />
+
         {!showCollapsedLayout && <p className={styles.sectionLabel}>{t('navigation.pages')}</p>}
 
         <ul className={styles.nav} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -199,6 +205,17 @@ const Sidebar: React.FC = () => {
         )}
 
         <div className={styles.footer}>
+          {user?.empresa && (
+            <div
+              className={styles.company}
+              role={showCollapsedLayout ? 'img' : undefined}
+              aria-label={showCollapsedLayout ? user.empresa.nome : undefined}
+              title={showCollapsedLayout ? user.empresa.nome : undefined}
+            >
+              <User size={16} aria-hidden="true" />
+              {!showCollapsedLayout && <span className={styles.companyName}>{user.empresa.nome}</span>}
+            </div>
+          )}
           <button
             type="button"
             className={styles.feedbackButton}

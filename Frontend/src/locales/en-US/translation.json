@@ -8,7 +8,8 @@
     "save": "Save",
     "close": "Close",
     "loading": "Loading...",
-    "closeNotification": "Close notification"
+    "closeNotification": "Close notification",
+    "retry": "Try again"
   },
   "navigation": {
     "overview": "Overview",
@@ -33,11 +34,13 @@
     "operator": "Operator",
     "noOperator": "No operator",
     "emptyState": "No machines found",
+    "loadError": "Could not load the machines.",
     "newMachineTitle": "New Machine",
     "labelId": "ID",
     "labelName": "Name",
     "labelSector": "Sector",
     "labelMac": "MAC Address",
+    "labelBranch": "Branch",
     "detailCode": "Code",
     "detailMac": "Mac",
     "detailSector": "Sector",
@@ -62,7 +65,20 @@
     "openDetails": "View details of {{name}}",
     "toastCreated": "Machine \"{{name}}\" registered",
     "toastSaved": "Machine \"{{name}}\" saved",
-    "toastDeleted": "Machine \"{{name}}\" deleted"
+    "toastDeleted": "Machine \"{{name}}\" deleted",
+    "saveError": "Could not save the machine. Please try again.",
+    "deleteInSession": "Machine has an open session: end the session before deleting.",
+    "status": {
+      "disponivel": "Available",
+      "em_uso": "In use",
+      "manutencao": "Under maintenance",
+      "alerta": "Alert",
+      "offline": "Disconnected"
+    },
+    "changeStatus": "Change status",
+    "sectorNone": "No sector",
+    "filterSectorAll": "All sectors",
+    "filterSectorLabel": "Filter by sector"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -114,9 +130,7 @@
     "editSectorTitle": "Edit sector",
     "sectorInfoTitle": "Sector information",
     "labelSectorName": "Sector name",
-    "labelUnit": "Unit",
     "phSectorName": "Sector name",
-    "phUnit": "Unit",
     "createSector": "Create sector",
     "required": "Required field",
     "usernameTaken": "This username is already in use",
@@ -129,7 +143,18 @@
     "toastEmployeeDeleted": "Employee \"{{name}}\" deleted",
     "toastSectorCreated": "Sector \"{{name}}\" registered",
     "toastSectorSaved": "Sector \"{{name}}\" saved",
-    "toastSectorDeleted": "Sector \"{{name}}\" deleted"
+    "toastSectorDeleted": "Sector \"{{name}}\" deleted",
+    "usernameInvalid": "Use 3 to 40 characters, no spaces",
+    "passwordTooShort": "The password must have at least 8 characters",
+    "phPasswordKeep": "Leave blank to keep the current one",
+    "loadError": "Could not load the employees.",
+    "saveError": "Could not save the employee. Please try again.",
+    "loginError": "Employee registered, but the login could not be created. Edit them to try again.",
+    "deleteInSession": "Employee has an open session: end the session before deleting.",
+    "labelSectorBranch": "Branch",
+    "sectorNameTaken": "A sector with this name already exists in this branch",
+    "sectorHasMachines": "Sector has {{n}} linked machine(s)",
+    "sectorMoveHasMachines": "A sector with {{n}} linked machine(s) cannot change branch"
   },
   "languages": {
     "title": "Choose a language",
@@ -236,7 +261,14 @@
     "toastCategoryCreated": "Category \"{{name}}\" created",
     "toastCategoryDeleted": "Category \"{{name}}\" deleted",
     "toastMachinesAdded": "Machines added to \"{{name}}\"",
-    "toastMachineRemoved": "{{name}} removed from the category"
+    "toastMachineRemoved": "{{name}} removed from the category",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "editCategory": "Edit category",
+    "linkedStatus": "Linked statuses",
+    "statusTaken": "Already linked to another category",
+    "saveError": "Could not save. Please try again.",
+    "noCategories": "No categories registered"
   },
   "employee": {
     "sessionBar": {
@@ -245,8 +277,7 @@
     "nav": {
       "overview": "Overview",
       "machines": "Forklifts",
-      "history": "History",
-      "incident": "Incident"
+      "history": "History"
     },
     "common": {
       "available": "Available",
@@ -300,7 +331,9 @@
       "description": "The <b>usage time tracking</b> is already in progress. When you are done, remember to <b>end the operation</b>.",
       "timerLabel": "Session time",
       "end": "End Session",
-      "reportIncident": "Report an incident"
+      "reportIncident": "Report an incident",
+      "startError": "Could not start the session. Try again.",
+      "endError": "Could not end the session. Try again."
     },
     "history": {
       "title": "History",
@@ -326,12 +359,40 @@
       "cancel": "Cancel",
       "submit": "Send incident",
       "required": "Required field",
-      "toastSent": "Incident sent successfully"
+      "toastSent": "Incident sent successfully",
+      "sendError": "Could not send the incident. Try again."
     },
     "settings": {
       "title": "Settings",
-      "close": "Close"
+      "close": "Close",
+      "general": "General",
+      "userData": "User data",
+      "name": "Name",
+      "phone": "Phone",
+      "position": "Position",
+      "changeNoticeTitle": "Change request",
+      "changeNotice": "To change your details, ask the supervisor in charge.",
+      "logout": "Log out",
+      "feedbackTitle": "Feedback & Suggestions",
+      "feedbackQuestion": "How was your experience?",
+      "privacy": "Privacy Policy"
     }
+  },
+  "branches": {
+    "label": "Branches",
+    "all": "All branches",
+    "manage": "Manage branches",
+    "doneManaging": "Done",
+    "create": "Create branch",
+    "nameLabel": "Branch name",
+    "confirm": "Confirm",
+    "rename": "Rename {{name}}",
+    "remove": "Delete {{name}}",
+    "deleteTitle": "Delete branch",
+    "deleteMessage": "Delete the branch {{name}}?",
+    "saveError": "Could not save the branch.",
+    "deleteError": "Could not delete the branch.",
+    "deleteBlocked": "Could not delete: the branch is the headquarters or still has resources."
   },
   "notFound": {
     "description": "The page you are looking for does not exist or was moved.",

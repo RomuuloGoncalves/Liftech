@@ -5,18 +5,21 @@ export class forkliftModel extends coreModel {
     protected identificacao: string;
     protected dispositivoConectadoId: string | undefined;
     protected operadorConectadoId: string | undefined;
+    protected filialId: string | undefined;
 
     constructor(
-        identificacao: string, 
-        dispositivoConectadoId?: string, 
+        identificacao: string,
+        dispositivoConectadoId?: string,
         operadorConectadoId?: string,
-        id?: string
+        id?: string,
+        filialId?: string
     ) {
         super();
         this.id = id;
         this.identificacao = identificacao;
         this.dispositivoConectadoId = dispositivoConectadoId;
         this.operadorConectadoId = operadorConectadoId;
+        this.filialId = filialId;
     }
 
     obterDados(): Record<string, unknown> {
@@ -24,7 +27,8 @@ export class forkliftModel extends coreModel {
             ...(this.id ? { _id: this.id } : {}),
             id: this.identificacao,
             dispositivoConectadoId: this.dispositivoConectadoId,
-            operadorConectadoId: this.operadorConectadoId
+            operadorConectadoId: this.operadorConectadoId,
+            filialId: this.filialId
         };
     }
 

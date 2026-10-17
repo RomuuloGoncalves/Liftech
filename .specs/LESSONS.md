@@ -50,6 +50,66 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: RST-06 AC1 Offline cinza atual (machines.test.ts:28-31 MachineCard.module.css:178) (spec)
 - last seen: 2026-10-11T01:37:25Z
 
+### L-007 - Give mock ids a real ObjectId, not a string, when a test asserts that the id is converted to text
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-tests` · harmful: 0
+- features: machines-api
+- evidence: M08 machineService.ts:id (backend-tests)
+- last seen: 2026-10-13T15:22:43Z
+
+### L-008 - Put a script's work and its disconnect in an exported function so a test can assert the connection closes, including on failure
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-scripts` · harmful: 0
+- features: machines-api
+- evidence: M32 seedData.ts:disconnect (backend-scripts)
+- last seen: 2026-10-13T15:22:43Z
+
+### L-009 - Assert new translation values differ from the source language, not only that they are non-empty
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-i18n` · harmful: 0
+- features: machines-api
+- evidence: M25 i18n.test.ts:loadError/retry (frontend-i18n)
+- last seen: 2026-10-13T15:22:43Z
+
+### L-010 - When a body field is validated on both POST and PUT, give the PUT its own non-text test for every validated field
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-tests` · harmful: 0
+- features: employee-nav-settings
+- evidence: B20 userController.ts PUT telefone/cargo (backend-tests)
+- last seen: 2026-10-13T17:09:14Z
+
+### L-011 - When a migration maps legacy values, the spec must state the outcome for values outside the known mapping
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `migrations` · harmful: 0
+- features: fleet-categories
+- evidence: MIG-01 Backend/tests/unit/migrateStatus.test.ts:49 (migrations)
+- last seen: 2026-10-15T18:24:48Z
+
+### L-012 - When a feature adds i18n keys to a module, assert the full key set of that module matches pt-BR in every locale instead of a fixed key list
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-i18n` · harmful: 0
+- features: machines-team-crud
+- evidence: P1 Frontend/src/test/config/i18n.test.ts:149 (frontend-i18n)
+- last seen: 2026-10-16T12:20:49Z
+
+### L-013 - State in the spec how translation quality is verified, since a copied pt-BR string passes key-presence tests
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend-i18n` · harmful: 0
+- features: machines-team-crud
+- evidence: LOGIN-15 / mutant P2 (frontend-i18n)
+- last seen: 2026-10-16T12:20:49Z
+
+### L-014 - When a task changes a shared type, run the test suites of every consumer of that type in the task gate, not only the task's own tests
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `tasks-gate` · harmful: 0
+- features: machines-team-crud
+- evidence: T15 117a559 EquipePage.test.tsx 17 failed (tasks-gate)
+- last seen: 2026-10-16T12:20:49Z
+
+### L-015 - Test count-based guards (count > 0 → 409) at the boundary count = 1, not only at 0 and a larger N.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `backend-service` · harmful: 0
+- features: sectors
+- evidence: validation.md B8,B24 (Backend/src/feature/sector/sectorService.ts:58,76) (backend-service)
+- last seen: 2026-10-16T15:18:11Z
+
+### L-016 - Every new i18n key needs a per-locale parity test that checks presence, translation and placeholders, in each module the feature touches.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `i18n` · harmful: 0
+- features: sectors
+- evidence: validation.md F16,F17,F18 (Frontend/src/test/config/i18n.test.ts) (i18n)
+- last seen: 2026-10-16T15:18:11Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

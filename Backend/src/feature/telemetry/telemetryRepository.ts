@@ -15,7 +15,8 @@ protected converterParaModelo(documento: Record<string, any>): telemetryModel {
     return new telemetryModel(
       data,
       String(documento.dispositivoId ?? ""),
-      String(documento._id ?? "")
+      String(documento._id ?? ""),
+      typeof documento.forcaImpacto === "number" ? documento.forcaImpacto : undefined
     );
   }
 

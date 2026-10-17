@@ -2,12 +2,16 @@ export class telemetryModel {
     private dataDados: Date;
     private dispositivoId: string;
     private _id?: string;
+    private forcaImpacto?: number;
 
-    constructor(dataDados: Date, dispositivoId: string, id?: string) {
+    constructor(dataDados: Date, dispositivoId: string, id?: string, forcaImpacto?: number) {
         this.dataDados = dataDados;
         this.dispositivoId = dispositivoId;
         if (id) {
             this._id = id;
+        }
+        if (forcaImpacto !== undefined) {
+            this.forcaImpacto = forcaImpacto;
         }
     }
 
@@ -42,7 +46,8 @@ export class telemetryModel {
         return {
             id: this._id,
             dataDados: this.dataDados,
-            dispositivoId: this.dispositivoId
+            dispositivoId: this.dispositivoId,
+            ...(this.forcaImpacto !== undefined && { forcaImpacto: this.forcaImpacto })
         };
     }
 }

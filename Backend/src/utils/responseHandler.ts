@@ -22,3 +22,14 @@ export function respostaSucesso(res: Response, status: StatusCode, data?: any) {
 export function respostaErro(res: Response, status: StatusCode, message: string | Record<string, any>) {
   return res.status(status).json({ error: message });
 }
+
+// Erro com o status HTTP que o controller deve responder.
+export class ErroHttp extends Error {
+  constructor(readonly status: StatusCode, message: string) {
+    super(message);
+  }
+}
+
+export function responderErro(res: Response, error: any) {
+  return respostaErro(res, error instanceof ErroHttp ? error.status : StatusCode.INTERNAL_SERVER_ERROR, error.message);
+}

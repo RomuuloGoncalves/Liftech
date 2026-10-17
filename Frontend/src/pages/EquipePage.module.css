@@ -105,6 +105,37 @@
   outline-offset: 1px;
 }
 
+/* Placeholders das barras no skeleton, com as medidas dos controles reais. */
+.titleSkeleton {
+  width: 103px;
+  height: 21px;
+}
+
+.employeeButtonSkeleton,
+.sectorButtonSkeleton,
+.searchSkeleton,
+.selectSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.employeeButtonSkeleton {
+  width: 195px;
+}
+
+.sectorButtonSkeleton {
+  width: 154px;
+}
+
+.searchSkeleton {
+  width: 240px;
+  max-width: 100%;
+}
+
+.selectSkeleton {
+  width: 103px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -128,7 +159,22 @@
     padding: 16px;
   }
 
-  .searchField {
+  .searchField,
+  .searchSkeleton {
     width: 100%;
   }
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.errorState p {
+  margin: 0;
 }

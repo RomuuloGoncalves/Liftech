@@ -1,40 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import {
-  EMPLOYEES,
-  SECTORS,
-  filterEmployees,
-  filterSectors,
-  isUsernameTaken,
-  nextEmployeeCode,
-  type Employee,
-} from '../../data/team'
-
-const make = (overrides: Partial<Employee>): Employee => ({
-  id: 'x',
-  matricula: 'EMP-001',
-  nome: 'Fulano',
-  telefone: '',
-  cargo: 'Ajudante',
-  horarioEntrada: '',
-  horarioSaida: '',
-  usuario: 'fulano',
-  senha: 'senha',
-  acesso: 'Permitido',
-  ...overrides,
-})
+import * as team from '../../data/team'
+import { filterEmployees, filterSectors, isUsernameTaken } from '../../data/team'
+import { employee as make } from '../fixtures/employees'
 
 describe('team mock dataset', () => {
-  it('has 11 employees with both access values and 8 sectors', () => {
-    expect(EMPLOYEES).toHaveLength(11)
-    expect(EMPLOYEES.some((e) => e.acesso === 'Permitido')).toBe(true)
-    expect(EMPLOYEES.some((e) => e.acesso === 'Negado')).toBe(true)
-    expect(SECTORS).toHaveLength(8)
+  it('no longer ships the mock sectors (the API does)', () => {
+    expect('SECTORS' in team).toBe(false)
   })
 
-  it('has unique employee ids, matriculas and usuarios', () => {
-    expect(new Set(EMPLOYEES.map((e) => e.id)).size).toBe(EMPLOYEES.length)
-    expect(new Set(EMPLOYEES.map((e) => e.matricula)).size).toBe(EMPLOYEES.length)
-    expect(new Set(EMPLOYEES.map((e) => e.usuario.toLowerCase())).size).toBe(EMPLOYEES.length)
+  it('no longer ships a mock employee list nor generates matriculas (the API does)', () => {
+    expect('EMPLOYEES' in team).toBe(false)
+    expect('nextEmployeeCode' in team).toBe(false)
   })
 })
 
@@ -85,8 +61,8 @@ describe('filterEmployees', () => {
 
 describe('filterSectors', () => {
   const list = [
-    { id: '1', nome: 'Expedição - Bloco B', unidade: 'Unidade Votorantin' },
-    { id: '2', nome: 'Recebimento', unidade: 'Unidade Centro' },
+    { _id: '1', nome: 'Expedição - Bloco B', filialId: 'f1', filial: { nome: 'Unidade Votorantin' } },
+    { _id: '2', nome: 'Recebimento', filialId: 'f2', filial: { nome: 'Unidade Centro' } },
   ]
 
   it('returns everything when the query is empty', () => {
@@ -94,26 +70,15 @@ describe('filterSectors', () => {
   })
 
   it('matches nome, ignoring case', () => {
-    expect(filterSectors(list, { query: 'expedição' }).map((s) => s.id)).toEqual(['1'])
+    expect(filterSectors(list, { query: 'expedição' }).map((s) => s._id)).toEqual(['1'])
   })
 
-  it('matches unidade', () => {
-    expect(filterSectors(list, { query: 'centro' }).map((s) => s.id)).toEqual(['2'])
+  it('matches the branch name', () => {
+    expect(filterSectors(list, { query: 'centro' }).map((s) => s._id)).toEqual(['2'])
   })
 
   it('returns an empty list when nothing matches', () => {
     expect(filterSectors(list, { query: 'zzz' })).toEqual([])
-  })
-})
-
-describe('nextEmployeeCode', () => {
-  it('returns EMP-001 for an empty list', () => {
-    expect(nextEmployeeCode([])).toBe('EMP-001')
-  })
-
-  it('returns the highest matricula plus one, padded to 3 digits', () => {
-    const list = [make({ matricula: 'EMP-009' }), make({ matricula: 'EMP-084' }), make({ matricula: 'EMP-010' })]
-    expect(nextEmployeeCode(list)).toBe('EMP-085')
   })
 })
 
@@ -131,5 +96,11 @@ describe('isUsernameTaken', () => {
   it('ignores the employee being edited', () => {
     expect(isUsernameTaken(list, 'AlexandreMattos', '1')).toBe(false)
     expect(isUsernameTaken(list, 'ana', '1')).toBe(true)
+  })
+
+  it('skips employees without a login', () => {
+    const withoutLogin = [make({ id: '3', usuario: null }), ...list]
+    expect(isUsernameTaken(withoutLogin, 'carlos')).toBe(false)
+    expect(isUsernameTaken(withoutLogin, 'ana')).toBe(true)
   })
 })

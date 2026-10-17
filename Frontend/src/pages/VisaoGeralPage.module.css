@@ -99,10 +99,45 @@
   cursor: pointer;
 }
 
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.searchSkeleton {
+  flex: 0 1 300px;
+  min-width: 160px;
+  height: 32px;
+}
+
+.selectSkeleton,
+.buttonSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.selectSkeleton {
+  width: 165px;
+}
+
+.buttonSkeleton {
+  width: 173px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.errorState p {
+  margin: 0;
 }
 
 .emptyState {

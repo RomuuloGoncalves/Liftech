@@ -61,7 +61,7 @@ describe('FleetCard accident urgency (RST-10, RST-11)', () => {
 
   it('paints the filled header text white', () => {
     expect(rule(css, '.topRow.danger, .topRow.warning, .topRow.caution')).toContain('color: var(--white)')
-    expect(rule(css, '.topRow.danger :is(.nome, .code, .menuButton), .topRow.warning :is(.nome, .code, .menuButton), .topRow.caution :is(.nome, .code, .menuButton)')).toContain('color: var(--white)')
+    expect(rule(css, '.topRow :is(.nome, .code, .menuButton)')).toContain('color: inherit')
   })
 
   it('has no icon box rule', () => {
@@ -78,26 +78,27 @@ describe('FleetCard accident urgency (RST-10, RST-11)', () => {
   })
 })
 
-describe('FleetCard status header (RST-12)', () => {
+describe('FleetCard status header (RST-12, FRT-09)', () => {
   const css = read('FleetCard.module.css')
+  const badge = read('../machines/StatusBadge.module.css')
 
   it.each([
-    ['statusAvailable', '--green'],
-    ['statusInUse', '--blue'],
-    ['statusMaintenance', '--yellow'],
-    ['statusOffline', '--black-text'],
-  ])('.%s fills the header with var(%s)', (cls, token) => {
-    expect(rule(css, `.topRow.${cls}`)).toContain(`background: var(${token})`)
+    ['toneDisponivel', '--green', '--white'],
+    ['toneEmUso', '--blue', '--white'],
+    ['toneManutencao', '--yellow', '--black-title'],
+    ['toneAlerta', '--danger-solid', '--white'],
+    ['toneOffline', '--black-text', '--white'],
+  ])('STATUS_TONE .%s fills the header with var(%s) and writes in var(%s)', (cls, bg, fg) => {
+    expect(rule(badge, `.${cls}`)).toContain(`background: var(${bg})`)
+    expect(rule(badge, `.${cls}`)).toContain(`color: var(${fg})`)
   })
 
-  it('writes header text in white, and in --black-title on the yellow Manutenção header', () => {
-    const group = '.topRow.statusAvailable :is(.nome, .code, .menuButton), .topRow.statusInUse :is(.nome, .code, .menuButton), .topRow.statusOffline :is(.nome, .code, .menuButton)'
-    expect(rule(css, group)).toContain('color: var(--white)')
-    expect(rule(css, '.topRow.statusMaintenance :is(.nome, .code, .menuButton)')).toContain('color: var(--black-title)')
+  it('lets the header text inherit the status tone colour', () => {
+    expect(rule(css, '.topRow :is(.nome, .code, .menuButton)')).toContain('color: inherit')
   })
 
-  it('shapes the status header like the accident header (bleeds to the card edge)', () => {
-    const shape = rule(css, '.topRow.statusAvailable, .topRow.statusInUse, .topRow.statusMaintenance, .topRow.statusOffline')
+  it('shapes every header to bleed to the card edge', () => {
+    const shape = rule(css, '.topRow')
     expect(shape).toContain('margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0')
     expect(shape).toContain('padding: calc(8 * var(--px, 1px)) calc(12 * var(--px, 1px))')
   })

@@ -9,14 +9,14 @@ export class DeviceService extends ServiceBase<deviceModel, DeviceRepository> {
     super(repositorio);
   }
 
-async criar(dados: any): Promise<deviceModel> {
+  async criar(dados: any): Promise<deviceModel> {
     const dispositivoExistente = await this.repositorio.obterPorMac(dados.enderecoMac);
     if (dispositivoExistente) {
       throw new Error("Já existe um dispositivo cadastrado com este Endereço MAC.");
     }
-    
+
     const novoDispositivo = await this.repositorio.criar(dados);
-    
+
     if (!novoDispositivo) {
         throw new Error("Falha ao criar o dispositivo no banco de dados.");
     }
@@ -24,7 +24,11 @@ async criar(dados: any): Promise<deviceModel> {
     return novoDispositivo;
   }
 
-  async associar(id: string, empilhadeiraId: string | null): Promise<deviceModel | null> {
-    return this.repositorio.associar(id, empilhadeiraId);
+  async associar(id: string, empilhadeiraId: string | null, filtro: Record<string, unknown> = {}): Promise<deviceModel> {
+    const dispositivo = await this.repositorio.associar(id, empilhadeiraId, filtro);
+    if (!dispositivo) {
+      throw new Error(`${this.nomeEntidade} não encontrado(a).`);
+    }
+    return dispositivo;
   }
 }

@@ -8,7 +8,8 @@
     "save": "Enregistrer",
     "close": "Fermer",
     "loading": "Chargement...",
-    "closeNotification": "Fermer la notification"
+    "closeNotification": "Fermer la notification",
+    "retry": "Réessayer"
   },
   "navigation": {
     "overview": "Aperçu",
@@ -33,11 +34,13 @@
     "operator": "Opérateur",
     "noOperator": "Aucun opérateur",
     "emptyState": "Aucune machine trouvée",
+    "loadError": "Impossible de charger les machines.",
     "newMachineTitle": "Nouvelle Machine",
     "labelId": "ID",
     "labelName": "Nom",
     "labelSector": "Secteur",
     "labelMac": "Adresse MAC",
+    "labelBranch": "Filiale",
     "detailCode": "Code",
     "detailMac": "Mac",
     "detailSector": "Secteur",
@@ -62,7 +65,20 @@
     "openDetails": "Voir les détails de {{name}}",
     "toastCreated": "Machine « {{name}} » enregistrée",
     "toastSaved": "Machine « {{name}} » enregistrée",
-    "toastDeleted": "Machine « {{name}} » supprimée"
+    "toastDeleted": "Machine « {{name}} » supprimée",
+    "saveError": "Impossible d'enregistrer la machine. Veuillez réessayer.",
+    "deleteInSession": "Machine avec une session ouverte : terminez la session avant de la supprimer.",
+    "status": {
+      "disponivel": "Disponible",
+      "em_uso": "En utilisation",
+      "manutencao": "En maintenance",
+      "alerta": "Alerte",
+      "offline": "Hors ligne"
+    },
+    "changeStatus": "Changer le statut",
+    "sectorNone": "Aucun secteur",
+    "filterSectorAll": "Tous les secteurs",
+    "filterSectorLabel": "Filtrer par secteur"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -114,9 +130,7 @@
     "editSectorTitle": "Modifier le secteur",
     "sectorInfoTitle": "Informations du secteur",
     "labelSectorName": "Nom du secteur",
-    "labelUnit": "Unité",
     "phSectorName": "Nom du secteur",
-    "phUnit": "Unité",
     "createSector": "Créer le secteur",
     "required": "Champ obligatoire",
     "usernameTaken": "Ce nom d'utilisateur est déjà utilisé",
@@ -129,7 +143,18 @@
     "toastEmployeeDeleted": "Employé « {{name}} » supprimé",
     "toastSectorCreated": "Secteur « {{name}} » enregistré",
     "toastSectorSaved": "Secteur « {{name}} » mis à jour",
-    "toastSectorDeleted": "Secteur « {{name}} » supprimé"
+    "toastSectorDeleted": "Secteur « {{name}} » supprimé",
+    "usernameInvalid": "Utilisez 3 à 40 caractères, sans espaces",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "phPasswordKeep": "Laissez vide pour garder l'actuel",
+    "loadError": "Impossible de charger les employés.",
+    "saveError": "Impossible d'enregistrer l'employé. Veuillez réessayer.",
+    "loginError": "Employé enregistré, mais l'identifiant n'a pas pu être créé. Modifiez-le pour réessayer.",
+    "deleteInSession": "Employé avec une session ouverte : terminez la session avant de le supprimer.",
+    "labelSectorBranch": "Filiale",
+    "sectorNameTaken": "Un secteur portant ce nom existe déjà dans cette filiale",
+    "sectorHasMachines": "Secteur avec {{n}} machine(s) liée(s)",
+    "sectorMoveHasMachines": "Un secteur avec {{n}} machine(s) liée(s) ne peut pas changer de filiale"
   },
   "languages": {
     "title": "Choisissez une langue",
@@ -236,7 +261,54 @@
     "toastCategoryCreated": "Catégorie « {{name}} » créée",
     "toastCategoryDeleted": "Catégorie « {{name}} » supprimée",
     "toastMachinesAdded": "Machines ajoutées à « {{name}} »",
-    "toastMachineRemoved": "{{name}} retirée de la catégorie"
+    "toastMachineRemoved": "{{name}} retirée de la catégorie",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "editCategory": "Modifier la catégorie",
+    "linkedStatus": "Statuts associés",
+    "statusTaken": "Déjà associé à une autre catégorie",
+    "saveError": "Impossible d'enregistrer. Veuillez réessayer.",
+    "noCategories": "Aucune catégorie enregistrée"
+  },
+  "employee": {
+    "settings": {
+      "title": "Paramètres",
+      "close": "Fermer",
+      "general": "Général",
+      "userData": "Données de l'utilisateur",
+      "name": "Nom",
+      "phone": "Téléphone",
+      "position": "Poste",
+      "changeNoticeTitle": "Demande de modification",
+      "changeNotice": "Pour modifier vos données, adressez-vous au superviseur responsable.",
+      "logout": "Se déconnecter",
+      "feedbackTitle": "Commentaires et suggestions",
+      "feedbackQuestion": "Comment s'est passée votre expérience ?",
+      "privacy": "Politique de confidentialité"
+    },
+    "session": {
+      "startError": "Impossible de démarrer la session. Réessayez.",
+      "endError": "Impossible de terminer la session. Réessayez."
+    },
+    "incident": {
+      "sendError": "Impossible d'envoyer l'incident. Réessayez."
+    }
+  },
+  "branches": {
+    "label": "Filiales",
+    "all": "Toutes les filiales",
+    "manage": "Gérer les filiales",
+    "doneManaging": "Terminé",
+    "create": "Créer une filiale",
+    "nameLabel": "Nom de la filiale",
+    "confirm": "Confirmer",
+    "rename": "Renommer {{name}}",
+    "remove": "Supprimer {{name}}",
+    "deleteTitle": "Supprimer la filiale",
+    "deleteMessage": "Supprimer la filiale {{name}} ?",
+    "saveError": "Impossible d'enregistrer la filiale.",
+    "deleteError": "Impossible de supprimer la filiale.",
+    "deleteBlocked": "Suppression impossible : la filiale est le siège ou possède encore des ressources."
   },
   "notFound": {
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",

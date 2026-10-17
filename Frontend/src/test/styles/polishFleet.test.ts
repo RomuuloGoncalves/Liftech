@@ -38,10 +38,8 @@ describe('FleetCard compact pattern (POL-01)', () => {
 })
 
 describe('FleetCard coloured strip (POL-03)', () => {
-  const groups = {
-    urgency: '.topRow.danger, .topRow.warning, .topRow.caution',
-    status: '.topRow.statusAvailable, .topRow.statusInUse, .topRow.statusMaintenance, .topRow.statusOffline',
-  }
+  // Status e urgência dividem a mesma faixa: o formato fica no .topRow, a cor no tom.
+  const groups = { header: '.topRow' }
 
   it.each(Object.entries(groups))('%s strip has padding 8px 12px and keeps the -12 bleed', (_name, selector) => {
     const body = rule(card, selector) ?? ''

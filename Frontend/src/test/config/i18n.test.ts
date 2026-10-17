@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet', 'branches'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -120,6 +120,31 @@ describe('team module translations', () => {
   });
 });
 
+describe('machines and team CRUD translations', () => {
+  const NEW_KEYS = [
+    'machines.labelBranch', 'machines.saveError', 'machines.deleteInSession',
+    'team.usernameInvalid', 'team.passwordTooShort', 'team.phPasswordKeep', 'team.loadError',
+    'team.saveError', 'team.loginError', 'team.deleteInSession',
+  ];
+  const valueOf = (data: object, path: string) => {
+    const [module, key] = path.split('.');
+    return (data as Record<string, Record<string, string>>)[module]?.[key];
+  };
+
+  it('pt-BR defines every key the feature added', () => {
+    for (const path of NEW_KEYS) expect(valueOf(ptBR, path), `pt-BR ${path}`).toBeTruthy();
+  });
+
+  // Translated means present, non-empty and not the Portuguese text copied over.
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))('locale $code translates every new key', ({ code, data }) => {
+    for (const path of NEW_KEYS) {
+      const value = valueOf(data, path);
+      expect(value, `Locale "${code}" ${path} is missing or empty`).toBeTruthy();
+      expect(value, `Locale "${code}" ${path} copies the pt-BR text`).not.toBe(valueOf(ptBR, path));
+    }
+  });
+});
+
 describe('alerts module translations', () => {
   const flatten = (obj: object, prefix = ''): Record<string, unknown> =>
     Object.entries(obj).reduce<Record<string, unknown>>((acc, [key, value]) => {
@@ -155,14 +180,14 @@ describe('machine detail translations', () => {
   });
 
   it.each(ALL_LOCALES)('locale $code has every detail key, non-empty', ({ code, data }) => {
-    const machines = data.machines as Record<string, string>;
+    const machines = data.machines as unknown as Record<string, string>;
     for (const key of NEW_KEYS) {
       expect(machines[key], `Locale "${code}" machines.${key} is missing or empty`).toBeTruthy();
     }
   });
 
   it.each(ALL_LOCALES)('locale $code keeps {{name}} in per-machine texts', ({ code, data }) => {
-    const machines = data.machines as Record<string, string>;
+    const machines = data.machines as unknown as Record<string, string>;
     for (const key of ['deleteMachineMessage', 'openDetails']) {
       expect(machines[key], `Locale "${code}" machines.${key} lost {{name}}`).toContain('{{name}}');
     }
@@ -253,8 +278,33 @@ describe('employee module translations', () => {
       overview: 'Visão geral',
       machines: 'Empilhadeiras',
       history: 'Histórico',
-      incident: 'Ocorrência',
     });
+  });
+
+  it.each(ALL_LOCALES)('locale $code translates every employee.settings text', ({ code, data }) => {
+    const settings = (data as { employee?: { settings?: Record<string, string> } }).employee?.settings
+    expect(Object.keys(settings ?? {}).sort(), `Locale "${code}" employee.settings keys differ from pt-BR`).toEqual(
+      Object.keys(ptBR.employee.settings).sort()
+    )
+    for (const [key, value] of Object.entries(settings ?? {})) {
+      expect(value, `Locale "${code}" employee.settings.${key} is empty`).toBeTruthy()
+    }
+  });
+
+  it('pt-BR settings texts follow the Figma screen', () => {
+    expect(ptBR.employee.settings).toMatchObject({
+      title: 'Configurações',
+      general: 'Geral',
+      userData: 'Dados do usuário',
+      name: 'Nome',
+      phone: 'Telefone',
+      position: 'Cargo',
+      changeNoticeTitle: 'Solicitação de alteração',
+      logout: 'Deslogar-se',
+      feedbackTitle: 'Feedback & Sugestões',
+      feedbackQuestion: 'Como foi sua experiência?',
+      privacy: 'Política e Privacidade',
+    })
   });
 
   it('en-US has exactly the same employee keys as pt-BR, all non-empty', () => {
@@ -270,5 +320,181 @@ describe('employee module translations', () => {
     { code: 'en-US', data: enUS },
   ])('locale $code keeps the <b> markup in the session description', ({ code, data }) => {
     expect(data.employee.session.description, `Locale "${code}" lost <b>`).toMatch(/<b>.+<\/b>/);
+  });
+});
+
+describe('machines load error translations', () => {
+  it.each(ALL_LOCALES)('locale $code defines machines.loadError and common.retry as non-empty text', ({ code, data }) => {
+    const machines = data.machines as unknown as Record<string, string>;
+    const common = data.common as Record<string, string>;
+    expect(machines.loadError, `Locale "${code}" machines.loadError is missing or empty`).toBeTruthy();
+    expect(common.retry, `Locale "${code}" common.retry is missing or empty`).toBeTruthy();
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code has load error texts that are translated, not copied from pt-BR',
+    ({ code, data }) => {
+      const machines = data.machines as unknown as Record<string, string>;
+      const common = data.common as Record<string, string>;
+      expect(machines.loadError, `Locale "${code}" machines.loadError equals pt-BR`).not.toBe(ptBR.machines.loadError);
+      expect(common.retry, `Locale "${code}" common.retry equals pt-BR`).not.toBe(ptBR.common.retry);
+    }
+  );
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR' && code !== 'en-US'))(
+    'locale $code has load error texts that are translated, not left in English',
+    ({ code, data }) => {
+      const machines = data.machines as unknown as Record<string, string>;
+      const common = data.common as Record<string, string>;
+      expect(machines.loadError, `Locale "${code}" machines.loadError equals en-US`).not.toBe(enUS.machines.loadError);
+      expect(common.retry, `Locale "${code}" common.retry equals en-US`).not.toBe(enUS.common.retry);
+    }
+  );
+
+  it('pt-BR texts match the spec', () => {
+    expect(ptBR.machines.loadError).toBe('Não foi possível carregar as máquinas.');
+    expect(ptBR.common.retry).toBe('Tentar novamente');
+  });
+});
+
+describe('branches module translations', () => {
+  const ptBRBranchKeys = Object.keys(ptBR.branches).sort();
+
+  it.each(ALL_LOCALES)('locale $code has the same branches keys as pt-BR, all non-empty', ({ code, data }) => {
+    const branches = data.branches as Record<string, string>;
+    expect(Object.keys(branches).sort(), `Locale "${code}" branches keys differ from pt-BR`).toEqual(ptBRBranchKeys);
+    for (const [key, value] of Object.entries(branches)) {
+      expect(value, `Locale "${code}" branches.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps {{name}} in the per-branch texts', ({ code, data }) => {
+    const branches = data.branches as Record<string, string>;
+    for (const key of ['rename', 'remove', 'deleteMessage']) {
+      expect(branches[key], `Locale "${code}" branches.${key} lost {{name}}`).toContain('{{name}}');
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code has branch texts that are translated, not copied from pt-BR',
+    ({ code, data }) => {
+      const branches = data.branches as Record<string, string>;
+      for (const key of ['label', 'all', 'manage', 'create', 'saveError', 'deleteBlocked']) {
+        expect(branches[key], `Locale "${code}" branches.${key} equals pt-BR`).not.toBe(
+          (ptBR.branches as Record<string, string>)[key]
+        );
+      }
+    }
+  );
+
+  it('pt-BR texts match the spec', () => {
+    expect(ptBR.branches.label).toBe('Filiais');
+    expect(ptBR.branches.all).toBe('Todas as filiais');
+    expect(ptBR.branches.manage).toBe('Gerenciar Filiais');
+    expect(ptBR.branches.create).toBe('Criar Filial');
+    expect(ptBR.branches.nameLabel).toBe('Nome da filial');
+    expect(ptBR.branches.confirm).toBe('Confirmar');
+    expect(ptBR.branches.saveError).toBe('Não foi possível salvar a filial.');
+    expect(ptBR.branches.deleteError).toBe('Não foi possível excluir a filial.');
+    expect(ptBR.branches.deleteBlocked).toBe(
+      'Não foi possível excluir: a filial é a matriz ou ainda tem recursos.'
+    );
+  });
+
+  it('en-US label and all-branches option match the spec', () => {
+    expect(enUS.branches.label).toBe('Branches');
+    expect(enUS.branches.all).toBe('All branches');
+  });
+});
+
+const STATUS_AND_CATEGORY_KEYS = [
+  'machines.status.disponivel',
+  'machines.status.em_uso',
+  'machines.status.manutencao',
+  'machines.status.alerta',
+  'machines.status.offline',
+  'machines.changeStatus',
+  'fleet.lock',
+  'fleet.unlock',
+  'fleet.editCategory',
+  'fleet.linkedStatus',
+  'fleet.statusTaken',
+  'fleet.saveError',
+  'fleet.noCategories',
+];
+
+const valueAt = (data: unknown, path: string) =>
+  path.split('.').reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], data);
+
+describe('i18n status, lock and category texts', () => {
+  it.each(ALL_LOCALES)('locale $code has every status/category key as a non-empty string', ({ data }) => {
+    for (const key of STATUS_AND_CATEGORY_KEYS) {
+      const value = valueAt(data, key);
+      expect(typeof value, key).toBe('string');
+      expect((value as string).trim(), key).not.toBe('');
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code translates every status/category key instead of copying pt-BR',
+    ({ data }) => {
+      for (const key of STATUS_AND_CATEGORY_KEYS) {
+        expect(valueAt(data, key), key).not.toBe(valueAt(ptBR, key));
+      }
+    }
+  );
+});
+
+const EMPLOYEE_SESSION_KEYS = [
+  'employee.session.startError',
+  'employee.session.endError',
+  'employee.incident.sendError',
+  'employee.settings.logout',
+];
+
+describe('i18n employee session texts', () => {
+  it.each(ALL_LOCALES)('locale $code has every employee session key as a non-empty string', ({ data }) => {
+    for (const key of EMPLOYEE_SESSION_KEYS) {
+      const value = valueAt(data, key);
+      expect(typeof value, key).toBe('string');
+      expect((value as string).trim(), key).not.toBe('');
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))(
+    'locale $code translates every employee session key instead of copying pt-BR',
+    ({ data }) => {
+      for (const key of EMPLOYEE_SESSION_KEYS) {
+        expect(valueAt(data, key), key).not.toBe(valueAt(ptBR, key));
+      }
+    }
+  );
+});
+
+describe('sector translations', () => {
+  const SECTOR_KEYS = [
+    'machines.sectorNone',
+    'machines.filterSectorAll',
+    'machines.filterSectorLabel',
+    'team.sectorHasMachines',
+    'team.sectorMoveHasMachines',
+    'team.sectorNameTaken',
+    'team.labelSectorBranch',
+  ];
+  const valueOf = (data: unknown, key: string): string | undefined =>
+    key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown> | undefined)?.[part], data) as string | undefined;
+
+  it.each(ALL_LOCALES)('locale $code has every sector key, translated (not the pt-BR text outside pt-BR)', ({ code, data }) => {
+    for (const key of SECTOR_KEYS) {
+      const value = valueOf(data, key);
+      expect(value, `Locale "${code}" ${key} is missing or empty`).toBeTruthy();
+      if (code !== 'pt-BR') expect(value, `Locale "${code}" ${key} is still in Portuguese`).not.toBe(valueOf(ptBR, key));
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps the {{n}} placeholder in the machine count messages', ({ code, data }) => {
+    for (const key of ['team.sectorHasMachines', 'team.sectorMoveHasMachines']) {
+      expect(valueOf(data, key), `Locale "${code}" ${key} lost {{n}}`).toContain('{{n}}');
+    }
   });
 });

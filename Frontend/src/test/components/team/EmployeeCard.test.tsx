@@ -2,19 +2,9 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EmployeeCard from '../../../components/team/EmployeeCard'
 import type { Employee } from '../../../data/team'
+import { employee as make } from '../../fixtures/employees'
 
-const employee: Employee = {
-  id: '1',
-  matricula: 'EMP-084',
-  nome: 'Alexandre Mattos',
-  telefone: '',
-  cargo: 'Ajudante',
-  horarioEntrada: '',
-  horarioSaida: '',
-  usuario: 'alexandre',
-  senha: 'x',
-  acesso: 'Permitido',
-}
+const employee = make({ id: '1', matricula: 'EMP-084', nome: 'Alexandre Mattos', usuario: 'alexandre' })
 
 function setup(overrides: Partial<Employee> = {}) {
   const handlers = { onOpen: vi.fn(), onToggleAccess: vi.fn(), onEdit: vi.fn(), onDelete: vi.fn() }
@@ -98,5 +88,21 @@ describe('EmployeeCard', () => {
     expect(toggle).toHaveAttribute('aria-checked', 'false')
     fireEvent.click(toggle)
     expect(handlers.onToggleAccess).toHaveBeenCalledWith(e)
+  })
+
+  it('enables the access switch for an employee with a login', () => {
+    setup({ acesso: 'Negado' })
+
+    expect(screen.getByRole('switch')).toBeEnabled()
+  })
+
+  it('disables the access switch while the employee has no login', () => {
+    const { handlers } = setup({ usuario: null, acesso: 'Negado' })
+    const toggle = screen.getByRole('switch', { name: 'Alterar acesso de Alexandre Mattos' })
+
+    expect(toggle).toBeDisabled()
+    expect(toggle).toHaveAttribute('aria-checked', 'false')
+    fireEvent.click(toggle)
+    expect(handlers.onToggleAccess).not.toHaveBeenCalled()
   })
 })

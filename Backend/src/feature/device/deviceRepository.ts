@@ -16,29 +16,10 @@ export class DeviceRepository extends RepositoryBase<deviceModel> {
     );
   }
 
-
   async criar(dados: any): Promise<deviceModel> {
     const documento = await this.bd.create(dados);
     return this.converterParaModelo(documento.toObject ? documento.toObject() : documento);
   }
-
-  async listar(): Promise<deviceModel[]> {
-    const documentos = await this.bd.find().lean();
-    return documentos.map(doc => this.converterParaModelo(doc as Record<string, any>));
-  }
-
-  async obterPorId(id: string): Promise<deviceModel | null> {
-    const documento = await this.bd.findById(id).lean();
-    if (!documento) return null;
-    return this.converterParaModelo(documento as Record<string, any>);
-  }
-
-  async atualizar(id: string, dados: any): Promise<deviceModel | null> {
-    const documento = await this.bd.findByIdAndUpdate(id, dados, { new: true }).lean();
-    if (!documento) return null;
-    return this.converterParaModelo(documento as Record<string, any>);
-  }
-
 
   async obterPorMac(enderecoMac: string): Promise<deviceModel | null> {
     const documento = await this.bd.findOne({ enderecoMac }).lean();
@@ -46,13 +27,13 @@ export class DeviceRepository extends RepositoryBase<deviceModel> {
     return this.converterParaModelo(documento as Record<string, any>);
   }
 
-  async associar(id: string, empilhadeiraId: string | null): Promise<deviceModel | null> {
-    const documento = await this.bd.findByIdAndUpdate(
-      id,
+  async associar(id: string, empilhadeiraId: string | null, filtro: Record<string, unknown> = {}): Promise<deviceModel | null> {
+    const documento = await this.bd.findOneAndUpdate(
+      { ...filtro, _id: id },
       { empilhadeiraId },
       { new: true }
     ).lean();
-    
+
     if (!documento) return null;
     return this.converterParaModelo(documento as Record<string, any>);
   }

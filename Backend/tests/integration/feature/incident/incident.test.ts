@@ -14,7 +14,8 @@ describe('Integração: Mongoose Schema - Incident', () => {
             forcaImpacto: 8.5,
             status: 'em analise',
             empilhadeiraId: empilhadeiraId,
-            operadorId: operadorId
+            operadorId: operadorId,
+            filialId: new conn.mongoose.Types.ObjectId()
         });
         const incidentSalvo = await incident.save();
 

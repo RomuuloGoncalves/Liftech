@@ -145,40 +145,6 @@
   flex-wrap: wrap;
 }
 
-.statusBadge {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.statusAvailable {
-  color: var(--green);
-  background: var(--green-bg);
-  border-color: var(--green-bg);
-}
-
-.statusInUse {
-  color: var(--blue);
-  background: var(--blue-bg);
-  border-color: var(--blue-bg);
-}
-
-.statusMaintenance {
-  color: var(--yellow);
-  background: var(--yellow-bg);
-  border-color: var(--yellow-bg);
-}
-
-.statusOffline {
-  color: var(--black-text);
-  border-color: var(--gray-border);
-  background: var(--gray-bg);
-}
-
 .session {
   display: flex;
   flex-direction: column;

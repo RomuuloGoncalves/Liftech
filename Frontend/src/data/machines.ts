@@ -1,15 +1,23 @@
-export type MachineStatus = 'Disponível' | 'Em uso' | 'Manutenção' | 'Offline'
+import type { Incidente } from '../services/incidentService'
 
-export const MACHINE_STATUSES: MachineStatus[] = ['Disponível', 'Em uso', 'Manutenção', 'Offline']
+export type MachineStatus = 'disponivel' | 'em_uso' | 'manutencao' | 'alerta' | 'offline'
+
+export const MACHINE_STATUSES: MachineStatus[] = ['disponivel', 'em_uso', 'manutencao', 'alerta', 'offline']
 
 export interface Machine {
   id: string
   identificacao: string
   nome: string
+  /** Name of the linked sector, '' without one. */
   setor: string
+  setorId: string | null
+  filialId?: string
+  status: MachineStatus
+  categoriaId: string | null
+  categoriaTravada: boolean
+  alertaEm?: string | null
   dispositivoConectado: {
     enderecoMac: string
-    status: MachineStatus
     nomeDispositivo?: string
   }
   operadorConectado?: {
@@ -19,13 +27,17 @@ export interface Machine {
   tempoUsoTotalHoras?: number
 }
 
-const BASE_MACHINES: Machine[] = [
+const BASE_MACHINES: Omit<Machine, 'setorId'>[] = [
   {
     id: '1',
     identificacao: 'EMP-081',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7', status: 'Disponível' },
+    status: 'alerta',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: '2026-09-01T10:00:00.000Z',
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7' },
     operadorConectado: { nome: 'Carlos Silva' },
     tempoSessaoMinutos: 34,
   },
@@ -34,7 +46,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-082',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F8', status: 'Em uso' },
+    status: 'em_uso',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F8' },
     operadorConectado: { nome: 'Ana Souza' },
     tempoSessaoMinutos: 12,
   },
@@ -43,7 +59,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-083',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Recebimento - Bloco A',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F9', status: 'Disponível' },
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F9' },
     tempoSessaoMinutos: 34,
   },
   {
@@ -51,7 +71,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-084',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA', status: 'Manutenção' },
+    status: 'manutencao',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FA' },
     tempoSessaoMinutos: 5,
   },
   {
@@ -59,7 +83,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-085',
     nome: 'Empilhadeira a Combustão Atlas-S',
     setor: 'Armazenagem - Bloco C',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FB', status: 'Disponível' },
+    status: 'alerta',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: '2026-09-01T10:00:00.000Z',
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FB' },
     operadorConectado: { nome: 'João Pereira' },
     tempoSessaoMinutos: 34,
   },
@@ -68,7 +96,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-086',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FC', status: 'Offline' },
+    status: 'offline',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FC' },
     tempoSessaoMinutos: 0,
   },
   {
@@ -76,7 +108,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-087',
     nome: 'Empilhadeira a Combustão Atlas-S',
     setor: 'Recebimento - Bloco A',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FD', status: 'Em uso' },
+    status: 'em_uso',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FD' },
     operadorConectado: { nome: 'Marina Costa' },
     tempoSessaoMinutos: 47,
   },
@@ -85,7 +121,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-088',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Armazenagem - Bloco C',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FE', status: 'Disponível' },
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FE' },
     tempoSessaoMinutos: 34,
   },
   {
@@ -93,7 +133,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-089',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FF', status: 'Disponível' },
+    status: 'alerta',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: '2026-09-01T10:00:00.000Z',
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:FF' },
     tempoSessaoMinutos: 34,
   },
   {
@@ -101,7 +145,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-090',
     nome: 'Empilhadeira a Combustão Atlas-S',
     setor: 'Recebimento - Bloco A',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:01', status: 'Manutenção' },
+    status: 'manutencao',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:01' },
     tempoSessaoMinutos: 2,
   },
   {
@@ -109,7 +157,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-091',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Armazenagem - Bloco C',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:02', status: 'Disponível' },
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:02' },
     operadorConectado: { nome: 'Rafael Lima' },
     tempoSessaoMinutos: 34,
   },
@@ -118,7 +170,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-092',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:03', status: 'Em uso' },
+    status: 'em_uso',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:03' },
     operadorConectado: { nome: 'Beatriz Alves' },
     tempoSessaoMinutos: 21,
   },
@@ -127,7 +183,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-093',
     nome: 'Empilhadeira a Combustão Atlas-S',
     setor: 'Recebimento - Bloco A',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:04', status: 'Disponível' },
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:04' },
     tempoSessaoMinutos: 34,
   },
   {
@@ -135,7 +195,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-094',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Armazenagem - Bloco C',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:05', status: 'Offline' },
+    status: 'offline',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:05' },
     tempoSessaoMinutos: 0,
   },
   {
@@ -143,7 +207,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-095',
     nome: 'Empilhadeira Elétrica Titan-X',
     setor: 'Expedição - Bloco B',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:06', status: 'Disponível' },
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:06' },
     tempoSessaoMinutos: 34,
   },
   {
@@ -151,7 +219,11 @@ const BASE_MACHINES: Machine[] = [
     identificacao: 'EMP-096',
     nome: 'Empilhadeira a Combustão Atlas-S',
     setor: 'Recebimento - Bloco A',
-    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:07', status: 'Disponível' },
+    status: 'disponivel',
+    categoriaId: null,
+    categoriaTravada: false,
+    alertaEm: null,
+    dispositivoConectado: { enderecoMac: 'A2:C9:9B:1E:07' },
     operadorConectado: { nome: 'Fernanda Dias' },
     tempoSessaoMinutos: 34,
   },
@@ -159,6 +231,7 @@ const BASE_MACHINES: Machine[] = [
 
 export const MACHINES: Machine[] = BASE_MACHINES.map((machine, index) => ({
   ...machine,
+  setorId: null,
   dispositivoConectado: { ...machine.dispositivoConectado, nomeDispositivo: `Mpa-${5300 + index}` },
   tempoUsoTotalHoras: 4 + ((index * 3) % 20),
 }))
@@ -220,6 +293,28 @@ export function eventsForMachine(machineId: string): MachineEvent[] {
   return MACHINE_EVENTS.filter((event) => event.machineId === machineId)
 }
 
+/** API incident as an `acidente` event; the sensor reports a collision, the collaborator report has no cause. */
+export function incidentToEvent(incident: Incidente): MachineEvent {
+  const date = new Date(incident.dataIncidente)
+  const time = date.toLocaleTimeString('sv')
+  return {
+    id: incident._id,
+    machineId: incident.machineId,
+    tipo: 'acidente',
+    operador: incident.operador?.nome ?? '',
+    data: date.toLocaleDateString('sv'),
+    inicio: time,
+    fim: time,
+    ...(incident.origem === 'sensor' && { causa: 'colisao' as const }),
+  }
+}
+
+/** Card urgency: the cause decides; a collaborator report without cause is `alta`. */
+export const eventUrgency = (event: MachineEvent): UrgencyLevel => (event.causa ? ACCIDENT_URGENCY[event.causa] : 'alta')
+
+/** Default end of the period: today when it is past DEFAULT_PERIOD.to, so new incidents show up. */
+export const defaultPeriodTo = () => [DEFAULT_PERIOD.to, new Date().toLocaleDateString('sv')].sort()[1]
+
 export interface EventFilters {
   tipo: MachineEventType
   from: string
@@ -237,11 +332,14 @@ export function filterEvents(events: MachineEvent[], { tipo, from, to }: EventFi
 export interface MachineFilters {
   query?: string
   status?: MachineStatus | 'Todos'
+  /** 'Todos' or missing = any sector. */
+  setorId?: string
 }
 
 export function filterMachines(machines: Machine[], filters: MachineFilters): Machine[] {
   const query = filters.query?.trim().toLowerCase() ?? ''
   const status = filters.status ?? 'Todos'
+  const setorId = filters.setorId ?? 'Todos'
 
   return machines.filter((machine) => {
     const matchesQuery =
@@ -249,8 +347,10 @@ export function filterMachines(machines: Machine[], filters: MachineFilters): Ma
       machine.identificacao.toLowerCase().includes(query) ||
       machine.setor.toLowerCase().includes(query)
 
-    const matchesStatus = status === 'Todos' || machine.dispositivoConectado.status === status
+    const matchesStatus = status === 'Todos' || machine.status === status
 
-    return matchesQuery && matchesStatus
+    const matchesSector = setorId === 'Todos' || machine.setorId === setorId
+
+    return matchesQuery && matchesStatus && matchesSector
   })
 }
