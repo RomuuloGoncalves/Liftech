@@ -17,6 +17,7 @@ import incidentRouter from './feature/incident/incidentRouter.js';
 import operatorRouter from './feature/operator/operatorRouter.js';
 import sectorRouter from './feature/sector/sectorRouter.js';
 import resetRouter from './feature/reset/resetRouter.js';
+import deviceRouter from './feature/device/deviceRouter.js';
 
 export const app = express();
 
@@ -70,3 +71,4 @@ app.use('/api/sessions', sessionRouter);
 app.use('/api/incidents', incidentRouter);
 app.use('/api/operators', operatorRouter);
 app.use('/api/sectors', sectorRouter);
+app.use('/api/devices', deviceRouter);

@@ -34,6 +34,8 @@ const filtroDosDispositivos = (ids: string[]) => ({ dispositivoId: { $in: ids } 
 export async function listar(req: Request, res: Response) {
   try {
     const dispositivoId = req.query.dispositivoId as string;
+    const dataInicial = req.query.dataInicial as string;
+    const dataFinal = req.query.dataFinal as string;
     const ids = await idsDosDispositivos(req);
     let registros;
 
@@ -41,7 +43,7 @@ export async function listar(req: Request, res: Response) {
        if (!mongooseTypes.ObjectId.isValid(dispositivoId)) {
         return respostaErro(res, StatusCode.BAD_REQUEST, "O dispositivoId fornecido não é válido.");
       }
-      registros = ids.includes(dispositivoId) ? await servicoTelemetry.listarPorDispositivo(dispositivoId) : [];
+      registros = ids.includes(dispositivoId) ? await servicoTelemetry.listarPorDispositivo(dispositivoId, dataInicial, dataFinal) : [];
     } else {
       registros = await servicoTelemetry.listar(filtroDosDispositivos(ids));
     }
