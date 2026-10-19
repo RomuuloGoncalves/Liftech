@@ -51,7 +51,7 @@
 
 .lastCard {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-width: 0;
@@ -61,6 +61,18 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--bg);
+}
+
+.lastMachineInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.forkliftIcon {
+  flex-shrink: 0;
+  color: var(--text-h);
 }
 
 .lastNames,
@@ -74,6 +86,7 @@
 .lastMeta {
   align-items: flex-end;
   text-align: right;
+  flex-shrink: 0;
 }
 
 .lastName {
@@ -87,12 +100,18 @@
 .lastDate {
   margin: 0;
   font-size: var(--fs-sm);
+  font-weight: 500;
   color: var(--text-h);
 }
 
-.lastId {
+.lastId,
+.lastTime {
   margin: 0;
   font-size: 10px;
+  color: var(--text);
+}
+
+.lastDuration {
   color: var(--text);
 }
 
@@ -120,7 +139,7 @@
 .statLabel {
   margin: 0;
   font-size: var(--fs-xs);
-  font-weight: 400;
+  font-weight: 500;
   color: var(--blue);
 }
 
@@ -131,17 +150,47 @@
   color: var(--text-h);
 }
 
-.statBig {
-  margin: 0;
-  font-size: var(--fs-2xl);
-  font-weight: 700;
-  color: var(--text-h);
-}
-
 .statHint {
   margin: 0;
   font-size: 10px;
   color: var(--text);
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.digitBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.digitColon {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-h);
+  padding: 0 1px;
+}
+
+.srOnly {
+  position: absolute;
+  clip-path: inset(50%);
+  height: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .available {

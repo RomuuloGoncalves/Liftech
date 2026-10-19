@@ -1,6 +1,7 @@
 import React, { useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Info } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import { authService, type UsuarioLogado } from '../../services/authService'
@@ -58,14 +59,19 @@ const EmployeeSettingsPage: React.FC = () => {
               <input id={`${id}-${key}`} className={styles.input} value={value || EMPTY} readOnly />
             </div>
           ))}
+          
           <div className={styles.notice}>
-            <p className={styles.noticeTitle}>{t('employee.settings.changeNoticeTitle')}</p>
-            <p className={styles.noticeText}>{t('employee.settings.changeNotice')}</p>
+            <Info size={20} className={styles.noticeIcon} aria-hidden="true" />
+            <div className={styles.noticeContent}>
+              <p className={styles.noticeTitle}>{t('employee.settings.changeNoticeTitle')}</p>
+              <p className={styles.noticeText}>{t('employee.settings.changeNotice')}</p>
+            </div>
           </div>
+
+          <button type="button" className={styles.logout} onClick={logout}>
+            {t('employee.settings.logout')}
+          </button>
         </div>
-        <button type="button" className={styles.logout} onClick={logout}>
-          {t('employee.settings.logout')}
-        </button>
       </section>
 
       <section className={styles.section}>
@@ -73,7 +79,11 @@ const EmployeeSettingsPage: React.FC = () => {
         <label htmlFor={`${id}-feedback`} className={styles.label}>
           {t('employee.settings.feedbackQuestion')}
         </label>
-        <textarea id={`${id}-feedback`} className={styles.textarea} />
+        <textarea 
+          id={`${id}-feedback`} 
+          className={styles.textarea} 
+          placeholder={t('employee.settings.feedbackPlaceholder')} 
+        />
       </section>
 
       {/* ponytail: sem ação até existir a página de Política e Privacidade */}

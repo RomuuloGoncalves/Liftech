@@ -138,6 +138,16 @@
   background: var(--blue);
 }
 
+.item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  bottom: -16px;
+  left: 3.5px;
+  width: 1px;
+  background: var(--line);
+}
+
 .operator {
   font-size: var(--fs-md);
   font-weight: 600;
