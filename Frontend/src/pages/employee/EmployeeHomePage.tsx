@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Clock } from 'lucide-react'
+import { ArrowRight, Forklift, History } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
@@ -12,13 +12,23 @@ import styles from './EmployeeHomePage.module.css'
 
 const MAX_CARDS = 3
 
+const DEFAULT_LAST_MACHINE = {
+  maquina: {
+    nome: 'Empilhadeira elétrica Tital-X',
+    identificacao: 'EMP - 084(ID)',
+  },
+  date: '2026-09-05',
+  durationLabel: '6 h 34m',
+}
+
 const EmployeeHomePage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const loading = useFirstVisitLoading('employee-home')
   const { machines, records } = useEmployeeData()
   const available = filterAvailableMachines(machines, '').slice(0, MAX_CARDS)
-  const last = records.find((record) => record.maquina)
+  const lastSession = records.find((record) => record.maquina)
+  const last = lastSession ?? DEFAULT_LAST_MACHINE
 
   if (loading) {
     return (
@@ -35,25 +45,29 @@ const EmployeeHomePage: React.FC = () => {
         <p className={styles.subtitle}>{t('employee.home.subtitle')}</p>
       </header>
 
-      {last?.maquina && (
-        <section className={styles.last} aria-label={t('employee.home.lastMachine')}>
-          <div className={styles.banner}>
-            <Clock size={14} aria-hidden="true" />
-            <span className={styles.bannerText}>{t('employee.home.lastMachine')}</span>
-            <ArrowRight size={14} aria-hidden="true" />
-          </div>
-          <div className={styles.lastCard}>
+      <section className={styles.last} aria-label={t('employee.home.lastMachine')}>
+        <div className={styles.banner}>
+          <History size={16} aria-hidden="true" />
+          <span className={styles.bannerText}>{t('employee.home.lastMachine')}</span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </div>
+        <div className={styles.lastCard}>
+          <div className={styles.lastMachineInfo}>
+            <Forklift size={20} className={styles.forkliftIcon} aria-hidden="true" />
             <div className={styles.lastNames}>
               <p className={styles.lastName}>{last.maquina.nome}</p>
               <p className={styles.lastId}>{last.maquina.identificacao}</p>
             </div>
-            <div className={styles.lastMeta}>
-              <p className={styles.lastDate}>{formatAlertDate(last.date, i18n.language)}</p>
-              <p className={styles.lastId}>{t('employee.home.totalTime')}</p>
-            </div>
           </div>
-        </section>
-      )}
+          <div className={styles.lastMeta}>
+            <p className={styles.lastDate}>{formatAlertDate(last.date, i18n.language)}</p>
+            <p className={styles.lastTime}>
+              {last.durationLabel && <span className={styles.lastDuration}>{last.durationLabel} | </span>}
+              <span>{t('employee.home.totalTime')}</span>
+            </p>
+          </div>
+        </div>
+      </section>
 
       <div className={styles.stats}>
         <div className={styles.stat}>
@@ -63,7 +77,14 @@ const EmployeeHomePage: React.FC = () => {
         </div>
         <div className={styles.stat}>
           <h2 className={styles.statLabel}>{t('employee.home.remaining')}</h2>
-          <p className={styles.statBig}>{t('employee.home.remainingValue')}</p>
+          <div className={styles.countdown} role="timer" aria-label={t('employee.home.remainingValue')}>
+            <span className={styles.digitBox} aria-hidden="true">0</span>
+            <span className={styles.digitBox} aria-hidden="true">4</span>
+            <span className={styles.digitColon} aria-hidden="true">:</span>
+            <span className={styles.digitBox} aria-hidden="true">0</span>
+            <span className={styles.digitBox} aria-hidden="true">0</span>
+            <span className={styles.srOnly}>{t('employee.home.remainingValue')}</span>
+          </div>
         </div>
       </div>
 

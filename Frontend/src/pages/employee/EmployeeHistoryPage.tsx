@@ -44,11 +44,12 @@ const EmployeeHistoryPage: React.FC = () => {
 
       <h2 className={styles.filtersTitle}>{t('employee.history.filters')}</h2>
       <div className={styles.filters}>
-        <div className={`${styles.field} ${styles.period}`}>
+<div className={`${styles.field} ${styles.period}`}>
           <CalendarDays size={16} aria-hidden="true" />
+          <span className={styles.dateLabel}>Data:</span>
           <input
             type="date"
-            className={styles.input}
+            className={styles.dateInput}
             aria-label={t('employee.history.periodFrom')}
             value={from}
             onChange={(e) => setFrom(e.target.value)}
@@ -56,7 +57,7 @@ const EmployeeHistoryPage: React.FC = () => {
           <span aria-hidden="true">-</span>
           <input
             type="date"
-            className={styles.input}
+            className={styles.dateInput}
             aria-label={t('employee.history.periodTo')}
             value={to}
             onChange={(e) => setTo(e.target.value)}
