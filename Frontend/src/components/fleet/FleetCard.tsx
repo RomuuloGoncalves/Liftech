@@ -181,7 +181,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
         )}
       </div>
 
-      <StatusBadge status={machine.status} className={styles.badge} />
+      {/* <StatusBadge status={machine.status} className={styles.badge} /> */}
 
       <div className={styles.body}>
         <dl className={styles.details}>

@@ -79,12 +79,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px 12px;
+  height: 45px;
 }
 
 .tabs {
   display: flex;
-  gap: 4px;
+  gap: 10px;
 }
 
 .tab,
@@ -92,14 +92,19 @@
   border: 0.5px solid var(--border);
   border-radius: 5px;
   background: var(--gray-bg);
-  height: 25px;
   font-size: var(--fs-xs);
   font-weight: 500;
   color: var(--text);
 }
 
+.period{
+  height: 30px;
+}
+
 .tab {
-  padding: 0 8px;
+  width: 100px;
+  height: 32px;
+  font-weight: bold;
   cursor: pointer;
 }
 
@@ -114,7 +119,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-left: auto;
   padding: 0px 8px;
   border-radius: var(--radius-sm);
 }
@@ -126,7 +130,8 @@
   font: inherit;
   font-weight: 400;
   color: var(--text);
-  width: 64px;
+  width: 78px;
+  margin: 0;
 }
 
 .dateInput::-webkit-calendar-picker-indicator {
@@ -145,6 +150,8 @@
   display: flex;
   flex-direction: column;
   gap: 22px;
+  min-height: 250px;
+  max-height: 300px;
   margin: 0;
   padding: 0 0 0 30px;
   list-style: none;
@@ -177,12 +184,6 @@
   padding: 7px;
 }
 
-.event:first-child {
-  color: var(--text);
-  background: var(--gray-bg);
-  border-color: var(--border);
-}
-
 .event::before {
   content: '';
   position: absolute;
@@ -199,10 +200,6 @@
 .operator {
   font-weight: 700;
   color: var(--white);
-}
-
-.event:first-child .operator {
-  color: var(--text-h);
 }
 
 .empty {
