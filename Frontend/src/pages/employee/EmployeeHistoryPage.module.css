@@ -50,6 +50,32 @@
 
 .period {
   width: 100%;
+  background: #FAFAFA;
+}
+
+.dateLabel {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-h);
+  margin-right: 4px;
+}
+
+.dateInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-md);
+  color: var(--text-h);
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
 }
 
 .times {

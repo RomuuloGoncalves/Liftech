@@ -9,7 +9,7 @@ export class TelemetryService extends ServiceBase<telemetryModel, TelemetryRepos
     super(repositorio);
   }
 
-  async listarPorDispositivo(dispositivoId: string): Promise<telemetryModel[]> {
-    return this.repositorio.obterPorDispositivo(dispositivoId);
+  async listarPorDispositivo(dispositivoId: string, dataInicial?: string, dataFinal?: string): Promise<telemetryModel[]> {
+    return this.repositorio.obterPorDispositivo(dispositivoId, dataInicial, dataFinal);
   }
 }
