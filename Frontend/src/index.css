@@ -73,6 +73,11 @@
   box-sizing: border-box;
 }
 
+/* Rever do por que o root n'ao estar pegando global */
+*{
+  font-family: var(--sans);
+}
+
 body {
   margin: 0;
   background: var(--bg-page);
