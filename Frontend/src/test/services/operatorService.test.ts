@@ -47,12 +47,12 @@ describe('operatorService', () => {
     expect(result).toEqual([employee]);
   });
 
-  it('criar posts the five operator fields and the branch on /operators', async () => {
+  it('criar posts the five operator fields, the branch and the login on /operators', async () => {
     post.mockResolvedValue({ data: employee });
 
     const result = await operatorService.criar(values, 'f2');
 
-    expect(post).toHaveBeenCalledWith('/operators', { ...fields, filialId: 'f2' });
+    expect(post).toHaveBeenCalledWith('/operators', { ...fields, filialId: 'f2', usuario: 'ana.souza', senha: 'segredo123' });
     expect(result).toEqual(employee);
   });
 
@@ -60,6 +60,14 @@ describe('operatorService', () => {
     post.mockResolvedValue({ data: employee });
 
     await operatorService.criar(values);
+
+    expect(post).toHaveBeenCalledWith('/operators', { ...fields, usuario: 'ana.souza', senha: 'segredo123' });
+  });
+
+  it('criar without usuario leaves the login out of the body', async () => {
+    post.mockResolvedValue({ data: employee });
+
+    await operatorService.criar({ ...values, usuario: '', senha: '' });
 
     expect(post).toHaveBeenCalledWith('/operators', fields);
   });

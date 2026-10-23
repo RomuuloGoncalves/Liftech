@@ -15,7 +15,9 @@ export const operatorService = {
   },
 
   async criar(values: EmployeeFormValues, filialId?: string): Promise<Employee> {
-    const { data } = await api.post<Employee>('/operators', { ...corpo(values), ...(filialId && { filialId }) });
+    // With usuario the API creates the login in the same call and undoes the operator if it fails.
+    const login = values.usuario !== '' && { usuario: values.usuario, senha: values.senha };
+    const { data } = await api.post<Employee>('/operators', { ...corpo(values), ...(filialId && { filialId }), ...login });
     return data;
   },
 

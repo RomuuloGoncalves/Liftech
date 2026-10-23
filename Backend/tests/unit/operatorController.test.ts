@@ -93,6 +93,25 @@ describe('operatorController.criar', () => {
         expect(json).toHaveBeenCalledWith(OPERADOR);
     });
 
+    test('com usuario e senha repassa o login ao serviço', async () => {
+        await criar(req({ body: { nome: 'Ana', usuario: 'ana.souza', senha: '12345678' } }), res);
+
+        expect(servico.criar).toHaveBeenCalledWith(ESCOPO, expect.objectContaining({ login: { usuario: 'ana.souza', senha: '12345678' } }));
+        expect(status).toHaveBeenCalledWith(201);
+    });
+
+    test.each([
+        ['usuario sem senha', { nome: 'Ana', usuario: 'ana' }],
+        ['senha sem usuario', { nome: 'Ana', senha: '12345678' }],
+        ['usuario com espaço', { nome: 'Ana', usuario: 'a b', senha: '12345678' }],
+        ['senha curta', { nome: 'Ana', usuario: 'ana', senha: '123' }],
+    ])('400 com %s, sem gravar', async (_caso, body) => {
+        await criar(req({ body }), res);
+
+        expect(status).toHaveBeenCalledWith(400);
+        naoChamouServico();
+    });
+
     test.each([
         ['nome ausente', {}],
         ['nome vazio', { nome: '   ' }],
