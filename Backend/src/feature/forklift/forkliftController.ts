@@ -9,7 +9,7 @@ import { exigirEmpresa, filtroPorFilial, resolverFilial } from "../../core/escop
 import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./forkliftRules.js";
 
-export const repositorioForklift = new ForkliftRepository(Forklift);
+const repositorioForklift = new ForkliftRepository(Forklift);
 export const servicoForklift = new ForkliftService(repositorioForklift);
 
 function obterIdForklift(req: Request): string | null {

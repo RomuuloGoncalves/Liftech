@@ -1,7 +1,7 @@
 import { conn } from "../config/conn.js"
 const { Schema } = conn.mongoose
 
-export const CHAVES_CATEGORIA = ['acidentes', 'ativas', 'manutencao', 'disponiveis'] as const
+const CHAVES_CATEGORIA = ['acidentes', 'ativas', 'manutencao', 'disponiveis'] as const
 
 const categorySchema = new Schema({
     empresaId: {

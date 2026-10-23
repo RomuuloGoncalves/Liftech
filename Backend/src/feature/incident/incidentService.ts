@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Incident } from "../../schemas/incident.js";
 import { WorkSession } from "../../schemas/workSession.js";
 import { Forklift } from "../../schemas/forklift.js";
@@ -6,7 +7,7 @@ import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import type { UsuarioRequisicao } from "../../core/autenticar.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { aplicarStatus } from "../machine/statusService.js";
-import { exigirOperador, lerMachineId, lerPeriodo, type FiltroLista } from "../session/sessionService.js";
+import { exigirOperador, lerMachineId, lerPeriodo, LIMITE_HISTORICO, type FiltroLista } from "../session/sessionService.js";
 import { nomesDosSetores } from "../sector/sectorService.js";
 
 export interface DadosOcorrencia {
@@ -66,11 +67,18 @@ export async function reportar(usuario: UsuarioRequisicao, dados: DadosOcorrenci
   return (await formatar([incidente]))[0]!;
 }
 
-export async function listar(escopo: Escopo, filtro: FiltroLista) {
+export async function listar(escopo: Escopo, filtro: FiltroLista & { filialId?: unknown }) {
+  let permitidas = filtroPorFilial(escopo).filialId.$in;
+  if (filtro.filialId !== undefined && filtro.filialId !== "") {
+    if (typeof filtro.filialId !== "string" || !Types.ObjectId.isValid(filtro.filialId)) {
+      throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'filialId' deve ser um ObjectId válido do MongoDB.");
+    }
+    permitidas = permitidas.filter((id) => id === filtro.filialId);
+  }
   const machineId = lerMachineId(filtro.machineId);
   const periodo = lerPeriodo(filtro.from, filtro.to);
   if (!periodo) return [];
-  const consulta: Record<string, unknown> = { ...filtroPorFilial(escopo), ...(machineId && { empilhadeiraId: machineId }) };
+  const consulta: Record<string, unknown> = { filialId: { $in: permitidas }, ...(machineId && { empilhadeiraId: machineId }) };
   if (Object.keys(periodo).length > 0) consulta.dataIncidente = periodo;
-  return formatar(await Incident.find(consulta).sort({ dataIncidente: -1 }).lean());
+  return formatar(await Incident.find(consulta).sort({ dataIncidente: -1 }).limit(LIMITE_HISTORICO).lean());
 }

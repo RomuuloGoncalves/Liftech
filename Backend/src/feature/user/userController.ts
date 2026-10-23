@@ -9,7 +9,7 @@ import { exigirEmpresa, filtroPorEmpresa } from "../../core/escopo.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./userRules.js";
 
-export const repositorioUser = new UserRepository(User);
+const repositorioUser = new UserRepository(User);
 export const servicoUser = new UserService(repositorioUser);
 
 function obterIdUsuario(req: Request): string | null {
