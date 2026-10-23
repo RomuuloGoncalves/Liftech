@@ -1,0 +1,101 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.label {
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.valueGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.value {
+  font-size: var(--fs-base);
+  color: var(--text);
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  transition: color 150ms ease;
+}
+
+.editButton:hover {
+  color: var(--blue);
+}
+
+.editButton:focus-visible {
+  outline: 2px solid var(--blue);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  margin-top: 8px;
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--danger-solid);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.deleteButton:hover {
+  text-decoration: underline;
+}
+
+.deleteButton:focus-visible {
+  outline: 2px solid var(--danger-solid);
+  border-radius: var(--radius-sm);
+}
+
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  background: var(--danger-solid);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.logoutButton:hover {
+  opacity: 0.9;
+}
+
+.logoutButton:focus-visible {
+  outline: 2px solid var(--danger-solid);
+}
