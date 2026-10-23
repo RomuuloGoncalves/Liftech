@@ -52,6 +52,11 @@ function lerDados(corpo: Record<string, unknown>, obrigatorio: boolean): servico
   return dados;
 }
 
+function lerUsuario(valor: unknown): string {
+  if (typeof valor !== "string" || !USUARIO.test(valor)) throw erro("O campo 'usuario' deve ter de 3 a 40 caracteres, sem espaços.");
+  return valor;
+}
+
 function lerSenha(valor: unknown): string {
   if (typeof valor !== "string" || valor.length < SENHA_MINIMA || valor.length > SENHA_MAXIMA) {
     throw erro(`O campo 'senha' deve ter de ${SENHA_MINIMA} a ${SENHA_MAXIMA} caracteres.`);
@@ -78,7 +83,9 @@ export async function criar(req: Request, res: Response) {
     const corpo = lerCorpo(req);
     const dados = lerDados(corpo, true);
     const filialId = resolverFilial(req.escopo, corpo.filialId);
-    return respostaSucesso(res, StatusCode.CREATED, await servicoOperador.criar(req.escopo, { ...dados, filialId }));
+    // `usuario` e `senha` vêm juntos ou nenhum: com eles o cadastro já cria o login.
+    const login = corpo.usuario === undefined && corpo.senha === undefined ? undefined : { usuario: lerUsuario(corpo.usuario), senha: lerSenha(corpo.senha) };
+    return respostaSucesso(res, StatusCode.CREATED, await servicoOperador.criar(req.escopo, { ...dados, filialId, ...(login && { login }) }));
   } catch (error: any) {
     return responderErro(res, error);
   }
@@ -111,10 +118,7 @@ export async function criarLogin(req: Request, res: Response) {
     exigirAdmin(req);
     const id = lerId(req);
     const { usuario, senha } = lerCorpo(req);
-    if (typeof usuario !== "string" || !USUARIO.test(usuario)) {
-      throw erro("O campo 'usuario' deve ter de 3 a 40 caracteres, sem espaços.");
-    }
-    return respostaSucesso(res, StatusCode.CREATED, await servicoOperador.criarLogin(req.escopo, id, { usuario, senha: lerSenha(senha) }));
+    return respostaSucesso(res, StatusCode.CREATED, await servicoOperador.criarLogin(req.escopo, id, { usuario: lerUsuario(usuario), senha: lerSenha(senha) }));
   } catch (error: any) {
     return responderErro(res, error);
   }

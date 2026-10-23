@@ -6,7 +6,7 @@ import logo from '../../assets/logo.svg'
 import logoName from '../../assets/logo-name.svg'
 import styles from './AuthLayout.module.css'
 
-export interface AuthLayoutProps {
+interface AuthLayoutProps {
   title: string
   subtitle: string
   children: React.ReactNode

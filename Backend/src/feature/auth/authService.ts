@@ -7,7 +7,7 @@ import { env } from "../../config/env.js";
 import { verificarSenha } from "../../utils/senha.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 
-export type RoleLogin = "admin" | "colaborador";
+type RoleLogin = "admin" | "colaborador";
 
 export const CREDENCIAIS_INVALIDAS = "Credenciais inválidas.";
 
@@ -43,6 +43,7 @@ export async function login(role: RoleLogin, login: string, senha: string) {
       _id,
       nome: usuario.nome,
       role: usuario.role,
+      email: usuario.email,
       telefone: usuario.telefone,
       cargo: usuario.cargo,
       empresa: empresa && { _id: String(empresa._id), nome: empresa.nome },

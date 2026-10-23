@@ -1,6 +1,6 @@
 import { coreModel } from "../core/coreModel.js";
 
-export interface Acesso {
+interface Acesso {
     telefone?: string;
     cargo?: string;
     empresaId?: string;

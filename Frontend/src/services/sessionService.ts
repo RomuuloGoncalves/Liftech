@@ -19,6 +19,7 @@ export interface FiltroSessoes {
   from?: string;
   to?: string;
   machineId?: string;
+  filialId?: string;
 }
 
 export const sessionService = {

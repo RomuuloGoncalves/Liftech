@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
-import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import MachineDetailSheet from '../../components/employee/MachineDetailSheet'
 import { filterAvailableMachines } from '../../data/employeeArea'
@@ -15,9 +14,8 @@ const EmployeeMachinesPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const [query, setQuery] = useState('')
-  const loading = useFirstVisitLoading('employee-machines')
 
-  const { machines: all, records } = useEmployeeData()
+  const { machines: all, records, loading } = useEmployeeData()
   const machines = useMemo(() => filterAvailableMachines(all, query), [all, query])
   const selected = id ? all.find((machine) => machine.id === id) : undefined
 

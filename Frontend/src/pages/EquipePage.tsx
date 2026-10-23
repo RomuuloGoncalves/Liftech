@@ -106,31 +106,16 @@ const EquipePage: React.FC = () => {
     )
   }
 
-  // Create waits for the API: the operator first, then its login. A refused login keeps the employee without one.
+  // Create waits for the API, which saves the operator and its login together; a refusal keeps the form open.
   // ponytail: no in-flight guard, a double click on Confirmar registers twice; disable the button if it shows up.
   const createEmployee = async (values: EmployeeFormValues) => {
-    let created: Employee
     try {
-      created = await operatorService.criar(values, values.filialId ?? filialId)
-    } catch {
-      showError(t('team.saveError'))
-      return
-    }
-    try {
-      const withLogin = await operatorService.criarLogin(created.id, values.usuario, values.senha)
-      setEmployees((prev) => [withLogin, ...prev])
-      show(t('team.toastEmployeeCreated', { name: withLogin.nome }))
+      const created = await operatorService.criar(values, values.filialId ?? filialId)
+      setEmployees((prev) => [created, ...prev])
+      show(t('team.toastEmployeeCreated', { name: created.nome }))
       setDialog(null)
     } catch (e) {
-      setEmployees((prev) => [created, ...prev])
-      if (axios.isAxiosError(e) && e.response?.status === 409) {
-        // The operator exists now: the open form turns into its edit, so Confirmar only creates the login.
-        showError(t('team.usernameTaken'))
-        setDialog({ kind: 'employeeForm', employee: created })
-      } else {
-        showError(t('team.loginError'))
-        setDialog(null)
-      }
+      showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? 'team.usernameTaken' : 'team.saveError'))
     }
   }
 

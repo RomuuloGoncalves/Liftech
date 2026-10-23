@@ -216,7 +216,7 @@ describe('VisaoGeralPage: machine detail', () => {
     const dialog = screen.getByRole('dialog', { name: 'Empilhadeira Elétrica Titan-X' })
     expect(within(dialog).getByText('EMP-084(ID)')).toBeInTheDocument()
     expect(within(dialog).getByText('Nome Dispositivo')).toBeInTheDocument()
-    expect(within(dialog).getByRole('tab', { name: 'Histórico de acidentes' })).toHaveAttribute('aria-selected', 'true')
+    expect(within(dialog).getByRole('tab', { name: 'Acidentes' })).toHaveAttribute('aria-selected', 'true')
   })
 
   it('closes the detail modal with Escape', async () => {
@@ -477,7 +477,7 @@ describe('VisaoGeralPage: API', () => {
       const { unmount } = render(<VisaoGeralPage />)
       await screen.findAllByRole('article')
       openDetail(machine.identificacao)
-      fireEvent.click(screen.getByRole('tab', { name: 'Histórico de manutenção' }))
+      fireEvent.click(screen.getByRole('tab', { name: 'Manutenção' }))
       const count = within(screen.getByRole('dialog')).getAllByRole('listitem').length
       unmount()
       return count

@@ -91,20 +91,23 @@ describe('reportar', () => {
 });
 
 describe('listar', () => {
+    const limit = vi.fn();
     const sort = vi.fn();
     const SENSOR = { _id: INCIDENTE, empilhadeiraId: MAQUINA, operadorId: null, dataIncidente: AGORA, forcaImpacto: 7, status: 'pendente' };
     beforeEach(() => {
-        sort.mockReturnValue(lean([SENSOR]));
+        limit.mockReturnValue(lean([SENSOR]));
+        sort.mockReturnValue({ limit });
         vi.mocked(Incident.find).mockReturnValue({ sort } as any);
     });
 
-    test('incidentes das filiais do escopo, mais recente primeiro; incidente antigo vale origem sensor e operador null', async () => {
+    test('incidentes das filiais do escopo, mais recente primeiro limitado a 500; incidente antigo vale origem sensor e operador null', async () => {
         expect(await listar(escopo, {})).toEqual([{
             _id: INCIDENTE, machineId: MAQUINA, maquina: MAQUINA_FORMATADA, operador: null,
             dataIncidente: AGORA.toISOString(), forcaImpacto: 7, status: 'pendente', origem: 'sensor', descricao: null,
         }]);
         expect(Incident.find).toHaveBeenCalledWith({ filialId: { $in: [FILIAL] } });
         expect(sort).toHaveBeenCalledWith({ dataIncidente: -1 });
+        expect(limit).toHaveBeenCalledWith(500);
     });
 
     test("máquina sem setor: maquina.setor ''", async () => {
@@ -131,5 +134,28 @@ describe('listar', () => {
 
     test('machineId inválido: 400', async () => {
         expect(await erro(listar(escopo, { machineId: 'x' }))).toBe(400);
+    });
+
+    test('filial do escopo: filtra por filialId.$in com a filial pedida', async () => {
+        await listar(escopo, { filialId: FILIAL });
+        expect(Incident.find).toHaveBeenCalledWith({ filialId: { $in: [FILIAL] } });
+    });
+
+    test('filial fora do escopo: find com $in: [] e resultado []', async () => {
+        const OUTRA_FILIAL = '665f1c2b9a1e4b00123456e1';
+        limit.mockReturnValue(lean([]));
+        const resultado = await listar(escopo, { filialId: OUTRA_FILIAL });
+        expect(Incident.find).toHaveBeenCalledWith({ filialId: { $in: [] } });
+        expect(resultado).toEqual([]);
+    });
+
+    test("filialId inválido ('abc'): rejeita com 400 sem chamar find", async () => {
+        expect(await erro(listar(escopo, { filialId: 'abc' }))).toBe(400);
+        expect(Incident.find).not.toHaveBeenCalled();
+    });
+
+    test('filialId inválido (123): rejeita com 400 sem chamar find', async () => {
+        expect(await erro(listar(escopo, { filialId: 123 as any }))).toBe(400);
+        expect(Incident.find).not.toHaveBeenCalled();
     });
 });

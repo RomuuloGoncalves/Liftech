@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Calendar, Search } from 'lucide-react'
+import { AlertTriangle, Calendar, CircleHelp, Search } from 'lucide-react'
 import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
 import FleetCard from '../components/fleet/FleetCard'
+import LevelInfoModal from '../components/alerts/LevelInfoModal'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
-import { useFirstVisitLoading } from '../hooks/useFirstVisitLoading'
 import {
   DEFAULT_PERIOD,
   MACHINES,
@@ -29,9 +29,11 @@ const AlertasPage: React.FC = () => {
   const [from, setFrom] = useState(DEFAULT_PERIOD.from)
   const [to, setTo] = useState(defaultPeriodTo)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [showLevelInfo, setShowLevelInfo] = useState(false)
+  const helpRef = useRef<HTMLButtonElement>(null)
   const [machines, setMachines] = useState<Machine[]>([])
   const [events, setEvents] = useState<MachineEvent[]>([])
-  const loading = useFirstVisitLoading('alertas')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let stale = false
@@ -44,8 +46,18 @@ const AlertasPage: React.FC = () => {
   useEffect(() => {
     let stale = false
     incidentService.listar({ from: from || undefined, to: to || undefined }).then(
-      (list) => !stale && setEvents(list.map(incidentToEvent)),
-      () => !stale && setEvents([])
+      (list) => {
+        if (!stale) {
+          setEvents(list.map(incidentToEvent))
+          setLoading(false)
+        }
+      },
+      () => {
+        if (!stale) {
+          setEvents([])
+          setLoading(false)
+        }
+      }
     )
     return () => {
       stale = true
@@ -65,6 +77,11 @@ const AlertasPage: React.FC = () => {
   }, [query, events, machineById])
 
   const detailMachine = detailId ? machineById.get(detailId) : undefined
+
+  const closeLevelInfo = () => {
+    setShowLevelInfo(false)
+    helpRef.current?.focus()
+  }
 
   if (loading) {
     return (
@@ -97,6 +114,16 @@ const AlertasPage: React.FC = () => {
           </h2>
 
           <div className={styles.filters}>
+            <button
+              type="button"
+              ref={helpRef}
+              className={styles.helpButton}
+              aria-label={t('levelInfo.open')}
+              title={t('levelInfo.open')}
+              onClick={() => setShowLevelInfo(true)}
+            >
+              <CircleHelp size={16} aria-hidden="true" />
+            </button>
             <div className={styles.searchField}>
               <Search size={16} className={styles.searchIcon} aria-hidden="true" />
               <input
@@ -156,6 +183,8 @@ const AlertasPage: React.FC = () => {
           onClose={() => setDetailId(null)}
         />
       )}
+
+      {showLevelInfo && <LevelInfoModal onClose={closeLevelInfo} />}
     </div>
   )
 }

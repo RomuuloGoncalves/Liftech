@@ -41,6 +41,15 @@ describe('incidentService', () => {
     expect(result).toEqual([incidente]);
   });
 
+  it('listar sends filialId as query param', async () => {
+    get.mockResolvedValue({ data: [incidente] });
+
+    const result = await incidentService.listar({ filialId: 'f1' });
+
+    expect(get).toHaveBeenCalledWith('/incidents', { params: { filialId: 'f1' } });
+    expect(result).toEqual([incidente]);
+  });
+
   it('propagates the API rejection', async () => {
     const err = new Error('409');
     post.mockRejectedValue(err);

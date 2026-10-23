@@ -56,7 +56,6 @@ async function obter(escopo: Escopo, id: string) {
 
 const obterFormatado = async (escopo: Escopo, id: string) => (await formatar([await obter(escopo, id)]))[0]!;
 
-// ponytail: dois cadastros simultâneos podem gerar a mesma matrícula (sem índice). Índice { empresaId, matricula } quando o operador ganhar empresaId.
 async function proximaMatricula(escopo: Escopo) {
   const filiais = await Branch.distinct("_id", { empresaId: escopo.empresaId });
   const matriculas: string[] = await Operator.distinct("matricula", { filialId: { $in: filiais } } as Record<string, unknown>);
@@ -73,9 +72,31 @@ export async function listar(escopo: Escopo, filialId?: string) {
   return formatar(operadores);
 }
 
-export async function criar(escopo: Escopo, dados: DadosOperador & { filialId: string }) {
-  const operador = await Operator.create({ ...dados, matricula: await proximaMatricula(escopo) });
-  return (await formatar([operador]))[0]!;
+const TENTATIVAS_MATRICULA = 5;
+
+// O índice único { empresaId, matricula } recusa a matrícula repetida numa corrida (11000): recalcula e tenta de novo.
+async function criarComMatricula(escopo: Escopo, dados: DadosOperador & { filialId: string }) {
+  for (let tentativa = 1; ; tentativa++) {
+    try {
+      return await Operator.create({ ...dados, empresaId: escopo.empresaId, matricula: await proximaMatricula(escopo) });
+    } catch (error: any) {
+      if (error.code !== 11000 || tentativa >= TENTATIVAS_MATRICULA) throw error;
+    }
+  }
+}
+
+// Com `login` o cadastro é um só: se o login falha, o operador recém-criado é desfeito.
+export async function criar(escopo: Escopo, dados: DadosOperador & { filialId: string; login?: { usuario: string; senha: string } }) {
+  const { login, ...campos } = dados;
+  if (login && (await User.exists({ usuario: login.usuario }))) throw new ErroHttp(StatusCode.CONFLICT, USUARIO_EM_USO);
+  const operador = await criarComMatricula(escopo, campos);
+  if (!login) return (await formatar([operador]))[0]!;
+  try {
+    return await criarLogin(escopo, String(operador._id), login);
+  } catch (error) {
+    await Operator.deleteOne({ _id: operador._id });
+    throw error;
+  }
 }
 
 export async function atualizar(escopo: Escopo, id: string, dados: DadosOperador) {
@@ -91,14 +112,14 @@ export async function atualizar(escopo: Escopo, id: string, dados: DadosOperador
 }
 
 // Sessões antigas ficam no histórico; o login vai junto com o operador.
-// ponytail: operador e login apagados sem transação; uma falha no meio deixa um login sem operador.
+// Login primeiro: uma falha no meio deixa um operador sem login (reaproveitável), nunca um login sem operador.
 export async function excluir(escopo: Escopo, id: string) {
   await obter(escopo, id);
   if (await WorkSession.exists({ operadorId: id, fim: null })) {
     throw new ErroHttp(StatusCode.CONFLICT, "Operador com sessão aberta.");
   }
-  await Operator.deleteOne({ _id: id });
   await User.deleteMany({ operadorId: id });
+  await Operator.deleteOne({ _id: id });
   return { _id: id, message: "Operador excluído com sucesso." };
 }
 

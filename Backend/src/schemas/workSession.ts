@@ -15,5 +15,7 @@ const workSessionSchema = new Schema({
 // No máximo uma sessão aberta por operador e por máquina; o Mongo recusa a segunda (11000).
 workSessionSchema.index({ operadorId: 1 }, { unique: true, partialFilterExpression: { fim: null } })
 workSessionSchema.index({ empilhadeiraId: 1 }, { unique: true, partialFilterExpression: { fim: null } })
+workSessionSchema.index({ operadorId: 1, inicio: -1 })
+workSessionSchema.index({ empilhadeiraId: 1, inicio: -1 })
 
 export const WorkSession = conn.mongoose.model('workSession', workSessionSchema)

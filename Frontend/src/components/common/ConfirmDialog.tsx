@@ -7,11 +7,12 @@ import styles from './ConfirmDialog.module.css'
 interface ConfirmDialogProps {
   title: string
   message: string
+  confirmLabel?: string
   onConfirm: () => void
   onCancel: () => void
 }
 
-const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ title, message, onConfirm, onCancel }) => {
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ title, message, confirmLabel, onConfirm, onCancel }) => {
   const { t } = useTranslation()
 
   return (
@@ -22,7 +23,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ title, message, onConfirm
           {t('common.cancel')}
         </button>
         <button type="button" className={buttons.confirm} onClick={onConfirm}>
-          {t('team.delete')}
+          {confirmLabel ?? t('team.delete')}
         </button>
       </div>
     </Modal>

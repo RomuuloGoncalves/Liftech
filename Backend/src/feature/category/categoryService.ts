@@ -11,7 +11,7 @@ export interface DadosCategoria {
 }
 
 // Quadro do Figma: cada empresa começa com estas categorias, ligadas a um status cada.
-export const QUADRO_INICIAL = [
+const QUADRO_INICIAL = [
   { chave: "acidentes", nome: "Acidentes", cor: "#EF4444", status: "alerta" },
   { chave: "ativas", nome: "Ativas", cor: "#3A9CFF", status: "em_uso" },
   { chave: "manutencao", nome: "Manutenção", cor: "#FFC93A", status: "manutencao" },

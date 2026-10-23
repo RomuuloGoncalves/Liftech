@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Forklift, History } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
-import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import { filterAvailableMachines } from '../../data/employeeArea'
 import { useEmployeeData } from '../../hooks/useEmployeeData'
@@ -24,10 +23,9 @@ const DEFAULT_LAST_MACHINE = {
 const EmployeeHomePage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const loading = useFirstVisitLoading('employee-home')
-  const { machines, records } = useEmployeeData()
+  const { machines, records, loading } = useEmployeeData()
   const available = filterAvailableMachines(machines, '').slice(0, MAX_CARDS)
-  const lastSession = records.find((record) => record.maquina)
+  const lastSession = records.find((record): record is typeof record & { maquina: NonNullable<typeof record.maquina> } => record.maquina !== null)
   const last = lastSession ?? DEFAULT_LAST_MACHINE
 
   if (loading) {

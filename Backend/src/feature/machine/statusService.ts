@@ -4,7 +4,7 @@ import { Category } from "../../schemas/category.js";
 import { Branch } from "../../schemas/branch.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 
-export const STATUS = ["disponivel", "em_uso", "manutencao", "alerta", "offline"] as const;
+const STATUS = ["disponivel", "em_uso", "manutencao", "alerta", "offline"] as const;
 export type Status = (typeof STATUS)[number];
 
 export const ehStatus = (valor: unknown): valor is Status => STATUS.includes(valor as Status);

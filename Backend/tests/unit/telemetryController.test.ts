@@ -78,7 +78,7 @@ describe('telemetryController: escopo pelos dispositivos', () => {
 
         await listar(req({ query: { dispositivoId: D1 } }), res);
 
-        expect(servicoTelemetry.listarPorDispositivo).toHaveBeenCalledWith(D1);
+        expect(servicoTelemetry.listarPorDispositivo).toHaveBeenCalledWith(D1, undefined, undefined);
         expect(mockJson).toHaveBeenCalledWith([leitura.obterDados()]);
     });
 

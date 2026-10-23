@@ -13,6 +13,7 @@ export interface FiltroLista {
   from?: unknown;
   to?: unknown;
   machineId?: unknown;
+  filialId?: unknown;
 }
 
 const DIA = /^\d{4}-\d{2}-\d{2}$/;
@@ -26,6 +27,14 @@ export function lerMachineId(valor: unknown): string | undefined {
   if (valor === undefined || valor === "") return undefined;
   if (typeof valor !== "string" || !Types.ObjectId.isValid(valor)) {
     throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'machineId' deve ser um ObjectId válido do MongoDB.");
+  }
+  return valor;
+}
+
+export function lerFilialId(valor: unknown): string | undefined {
+  if (valor === undefined || valor === "") return undefined;
+  if (typeof valor !== "string" || !Types.ObjectId.isValid(valor)) {
+    throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'filialId' deve ser um ObjectId válido do MongoDB.");
   }
   return valor;
 }
@@ -51,6 +60,8 @@ export function lerPeriodo(from: unknown, to: unknown): Record<string, Date> | n
   if (inicio && fimDia && inicio > fimDia) return null;
   return periodo;
 }
+
+export const LIMITE_HISTORICO = 500;
 
 // Máquina e operador por id; a sessão de uma máquina apagada continua com `maquina: null`.
 async function formatar(sessoes: any[]) {
@@ -120,15 +131,26 @@ export async function encerrar(usuario: UsuarioRequisicao) {
   return buscarUma({ _id: sessao._id });
 }
 
-// Sem `machineId`, só as sessões do operador; com ela, as de qualquer operador da máquina no escopo.
+// Sem `machineId`, admin vê todas do escopo (com filialId opcional); colaborador só as suas. Com ela, as de qualquer operador da máquina no escopo.
 export async function listar(escopo: Escopo, usuario: UsuarioRequisicao, filtro: FiltroLista) {
   const machineId = lerMachineId(filtro.machineId);
+  const filialId = lerFilialId(filtro.filialId);
   const periodo = lerPeriodo(filtro.from, filtro.to);
+
+  const permitidas = filtroPorFilial(escopo).filialId.$in;
+  const filialFiltro = { filialId: { $in: filialId ? permitidas.filter((id) => id === filialId) : permitidas } };
+
+  const donoFiltro = machineId
+    ? { empilhadeiraId: machineId }
+    : usuario.role === "admin"
+      ? {}
+      : { operadorId: exigirOperador(usuario) };
+
   const consulta: Record<string, unknown> = {
-    ...filtroPorFilial(escopo),
-    ...(machineId ? { empilhadeiraId: machineId } : { operadorId: exigirOperador(usuario) }),
+    ...filialFiltro,
+    ...donoFiltro,
   };
   if (!periodo) return [];
   if (Object.keys(periodo).length > 0) consulta.inicio = periodo;
-  return formatar(await WorkSession.find(consulta).sort({ inicio: -1 }).lean());
+  return formatar(await WorkSession.find(consulta).sort({ inicio: -1 }).limit(LIMITE_HISTORICO).lean());
 }

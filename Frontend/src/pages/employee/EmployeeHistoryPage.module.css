@@ -50,7 +50,7 @@
 
 .period {
   width: 100%;
-  background: #FAFAFA;
+  background: var(--gray-bg);
 }
 
 .dateLabel {

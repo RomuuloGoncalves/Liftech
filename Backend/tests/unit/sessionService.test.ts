@@ -4,7 +4,7 @@ import { Forklift } from '../../src/schemas/forklift.js';
 import { Operator } from '../../src/schemas/operator.js';
 import { obterMaquina } from '../../src/feature/machine/machineService.js';
 import { aplicarStatus } from '../../src/feature/machine/statusService.js';
-import { atual, iniciar, encerrar, listar, lerPeriodo } from '../../src/feature/session/sessionService.js';
+import { atual, iniciar, encerrar, listar, lerPeriodo, lerFilialId, LIMITE_HISTORICO } from '../../src/feature/session/sessionService.js';
 import { ErroHttp } from '../../src/utils/responseHandler.js';
 import type { Escopo } from '../../src/core/escopo.js';
 
@@ -29,6 +29,7 @@ const FILIAL = '665f1c2b9a1e4b00123456b1';
 const escopo: Escopo = { empresaId: 'e1', tipo: 'filiais', filiais: [{ _id: FILIAL, nome: 'Matriz', matriz: true }] };
 const usuario = { _id: 'u1', role: 'colaborador', operadorId: OPERADOR };
 const semOperador = { _id: 'u1', role: 'colaborador', operadorId: null };
+const admin = { _id: 'u2', role: 'admin', operadorId: null };
 
 const ABERTA = { _id: SESSAO, operadorId: OPERADOR, empilhadeiraId: MAQUINA, filialId: FILIAL, inicio: AGORA, fim: null };
 const FORMATADA = {
@@ -198,16 +199,36 @@ describe('encerrar', () => {
 });
 
 describe('listar', () => {
+    const limit = vi.fn();
     const sort = vi.fn();
     beforeEach(() => {
-        sort.mockReturnValue(lean([ABERTA]));
+        limit.mockReturnValue(lean([ABERTA]));
+        sort.mockReturnValue({ limit });
         vi.mocked(WorkSession.find).mockReturnValue({ sort } as any);
     });
 
-    test('colaborador: só as sessões do seu operador no escopo, mais recente primeiro', async () => {
+    test('colaborador: só as sessões do seu operador no escopo, mais recente primeiro limitado a 500', async () => {
         expect(await listar(escopo, usuario, {})).toEqual([FORMATADA]);
         expect(WorkSession.find).toHaveBeenCalledWith({ filialId: { $in: [FILIAL] }, operadorId: OPERADOR });
         expect(sort).toHaveBeenCalledWith({ inicio: -1 });
+        expect(limit).toHaveBeenCalledWith(500);
+    });
+
+    test('admin: lista sessões de todos os operadores do escopo sem operadorId', async () => {
+        expect(await listar(escopo, admin, {})).toEqual([FORMATADA]);
+        expect(WorkSession.find).toHaveBeenCalledWith({ filialId: { $in: [FILIAL] } });
+        expect(sort).toHaveBeenCalledWith({ inicio: -1 });
+        expect(limit).toHaveBeenCalledWith(500);
+    });
+
+    test('admin com filialId do escopo: reduz o filtro', async () => {
+        await listar(escopo, admin, { filialId: FILIAL });
+        expect(WorkSession.find).toHaveBeenCalledWith({ filialId: { $in: [FILIAL] } });
+    });
+
+    test('admin com filialId fora do escopo: $in vazio', async () => {
+        await listar(escopo, admin, { filialId: '665f1c2b9a1e4b00123456f1' });
+        expect(WorkSession.find).toHaveBeenCalledWith({ filialId: { $in: [] } });
     });
 
     test('com machineId: sessões de qualquer operador da máquina no escopo', async () => {
@@ -229,14 +250,32 @@ describe('listar', () => {
 
     test.each([
         ['machineId inválido', { machineId: 'abc' }],
+        ['filialId inválido', { filialId: 'abc' }],
         ['from fora do formato', { from: '15/10/2026' }],
         ['to fora do formato', { to: '2026-13-45' }],
     ])('%s: 400', async (_caso, filtro) => {
         expect(await erro(listar(escopo, usuario, filtro))).toBe(400);
+        expect(WorkSession.find).not.toHaveBeenCalled();
     });
 
     test('sem machineId e sem operador: 403', async () => {
         expect(await erro(listar(escopo, semOperador, {}))).toBe(403);
+    });
+});
+
+describe('lerFilialId', () => {
+    test('vazio ou indefinido: undefined', () => {
+        expect(lerFilialId(undefined)).toBeUndefined();
+        expect(lerFilialId('')).toBeUndefined();
+    });
+
+    test('válido: devolve o id', () => {
+        expect(lerFilialId(FILIAL)).toBe(FILIAL);
+    });
+
+    test('inválido: 400', () => {
+        expect(() => lerFilialId('invalido')).toThrow(ErroHttp);
+        expect(() => lerFilialId(123)).toThrow(ErroHttp);
     });
 });
 

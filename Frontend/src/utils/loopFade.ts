@@ -1,4 +1,4 @@
-export const LOOP_FADE_SECONDS = 0.3
+const LOOP_FADE_SECONDS = 0.3
 
 export function loopFade(time: number, duration: number, fade = LOOP_FADE_SECONDS): number {
   if (!Number.isFinite(duration) || duration <= 0) return 1

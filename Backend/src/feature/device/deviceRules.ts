@@ -17,7 +17,7 @@ regras.addRules("status", [{
 }]);
 
 // @ts-ignore
-export const regrasAssign: any = requestCheck();
+const regrasAssign: any = requestCheck();
 regrasAssign.addRules("empilhadeiraId", [{
   validator: (value: any) => {
     if (!value) return true; 

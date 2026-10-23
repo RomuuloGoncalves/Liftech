@@ -98,3 +98,39 @@ describe('api 401 handling', () => {
     expect(window.location.pathname).toBe('/')
   })
 })
+
+describe('api request headers', () => {
+  it('GET without body does not carry Content-Type: application/json', async () => {
+    let capturedConfig: InternalAxiosRequestConfig | undefined
+    api.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
+      capturedConfig = config
+      return {
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+      }
+    }
+
+    await api.get('/machines')
+    expect(capturedConfig?.headers['Content-Type']).toBeUndefined()
+  })
+
+  it('POST with object carries Content-Type: application/json', async () => {
+    let capturedConfig: InternalAxiosRequestConfig | undefined
+    api.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
+      capturedConfig = config
+      return {
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+      }
+    }
+
+    await api.post('/machines', { nome: 'Empilhadeira nova' })
+    expect(capturedConfig?.headers['Content-Type']).toMatch(/application\/json/)
+  })
+})
