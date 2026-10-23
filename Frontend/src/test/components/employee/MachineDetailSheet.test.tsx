@@ -99,6 +99,14 @@ describe('MachineDetailSheet', () => {
     expect(within(dialog()).getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
+  it('shows the empty message, not invented records, when the API fails', async () => {
+    listar.mockRejectedValue(new Error('500'))
+    setup('1')
+    await loaded()
+    expect(within(dialog()).queryByRole('listitem')).not.toBeInTheDocument()
+    expect(within(dialog()).getByText('Nenhum registro no período')).toBeInTheDocument()
+  })
+
   it('calls onClose from Cancelar', () => {
     let closed = 0
     setup('1', () => closed++)

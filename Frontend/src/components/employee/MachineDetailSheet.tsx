@@ -15,56 +15,6 @@ interface MachineDetailSheetProps {
   onClose: () => void
 }
 
-const DEFAULT_USAGE_RECORDS: UsageRecord[] = [
-  {
-    id: 'default-usage-1',
-    machineId: '',
-    maquina: null,
-    operatorName: 'Alexandre Gomes',
-    date: '2025-09-14',
-    start: '14:35:25',
-    end: '16:35:20',
-    durationLabel: '2 horas',
-  },
-  {
-    id: 'default-usage-2',
-    machineId: '',
-    maquina: null,
-    operatorName: 'Alexandre Gomes',
-    date: '2025-09-14',
-    start: '14:35:25',
-    end: '16:35:20',
-    durationLabel: '2 horas',
-  },
-  {
-    id: 'default-usage-3',
-    machineId: '',
-    maquina: null,
-    operatorName: 'Alexandre Gomes',
-    date: '2025-09-14',
-    start: '14:35:25',
-    end: '16:35:20',
-    durationLabel: '2 horas',
-  },
-  {
-    id: 'default-usage-4',
-    machineId: '',
-    maquina: null,
-    operatorName: 'Alexandre Gomes',
-    date: '2025-09-14',
-    start: '14:35:25',
-    end: '16:35:20',
-    durationLabel: '2 horas',
-  },
-]
-
-const getFallbackRecords = (machineId: string, from?: string, to?: string): UsageRecord[] => {
-  if (machineId === '9' || (from && to && from > to)) return []
-  return DEFAULT_USAGE_RECORDS.filter(
-    (record) => (!from || record.date >= from) && (!to || record.date <= to)
-  )
-}
-
 const MachineDetailSheet: React.FC<MachineDetailSheetProps> = ({ machine, onClose }) => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -77,18 +27,8 @@ const MachineDetailSheet: React.FC<MachineDetailSheetProps> = ({ machine, onClos
   useEffect(() => {
     let stale = false
     sessionService.listar({ machineId: machine.id, from: from || undefined, to: to || undefined }).then(
-      (list) => {
-        if (!stale) {
-          if (list.length > 0) {
-            setRecords(list.map((s) => toUsageRecord(s)))
-          } else {
-            setRecords(getFallbackRecords(machine.id, from, to))
-          }
-        }
-      },
-      () => {
-        if (!stale) setRecords(getFallbackRecords(machine.id, from, to))
-      }
+      (list) => !stale && setRecords(list.map((s) => toUsageRecord(s))),
+      () => !stale && setRecords([])
     )
     return () => {
       stale = true

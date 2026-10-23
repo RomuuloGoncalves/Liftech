@@ -3,7 +3,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import EmployeeHistoryPage from '../../../pages/employee/EmployeeHistoryPage'
 
-vi.mock('../../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => true }))
+vi.mock('../../../hooks/useEmployeeData', () => ({
+  useEmployeeData: () => ({ machines: [], records: [], loading: true }),
+}))
 
 describe('EmployeeHistoryPage skeleton', () => {
   it('shows the filters block and the cards of the history while loading', () => {

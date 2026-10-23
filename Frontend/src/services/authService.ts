@@ -12,6 +12,7 @@ export interface UsuarioLogado {
   _id: string;
   nome: string;
   role: RoleLogin;
+  email?: string;
   telefone?: string;
   cargo?: string;
   empresa?: { _id: string; nome: string } | null;
@@ -50,6 +51,21 @@ export const authService = {
   saveBranches(filiais: Filial[]): void {
     const user = authService.getSession();
     if (user) localStorage.setItem('user', JSON.stringify({ ...user, filiais }));
+  },
+
+  async atualizarConta(dados: { senhaAtual: string; email?: string; novaSenha?: string }): Promise<void> {
+    const { data } = await api.put<{ email: string }>('/me', dados);
+    if (data?.email) {
+      const user = authService.getSession();
+      if (user) {
+        localStorage.setItem('user', JSON.stringify({ ...user, email: data.email }));
+      }
+    }
+  },
+
+  async excluirConta(senhaAtual: string): Promise<void> {
+    await api.delete('/me', { data: { senhaAtual } });
+    authService.logout();
   },
 
   logout(): void {

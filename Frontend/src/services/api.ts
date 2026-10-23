@@ -14,11 +14,8 @@ api.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`;
     }
 
-    config.headers['Content-Type'] = 'application/json';
-
     return config;
-  },
-  (error: unknown) => Promise.reject(error)
+  }
 );
 
 // Same list as AUTH_ROUTES in App.tsx (api.ts cannot import the App).

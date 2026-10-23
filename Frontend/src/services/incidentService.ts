@@ -22,6 +22,7 @@ export interface FiltroIncidentes {
   machineId?: string;
   from?: string;
   to?: string;
+  filialId?: string;
 }
 
 export const incidentService = {

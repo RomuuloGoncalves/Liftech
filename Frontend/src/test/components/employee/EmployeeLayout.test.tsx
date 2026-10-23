@@ -13,8 +13,6 @@ const renderAt = (path: string, entries: string[] = [path]) =>
     </MemoryRouter>
   )
 
-const tabs = () => screen.getByRole('navigation', { name: 'Navegação do funcionário' })
-const tab = (name: string) => screen.getByRole('link', { name })
 const path = () => screen.getByTestId('path').textContent
 
 describe('Employee layout', () => {
@@ -27,66 +25,91 @@ describe('Employee layout', () => {
   it.each([
     ['no stored user', null],
     ['an admin user', JSON.stringify({ _id: 'u2', nome: 'Ana', role: 'admin' })],
-  ])('redirects to /login/colaborador with %s', (_case, user) => {
+  ])('redirects to /login/colaborador with %s', async (_case, user) => {
     if (user) localStorage.setItem('user', user)
     else localStorage.removeItem('user')
     renderAt('/funcionario/historico')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Bem-vindo de volta' })).toBeInTheDocument()
     expect(path()).toBe('/login/colaborador')
     expect(screen.queryByRole('navigation', { name: 'Navegação do funcionário' })).not.toBeInTheDocument()
   })
 
-  it('renders without the admin Sidebar and Header', () => {
+  it('renders without the admin Sidebar and Header', async () => {
     renderAt('/funcionario')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Visão geral' })).toBeInTheDocument()
     expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Selecionar idioma' })).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: 'Visão geral' })).toBeInTheDocument()
   })
 
-  it('shows 3 tabs with their labels', () => {
+  it('shows 3 tabs with their labels', async () => {
     renderAt('/funcionario')
     const labels = ['Visão geral', 'Empilhadeiras', 'Histórico']
-    labels.forEach((l) => expect(tab(l)).toBeInTheDocument())
-    expect(tabs().querySelectorAll('a')).toHaveLength(3)
+    for (const l of labels) {
+      expect(await screen.findByRole('link', { name: l })).toBeInTheDocument()
+    }
+    const nav = await screen.findByRole('navigation', { name: 'Navegação do funcionário' })
+    expect(nav.querySelectorAll('a')).toHaveLength(3)
   })
 
-  it('marks only the current route tab with aria-current', () => {
+  it('marks only the current route tab with aria-current', async () => {
     renderAt('/funcionario/historico')
-    expect(tab('Histórico')).toHaveAttribute('aria-current', 'page')
+    const historicoTab = await screen.findByRole('link', { name: 'Histórico' })
+    expect(historicoTab).toHaveAttribute('aria-current', 'page')
     for (const l of ['Visão geral', 'Empilhadeiras']) {
-      expect(tab(l)).not.toHaveAttribute('aria-current')
+      expect(screen.getByRole('link', { name: l })).not.toHaveAttribute('aria-current')
     }
   })
 
-  it('keeps Empilhadeiras active on a machine detail route and Visão geral inactive', () => {
+  it('keeps Empilhadeiras active on a machine detail route and Visão geral inactive', async () => {
     renderAt('/funcionario/maquinas/abc')
-    expect(tab('Empilhadeiras')).toHaveAttribute('aria-current', 'page')
-    expect(tab('Visão geral')).not.toHaveAttribute('aria-current')
+    const empilhadeirasTab = await screen.findByRole('link', { name: 'Empilhadeiras' })
+    expect(empilhadeirasTab).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Visão geral' })).not.toHaveAttribute('aria-current')
   })
 
-  it('navigates when a tab is clicked', () => {
+  it('navigates when a tab is clicked', async () => {
     renderAt('/funcionario')
-    fireEvent.click(tab('Empilhadeiras'))
+    const empilhadeirasTab = await screen.findByRole('link', { name: 'Empilhadeiras' })
+    fireEvent.click(empilhadeirasTab)
     expect(path()).toBe('/funcionario/maquinas')
-    expect(tab('Empilhadeiras')).toHaveAttribute('aria-current', 'page')
+    expect(empilhadeirasTab).toHaveAttribute('aria-current', 'page')
   })
 
-  it('alert button opens the incident route', () => {
+  it('alert button opens the incident route', async () => {
     renderAt('/funcionario')
-    fireEvent.click(screen.getByRole('button', { name: 'Reportar uma ocorrência' }))
+    const alertBtn = await screen.findByRole('button', { name: 'Reportar uma ocorrência' })
+    fireEvent.click(alertBtn)
     expect(path()).toBe('/funcionario/ocorrencia')
   })
 
-  it('blue button opens settings, shows X and goes back to the previous route', () => {
+  it('blue button opens settings, shows X and goes back to the previous route', async () => {
     renderAt('/funcionario/historico')
-    fireEvent.click(screen.getByRole('button', { name: 'Abrir configurações' }))
+    const menuBtn = await screen.findByRole('button', { name: 'Abrir configurações' })
+    fireEvent.click(menuBtn)
     expect(path()).toBe('/funcionario/configuracoes')
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+    const closeBtn = await screen.findByRole('button', { name: 'Fechar' })
+    fireEvent.click(closeBtn)
     expect(path()).toBe('/funcionario/historico')
   })
 
-  it('X falls back to /funcionario when there is no previous entry', () => {
+  it('X falls back to /funcionario when there is no previous entry', async () => {
     renderAt('/funcionario/configuracoes')
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+    const closeBtn = await screen.findByRole('button', { name: 'Fechar' })
+    fireEvent.click(closeBtn)
     expect(path()).toBe('/funcionario')
+  })
+
+  it('keeps header mounted when navigating between /funcionario and /funcionario/historico', async () => {
+    renderAt('/funcionario')
+    const alertBtn = await screen.findByRole('button', { name: 'Reportar uma ocorrência' })
+    const header = alertBtn.closest('header')
+    expect(header).toBeInTheDocument()
+
+    const historicoTab = await screen.findByRole('link', { name: 'Histórico' })
+    fireEvent.click(historicoTab)
+    expect(path()).toBe('/funcionario/historico')
+
+    // O header do EmployeeLayout continua exatamente o mesmo nó DOM montado
+    expect(screen.getByRole('button', { name: 'Reportar uma ocorrência' }).closest('header')).toBe(header)
   })
 })

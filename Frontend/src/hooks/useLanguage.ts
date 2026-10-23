@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { VALID_LANGUAGES, type SupportedLanguage } from '../types/i18n';
 
-export interface LanguageOption {
+interface LanguageOption {
   code: string;
   label: string;
   nativeLabel: string;

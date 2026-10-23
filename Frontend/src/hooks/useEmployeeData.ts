@@ -8,16 +8,26 @@ import { sessionService } from '../services/sessionService'
 export function useEmployeeData() {
   const [machines, setMachines] = useState<Machine[]>([])
   const [records, setRecords] = useState<UsageRecord[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let stale = false
-    // ponytail: a failed request leaves the list empty, add an error state if users need to retry.
-    machineService.listar().then((list) => !stale && setMachines(list), () => {})
-    sessionService.listar().then((list) => !stale && setRecords(list.map((s) => toUsageRecord(s))), () => {})
+
+    Promise.allSettled([machineService.listar(), sessionService.listar()]).then(([resMachines, resSessions]) => {
+      if (stale) return
+      if (resMachines.status === 'fulfilled') {
+        setMachines(resMachines.value)
+      }
+      if (resSessions.status === 'fulfilled') {
+        setRecords(resSessions.value.map((s) => toUsageRecord(s)))
+      }
+      setLoading(false)
+    })
+
     return () => {
       stale = true
     }
   }, [])
 
-  return { machines, records }
+  return { machines, records, loading }
 }
