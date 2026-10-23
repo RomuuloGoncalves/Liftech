@@ -1,0 +1,50 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 140px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--gray-bg);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text-h);
+  resize: vertical;
+}
+
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.submit {
+  min-width: 136px;
+  padding: 8px 24px;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
