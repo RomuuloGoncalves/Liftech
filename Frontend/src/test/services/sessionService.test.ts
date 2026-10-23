@@ -61,6 +61,15 @@ describe('sessionService', () => {
     expect(result).toEqual([sessao]);
   });
 
+  it('listar gets /sessions with from and filialId in params', async () => {
+    get.mockResolvedValue({ data: [sessao] });
+
+    const result = await sessionService.listar({ from: '2026-10-01', filialId: 'f1' });
+
+    expect(get).toHaveBeenCalledWith('/sessions', { params: { from: '2026-10-01', filialId: 'f1' } });
+    expect(result).toEqual([sessao]);
+  });
+
   it('listar without filters sends empty params', async () => {
     get.mockResolvedValue({ data: [] });
 

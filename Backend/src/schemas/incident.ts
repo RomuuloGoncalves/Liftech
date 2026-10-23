@@ -7,7 +7,7 @@ const incidentSchema = new Schema ({
     status: String,
     origem: { type: String, enum: ['sensor', 'funcionario'], default: 'sensor' },
     descricao: { type: String, maxlength: 500 },
-    filialId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch', required: true, index: true },
+    filialId: { type: conn.mongoose.Schema.Types.ObjectId, ref: 'branch', required: true },
     empilhadeiraId: {
         type: conn.mongoose.Schema.Types.ObjectId,
         ref: 'forklift'
@@ -17,5 +17,8 @@ const incidentSchema = new Schema ({
         ref: 'operator'
     }
 })
+
+incidentSchema.index({ filialId: 1, dataIncidente: -1 })
+incidentSchema.index({ empilhadeiraId: 1, status: 1 })
 
 export const Incident = conn.mongoose.model('incident', incidentSchema)

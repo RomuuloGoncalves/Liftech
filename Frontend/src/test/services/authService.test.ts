@@ -2,14 +2,24 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from '../../services/api';
 import { authService } from '../../services/authService';
 
-vi.mock('../../services/api', () => ({ default: { post: vi.fn() } }));
+vi.mock('../../services/api', () => ({
+  default: {
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
 
 const post = vi.mocked(api.post);
+const put = vi.mocked(api.put);
+const del = vi.mocked(api.delete);
 
 describe('authService', () => {
   beforeEach(() => {
     localStorage.clear();
     post.mockReset();
+    put.mockReset();
+    del.mockReset();
   });
 
   it('login posts credentials, stores token and user, returns user', async () => {
@@ -103,6 +113,72 @@ describe('authService', () => {
       authService.saveBranches([{ _id: 'f2', nome: 'Filial 02', matriz: false }]);
 
       expect(localStorage.getItem('user')).toBeNull();
+    });
+  });
+
+  describe('atualizarConta', () => {
+    const user = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin' as const,
+      email: 'antigo@empresa.com',
+    };
+
+    it('atualizarConta({ senhaAtual, email }) chama api.put e grava o email da resposta em localStorage[user]', async () => {
+      localStorage.setItem('user', JSON.stringify(user));
+      put.mockResolvedValue({ data: { email: 'novo@empresa.com' } });
+
+      await authService.atualizarConta({ senhaAtual: '123', email: 'novo@empresa.com' });
+
+      expect(put).toHaveBeenCalledWith('/me', { senhaAtual: '123', email: 'novo@empresa.com' });
+      expect(authService.getSession()).toEqual({ ...user, email: 'novo@empresa.com' });
+    });
+
+    it('atualizarConta({ senhaAtual, novaSenha }) não muda a sessão além do email devolvido', async () => {
+      localStorage.setItem('user', JSON.stringify(user));
+      put.mockResolvedValue({ data: { email: 'antigo@empresa.com' } });
+
+      await authService.atualizarConta({ senhaAtual: '123', novaSenha: 'novaSenha123' });
+
+      expect(put).toHaveBeenCalledWith('/me', { senhaAtual: '123', novaSenha: 'novaSenha123' });
+      expect(authService.getSession()).toEqual(user);
+    });
+
+    it('erro da API em atualizarConta propaga e não mexe na sessão', async () => {
+      localStorage.setItem('user', JSON.stringify(user));
+      const err = new Error('403');
+      put.mockRejectedValue(err);
+
+      await expect(
+        authService.atualizarConta({ senhaAtual: 'errada', email: 'novo@empresa.com' })
+      ).rejects.toBe(err);
+
+      expect(authService.getSession()).toEqual(user);
+    });
+  });
+
+  describe('excluirConta', () => {
+    it('excluirConta(senhaAtual) chama api.delete com data e apaga token e user', async () => {
+      localStorage.setItem('token', 'tok');
+      localStorage.setItem('user', JSON.stringify({ _id: 'u1', role: 'admin' }));
+      del.mockResolvedValue({ data: {} });
+
+      await authService.excluirConta('senhaSecreta123');
+
+      expect(del).toHaveBeenCalledWith('/me', { data: { senhaAtual: 'senhaSecreta123' } });
+      expect(localStorage.getItem('token')).toBeNull();
+      expect(localStorage.getItem('user')).toBeNull();
+    });
+
+    it('erro da API em excluirConta propaga e não desloga', async () => {
+      localStorage.setItem('token', 'tok');
+      localStorage.setItem('user', JSON.stringify({ _id: 'u1', role: 'admin' }));
+      const err = new Error('409');
+      del.mockRejectedValue(err);
+
+      await expect(authService.excluirConta('senhaSecreta123')).rejects.toBe(err);
+      expect(localStorage.getItem('token')).toBe('tok');
+      expect(localStorage.getItem('user')).not.toBeNull();
     });
   });
 });

@@ -1,14 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Bell, Globe, LogOut, User, X } from 'lucide-react'
+import { Globe, LogOut, User, X } from 'lucide-react'
 import styles from './Header.module.css'
 
 import { useLanguage } from '../../hooks/useLanguage'
 import { useTranslation } from 'react-i18next'
 import { authService } from '../../services/authService'
+import { useAlerts } from '../../context/AlertsContext'
+import { AlertsDropdown } from './AlertsDropdown'
+
+const ProfileModal = lazy(() => import('./ProfileModal'))
 
 const ROUTE_KEYS: Record<string, string> = {
   '/': 'navigation.overview',
+  '/dashboard': 'dashboard.title',
   '/frota': 'fleet.pageTitle',
   '/equipe': 'team.pageTitle',
   '/alertas': 'navigation.alerts',
@@ -19,13 +24,20 @@ const Header: React.FC = () => {
   const navigate = useNavigate()
   const { language, changeLanguage, languages } = useLanguage()
   const { t } = useTranslation()
+  const alerts = useAlerts()
   const [languageOpen, setLanguageOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
+  const avatarRef = useRef<HTMLButtonElement>(null)
 
   const titleKey = ROUTE_KEYS[location.pathname]
   const title = titleKey ? t(titleKey) : ''
 
   const closeLanguagePopover = useCallback(() => setLanguageOpen(false), [])
+  const closeProfile = useCallback(() => {
+    setProfileOpen(false)
+    avatarRef.current?.focus()
+  }, [])
 
   const handleLogout = () => {
     authService.logout()
@@ -109,13 +121,24 @@ const Header: React.FC = () => {
           )}
         </div>
 
-        <button type="button" className={styles.iconButton} aria-label="Notificações">
-          <Bell size={18} />
-        </button>
+        <AlertsDropdown alerts={alerts} />
 
-        <button type="button" className={styles.avatarButton} aria-label="Perfil do usuário">
+        <button
+          ref={avatarRef}
+          type="button"
+          className={styles.avatarButton}
+          aria-label={t('profile.open')}
+          aria-haspopup="dialog"
+          onClick={() => setProfileOpen(true)}
+        >
           <User size={18} />
         </button>
+
+        {profileOpen && (
+          <Suspense fallback={null}>
+            <ProfileModal onClose={closeProfile} />
+          </Suspense>
+        )}
 
         <button
           type="button"

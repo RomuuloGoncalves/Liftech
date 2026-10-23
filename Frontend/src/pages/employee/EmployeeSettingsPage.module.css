@@ -65,7 +65,7 @@
   box-sizing: border-box;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--gray-bg, #FAFAFA);
+  background: var(--gray-bg);
   font: inherit;
   font-size: var(--fs-sm);
   color: var(--text-h);
@@ -83,7 +83,7 @@
 }
 
 .textarea::placeholder {
-  color: var(--text-muted, #A0AEC0);
+  color: var(--text-muted);
 }
 
 .textarea:focus-visible {
@@ -99,7 +99,7 @@
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--gray-bg, #FAFAFA);
+  background: var(--gray-bg);
 }
 
 .noticeIcon {
@@ -135,8 +135,8 @@
   padding: 0 24px;
   border: 0;
   border-radius: var(--radius-md);
-  background: var(--danger-solid, #EF4444);
-  color: var(--white, #FFFFFF);
+  background: var(--danger-solid);
+  color: var(--white);
   font: inherit;
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -153,8 +153,8 @@
   height: 44px;
   border: 0;
   border-radius: var(--radius-md);
-  background: var(--blue, #3B82F6);
-  color: var(--white, #FFFFFF);
+  background: var(--blue);
+  color: var(--white);
   font: inherit;
   font-size: var(--fs-md);
   font-weight: 600;
@@ -170,4 +170,15 @@
 .privacy:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
+}
+
+.send {
+  align-self: flex-end;
+  min-width: 136px;
+  padding: 8px 24px;
+}
+
+.send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

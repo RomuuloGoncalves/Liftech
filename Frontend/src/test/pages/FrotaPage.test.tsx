@@ -261,7 +261,7 @@ describe('FrotaPage', () => {
     fireEvent.click(within(card('EMP-082')).getByRole('button', { name: /Ver detalhes/ }))
     const dialog = screen.getByRole('dialog')
     expect(within(dialog).getByText('Funcionário')).toBeInTheDocument()
-    expect(within(dialog).getByRole('tab', { name: 'Histórico de reparos' })).toBeInTheDocument()
+    expect(within(dialog).getByRole('tab', { name: 'Manutenção' })).toBeInTheDocument()
     expect(within(dialog).queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument()
   })
 

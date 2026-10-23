@@ -47,7 +47,7 @@ describe('authService.login', () => {
 
         expect(User.findOne).toHaveBeenCalledWith({ role: 'admin', email: 'ana@empresa.com' });
         expect(select).toHaveBeenCalledWith('+senhaHash');
-        expect(resultado.user).toEqual({ _id: ID, nome: 'Ana', role: 'admin', empresa: null, escopo: 'filiais', filiais: [], operador: null });
+        expect(resultado.user).toEqual({ _id: ID, nome: 'Ana', role: 'admin', email: 'ana@empresa.com', empresa: null, escopo: 'filiais', filiais: [], operador: null });
         expect(resultado).not.toHaveProperty('user.senhaHash');
         const payload = jwt.verify(resultado.token, SEGREDO) as jwt.JwtPayload;
         expect(payload.sub).toBe(ID);
@@ -61,6 +61,7 @@ describe('authService.login', () => {
 
         expect(User.findOne).toHaveBeenCalledWith({ role: 'colaborador', usuario: 'bruno.op' });
         expect(resultado.user).toEqual({ _id: ID, nome: 'Bruno', role: 'colaborador', empresa: null, escopo: 'filiais', filiais: [], operador: null });
+        expect(JSON.parse(JSON.stringify(resultado.user))).not.toHaveProperty('email');
         expect((jwt.verify(resultado.token, SEGREDO) as jwt.JwtPayload).role).toBe('colaborador');
     });
 
@@ -77,7 +78,15 @@ describe('authService.login', () => {
 
         const resultado = await login('admin', 'ana@empresa.com', 'segredo1');
 
-        expect(Object.keys(JSON.parse(JSON.stringify(resultado.user)))).toEqual(['_id', 'nome', 'role', 'empresa', 'escopo', 'filiais', 'operador']);
+        expect(Object.keys(JSON.parse(JSON.stringify(resultado.user)))).toEqual(['_id', 'nome', 'role', 'email', 'empresa', 'escopo', 'filiais', 'operador']);
+    });
+
+    test('admin com email: user.email retorna email preenchido', async () => {
+        mockarBusca({ _id: ID, nome: 'Ana', role: 'admin', email: 'ana@empresa.com', senhaHash: gerarHashSenha('segredo1') });
+
+        const resultado = await login('admin', 'ana@empresa.com', 'segredo1');
+
+        expect(resultado.user.email).toBe('ana@empresa.com');
     });
 
     test('admin de escopo empresa: user traz empresa, escopo e todas as filiais', async () => {

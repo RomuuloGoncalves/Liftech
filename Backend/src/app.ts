@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
 import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { getHealthTemplate } from './utils/healthTemplate.js';
@@ -18,8 +20,14 @@ import operatorRouter from './feature/operator/operatorRouter.js';
 import sectorRouter from './feature/sector/sectorRouter.js';
 import resetRouter from './feature/reset/resetRouter.js';
 import deviceRouter from './feature/device/deviceRouter.js';
+import feedbackRouter from './feature/feedback/feedbackRouter.js';
+import meRouter from './feature/me/meRouter.js';
 
 export const app = express();
+
+app.disable('x-powered-by');
+app.use(helmet());
+app.use(compression());
 
 app.use(cors());
 app.use(express.json());
@@ -61,6 +69,8 @@ app.use('/api/reset', resetRouter);
 
 app.use('/api', autenticar);
 
+app.use('/api/feedback', feedbackRouter);
+
 app.use('/api/forklifts', forkliftRouter);
 app.use('/api/users', userRouter);
 app.use('/api/telemetry', telemetryRouter);
@@ -72,3 +82,4 @@ app.use('/api/incidents', incidentRouter);
 app.use('/api/operators', operatorRouter);
 app.use('/api/sectors', sectorRouter);
 app.use('/api/devices', deviceRouter);
+app.use('/api/me', meRouter);

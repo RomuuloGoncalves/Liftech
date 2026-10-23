@@ -12,6 +12,7 @@
   --green-bg: rgba(74, 255, 58, 0.25);
   --black-title: #181818;
   --black-text: #4c4c4c;
+  --text-muted: #a0aec0;
 
   --danger-solid: #ef4444;
   --urgency-critical: #c84646;
@@ -20,6 +21,7 @@
   --line: #e3e4e5;
   --sidebar-line: #eeeff0;
   --overlay: rgba(245, 245, 245, 0.55);
+  --gradient-brand: linear-gradient(180deg, #41b0ff 20%, #4652ef 100%);
 
   --bg-page: var(--gray-bg);
 

@@ -11,7 +11,7 @@ import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./telemetryRules.js";
 import { limiteImpacto, registrarImpacto } from "../machine/statusService.js";
 
-export const repositorioTelemetry = new TelemetryRepository(Telemetry);
+const repositorioTelemetry = new TelemetryRepository(Telemetry);
 export const servicoTelemetry = new TelemetryService(repositorioTelemetry);
 
 function obterId(req: Request): string | null {

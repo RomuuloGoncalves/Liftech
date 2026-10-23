@@ -284,7 +284,8 @@
       "logout": "Cerrar sesión",
       "feedbackTitle": "Comentarios y sugerencias",
       "feedbackQuestion": "¿Cómo fue tu experiencia?",
-      "privacy": "Política y privacidad"
+      "privacy": "Política y privacidad",
+      "feedbackPlaceholder": "¡Escribe una sugerencia de mejora o un comentario!"
     },
     "session": {
       "startError": "No se pudo iniciar la sesión de uso. Inténtalo de nuevo.",
@@ -313,5 +314,149 @@
   "notFound": {
     "description": "La página que buscas no existe o fue movida.",
     "backHome": "Volver al inicio"
+  },
+  "accessRequests": {
+    "title": "Solicitudes de Acceso",
+    "tabs": {
+      "pendente": "Pendientes",
+      "aprovada": "Aprobadas",
+      "recusada": "Rechazadas"
+    },
+    "empty": {
+      "pendente": "No hay solicitudes pendientes.",
+      "aprovada": "No hay solicitudes aprobadas.",
+      "recusada": "No hay solicitudes rechazadas."
+    },
+    "loadError": "No se pudieron cargar las solicitudes.",
+    "email": "Correo electrónico",
+    "company": "Empresa solicitante",
+    "admin": "Usuario administrador",
+    "sentAt": "Enviada el",
+    "reason": "Motivo del rechazo",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "acceptTitle": "Aceptar solicitud",
+    "acceptMessage": "¿Desea aceptar la solicitud de la empresa {{company}}?",
+    "rejectTitle": "Rechazar solicitud",
+    "reasonLabel": "Motivo del rechazo (opcional)",
+    "reasonPlaceholder": "Ingrese el motivo del rechazo (opcional)...",
+    "passwordTitle": "Contraseña inicial generada",
+    "passwordLabel": "Contraseña inicial",
+    "passwordWarning": "Copie y guarde esta contraseña en un lugar seguro. No se volverá a mostrar.",
+    "copy": "Copiar contraseña",
+    "copied": "¡Contraseña copiada!",
+    "rejected": "Solicitud rechazada con éxito.",
+    "saveError": "No se pudo guardar la solicitud.",
+    "alreadyDecided": "Esta solicitud ya ha sido decidida.",
+    "conflictEmail": "Ya existe un usuario con este correo electrónico.",
+    "conflictCompany": "Ya existe una empresa registrada con este nombre."
+  },
+  "levelInfo": {
+    "title": "Información sobre nivel crítico",
+    "open": "Sobre los niveles de urgencia",
+    "level": {
+      "critica": "Crítico",
+      "alta": "Alta",
+      "media": "Media"
+    },
+    "description": {
+      "tombamento": "Nivel de urgencia crítico asociado a un <b>vuelco</b>.",
+      "colisao": "Nivel de urgencia crítico asociado a una <b>colisión</b>.",
+      "frenagem": "Nivel de urgencia crítico asociado a un <b>frenado brusco</b>."
+    }
+  },
+  "feedback": {
+    "title": "Envíanos comentarios o una sugerencia",
+    "question": "¿Cómo fue tu experiencia?",
+    "placeholder": "¡Escribe una sugerencia de mejora o un comentario!",
+    "send": "Enviar",
+    "sent": "Comentarios enviados. ¡Gracias!",
+    "error": "No se pudieron enviar los comentarios. Inténtalo de nuevo."
+  },
+  "dashboard": {
+    "navLabel": "Panel de control",
+    "title": "Panel de control",
+    "quickData": "Datos rápidos",
+    "machinesRegistered": "Máquinas registradas",
+    "employeesRegistered": "Empleados registrados",
+    "machinesMaintenance": "Máquinas en mantenimiento",
+    "machinesDisabled": "Máquinas desactivadas",
+    "machinesInfo": "Información sobre las máquinas",
+    "machineList": "Lista de máquinas",
+    "searchLabel": "Buscar máquinas",
+    "colName": "Nombre",
+    "colSector": "Sector",
+    "colTime": "Tiempo",
+    "colStatus": "Estado",
+    "minutes_zero": "{{count}} minutos",
+    "minutes_one": "{{count}} minuto",
+    "minutes_other": "{{count}} minutos",
+    "pageInfo_zero": "Mostrando {{count}} máquinas - Página {{page}} de {{pages}}",
+    "pageInfo_one": "Mostrando {{count}} máquina - Página {{page}} de {{pages}}",
+    "pageInfo_other": "Mostrando {{count}} máquinas - Página {{page}} de {{pages}}",
+    "prevPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "noResults": "No se encontraron máquinas",
+    "usageTitle": "Registro por tiempo",
+    "weekdays": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom"
+    },
+    "hourLabel": "{{hour}} hrs",
+    "cellLabel_zero": "{{day}}, {{hour}} hrs: {{count}} sesiones",
+    "cellLabel_one": "{{day}}, {{hour}} hrs: {{count}} sesión",
+    "cellLabel_other": "{{day}}, {{hour}} hrs: {{count}} sesiones",
+    "less": "Menos",
+    "more": "Más",
+    "period": "Sesiones en las últimas 4 semanas",
+    "noSessions": "Sin registros en el período",
+    "loadError": "No se pudieron cargar los datos."
+  },
+  "alertModal": {
+    "title": "¡Alerta!",
+    "message": "Accidente en el sector <b>{{setor}}</b>, <b>{{funcionario}}</b> empleado responsable de la máquina {{maquina}}.",
+    "notInformed": "no informado",
+    "ok": "Ok"
+  },
+  "profile": {
+    "title": "Perfil",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "newEmail": "Nuevo correo electrónico",
+    "newPassword": "Nueva contraseña",
+    "currentPassword": "Contraseña actual",
+    "open": "Perfil del usuario",
+    "editEmail": "Editar correo electrónico",
+    "editPassword": "Editar contraseña",
+    "deleteAccount": "Eliminar cuenta",
+    "logout": "Cerrar sesión",
+    "deleteWarning": "Esta acción no se puede deshacer. Para confirmar la eliminación de su cuenta, ingrese su contraseña actual.",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "emailChanged": "Correo electrónico modificado",
+    "passwordChanged": "Contraseña modificada",
+    "wrongPassword": "Contraseña actual incorrecta",
+    "emailInUse": "El correo electrónico ya está en uso",
+    "onlyAdmin": "Usted es el único administrador de la empresa",
+    "genericError": "No se pudo completar la acción. Inténtelo de nuevo.",
+    "minLength": "La contraseña debe tener al menos 8 caracteres"
+  },
+  "alertsDropdown": {
+    "bell": "Notificaciones",
+    "bellUnseen": "Notificaciones (hay alertas nuevas)",
+    "title": "Alertas Recientes",
+    "close": "Cerrar alertas recientes",
+    "more": "Más",
+    "loading": "Cargando alertas…",
+    "empty": "Ninguna alerta reciente",
+    "error": "No se pudieron cargar las alertas",
+    "retry": "Intentar de nuevo",
+    "unknownMachine": "Máquina no informada"
   }
 }

@@ -1,10 +1,9 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AlertasPage from '../../pages/AlertasPage'
 import styles from '../../pages/AlertasPage.module.css'
-
-const loading = vi.hoisted(() => ({ value: false }))
-vi.mock('../../hooks/useFirstVisitLoading', () => ({ useFirstVisitLoading: () => loading.value }))
 import { DEFAULT_PERIOD, MACHINES, MACHINE_EVENTS, defaultPeriodTo } from '../../data/machines'
 import { incidentService, type FiltroIncidentes, type Incidente } from '../../services/incidentService'
 import { machineService } from '../../services/machineService'
@@ -191,7 +190,7 @@ describe('AlertasPage', () => {
     const dialog = screen.getByRole('dialog')
     expect(within(dialog).getByText('EMP-084(ID)')).toBeInTheDocument()
     const tabs = within(dialog).getAllByRole('tab')
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Histórico de alertas', 'Histórico de reparos'])
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Acidentes', 'Manutenção'])
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
     expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
     expect(within(within(dialog).getByRole('tabpanel')).getAllByRole('listitem')).toHaveLength(visible)
@@ -210,12 +209,8 @@ describe('AlertasPage', () => {
 })
 
 describe('AlertasPage skeleton', () => {
-  afterEach(() => {
-    loading.value = false
-  })
-
-  it('shows the grid skeleton without the search and period while loading', () => {
-    loading.value = true
+  it('shows the grid skeleton while the incident promise is pending', () => {
+    listarIncidentes.mockReturnValue(new Promise(() => {}))
     const { container } = render(<AlertasPage />)
     expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
     expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
@@ -224,7 +219,7 @@ describe('AlertasPage skeleton', () => {
   })
 
   it('mirrors the panel, label, search and period, with fleet cards in the page grid class', () => {
-    loading.value = true
+    listarIncidentes.mockReturnValue(new Promise(() => {}))
     const { container } = render(<AlertasPage />)
     const panel = container.querySelector(`.${styles.panel}`)!
     const toolbar = panel.querySelector('[data-skeleton-toolbar]')!
@@ -233,5 +228,100 @@ describe('AlertasPage skeleton', () => {
     const grid = panel.querySelector(`.${styles.grid}`)!
     expect(grid.querySelectorAll('[data-skeleton-card] [data-skeleton-part="strip"]')).toHaveLength(8)
     expect(toolbar.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('shows content right after the incident promise resolves without timers', async () => {
+    let resolveIncidentes!: (value: Incidente[]) => void
+    listarIncidentes.mockReturnValue(new Promise((resolve) => { resolveIncidentes = resolve }))
+
+    render(<AlertasPage />)
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando...')
+
+    await act(async () => {
+      resolveIncidentes(
+        DEFAULT().map(
+          (e, index) =>
+            ({
+              _id: e.id,
+              machineId: e.machineId,
+              maquina: { nome: 'x', identificacao: 'x', setor: 'x' },
+              operador: { nome: e.operador },
+              dataIncidente: new Date(`${e.data}T${e.inicio}`).toISOString(),
+              forcaImpacto: null,
+              status: 'pendente',
+              origem: index % 2 ? 'funcionario' : 'sensor',
+              descricao: null,
+            }) as Incidente
+        )
+      )
+    })
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(cards().length).toBeGreaterThan(0)
+  })
+
+  describe('AlertasPage help button and level info modal (EXP-01, 06..10)', () => {
+    it('renders the help button "?" with accessible name after loading (EXP-08)', async () => {
+      await renderPage()
+      const helpButton = screen.getByRole('button', { name: 'Sobre os níveis de urgência' })
+      expect(helpButton).toBeInTheDocument()
+      expect(helpButton).toHaveAttribute('title', 'Sobre os níveis de urgência')
+    })
+
+    it('opens the level info modal when clicking "?" button (EXP-01)', async () => {
+      await renderPage()
+      const helpButton = screen.getByRole('button', { name: 'Sobre os níveis de urgência' })
+      fireEvent.click(helpButton)
+      expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
+    })
+
+    it('closes the modal and returns focus to the "?" button on Escape and on Fechar click (EXP-06, EXP-07)', async () => {
+      await renderPage()
+      const helpButton = screen.getByRole('button', { name: 'Sobre os níveis de urgência' })
+
+      // Test Escape
+      fireEvent.click(helpButton)
+      expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
+      fireEvent.keyDown(window, { key: 'Escape' })
+      expect(screen.queryByRole('dialog', { name: 'Informações sobre nível crítico' })).not.toBeInTheDocument()
+      expect(document.activeElement).toBe(helpButton)
+
+      // Test Fechar click
+      fireEvent.click(helpButton)
+      expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+      expect(screen.queryByRole('dialog', { name: 'Informações sobre nível crítico' })).not.toBeInTheDocument()
+      expect(document.activeElement).toBe(helpButton)
+    })
+
+    it('places "?" as the first child of the filters group and defines blue background in CSS (EXP-09)', async () => {
+      const { container } = render(<AlertasPage />)
+      await loaded()
+
+      const filters = container.querySelector(`.${styles.filters}`)
+      expect(filters).toBeInTheDocument()
+      const firstChild = filters?.firstElementChild
+      expect(firstChild).toBe(screen.getByRole('button', { name: 'Sobre os níveis de urgência' }))
+
+      const cssPath = resolve(process.cwd(), 'src/pages/AlertasPage.module.css')
+      const css = readFileSync(cssPath, 'utf8')
+      const block = (code: string, sel: string) =>
+        [...code.matchAll(/([^{}]+)\{([^}]*)\}/g)].find((m) => m[1].trim() === sel)?.[2] ?? ''
+
+      expect(block(css, '.helpButton')).toMatch(/background:\s*var\(--blue\)/)
+      expect(block(css, '.helpButton')).toMatch(/color:\s*var\(--white\)/)
+    })
+
+    it('keeps "?" button visible and functional when incident list is empty (EXP-10)', async () => {
+      listarIncidentes.mockResolvedValue([])
+      await renderPage()
+
+      expect(screen.getByText('Nenhum alerta encontrado')).toBeInTheDocument()
+      const helpButton = screen.getByRole('button', { name: 'Sobre os níveis de urgência' })
+      expect(helpButton).toBeInTheDocument()
+
+      fireEvent.click(helpButton)
+      expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
+    })
   })
 })

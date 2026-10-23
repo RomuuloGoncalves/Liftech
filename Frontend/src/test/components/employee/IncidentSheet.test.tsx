@@ -195,7 +195,7 @@ describe('Incident route', () => {
 
   it('opens the sheet and a valid submit goes back keeping the toast', async () => {
     await renderRoute()
-    expect(screen.getByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
+    expect(await screen.findByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
     fillAll()
     await submit()
     expect(screen.getByTestId('path')).toHaveTextContent('/funcionario/historico')
@@ -205,12 +205,13 @@ describe('Incident route', () => {
 
   it('Cancelar goes back without a toast', async () => {
     await renderRoute()
+    expect(await screen.findByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
     fireEvent.click(footerButton('Cancelar'))
     expect(screen.getByTestId('path')).toHaveTextContent('/funcionario/historico')
     expect(screen.queryByText('Ocorrência enviada com sucesso')).not.toBeInTheDocument()
   })
 
-  it('goes to /funcionario when there is no history', () => {
+  it('goes to /funcionario when there is no history', async () => {
     render(
       <ToastProvider>
         <MemoryRouter initialEntries={['/funcionario/ocorrencia']}>
@@ -219,6 +220,7 @@ describe('Incident route', () => {
         </MemoryRouter>
       </ToastProvider>
     )
+    expect(await screen.findByRole('dialog', { name: 'Reporte uma ocorrência' })).toBeInTheDocument()
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.getByTestId('path')).toHaveTextContent(/^\/funcionario$/)
   })
