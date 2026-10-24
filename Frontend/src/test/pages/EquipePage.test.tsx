@@ -64,7 +64,7 @@ beforeEach(() => {
   listar.mockResolvedValue(EMPLOYEES)
   criar.mockReset()
   criar.mockImplementation(async (values) =>
-    employee({ ...operatorFields(values), id: 'srv-1', matricula: 'EMP-095', usuario: null, acesso: 'Negado' })
+    employee({ ...operatorFields(values), id: 'srv-1', matricula: 'EMP-095', usuario: values.usuario || null, acesso: values.usuario ? 'Permitido' : 'Negado' })
   )
   criarLogin.mockReset()
   criarLogin.mockImplementation(async (id, usuario) =>
@@ -224,7 +224,7 @@ function fillEmployeeForm(values: Record<string, string>) {
 }
 
 describe('EquipePage: create, edit and details', () => {
-  it('creates the operator, then its login, and puts the answer at the top with access Permitido', async () => {
+  it('creates the operator with its login in one call and puts the answer at the top with access Permitido', async () => {
     await renderLoaded()
     const before = employeeCards().length
 
@@ -233,9 +233,8 @@ describe('EquipePage: create, edit and details', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
 
     expect(await screen.findByText('EMP-095(ID)')).toBeInTheDocument()
-    expect(criar).toHaveBeenCalledWith(expect.objectContaining({ nome: 'Maria Lima', cargo: 'Operadora' }), undefined)
-    expect(criarLogin).toHaveBeenCalledWith('srv-1', 'maria', 'Maria123')
-    expect(criar.mock.invocationCallOrder[0]).toBeLessThan(criarLogin.mock.invocationCallOrder[0])
+    expect(criar).toHaveBeenCalledWith(expect.objectContaining({ nome: 'Maria Lima', cargo: 'Operadora', usuario: 'maria', senha: 'Maria123' }), undefined)
+    expect(criarLogin).not.toHaveBeenCalled()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(employeeCards()).toHaveLength(before + 1)
     const created = screen.getByRole('switch', { name: 'Alterar acesso de Maria Lima' })
@@ -591,40 +590,25 @@ describe('EquipePage: create through the API', () => {
     register()
 
     await waitFor(() => expect(toastTexts()).toContain('Não foi possível salvar o funcionário. Tente novamente.'))
-    expect(criarLogin).not.toHaveBeenCalled()
     expect(screen.queryByRole('switch', { name: 'Alterar acesso de Maria Lima' })).not.toBeInTheDocument()
     expect(employeeCards()).toHaveLength(EMPLOYEES.length)
   })
 
-  it('keeps the employee without login and warns when the login is refused', async () => {
-    criarLogin.mockRejectedValue(httpError(500))
-    await renderLoaded()
-
-    register()
-
-    const created = await screen.findByRole('switch', { name: 'Alterar acesso de Maria Lima' })
-    expect(created).toBeDisabled()
-    expect(created).toHaveAttribute('aria-checked', 'false')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(toastTexts()).toContain('Funcionário cadastrado, mas não foi possível criar o login. Edite-o para tentar de novo.')
-  })
-
-  it('keeps the form open on a taken usuario and only creates the login on the next Confirmar', async () => {
-    criarLogin.mockRejectedValueOnce(httpError(409))
+  it('keeps the form open and says the usuario is taken on a 409, adding nobody', async () => {
+    criar.mockRejectedValueOnce(httpError(409))
     await renderLoaded()
 
     register()
 
     await waitFor(() => expect(toastTexts()).toContain('Este usuário já está em uso'))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByRole('switch', { name: 'Alterar acesso de Maria Lima' })).toBeDisabled()
+    expect(employeeCards()).toHaveLength(EMPLOYEES.length)
 
     fillEmployeeForm({ Usuário: 'maria.lima', Senha: 'Maria123' })
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
 
-    await waitFor(() => expect(criarLogin).toHaveBeenLastCalledWith('srv-1', 'maria.lima', 'Maria123'))
-    expect(criar).toHaveBeenCalledTimes(1)
-    expect(atualizar).toHaveBeenCalledWith('srv-1', expect.objectContaining({ nome: 'Maria Lima' }))
+    await waitFor(() => expect(criar).toHaveBeenLastCalledWith(expect.objectContaining({ usuario: 'maria.lima' }), undefined))
+    expect(criarLogin).not.toHaveBeenCalled()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })

@@ -81,14 +81,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 24px;
-  padding: 0 5px;
+  height: 32px;
   border: 1px solid #e3e3e3;
-  border-radius: 3px;
+  border-radius: 5px;
   background: #fff;
   box-sizing: border-box;
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: bold;
   color: #3a9cff;
   text-decoration: none;
   white-space: nowrap;

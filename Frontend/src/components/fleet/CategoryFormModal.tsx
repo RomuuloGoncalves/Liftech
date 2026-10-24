@@ -7,7 +7,7 @@ import { CATEGORY_COLORS, categoryNameError, isHexColor } from '../../data/fleet
 import { MACHINE_STATUSES, type MachineStatus } from '../../data/machines'
 import styles from './CategoryFormModal.module.css'
 
-export interface CategoryFormValues {
+interface CategoryFormValues {
   nome: string
   cor: string
   statusVinculados: MachineStatus[]

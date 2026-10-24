@@ -129,7 +129,7 @@ describe('criar', () => {
         expect(Branch.distinct).toHaveBeenCalledWith('_id', { empresaId: 'e1' });
         expect(Operator.distinct).toHaveBeenCalledWith('matricula', { filialId: { $in: [F1, F2, FORA] } });
         expect(Operator.create).toHaveBeenCalledWith({
-            nome: 'Ana Souza', telefone: '1', cargo: 'Op', horarioEntrada: '08:00', horarioSaida: '', filialId: F1, matricula: 'EMP-093',
+            nome: 'Ana Souza', telefone: '1', cargo: 'Op', horarioEntrada: '08:00', horarioSaida: '', filialId: F1, empresaId: 'e1', matricula: 'EMP-093',
         });
         expect(operador).toMatchObject({ id: ID, matricula: 'EMP-093', filialId: F1, usuario: null, acesso: 'Negado' });
     });
@@ -140,6 +140,56 @@ describe('criar', () => {
         await criar(ESCOPO, { nome: 'Ana', filialId: F1 });
 
         expect(Operator.create).toHaveBeenCalledWith(expect.objectContaining({ matricula: 'EMP-001' }));
+    });
+
+    test('matrícula repetida numa corrida (11000): recalcula e tenta de novo', async () => {
+        vi.mocked(Operator.distinct).mockResolvedValueOnce(['EMP-001'] as any).mockResolvedValueOnce(['EMP-001', 'EMP-002'] as any);
+        vi.mocked(Operator.create).mockRejectedValueOnce(Object.assign(new Error('dup'), { code: 11000 }));
+
+        const operador = await criar(ESCOPO, { nome: 'Ana', filialId: F1 });
+
+        expect(Operator.create).toHaveBeenCalledTimes(2);
+        expect(operador.matricula).toBe('EMP-003');
+    });
+
+    test('desiste depois de 5 colisões seguidas', async () => {
+        vi.mocked(Operator.distinct).mockResolvedValue([] as any);
+        vi.mocked(Operator.create).mockRejectedValue(Object.assign(new Error('dup'), { code: 11000 }));
+
+        await expect(criar(ESCOPO, { nome: 'Ana', filialId: F1 })).rejects.toMatchObject({ code: 11000 });
+        expect(Operator.create).toHaveBeenCalledTimes(5);
+    });
+
+    describe('com login', () => {
+        const login = { usuario: 'ana', senha: 'segredo123' };
+        beforeEach(() => {
+            vi.mocked(Operator.distinct).mockResolvedValue([] as any);
+            vi.mocked(User.exists).mockResolvedValue(null as any);
+            vi.mocked(User.create).mockResolvedValue({} as any);
+            mockarOperador(DOC, DOC);
+            mockarLogins([{ operadorId: DOC._id, usuario: 'ana' }]);
+        });
+
+        test('cria o operador e o login numa chamada só', async () => {
+            const operador = await criar(ESCOPO, { nome: 'Ana', filialId: F1, login });
+
+            expect(User.create).toHaveBeenCalledWith(expect.objectContaining({ usuario: 'ana', operadorId: String(DOC._id), filiaisIds: [DOC.filialId] }));
+            expect(operador).toMatchObject({ usuario: 'ana', acesso: 'Permitido' });
+        });
+
+        test('usuário já usado: 409 sem criar o operador', async () => {
+            vi.mocked(User.exists).mockResolvedValue({ _id: 'u' } as any);
+
+            await expect(criar(ESCOPO, { nome: 'Ana', filialId: F1, login })).rejects.toMatchObject({ status: 409 });
+            expect(Operator.create).not.toHaveBeenCalled();
+        });
+
+        test('login recusado depois do operador: desfaz o operador', async () => {
+            vi.mocked(User.create).mockRejectedValue(Object.assign(new Error('dup'), { code: 11000 }));
+
+            await expect(criar(ESCOPO, { nome: 'Ana', filialId: F1, login })).rejects.toMatchObject({ status: 409 });
+            expect(Operator.deleteOne).toHaveBeenCalledWith({ _id: DOC._id });
+        });
     });
 });
 
@@ -182,6 +232,8 @@ describe('excluir', () => {
         expect(WorkSession.exists).toHaveBeenCalledWith({ operadorId: ID, fim: null });
         expect(Operator.deleteOne).toHaveBeenCalledWith({ _id: ID });
         expect(User.deleteMany).toHaveBeenCalledWith({ operadorId: ID });
+        // Login antes do operador: uma falha no meio nunca deixa login órfão.
+        expect(vi.mocked(User.deleteMany).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(Operator.deleteOne).mock.invocationCallOrder[0]);
         expect(resposta).toEqual({ _id: ID, message: expect.any(String) });
     });
 

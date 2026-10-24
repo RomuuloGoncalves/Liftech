@@ -1,9 +1,11 @@
-import React, { useId } from 'react'
+import React, { useId, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
-import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
+import { Info } from 'lucide-react'
 import { authService, type UsuarioLogado } from '../../services/authService'
+import { feedbackService } from '../../services/feedbackService'
+import { useToast } from '../../components/common/Toast'
+import dialogButtons from '../../components/common/DialogButtons.module.css'
 import styles from './EmployeeSettingsPage.module.css'
 
 const EMPTY = '—'
@@ -18,16 +20,28 @@ function readUser(): Partial<UsuarioLogado> {
 
 const EmployeeSettingsPage: React.FC = () => {
   const { t } = useTranslation()
+  const { show, showError } = useToast()
   const navigate = useNavigate()
-  const loading = useFirstVisitLoading('employee-settings')
   const id = useId()
 
-  if (loading) {
-    return (
-      <div className={styles.page}>
-        <EmployeeSkeleton variant="settings" />
-      </div>
-    )
+  const [feedbackTexto, setFeedbackTexto] = useState('')
+  const [enviandoFeedback, setEnviandoFeedback] = useState(false)
+
+  const feedbackValido = feedbackTexto.trim().length > 0
+
+  const handleEnviarFeedback = async () => {
+    if (!feedbackValido || enviandoFeedback) return
+
+    setEnviandoFeedback(true)
+    try {
+      await feedbackService.enviar(feedbackTexto.trim())
+      show(t('feedback.sent'))
+      setFeedbackTexto('')
+    } catch {
+      showError(t('feedback.error'))
+    } finally {
+      setEnviandoFeedback(false)
+    }
   }
 
   const user = readUser()
@@ -58,14 +72,19 @@ const EmployeeSettingsPage: React.FC = () => {
               <input id={`${id}-${key}`} className={styles.input} value={value || EMPTY} readOnly />
             </div>
           ))}
+          
           <div className={styles.notice}>
-            <p className={styles.noticeTitle}>{t('employee.settings.changeNoticeTitle')}</p>
-            <p className={styles.noticeText}>{t('employee.settings.changeNotice')}</p>
+            <Info size={20} className={styles.noticeIcon} aria-hidden="true" />
+            <div className={styles.noticeContent}>
+              <p className={styles.noticeTitle}>{t('employee.settings.changeNoticeTitle')}</p>
+              <p className={styles.noticeText}>{t('employee.settings.changeNotice')}</p>
+            </div>
           </div>
+
+          <button type="button" className={styles.logout} onClick={logout}>
+            {t('employee.settings.logout')}
+          </button>
         </div>
-        <button type="button" className={styles.logout} onClick={logout}>
-          {t('employee.settings.logout')}
-        </button>
       </section>
 
       <section className={styles.section}>
@@ -73,7 +92,22 @@ const EmployeeSettingsPage: React.FC = () => {
         <label htmlFor={`${id}-feedback`} className={styles.label}>
           {t('employee.settings.feedbackQuestion')}
         </label>
-        <textarea id={`${id}-feedback`} className={styles.textarea} />
+        <textarea 
+          id={`${id}-feedback`} 
+          className={styles.textarea} 
+          placeholder={t('employee.settings.feedbackPlaceholder')}
+          maxLength={1000}
+          value={feedbackTexto}
+          onChange={(e) => setFeedbackTexto(e.target.value)}
+        />
+        <button
+          type="button"
+          className={`${dialogButtons.confirm} ${styles.send}`}
+          disabled={!feedbackValido || enviandoFeedback}
+          onClick={handleEnviarFeedback}
+        >
+          {t('feedback.send')}
+        </button>
       </section>
 
       {/* ponytail: sem ação até existir a página de Política e Privacidade */}

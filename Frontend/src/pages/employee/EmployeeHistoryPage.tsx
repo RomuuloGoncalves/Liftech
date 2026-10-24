@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CalendarDays, Clock, Search } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
-import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import MachineListCard from '../../components/employee/MachineListCard'
 import { filterUsageHistory } from '../../data/employeeArea'
 import { useEmployeeData } from '../../hooks/useEmployeeData'
@@ -17,9 +16,8 @@ const EmployeeHistoryPage: React.FC = () => {
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [machineQuery, setMachineQuery] = useState('')
-  const loading = useFirstVisitLoading('employee-history')
 
-  const { machines, records: all } = useEmployeeData()
+  const { machines, records: all, loading } = useEmployeeData()
   const records = filterUsageHistory(all, { from, to, startTime, endTime, machineQuery })
   const formatDate = (date: string) =>
     new Date(`${date}T00:00:00Z`).toLocaleDateString(i18n.language, {
@@ -44,11 +42,12 @@ const EmployeeHistoryPage: React.FC = () => {
 
       <h2 className={styles.filtersTitle}>{t('employee.history.filters')}</h2>
       <div className={styles.filters}>
-        <div className={`${styles.field} ${styles.period}`}>
+<div className={`${styles.field} ${styles.period}`}>
           <CalendarDays size={16} aria-hidden="true" />
+          <span className={styles.dateLabel}>Data:</span>
           <input
             type="date"
-            className={styles.input}
+            className={styles.dateInput}
             aria-label={t('employee.history.periodFrom')}
             value={from}
             onChange={(e) => setFrom(e.target.value)}
@@ -56,7 +55,7 @@ const EmployeeHistoryPage: React.FC = () => {
           <span aria-hidden="true">-</span>
           <input
             type="date"
-            className={styles.input}
+            className={styles.dateInput}
             aria-label={t('employee.history.periodTo')}
             value={to}
             onChange={(e) => setTo(e.target.value)}

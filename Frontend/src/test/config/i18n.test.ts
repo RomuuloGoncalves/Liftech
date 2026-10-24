@@ -17,7 +17,7 @@ const ALL_LOCALES = [
   { code: 'ru',    data: ru   },
 ];
 
-const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet', 'branches'] as const;
+const REQUIRED_MODULES = ['common', 'navigation', 'machines', 'alerts', 'team', 'languages', 'fleet', 'branches', 'accessRequests', 'alertModal'] as const;
 
 describe('i18n config', () => {
   beforeEach(() => {
@@ -498,3 +498,163 @@ describe('sector translations', () => {
     }
   });
 });
+
+describe('accessRequests module translations', () => {
+  const flatten = (obj: object, prefix = ''): Record<string, string> =>
+    Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {
+      const path = prefix + key;
+      return value && typeof value === 'object'
+        ? { ...acc, ...flatten(value as object, `${path}.`) }
+        : { ...acc, [path]: String(value) };
+    }, {});
+
+  const ptBRAccessRequestKeys = Object.keys(flatten(ptBR.accessRequests)).sort();
+
+  it.each(ALL_LOCALES)('locale $code has the same accessRequests keys as pt-BR, all non-empty', ({ code, data }) => {
+    const flat = flatten((data as Record<string, object>).accessRequests);
+    expect(Object.keys(flat).sort(), `Locale "${code}" accessRequests keys differ from pt-BR`).toEqual(ptBRAccessRequestKeys);
+    for (const [key, value] of Object.entries(flat)) {
+      expect(value, `Locale "${code}" accessRequests.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))('locale $code translates every accessRequests key without copying pt-BR', ({ code, data }) => {
+    const flat = flatten((data as Record<string, object>).accessRequests);
+    const flatPt = flatten(ptBR.accessRequests);
+    for (const [key, value] of Object.entries(flat)) {
+      expect(value, `Locale "${code}" accessRequests.${key} copies the pt-BR text`).not.toBe(flatPt[key]);
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code keeps {{company}} placeholder in acceptMessage', ({ code, data }) => {
+    const accessRequests = (data as Record<string, { acceptMessage?: string }>).accessRequests;
+    expect(accessRequests.acceptMessage, `Locale "${code}" lost {{company}} in acceptMessage`).toContain('{{company}}');
+  });
+});
+
+describe('feedback module translations', () => {
+  const FEEDBACK_KEYS = ['title', 'question', 'placeholder', 'send', 'sent', 'error'] as const;
+
+  it('pt-BR defines all 6 feedback keys', () => {
+    const ptBRFeedback = (ptBR as { feedback: Record<string, string> }).feedback;
+    expect(Object.keys(ptBRFeedback).sort()).toEqual([...FEEDBACK_KEYS].sort());
+  });
+
+  it.each(ALL_LOCALES)('locale $code has the same 6 feedback keys as pt-BR, all non-empty', ({ code, data }) => {
+    const feedback = (data as { feedback?: Record<string, string> }).feedback;
+    expect(feedback, `Locale "${code}" is missing feedback block`).toBeDefined();
+    expect(Object.keys(feedback ?? {}).sort(), `Locale "${code}" feedback keys differ from pt-BR`).toEqual([...FEEDBACK_KEYS].sort());
+    for (const key of FEEDBACK_KEYS) {
+      expect(feedback?.[key], `Locale "${code}" feedback.${key} is empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code has non-empty employee.settings.feedbackPlaceholder', ({ code, data }) => {
+    const settings = (data as { employee?: { settings?: Record<string, string> } }).employee?.settings;
+    expect(settings?.feedbackPlaceholder, `Locale "${code}" employee.settings.feedbackPlaceholder is empty`).toBeTruthy();
+  });
+});
+
+describe('dashboard module translations', () => {
+  const EXPECTED_PT_KEYS = [
+    'navLabel', 'title', 'quickData', 'machinesRegistered', 'employeesRegistered',
+    'machinesMaintenance', 'machinesDisabled', 'machinesInfo', 'machineList', 'searchLabel',
+    'colName', 'colSector', 'colTime', 'colStatus', 'minutes_one', 'minutes_other',
+    'pageInfo_one', 'pageInfo_other', 'prevPage', 'nextPage', 'noResults', 'usageTitle',
+    'weekdays.mon', 'weekdays.tue', 'weekdays.wed', 'weekdays.thu', 'weekdays.fri', 'weekdays.sat', 'weekdays.sun',
+    'hourLabel', 'cellLabel_one', 'cellLabel_other', 'less', 'more', 'period', 'noSessions', 'loadError'
+  ];
+
+  it('pt-BR defines every dashboard key used by design', () => {
+    const flatten = (obj: object, prefix = ''): Record<string, string> =>
+      Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {
+        const path = prefix + key;
+        return value && typeof value === 'object'
+          ? { ...acc, ...flatten(value as object, `${path}.`) }
+          : { ...acc, [path]: String(value) };
+      }, {});
+
+    const flat = flatten((ptBR as Record<string, object>).dashboard);
+    for (const key of EXPECTED_PT_KEYS) {
+      expect(flat[key], `pt-BR dashboard.${key} is missing`).toBeTruthy();
+    }
+  });
+
+  it('formats pageInfo with count, page, and pages in pt-BR', async () => {
+    const i18n = (await import('../../config/i18n')).default;
+    await i18n.changeLanguage('pt-BR');
+    expect(i18n.t('dashboard.pageInfo', { count: 4, page: 1, pages: 1 })).toBe('Exibindo 4 máquinas - Página 1 de 1');
+  });
+
+  it.each(ALL_LOCALES)('locale $code defines all base dashboard keys', ({ code, data }) => {
+    const d = (data as Record<string, Record<string, unknown>>).dashboard;
+    expect(d, `Locale "${code}" missing dashboard block`).toBeTruthy();
+    expect(d.navLabel).toBeTruthy();
+    expect(d.title).toBeTruthy();
+    expect(d.quickData).toBeTruthy();
+    expect(d.machinesRegistered).toBeTruthy();
+    expect(d.employeesRegistered).toBeTruthy();
+    expect(d.machinesMaintenance).toBeTruthy();
+    expect(d.machinesDisabled).toBeTruthy();
+    expect(d.machinesInfo).toBeTruthy();
+    expect(d.machineList).toBeTruthy();
+    expect(d.searchLabel).toBeTruthy();
+    expect(d.colName).toBeTruthy();
+    expect(d.colSector).toBeTruthy();
+    expect(d.colTime).toBeTruthy();
+    expect(d.colStatus).toBeTruthy();
+    expect(d.prevPage).toBeTruthy();
+    expect(d.nextPage).toBeTruthy();
+    expect(d.noResults).toBeTruthy();
+    expect(d.usageTitle).toBeTruthy();
+    expect(d.weekdays).toBeTruthy();
+    expect(d.hourLabel).toBeTruthy();
+    expect(d.less).toBeTruthy();
+    expect(d.more).toBeTruthy();
+    expect(d.period).toBeTruthy();
+    expect(d.noSessions).toBeTruthy();
+    expect(d.loadError).toBeTruthy();
+  });
+});
+describe('alertModal module translations', () => {
+  const REQUIRED_ALERT_MODAL_KEYS = ['title', 'message', 'notInformed', 'ok'] as const;
+
+  it.each(ALL_LOCALES)('locale $code contains all 4 alertModal keys and non-empty values', ({ code, data }) => {
+    const alertModal = (data as unknown as { alertModal: Record<string, string> }).alertModal;
+    expect(alertModal, `Locale "${code}" missing alertModal module`).toBeDefined();
+    for (const key of REQUIRED_ALERT_MODAL_KEYS) {
+      expect(alertModal[key], `Locale "${code}" alertModal.${key} is missing or empty`).toBeTruthy();
+    }
+  });
+
+  it.each(ALL_LOCALES)('locale $code alertModal.message contains 2 pairs of <b> tags and 3 variables', ({ code, data }) => {
+    const message = (data as unknown as { alertModal: Record<string, string> }).alertModal.message;
+    const bOpenCount = (message.match(/<b>/g) || []).length;
+    const bCloseCount = (message.match(/<\/b>/g) || []).length;
+    expect(bOpenCount, `Locale "${code}" alertModal.message must have 2 <b> tags`).toBe(2);
+    expect(bCloseCount, `Locale "${code}" alertModal.message must have 2 </b> tags`).toBe(2);
+    expect(message).toContain('{{setor}}');
+    expect(message).toContain('{{funcionario}}');
+    expect(message).toContain('{{maquina}}');
+  });
+});
+describe('profile module translations', () => {
+  const flatten = (obj: object, prefix = ''): Record<string, string> =>
+    Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {
+      const path = prefix + key;
+      return value && typeof value === 'object'
+        ? { ...acc, ...flatten(value as object, `${path}.`) }
+        : { ...acc, [path]: String(value) };
+    }, {});
+
+  const ptBRProfileKeys = Object.keys(flatten(ptBR.profile)).sort();
+
+  it.each(ALL_LOCALES)('locale $code has the same profile keys as pt-BR, all non-empty', ({ code, data }) => {
+    const flat = flatten((data as Record<string, object>).profile);
+    expect(Object.keys(flat).sort(), `Locale "${code}" profile keys differ from pt-BR`).toEqual(ptBRProfileKeys);
+    for (const [key, value] of Object.entries(flat)) {
+      expect(value, `Locale "${code}" profile.${key} is empty`).toBeTruthy();
+    }
+  });
+});
+

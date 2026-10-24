@@ -28,6 +28,7 @@ O `role` diz o que o usuário vê; o `escopo` diz onde ele atua. São eixos inde
 ### 2. Operator (`operator.ts`)
 Motorista ou piloto das empilhadeiras.
 - `nome` (String): Nome do operador.
+- `empresaId` (ObjectId, opcional): Empresa dona do cadastro. Preenchido nos cadastros novos; com a `matricula` forma um índice único (os cadastros antigos, sem `empresaId`, ficam fora dele).
 - `filialId` (ObjectId, obrigatório): Referência para a `Branch` do operador.
 
 ### 3. Device (`device.ts`)

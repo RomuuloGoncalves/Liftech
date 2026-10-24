@@ -284,7 +284,8 @@
       "logout": "ログアウト",
       "feedbackTitle": "フィードバックとご意見",
       "feedbackQuestion": "ご利用はいかがでしたか？",
-      "privacy": "プライバシーポリシー"
+      "privacy": "プライバシーポリシー",
+      "feedbackPlaceholder": "改善のご提案やフィードバックをご入力ください！"
     },
     "session": {
       "startError": "セッションを開始できませんでした。もう一度お試しください。",
@@ -313,5 +314,143 @@
   "notFound": {
     "description": "お探しのページは存在しないか、移動しました。",
     "backHome": "ホームに戻る"
+  },
+  "accessRequests": {
+    "title": "アクセス申請",
+    "tabs": {
+      "pendente": "保留中",
+      "aprovada": "承認済み",
+      "recusada": "却下済み"
+    },
+    "empty": {
+      "pendente": "保留中の申請はありません。",
+      "aprovada": "承認済みの申請はありません。",
+      "recusada": "却下済みの申請はありません。"
+    },
+    "loadError": "申請を読み込めませんでした。",
+    "email": "メールアドレス",
+    "company": "会社",
+    "admin": "管理者",
+    "sentAt": "送信日時",
+    "reason": "理由",
+    "accept": "承認",
+    "reject": "却下",
+    "acceptTitle": "申請を承認",
+    "acceptMessage": "会社 {{company}} の申請を承認しますか？",
+    "rejectTitle": "申請を却下",
+    "reasonLabel": "却下理由（任意）",
+    "reasonPlaceholder": "却下の理由を入力してください（任意）...",
+    "passwordTitle": "初期パスワードが生成されました",
+    "passwordLabel": "初期パスワード",
+    "passwordWarning": "このパスワードをコピーして安全に保管してください。再表示はされません。",
+    "copy": "コピー",
+    "copied": "パスワードをコピーしました！",
+    "rejected": "申請を却下しました。",
+    "saveError": "申請を保存できませんでした。",
+    "alreadyDecided": "この申請はすでに処理されています。",
+    "conflictEmail": "このメールアドレスのユーザーは既に存在します。",
+    "conflictCompany": "この名前の会社は既に存在します。"
+  },
+  "levelInfo": {
+    "title": "重大レベルに関する情報",
+    "open": "緊急度レベルについて",
+    "level": {
+      "critica": "重大",
+      "alta": "高",
+      "media": "中"
+    },
+    "description": {
+      "tombamento": "<b>横転</b>に関連する重大な緊急度レベル。",
+      "colisao": "<b>衝突</b>に関連する重大な緊急度レベル。",
+      "frenagem": "<b>急ブレーキ</b>に関連する重大な緊急度レベル。"
+    }
+  },
+  "feedback": {
+    "title": "フィードバックまたはご提案の送信",
+    "question": "ご利用はいかがでしたか？",
+    "placeholder": "改善のご提案やフィードバックをご入力ください！",
+    "send": "送信",
+    "sent": "フィードバックを送信しました。ありがとうございます！",
+    "error": "フィードバックを送信できませんでした。もう一度お試しください。"
+  },
+  "dashboard": {
+    "navLabel": "ダッシュボード",
+    "title": "ダッシュボード",
+    "quickData": "概要データ",
+    "machinesRegistered": "登録機器数",
+    "employeesRegistered": "登録従業員数",
+    "machinesMaintenance": "メンテナンス中の機器",
+    "machinesDisabled": "無効化された機器",
+    "machinesInfo": "機器情報",
+    "machineList": "機器一覧",
+    "searchLabel": "機器を検索",
+    "colName": "名前",
+    "colSector": "エリア",
+    "colTime": "稼働時間",
+    "colStatus": "ステータス",
+    "minutes_other": "{{count}} 分",
+    "pageInfo_other": "{{count}} 台の機器を表示中 - {{page}} / {{pages}} ページ",
+    "prevPage": "前のページ",
+    "nextPage": "次のページ",
+    "noResults": "機器が見つかりません",
+    "usageTitle": "時間別稼働状況",
+    "weekdays": {
+      "mon": "月",
+      "tue": "火",
+      "wed": "水",
+      "thu": "木",
+      "fri": "金",
+      "sat": "土",
+      "sun": "日"
+    },
+    "hourLabel": "{{hour}} 時",
+    "cellLabel_other": "{{day}} {{hour}}時: {{count}} セッション",
+    "less": "少",
+    "more": "多",
+    "period": "過去4週間のセッション",
+    "noSessions": "期間内の記録はありません",
+    "loadError": "データを読み込めませんでした。"
+  },
+  "alertModal": {
+    "title": "警告！",
+    "message": "セクター<b>{{setor}}</b>での事故、機械{{maquina}}の担当従業員<b>{{funcionario}}</b>。",
+    "notInformed": "未入力",
+    "ok": "Ok"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "newEmail": "新しいメールアドレス",
+    "newPassword": "新しいパスワード",
+    "currentPassword": "現在のパスワード",
+    "open": "ユーザープロフィール",
+    "editEmail": "メールアドレスを編集",
+    "editPassword": "パスワードを編集",
+    "deleteAccount": "アカウントを削除",
+    "logout": "ログアウト",
+    "deleteWarning": "この操作は元に戻せません。アカウントの削除を確認するには、現在のパスワードを入力してください。",
+    "save": "保存",
+    "delete": "削除",
+    "cancel": "キャンセル",
+    "emailChanged": "メールアドレスが変更されました",
+    "passwordChanged": "パスワードが変更されました",
+    "wrongPassword": "現在のパスワードが正しくありません",
+    "emailInUse": "このメールアドレスは既に使用されています",
+    "onlyAdmin": "あなたは企業の唯一の管理者です",
+    "genericError": "操作を完了できませんでした。もう一度お試しください。",
+    "minLength": "パスワードは8文字以上である必要があります"
+  },
+  "alertsDropdown": {
+    "bell": "通知",
+    "bellUnseen": "通知（新しいアラートあり）",
+    "title": "最近のアラート",
+    "close": "最近のアラートを閉じる",
+    "more": "もっと見る",
+    "loading": "アラートを読み込み中…",
+    "empty": "最近のアラートはありません",
+    "error": "アラートを読み込めませんでした",
+    "retry": "もう一度試す",
+    "unknownMachine": "機械情報なし"
   }
 }

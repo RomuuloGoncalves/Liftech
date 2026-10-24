@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { authService } from '../../services/authService'
 import { routeSection } from '../../utils/routeSection'
 import EmployeeHeader from './EmployeeHeader'
+import EmployeeSkeleton from './EmployeeSkeleton'
 import SessionBar from './SessionBar'
 import TabBar from './TabBar'
 import styles from './EmployeeLayout.module.css'
@@ -17,7 +18,9 @@ const EmployeeLayout: React.FC = () => {
         <EmployeeHeader />
         <main className={styles.content}>
           <div key={routeSection(pathname)} className={styles.enter}>
-            <Outlet />
+            <Suspense fallback={<EmployeeSkeleton variant="home" />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

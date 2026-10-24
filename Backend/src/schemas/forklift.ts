@@ -24,4 +24,6 @@ const forkliftSchema = new Schema({
     }
 })
 
+forkliftSchema.index({ dispositivoConectadoId: 1 }, { partialFilterExpression: { dispositivoConectadoId: { $type: 'objectId' } } })
+
 export const Forklift = conn.mongoose.model('forklift', forkliftSchema)

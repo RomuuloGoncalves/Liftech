@@ -57,11 +57,16 @@ describe('EmployeeHomePage', () => {
     expect(banner.getByText('Tempo total')).toBeInTheDocument()
   })
 
-  it('hides the last machine banner without sessions', async () => {
+  it('shows the default last machine banner when there are no API sessions', async () => {
     listarSessoes.mockResolvedValue([])
     setup()
     await loaded()
-    expect(screen.queryByText('Última máquina')).not.toBeInTheDocument()
+    const banner = within(screen.getByRole('region', { name: 'Última máquina' }))
+    expect(banner.getByText('Última máquina')).toBeInTheDocument()
+    expect(banner.getByText('Empilhadeira elétrica Tital-X')).toBeInTheDocument()
+    expect(banner.getByText('EMP - 084(ID)')).toBeInTheDocument()
+    expect(banner.getByText('5 Setembro 2026')).toBeInTheDocument()
+    expect(banner.getByText('Tempo total')).toBeInTheDocument()
   })
 
   it('shows no machine card when the API has no available machine', async () => {

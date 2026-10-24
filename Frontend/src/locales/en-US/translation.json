@@ -375,7 +375,8 @@
       "logout": "Log out",
       "feedbackTitle": "Feedback & Suggestions",
       "feedbackQuestion": "How was your experience?",
-      "privacy": "Privacy Policy"
+      "privacy": "Privacy Policy",
+      "feedbackPlaceholder": "Enter a suggestion for improvement or feedback!"
     }
   },
   "branches": {
@@ -397,5 +398,149 @@
   "notFound": {
     "description": "The page you are looking for does not exist or was moved.",
     "backHome": "Back to home"
+  },
+  "accessRequests": {
+    "title": "Access Requests",
+    "tabs": {
+      "pendente": "Pending",
+      "aprovada": "Approved",
+      "recusada": "Rejected"
+    },
+    "empty": {
+      "pendente": "No pending access requests.",
+      "aprovada": "No approved access requests.",
+      "recusada": "No rejected access requests."
+    },
+    "loadError": "Could not load access requests.",
+    "email": "Email",
+    "company": "Company",
+    "admin": "Administrator",
+    "sentAt": "Sent on",
+    "reason": "Reason",
+    "accept": "Accept",
+    "reject": "Reject",
+    "acceptTitle": "Accept request",
+    "acceptMessage": "Do you want to accept the request from company {{company}}?",
+    "rejectTitle": "Reject request",
+    "reasonLabel": "Rejection reason (optional)",
+    "reasonPlaceholder": "Enter the rejection reason (optional)...",
+    "passwordTitle": "Initial password generated",
+    "passwordLabel": "Initial password",
+    "passwordWarning": "Copy and store this password safely. It will not be shown again.",
+    "copy": "Copy",
+    "copied": "Password copied!",
+    "rejected": "Access request rejected successfully.",
+    "saveError": "Could not save the access request.",
+    "alreadyDecided": "This request has already been decided.",
+    "conflictEmail": "A user with this email already exists.",
+    "conflictCompany": "A company with this name already exists."
+  },
+  "levelInfo": {
+    "title": "Information about critical level",
+    "open": "About urgency levels",
+    "level": {
+      "critica": "Critical",
+      "alta": "High",
+      "media": "Medium"
+    },
+    "description": {
+      "tombamento": "Critical urgency level associated with a <b>rollover</b>.",
+      "colisao": "Critical urgency level associated with a <b>collision</b>.",
+      "frenagem": "Critical urgency level associated with <b>sudden braking</b>."
+    }
+  },
+  "feedback": {
+    "title": "Send us feedback or a suggestion",
+    "question": "How was your experience?",
+    "placeholder": "Enter a suggestion for improvement or feedback!",
+    "send": "Send",
+    "sent": "Feedback sent. Thank you!",
+    "error": "Could not send feedback. Please try again."
+  },
+  "dashboard": {
+    "navLabel": "Dashboard",
+    "title": "Dashboard",
+    "quickData": "Quick data",
+    "machinesRegistered": "Registered machines",
+    "employeesRegistered": "Registered employees",
+    "machinesMaintenance": "Machines in maintenance",
+    "machinesDisabled": "Disabled machines",
+    "machinesInfo": "Machine information",
+    "machineList": "Machine list",
+    "searchLabel": "Search machines",
+    "colName": "Name",
+    "colSector": "Sector",
+    "colTime": "Time",
+    "colStatus": "Status",
+    "minutes_zero": "{{count}} minutes",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "pageInfo_zero": "Showing {{count}} machines - Page {{page}} of {{pages}}",
+    "pageInfo_one": "Showing {{count}} machine - Page {{page}} of {{pages}}",
+    "pageInfo_other": "Showing {{count}} machines - Page {{page}} of {{pages}}",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "noResults": "No machines found",
+    "usageTitle": "Usage by time",
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "hourLabel": "{{hour}} hrs",
+    "cellLabel_zero": "{{day}}, {{hour}} hrs: {{count}} sessions",
+    "cellLabel_one": "{{day}}, {{hour}} hrs: {{count}} session",
+    "cellLabel_other": "{{day}}, {{hour}} hrs: {{count}} sessions",
+    "less": "Less",
+    "more": "More",
+    "period": "Sessions in the last 4 weeks",
+    "noSessions": "No records in the period",
+    "loadError": "Could not load data."
+  },
+  "alertModal": {
+    "title": "Alert!",
+    "message": "Accident in sector <b>{{setor}}</b>, <b>{{funcionario}}</b> employee responsible for machine {{maquina}}.",
+    "notInformed": "not informed",
+    "ok": "Ok"
+  },
+  "profile": {
+    "title": "Profile",
+    "email": "Email",
+    "password": "Password",
+    "newEmail": "New email",
+    "newPassword": "New password",
+    "currentPassword": "Current password",
+    "open": "User profile",
+    "editEmail": "Edit email",
+    "editPassword": "Edit password",
+    "deleteAccount": "Delete Account",
+    "logout": "Log out",
+    "deleteWarning": "This action cannot be undone. To confirm deleting your account, enter your current password.",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "emailChanged": "Email updated",
+    "passwordChanged": "Password updated",
+    "wrongPassword": "Incorrect current password",
+    "emailInUse": "Email already in use",
+    "onlyAdmin": "You are the only administrator of the company",
+    "genericError": "Could not complete the action. Please try again.",
+    "minLength": "Password must be at least 8 characters long"
+  },
+  "alertsDropdown": {
+    "bell": "Notifications",
+    "bellUnseen": "Notifications (new alerts available)",
+    "title": "Recent Alerts",
+    "close": "Close recent alerts",
+    "more": "More",
+    "loading": "Loading alerts…",
+    "empty": "No recent alerts",
+    "error": "Could not load alerts",
+    "retry": "Try again",
+    "unknownMachine": "Unspecified machine"
   }
 }

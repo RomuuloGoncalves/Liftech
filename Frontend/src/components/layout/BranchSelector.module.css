@@ -187,19 +187,24 @@
   border-top: 1px solid var(--line);
 }
 
-.action {
+.actionBranch,.actionBranchCreate {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
   border: none;
-  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--blue);
+  border-radius: var(--radius-sm);
+  color: var(--text);
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: bold;
   text-align: left;
   cursor: pointer;
+}
+
+.actionManageActive {
+  background: var(--gray-bg);
+  border: 1px solid var(--gray-border);
 }
 
 .action:hover {

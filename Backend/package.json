@@ -20,9 +20,11 @@
   "dependencies": {
     "@rafaelhdsv/keep-alive": "^1.0.2",
     "@zarco/isness": "npm:@jsr/zarco__isness",
+    "compression": "^1.8.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.5",
     "pino": "^10.3.1",
@@ -30,6 +32,7 @@
     "request-check": "^1.6.2"
   },
   "devDependencies": {
+    "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",

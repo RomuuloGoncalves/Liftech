@@ -18,4 +18,6 @@ const userSchema = new Schema({
     acessoNegado: { type: Boolean, default: false }
 })
 
+userSchema.index({ operadorId: 1 }, { partialFilterExpression: { operadorId: { $type: 'objectId' } } })
+
 export const User = conn.mongoose.model("user", userSchema)

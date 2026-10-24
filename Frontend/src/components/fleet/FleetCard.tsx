@@ -3,7 +3,7 @@ import { Lock, MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine, MachineStatus, UrgencyLevel } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
-import StatusBadge, { STATUS_TONE } from '../machines/StatusBadge'
+import { STATUS_TONE } from '../machines/StatusBadge'
 import styles from './FleetCard.module.css'
 
 interface FleetCardProps {
@@ -181,7 +181,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
         )}
       </div>
 
-      <StatusBadge status={machine.status} className={styles.badge} />
+      {/* <StatusBadge status={machine.status} className={styles.badge} /> */}
 
       <div className={styles.body}>
         <dl className={styles.details}>

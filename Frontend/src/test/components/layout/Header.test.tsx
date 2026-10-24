@@ -17,6 +17,11 @@ describe('Header component', () => {
     expect(screen.getByRole('heading', { name: 'Gerenciamento das máquinas' })).toBeInTheDocument()
   })
 
+  it('renders Dashboard as title on /dashboard', () => {
+    renderHeaderAt('/dashboard')
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+  })
+
   it('renders the team page title on /equipe', () => {
     renderHeaderAt('/equipe')
     expect(screen.getByRole('heading', { name: 'Gerenciamento da Equipe e Setores' })).toBeInTheDocument()
@@ -94,5 +99,39 @@ describe('Header component', () => {
     expect(localStorage.getItem('token')).toBeNull()
     expect(localStorage.getItem('user')).toBeNull()
     expect(screen.getByText('login screen')).toBeInTheDocument()
+  })
+
+  it('opens the recent alerts popover when the bell is clicked', () => {
+    renderHeaderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: /notificações|alertas/i }))
+
+    expect(screen.getByRole('dialog', { name: /alertas recentes/i })).toBeInTheDocument()
+  })
+
+  it('opens profile modal when avatar is clicked', async () => {
+    renderHeaderAt('/')
+    const avatar = screen.getByRole('button', { name: /perfil do usuário/i })
+    expect(avatar).toHaveAttribute('aria-haspopup', 'dialog')
+
+    fireEvent.click(avatar)
+
+    const dialog = await screen.findByRole('dialog', { name: /perfil/i })
+    expect(dialog).toBeInTheDocument()
+  })
+
+  it('returns focus to avatar button when profile modal is closed', async () => {
+    renderHeaderAt('/')
+    const avatar = screen.getByRole('button', { name: /perfil do usuário/i })
+
+    fireEvent.click(avatar)
+
+    const dialog = await screen.findByRole('dialog', { name: /perfil/i })
+    expect(dialog).toBeInTheDocument()
+
+    const closeBtn = screen.getByRole('button', { name: /fechar/i })
+    fireEvent.click(closeBtn)
+
+    expect(screen.queryByRole('dialog', { name: /perfil/i })).not.toBeInTheDocument()
+    expect(document.activeElement).toBe(avatar)
   })
 })

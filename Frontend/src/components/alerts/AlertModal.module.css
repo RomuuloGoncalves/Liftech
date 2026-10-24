@@ -1,0 +1,57 @@
+.backdrop {
+  composes: backdrop from '../common/Modal.module.css';
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 470px;
+  padding: 32px 40px 26px;
+  border-radius: 10px;
+  border: 0.5px solid var(--border);
+  background: var(--bg);
+  box-sizing: border-box;
+  gap: 16px;
+  text-align: center;
+}
+
+.iconCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--danger-solid);
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-3xl);
+  font-weight: 500;
+  color: var(--danger-solid);
+}
+
+.message {
+  margin: 0;
+  font-size: var(--fs-lg);
+  color: var(--text);
+  text-align: center;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.message b {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.okButton {
+  composes: confirm from '../common/DialogButtons.module.css';
+  min-width: 170px;
+  margin-top: 20px;
+}

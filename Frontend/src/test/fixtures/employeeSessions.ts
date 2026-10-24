@@ -23,7 +23,7 @@ const SLOTS: Array<[string, string]> = [
 const DATES = ['2025-09-14', '2025-09-12', '2025-09-10', '2025-09-08']
 
 /** 4 sessions on each of the first 8 machines, spread over 4 days. */
-export const USAGE_SESSIONS: Sessao[] = MACHINES.slice(0, 8).flatMap((machine, machineIndex) =>
+const USAGE_SESSIONS: Sessao[] = MACHINES.slice(0, 8).flatMap((machine, machineIndex) =>
   SLOTS.map(([start, end], slot) => sessao(machine.id, DATES[(machineIndex + slot) % DATES.length], start, end))
 )
 

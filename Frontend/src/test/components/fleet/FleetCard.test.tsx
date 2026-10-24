@@ -163,15 +163,15 @@ describe('FleetCard drag feedback', () => {
 })
 
 describe('FleetCard driven by machine status (FRT-08, FRT-09)', () => {
+  // The StatusBadge is commented out in the card (fe7ed80); the status shows only as the header tone.
   it.each([
-    ['disponivel', 'Disponível', 'toneDisponivel'],
-    ['em_uso', 'Em uso', 'toneEmUso'],
-    ['manutencao', 'Em manutenção', 'toneManutencao'],
-    ['alerta', 'Alerta', 'toneAlerta'],
-    ['offline', 'Offline', 'toneOffline'],
-  ] as const)('shows the %s badge and fills the header with its status tone', (status, label, tone) => {
+    ['disponivel', 'toneDisponivel'],
+    ['em_uso', 'toneEmUso'],
+    ['manutencao', 'toneManutencao'],
+    ['alerta', 'toneAlerta'],
+    ['offline', 'toneOffline'],
+  ] as const)('fills the header with the %s status tone', (status, tone) => {
     setup(withStatus(status))
-    expect(screen.getByText(label, { selector: 'span' })).toBeInTheDocument()
     expect(header().className).toContain(tone)
   })
 })

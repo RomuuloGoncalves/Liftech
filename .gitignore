@@ -56,3 +56,4 @@ CLAUDE.md
 .hyperframes/
 videos/**/output/
 videos/**/work/*.mov
+package-lock.json

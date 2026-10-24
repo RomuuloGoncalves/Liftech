@@ -49,8 +49,8 @@
     "detailTotalUsage": "Tempo Uso (Total)",
     "detailDeviceName": "Nome Dispositivo",
     "historyLabel": "Histórico",
-    "tabAccidents": "Histórico de acidentes",
-    "tabMaintenance": "Histórico de manutenção",
+    "tabAccidents": "Acidentes",
+    "tabMaintenance": "Manutenção",
     "periodFrom": "Data inicial",
     "periodTo": "Data final",
     "historyEmpty": "Nenhum registro no período",
@@ -258,8 +258,8 @@
     "removeChip": "Remover {{name}}",
     "detailEmployee": "Funcionário",
     "detailSessionUsage": "Tempo Uso (Sessão)",
-    "tabRepairs": "Histórico de reparos",
-    "tabAlerts": "Histórico de alertas",
+    "tabRepairs": "Manutenção",
+    "tabAlerts": "Acidentes",
     "toastCategoryCreated": "Categoria \"{{name}}\" criada",
     "toastCategoryDeleted": "Categoria \"{{name}}\" excluída",
     "toastMachinesAdded": "Máquinas adicionadas a \"{{name}}\"",
@@ -377,7 +377,8 @@
       "logout": "Deslogar-se",
       "feedbackTitle": "Feedback & Sugestões",
       "feedbackQuestion": "Como foi sua experiência?",
-      "privacy": "Política e Privacidade"
+      "privacy": "Política e Privacidade",
+      "feedbackPlaceholder": "Digite uma sugestão de melhoria ou um feedback!"
     }
   },
   "branches": {
@@ -399,5 +400,149 @@
   "notFound": {
     "description": "A página que você está procurando não existe ou foi movida.",
     "backHome": "Voltar para o início"
+  },
+  "accessRequests": {
+    "title": "Solicitações de Acesso",
+    "tabs": {
+      "pendente": "Pendentes",
+      "aprovada": "Aprovadas",
+      "recusada": "Recusadas"
+    },
+    "empty": {
+      "pendente": "Nenhuma solicitação pendente.",
+      "aprovada": "Nenhuma solicitação aprovada.",
+      "recusada": "Nenhuma solicitação recusada."
+    },
+    "loadError": "Não foi possível carregar as solicitações.",
+    "email": "E-mail",
+    "company": "Empresa",
+    "admin": "Administrador",
+    "sentAt": "Enviada em",
+    "reason": "Motivo",
+    "accept": "Aceitar",
+    "reject": "Recusar",
+    "acceptTitle": "Aceitar solicitação",
+    "acceptMessage": "Deseja aceitar a solicitação da empresa {{company}}?",
+    "rejectTitle": "Recusar solicitação",
+    "reasonLabel": "Motivo da recusa (opcional)",
+    "reasonPlaceholder": "Informe o motivo da recusa (opcional)...",
+    "passwordTitle": "Senha inicial gerada",
+    "passwordLabel": "Senha inicial",
+    "passwordWarning": "Copie e guarde esta senha em local seguro. Ela não será exibida novamente.",
+    "copy": "Copiar",
+    "copied": "Senha copiada!",
+    "rejected": "Solicitação recusada com sucesso.",
+    "saveError": "Não foi possível salvar a solicitação.",
+    "alreadyDecided": "Esta solicitação já foi decidida.",
+    "conflictEmail": "Já existe um usuário com este e-mail.",
+    "conflictCompany": "Já existe uma empresa com este nome."
+  },
+  "levelInfo": {
+    "title": "Informações sobre nível crítico",
+    "open": "Sobre os níveis de urgência",
+    "level": {
+      "critica": "Crítico",
+      "alta": "Alta",
+      "media": "Média"
+    },
+    "description": {
+      "tombamento": "Nível de urgência crítico associado a um <b>tombamento</b>.",
+      "colisao": "Nível de urgência crítico associado a uma <b>colisão</b>.",
+      "frenagem": "Nível de urgência crítico associado a uma <b>frenagem brusca</b>."
+    }
+  },
+  "feedback": {
+    "title": "Envie-nos feedback ou uma sugestão",
+    "question": "Como foi sua experiência?",
+    "placeholder": "Digite uma sugestão de melhoria ou um feedback!",
+    "send": "Enviar",
+    "sent": "Feedback enviado. Obrigado!",
+    "error": "Não foi possível enviar o feedback. Tente de novo."
+  },
+  "dashboard": {
+    "navLabel": "Dashboard",
+    "title": "Dashboard",
+    "quickData": "Dados rápidos",
+    "machinesRegistered": "Máquinas cadastradas",
+    "employeesRegistered": "Funcionário cadastrados",
+    "machinesMaintenance": "Máquinas em manutenção",
+    "machinesDisabled": "Máquinas Desativadas",
+    "machinesInfo": "Informações sobre as máquinas",
+    "machineList": "Listagem de máquinas",
+    "searchLabel": "Buscar máquinas",
+    "colName": "Nome",
+    "colSector": "Setor",
+    "colTime": "Tempo",
+    "colStatus": "Status",
+    "minutes_zero": "{{count}} minutos",
+    "minutes_one": "{{count}} minuto",
+    "minutes_other": "{{count}} minutos",
+    "pageInfo_zero": "Exibindo {{count}} máquinas - Página {{page}} de {{pages}}",
+    "pageInfo_one": "Exibindo {{count}} máquina - Página {{page}} de {{pages}}",
+    "pageInfo_other": "Exibindo {{count}} máquinas - Página {{page}} de {{pages}}",
+    "prevPage": "Página anterior",
+    "nextPage": "Próxima página",
+    "noResults": "Nenhuma máquina encontrada",
+    "usageTitle": "Registro por tempo",
+    "weekdays": {
+      "mon": "Seg",
+      "tue": "Ter",
+      "wed": "Quar",
+      "thu": "Quin",
+      "fri": "Sex",
+      "sat": "Sab",
+      "sun": "Dom"
+    },
+    "hourLabel": "{{hour}} hrs",
+    "cellLabel_zero": "{{day}}, {{hour}} hrs: {{count}} sessões",
+    "cellLabel_one": "{{day}}, {{hour}} hrs: {{count}} sessão",
+    "cellLabel_other": "{{day}}, {{hour}} hrs: {{count}} sessões",
+    "less": "Menos",
+    "more": "Mais",
+    "period": "Sessões nas últimas 4 semanas",
+    "noSessions": "Sem registros no período",
+    "loadError": "Não foi possível carregar os dados."
+  },
+  "alertModal": {
+    "title": "Alerta!",
+    "message": "Acidente no setor <b>{{setor}}</b>, <b>{{funcionario}}</b> funcionário responsável pela máquina {{maquina}}.",
+    "notInformed": "não informado",
+    "ok": "Ok"
+  },
+  "profile": {
+    "title": "Perfil",
+    "email": "Email",
+    "password": "Senha",
+    "newEmail": "Novo e-mail",
+    "newPassword": "Nova senha",
+    "currentPassword": "Senha atual",
+    "open": "Perfil do usuário",
+    "editEmail": "Editar e-mail",
+    "editPassword": "Editar senha",
+    "deleteAccount": "Excluir Conta",
+    "logout": "Deslogar-se",
+    "deleteWarning": "Esta ação não pode ser desfeita. Para confirmar a exclusão da sua conta, digite sua senha atual.",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "emailChanged": "E-mail alterado",
+    "passwordChanged": "Senha alterada",
+    "wrongPassword": "Senha atual incorreta",
+    "emailInUse": "E-mail já em uso",
+    "onlyAdmin": "Você é o único administrador da empresa",
+    "genericError": "Não foi possível concluir a ação. Tente novamente.",
+    "minLength": "A senha deve ter no mínimo 8 caracteres"
+  },
+  "alertsDropdown": {
+    "bell": "Notificações",
+    "bellUnseen": "Notificações (há alertas novos)",
+    "title": "Alertas Recentes",
+    "close": "Fechar alertas recentes",
+    "more": "Mais",
+    "loading": "Carregando alertas…",
+    "empty": "Nenhum alerta recente",
+    "error": "Não foi possível carregar os alertas",
+    "retry": "Tentar de novo",
+    "unknownMachine": "Máquina não informada"
   }
 }

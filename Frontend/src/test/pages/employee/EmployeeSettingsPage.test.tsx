@@ -1,8 +1,22 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import i18n from '../../../config/i18n'
 import EmployeeSettingsPage from '../../../pages/employee/EmployeeSettingsPage'
+import { feedbackService } from '../../../services/feedbackService'
+
+const showMock = vi.fn()
+const showErrorMock = vi.fn()
+
+vi.mock('../../../components/common/Toast', () => ({
+  useToast: () => ({ show: showMock, showError: showErrorMock }),
+}))
+
+vi.mock('../../../services/feedbackService', () => ({
+  feedbackService: {
+    enviar: vi.fn(),
+  },
+}))
 
 const Where = () => <output data-testid="where">{useLocation().pathname}</output>
 
@@ -22,7 +36,9 @@ const field = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 const USER = { _id: '1', nome: 'Bruno Souza', role: 'colaborador', telefone: '+55 99 99999999', cargo: 'Operador' }
 
 describe('EmployeeSettingsPage', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    await i18n.changeLanguage('pt-BR')
     localStorage.clear()
     localStorage.setItem('token', 'tok')
     localStorage.setItem('user', JSON.stringify(USER))
@@ -99,7 +115,7 @@ describe('EmployeeSettingsPage', () => {
     expect(path()).toBe('/login/colaborador')
   })
 
-  it('shows the feedback section with an editable textarea and no submit button', () => {
+  it('shows the feedback section with an editable textarea and submit button', () => {
     setup()
     expect(screen.getByRole('heading', { name: 'Feedback & Sugestões' })).toBeInTheDocument()
     const box = screen.getByRole('textbox', { name: 'Como foi sua experiência?' })
@@ -107,8 +123,105 @@ describe('EmployeeSettingsPage', () => {
     expect(box).not.toHaveAttribute('readonly')
     fireEvent.change(box, { target: { value: 'Tudo certo' } })
     expect(box).toHaveValue('Tudo certo')
-    expect(screen.queryByRole('button', { name: /enviar|send/i })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['Deslogar-se', 'Política e Privacidade'])
+    expect(screen.getByRole('button', { name: 'Enviar' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['Deslogar-se', 'Enviar', 'Política e Privacidade'])
+  })
+
+  it('botão "Enviar" visível abaixo da caixa', () => {
+    setup()
+    const botao = screen.getByRole('button', { name: 'Enviar' })
+    expect(botao).toBeInTheDocument()
+  })
+
+  it('placeholder é "Digite uma sugestão de melhoria ou um feedback!" (não a chave)', () => {
+    setup()
+    expect(
+      screen.getByPlaceholderText('Digite uma sugestão de melhoria ou um feedback!')
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByPlaceholderText('employee.settings.feedbackPlaceholder')
+    ).not.toBeInTheDocument()
+  })
+
+  it('"   " deixa "Enviar" desabilitado e o serviço não é chamado', () => {
+    setup()
+    const box = screen.getByRole('textbox', { name: 'Como foi sua experiência?' })
+    const botao = screen.getByRole('button', { name: 'Enviar' })
+
+    expect(botao).toBeDisabled()
+
+    fireEvent.change(box, { target: { value: '   ' } })
+    expect(botao).toBeDisabled()
+
+    fireEvent.click(botao)
+    expect(feedbackService.enviar).not.toHaveBeenCalled()
+  })
+
+  it('" boa " → enviar("boa"), toast de sucesso e caixa vazia', async () => {
+    vi.mocked(feedbackService.enviar).mockResolvedValueOnce()
+    setup()
+
+    const box = screen.getByRole('textbox', { name: 'Como foi sua experiência?' })
+    const botao = screen.getByRole('button', { name: 'Enviar' })
+
+    fireEvent.change(box, { target: { value: ' boa ' } })
+    expect(botao).not.toBeDisabled()
+
+    fireEvent.click(botao)
+
+    await waitFor(() => {
+      expect(feedbackService.enviar).toHaveBeenCalledTimes(1)
+      expect(feedbackService.enviar).toHaveBeenCalledWith('boa')
+      expect(showMock).toHaveBeenCalledWith('Feedback enviado. Obrigado!')
+      expect(box).toHaveValue('')
+    })
+  })
+
+  it('serviço rejeita → toast de erro e texto mantido', async () => {
+    vi.mocked(feedbackService.enviar).mockRejectedValueOnce(new Error('Erro de envio'))
+    setup()
+
+    const box = screen.getByRole('textbox', { name: 'Como foi sua experiência?' })
+    const botao = screen.getByRole('button', { name: 'Enviar' })
+
+    fireEvent.change(box, { target: { value: 'mensagem original' } })
+    fireEvent.click(botao)
+
+    await waitFor(() => {
+      expect(feedbackService.enviar).toHaveBeenCalledWith('mensagem original')
+      expect(showErrorMock).toHaveBeenCalledWith('Não foi possível enviar o feedback. Tente de novo.')
+      expect(box).toHaveValue('mensagem original')
+      expect(botao).not.toBeDisabled()
+    })
+  })
+
+  it('dois cliques com promessa pendente → 1 chamada', async () => {
+    let resolver: () => void = () => {}
+    const pendente = new Promise<void>((resolve) => {
+      resolver = resolve
+    })
+    vi.mocked(feedbackService.enviar).mockReturnValueOnce(pendente)
+    setup()
+
+    const box = screen.getByRole('textbox', { name: 'Como foi sua experiência?' })
+    const botao = screen.getByRole('button', { name: 'Enviar' })
+
+    fireEvent.change(box, { target: { value: 'clique duplo' } })
+    fireEvent.click(botao)
+    fireEvent.click(botao)
+
+    expect(feedbackService.enviar).toHaveBeenCalledTimes(1)
+
+    resolver()
+    await waitFor(() => {
+      expect(box).toHaveValue('')
+    })
+  })
+
+  it('caixa tem maxLength 1000', () => {
+    setup()
+    const box = screen.getByRole('textbox', { name: 'Como foi sua experiência?' })
+    expect(box).toHaveAttribute('maxLength', '1000')
   })
 
   it('drops the typed feedback when the screen is left and opened again', () => {

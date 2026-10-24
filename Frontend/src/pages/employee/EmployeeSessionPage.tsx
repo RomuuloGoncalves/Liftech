@@ -5,7 +5,6 @@ import { ArrowRight } from 'lucide-react'
 import forkliftWebm from '../../assets/forklift.webm'
 import forkliftMp4 from '../../assets/forklift.mp4'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
-import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import { formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
 import { loopFade } from '../../utils/loopFade'
 import styles from './EmployeeSessionPage.module.css'
@@ -14,7 +13,6 @@ const EmployeeSessionPage: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { session, ready, end, elapsedSeconds } = useWorkSession()
-  const loading = useFirstVisitLoading('employee-session')
 
   const [ending, setEnding] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -27,13 +25,11 @@ const EmployeeSessionPage: React.FC = () => {
       frame = requestAnimationFrame(tick)
     })
     return () => cancelAnimationFrame(frame)
-  }, [session, loading])
+  }, [session])
 
   if (!ready) return <EmployeeSkeleton variant="session" />
 
   if (!session) return ending ? null : <Navigate to="/funcionario/maquinas" replace />
-
-  if (loading) return <EmployeeSkeleton variant="session" />
 
   const endSession = async () => {
     setEnding(true)

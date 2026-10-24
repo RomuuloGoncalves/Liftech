@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useToast } from '../common/Toast'
 import { authService } from '../../services/authService'
 import { incidentService } from '../../services/incidentService'
-import { useFirstVisitLoading } from '../../hooks/useFirstVisitLoading'
 import { useWorkSession } from '../../hooks/useWorkSession'
 import BottomSheet from './BottomSheet'
 import EmployeeSkeleton from './EmployeeSkeleton'
@@ -92,9 +91,8 @@ const IncidentForm: React.FC<{ formId: string; onSubmitted: (time: string) => vo
 }
 
 const IncidentBody: React.FC<{ formId: string; onSubmitted: (time: string) => void }> = (props) => {
-  const loading = useFirstVisitLoading('employee-incident')
   const { ready } = useWorkSession()
-  return loading || !ready ? <EmployeeSkeleton variant="form" buttons={false} /> : <IncidentForm {...props} />
+  return !ready ? <EmployeeSkeleton variant="form" buttons={false} /> : <IncidentForm {...props} />
 }
 
 const IncidentSheet: React.FC<IncidentSheetProps> = ({ open, onClose, onSubmitted }) => {

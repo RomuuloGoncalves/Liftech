@@ -7,6 +7,7 @@ import type { Machine } from '../../data/machines'
 import { toUsageRecord, type UsageRecord } from '../../data/employeeArea'
 import { useWorkSession } from '../../hooks/useWorkSession'
 import { sessionService } from '../../services/sessionService'
+import { formatEventDate } from '../../utils/format'
 import styles from './MachineDetailSheet.module.css'
 
 interface MachineDetailSheetProps {
@@ -40,13 +41,18 @@ const MachineDetailSheet: React.FC<MachineDetailSheetProps> = ({ machine, onClos
     if (await start(machine.id)) navigate('/funcionario/sessao')
   }
 
-  const formatDate = (date: string) =>
-    new Date(`${date}T12:00:00`).toLocaleDateString(i18n.language, {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
+  const formatDate = (date: string) => {
+    try {
+      return formatEventDate(date, i18n.language)
+    } catch {
+      return new Date(`${date}T12:00:00`).toLocaleDateString(i18n.language, {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    }
+  }
 
   return (
     <BottomSheet
