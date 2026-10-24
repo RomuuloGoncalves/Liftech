@@ -1,0 +1,46 @@
+{
+  "react": {
+    "title": "React",
+    "hex": "#61DAFB"
+  },
+  "typescript": {
+    "title": "TypeScript",
+    "hex": "#3178C6"
+  },
+  "nodedotjs": {
+    "title": "Node.js",
+    "hex": "#5FA04E"
+  },
+  "express": {
+    "title": "Express",
+    "hex": "#0A0A0A"
+  },
+  "mongodb": {
+    "title": "MongoDB",
+    "hex": "#47A248"
+  },
+  "mongoose": {
+    "title": "Mongoose",
+    "hex": "#880000"
+  },
+  "rabbitmq": {
+    "title": "RabbitMQ",
+    "hex": "#FF6600"
+  },
+  "figma": {
+    "title": "Figma",
+    "hex": "#F24E1E"
+  },
+  "github": {
+    "title": "GitHub",
+    "hex": "#181717"
+  },
+  "cplusplus": {
+    "title": "C++",
+    "hex": "#00599C"
+  },
+  "espressif": {
+    "title": "Espressif",
+    "hex": "#E7352C"
+  }
+}
