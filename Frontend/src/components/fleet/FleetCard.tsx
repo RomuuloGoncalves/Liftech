@@ -3,6 +3,7 @@ import { Lock, MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine, MachineStatus, UrgencyLevel } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
+import { InfoField } from '../common/InfoField'
 import { STATUS_TONE } from '../machines/StatusBadge'
 import styles from './FleetCard.module.css'
 
@@ -185,35 +186,46 @@ const FleetCard: React.FC<FleetCardProps> = ({
 
       <div className={styles.body}>
         <dl className={styles.details}>
-          <div>
-            <dt>{t('fleet.cardSector')}</dt>
-            <dd>{machine.setor || undefinedText}</dd>
-          </div>
+          <InfoField
+            label={t('fleet.cardSector')}
+            title={machine.setor || undefinedText}
+          >
+            {machine.setor || undefinedText}
+          </InfoField>
           {machine.status === 'manutencao' && !incident ? (
-            <div>
-              <dt>{t('fleet.cardMac')}</dt>
-              <dd>{machine.dispositivoConectado.enderecoMac || undefinedText}</dd>
-            </div>
+            <InfoField
+              label={t('fleet.cardMac')}
+              title={machine.dispositivoConectado.enderecoMac || undefinedText}
+            >
+              {machine.dispositivoConectado.enderecoMac || undefinedText}
+            </InfoField>
           ) : (
-            <div>
-              <dt>{t('fleet.cardEmployee')}</dt>
-              <dd>{machine.operadorConectado?.nome || undefinedText}</dd>
-            </div>
+            <InfoField
+              label={t('fleet.cardEmployee')}
+              title={machine.operadorConectado?.nome || undefinedText}
+            >
+              {machine.operadorConectado?.nome || undefinedText}
+            </InfoField>
           )}
           {highlight?.left && (
-            <div>
-              <dt>{highlight.left.label}</dt>
-              <dd>{highlight.left.value}</dd>
-            </div>
+            <InfoField
+              label={highlight.left.label}
+              title={highlight.left.value}
+            >
+              {highlight.left.value}
+            </InfoField>
           )}
         </dl>
 
         {highlight && (
           <dl className={styles.highlight}>
-            <div>
-              <dt>{highlight.label}</dt>
-              <dd className={highlight.tone}>{highlight.value}</dd>
-            </div>
+            <InfoField
+              label={highlight.label}
+              highlight
+              valueClassName={highlight.tone}
+            >
+              {highlight.value}
+            </InfoField>
           </dl>
         )}
       </div>

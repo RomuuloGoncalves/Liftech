@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccessRequest } from '../../services/accessRequestService';
 import { formatEventDate } from '../../utils/format';
+import { InfoField } from '../common/InfoField';
 import styles from './AccessRequestCard.module.css';
 
 interface AccessRequestCardProps {
@@ -27,26 +28,41 @@ const AccessRequestCard: React.FC<AccessRequestCardProps> = ({ request, onAccept
         <h3 className={styles.company}>{request.nomeEmpresa}</h3>
       </div>
 
-      <div className={styles.details}>
-        <div className={styles.detailRow}>
-          <span className={styles.label}>{t('accessRequests.email')}:</span>
-          <span className={styles.value}>{request.email}</span>
-        </div>
-        <div className={styles.detailRow}>
-          <span className={styles.label}>{t('accessRequests.admin')}:</span>
-          <span className={styles.value}>{request.nomeAdministrador}</span>
-        </div>
-        <div className={styles.detailRow}>
-          <span className={styles.label}>{t('accessRequests.sentAt')}:</span>
-          <span className={styles.value}>{formattedDate}</span>
-        </div>
+      <dl className={styles.details}>
+        <InfoField
+          label={`${t('accessRequests.email')}:`}
+          inline
+          title={request.email}
+          valueClassName={styles.wrapValue}
+        >
+          {request.email}
+        </InfoField>
+        <InfoField
+          label={`${t('accessRequests.admin')}:`}
+          inline
+          title={request.nomeAdministrador}
+        >
+          {request.nomeAdministrador}
+        </InfoField>
+        <InfoField
+          label={`${t('accessRequests.sentAt')}:`}
+          inline
+          title={formattedDate}
+        >
+          {formattedDate}
+        </InfoField>
         {request.motivoRecusa ? (
-          <div className={styles.reasonBox}>
-            <span className={styles.label}>{t('accessRequests.reason')}: </span>
-            <span className={styles.value}>{request.motivoRecusa}</span>
-          </div>
+          <InfoField
+            className={styles.reasonBox}
+            label={`${t('accessRequests.reason')}:`}
+            inline
+            title={request.motivoRecusa}
+            valueClassName={styles.wrapValue}
+          >
+            {request.motivoRecusa}
+          </InfoField>
         ) : null}
-      </div>
+      </dl>
 
       {(onAccept || onReject) && (
         <div className={styles.actions}>

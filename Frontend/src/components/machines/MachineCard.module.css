@@ -1,14 +1,6 @@
 .card {
+  composes: card from '../common/Card.module.css';
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg);
 }
 
 .topRow {
@@ -67,8 +59,8 @@
 }
 
 .identificacao {
-  font-size: var(--fs-sm);
-  color: var(--text);
+  font-size: var(--fs-xs);
+  color: var(--text-label);
 }
 
 .menuButton {
@@ -97,31 +89,6 @@
   flex-direction: column;
   gap: 4px;
   margin: 0;
-  font-size: var(--fs-sm);
-}
-
-.detailRow {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.detailRow dt {
-  flex-shrink: 0;
-  font-size: var(--fs-xs);
-  color: var(--text);
-}
-
-.detailRow dd {
-  margin: 0;
-  min-width: 0;
-  font-size: var(--fs-sm);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text);
 }
 
 .bottomRow {
@@ -133,17 +100,7 @@
 }
 
 .session {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  font-size: var(--fs-sm);
-  color: var(--text);
+  margin: 0;
   margin-left: auto;
-  white-space: nowrap;
-}
-
-.session strong {
-  color: var(--text);
-  font-weight: 600;
-  font-size: var(--fs-base);
+  text-align: right;
 }

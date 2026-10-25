@@ -1,17 +1,27 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { expectSharedShell } from './cards/shell'
 
-const read = (file: string) => readFileSync(resolve(process.cwd(), 'src', file), 'utf8')
+const clean = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
+const read = (file: string) => clean(readFileSync(resolve(process.cwd(), 'src', file), 'utf8'))
 const block = (css: string, selector: string) =>
-  [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].find((m) => m[1].trim() === selector)?.[2] ?? ''
+  [...clean(css).matchAll(/([^{}]+)\{([^}]*)\}/g)].find((m) => m[1].trim() === selector)?.[2] ?? ''
 const media = (css: string, query: string) => css.match(new RegExp(`@media \\(${query}\\)\\s*\\{([\\s\\S]*?\\n\\})`))?.[1] ?? ''
 
 const skeleton = read('components/employee/EmployeeSkeleton.module.css')
+const cardCss = read('components/common/Card.module.css')
 const listCard = read('components/employee/MachineListCard.module.css')
 const home = read('pages/employee/EmployeeHomePage.module.css')
 const history = read('pages/employee/EmployeeHistoryPage.module.css')
 const num = (css: string, prop: string) => Number(css.match(new RegExp(`(?:^|[\\s;])${prop}:\\s*(-?[\\d.]+)px`))?.[1])
+const val = (css: string, prop: string) => {
+  const match = css.match(new RegExp(`(?:^|[\\s;])${prop}:\\s*(?:calc\\((-?[\\d.]+)\\s*\\*\\s*var\\(--px,\\s*1px\\)\\)|(-?[\\d.]+)px)`))
+  return Number(match?.[1] ?? match?.[2])
+}
+const cardPad = val(block(cardCss, '.card'), 'padding')
+const cardGap = val(block(cardCss, '.card'), 'gap')
+const cardBorder = 1
 const pages = ['Machines', 'History', 'Home'].map((n) => read(`pages/employee/Employee${n}Page.module.css`))
 
 describe('EmployeeSkeleton styles', () => {
@@ -26,12 +36,14 @@ describe('EmployeeSkeleton styles', () => {
     }
   })
 
-  it('mirrors the card: 8px radius, line border, white background, 8px gap', () => {
-    const card = block(skeleton, '.card')
-    expect(card).toMatch(/border-radius:\s*8px/)
-    expect(card).toMatch(/border:\s*1px solid var\(--line\)/)
-    expect(card).toMatch(/background:\s*var\(--white\)/)
-    expect(card).toMatch(/gap:\s*8px/)
+  it('mirrors the card: 8px radius, line border, white background, 8px gap via shared shell', () => {
+    expectSharedShell(skeleton, '.card', 'card')
+    expectSharedShell(skeleton, '.lastCard', 'card')
+    const sharedCard = block(cardCss, '.card')
+    expect(val(sharedCard, 'border-radius')).toBe(8)
+    expect(sharedCard).toMatch(/border:\s*var\(--card-border\)/)
+    expect(sharedCard).toMatch(/background:\s*var\(--card-bg\)/)
+    expect(val(sharedCard, 'gap')).toBe(8)
   })
 
   it('sizes inputs and buttons at 40px', () => {
@@ -46,19 +58,35 @@ describe('EmployeeSkeleton styles', () => {
 })
 
 describe('EmployeeSkeleton home styles', () => {
-  const card = block(skeleton, '.card')
-
-  it('card without date and time is 122px: 37 top + 1 divider + 42 bottom + 2 gaps of 8 + 24 padding + 2 borders', () => {
-    const total =
-      num(block(skeleton, '.cardTop'), 'height') + 1 + num(block(skeleton, '.cardBottom'), 'height') + 2 * num(card, 'gap') + 2 * num(card, 'padding') + 2
-    expect(num(block(skeleton, '.cardTop'), 'height')).toBe(37)
-    expect(num(block(skeleton, '.cardBottom'), 'height')).toBe(42)
-    expect(total).toBe(122)
+  // Conta da altura real do MachineListCard sem data/hora:
+  // - Topo (.cardTop): 37px
+  //   (.nome com --fs-md 13px * 1.45 = 18.85px + gap 2px + .identificacao com --fs-xs 11px * 1.45 = 15.95px ≈ 37px)
+  // - Divisor (.cardDivider): 1px (hr border-top: 1px solid var(--line))
+  // - Rodapé (.cardBottom): 43px
+  //   (InfoField Setor: rótulo line-height 17px + valor line-height 17px = 34px;
+  //    padding-top: 8px; border-top: 1px solid var(--line) -> 34 + 8 + 1 = 43px)
+  // - Casca (.card de Card.module.css):
+  //   2 gaps de 8px entre os 3 blocos filhos = 16px
+  //   padding superior e inferior de 12px = 24px
+  //   bordas superior e inferior de 1px = 2px
+  // Total: 37 + 1 + 43 + 16 + 24 + 2 = 123px
+  it('card without date and time is 123px: 37 top + 1 divider + 43 bottom + 2 gaps of 8 + 24 padding + 2 borders', () => {
+    const top = num(block(skeleton, '.cardTop'), 'height')
+    const bottom = num(block(skeleton, '.cardBottom'), 'height')
+    const total = top + 1 + bottom + 2 * cardGap + 2 * cardPad + 2 * cardBorder
+    expect(top).toBe(37)
+    expect(bottom).toBe(43)
+    expect(cardGap).toBe(8)
+    expect(cardPad).toBe(12)
+    expect(cardBorder).toBe(1)
+    expect(total).toBe(123)
   })
 
   it('card parts keep the MachineListCard paddings: 12px card, 8px above the bottom, 16px between fields, 28px action', () => {
-    expect(num(card, 'padding')).toBe(num(block(listCard, '.card'), 'padding'))
-    expect(num(card, 'gap')).toBe(num(block(listCard, '.card'), 'gap'))
+    expectSharedShell(skeleton, '.card', 'card')
+    expectSharedShell(listCard, '.card', 'card')
+    expect(cardPad).toBe(12)
+    expect(cardGap).toBe(8)
     expect(num(block(skeleton, '.cardBottom'), 'padding-top')).toBe(num(block(listCard, '.bottom'), 'padding-top'))
     expect(num(block(skeleton, '.cardBottom'), 'gap')).toBe(num(block(listCard, '.bottom'), 'gap'))
     expect(num(block(skeleton, '.cardAction'), 'height')).toBe(num(block(listCard, '.action'), 'height'))
@@ -88,11 +116,24 @@ describe('EmployeeSkeleton home styles', () => {
 })
 
 describe('EmployeeSkeleton list and history styles', () => {
+  // Conta da altura real do MachineListCard com data/hora (histórico):
+  // - Topo (.cardTop): 37px
+  // - Divisor (.cardDivider): 1px
+  // - Rodapé (.cardExtra .cardBottom): 60px
+  //   (InfoField Setor: 34px; InfoField DateTime: rótulo 17px + 2 linhas de valor de 17px = 51px;
+  //    padding-top: 8px; border-top: 1px solid var(--line) -> 51 + 8 + 1 = 60px)
+  // - Casca (.card de Card.module.css):
+  //   2 gaps de 8px = 16px
+  //   padding = 24px
+  //   bordas = 2px
+  // Total: 37 + 1 + 60 + 16 + 24 + 2 = 140px
   it('card with date and time is 140px: 37 top + 1 divider + 60 bottom + 2 gaps of 8 + 24 padding + 2 borders', () => {
-    const card = block(skeleton, '.card')
+    const top = num(block(skeleton, '.cardTop'), 'height')
     const bottom = num(block(skeleton, '.cardExtra .cardBottom'), 'height')
+    const total = top + 1 + bottom + 2 * cardGap + 2 * cardPad + 2 * cardBorder
+    expect(top).toBe(37)
     expect(bottom).toBe(60)
-    expect(num(block(skeleton, '.cardTop'), 'height') + 1 + bottom + 2 * num(card, 'gap') + 2 * num(card, 'padding') + 2).toBe(140)
+    expect(total).toBe(140)
   })
 
   it('history column keeps the 12px page gap and the filters 8px apart, with 36px fields like the page', () => {

@@ -1,13 +1,7 @@
 .card {
-  display: flex;
+  composes: card row from '../common/Card.module.css';
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg);
 }
 
 .openArea {
@@ -28,7 +22,8 @@
 .name {
   overflow: hidden;
   max-width: 100%;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
+  font-weight: 600;
   color: var(--text-h);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -38,7 +33,7 @@
   overflow: hidden;
   max-width: 100%;
   font-size: var(--fs-xs);
-  color: var(--text);
+  color: var(--text-label);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

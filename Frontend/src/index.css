@@ -14,6 +14,20 @@
   --black-text: #4c4c4c;
   --text-muted: #a0aec0;
 
+  /* Texto: 3 níveis. --text-label é o secundário de card (4,95:1 sobre branco). */
+  --text-label: #707070;
+
+  /* Card: casca única (common/Card.module.css). */
+  --card-pad: 12px;
+  --card-pad-lg: 16px;
+  --card-gap: 8px;
+  --card-gap-lg: 12px;
+  --card-radius: var(--radius-md);
+  --card-border: 1px solid var(--line);
+  --card-bg: var(--bg);
+  --card-grid-min: 240px;
+  --card-grid-gap: 16px;
+
   --danger-solid: #ef4444;
   --urgency-critical: #c84646;
   --urgency-high: #d4773f;

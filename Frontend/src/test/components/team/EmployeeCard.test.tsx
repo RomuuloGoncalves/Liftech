@@ -19,13 +19,20 @@ describe('EmployeeCard', () => {
 
     expect(screen.getByText('Alexandre Mattos')).toBeInTheDocument()
     expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
-    expect(screen.getByText('Permitido')).toBeInTheDocument()
+    const dt = screen.getByText('Acesso:')
+    expect(dt.tagName.toLowerCase()).toBe('dt')
+    const dd = screen.getByText('Permitido')
+    expect(dd.tagName.toLowerCase()).toBe('dd')
+    expect(dd.className).toMatch(/allowed/)
   })
 
   it('shows "Negado" and an off switch when access is denied', () => {
     setup({ acesso: 'Negado' })
 
-    expect(screen.getByText('Negado')).toBeInTheDocument()
+    const dd = screen.getByText('Negado')
+    expect(dd).toBeInTheDocument()
+    expect(dd.tagName.toLowerCase()).toBe('dd')
+    expect(dd.className).toMatch(/denied/)
     expect(screen.getByRole('switch', { name: 'Alterar acesso de Alexandre Mattos' })).toHaveAttribute(
       'aria-checked',
       'false'
@@ -62,6 +69,15 @@ describe('EmployeeCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Alexandre Mattos' }))
     expect(handlers.onOpen).toHaveBeenCalledWith(e)
     expect(handlers.onToggleAccess).not.toHaveBeenCalled()
+  })
+
+  it('keeps the access dl outside the open button (valid dl/button nesting)', () => {
+    const { container } = render(
+      <EmployeeCard employee={employee} onOpen={vi.fn()} onToggleAccess={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+    )
+
+    expect(container.querySelector('button dl')).toBeNull()
+    expect(container.querySelector('dl > div > dt')).not.toBeNull()
   })
 
   it('has no icon box before the name and keeps only the two action icons', () => {

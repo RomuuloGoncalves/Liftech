@@ -62,6 +62,26 @@ describe('MachineListCard', () => {
     expect(screen.getByText('08:30:00')).toBeInTheDocument()
   })
 
+  it('renders date and time in two lines within the same dd', () => {
+    setup({ extra: { date: '10/10/2026', time: '08:30:00' } })
+    const dateEl = screen.getByText('10/10/2026')
+    const timeEl = screen.getByText('08:30:00')
+    const dd = dateEl.closest('dd')
+    expect(dd).not.toBeNull()
+    expect(timeEl.closest('dd')).toBe(dd)
+    expect(dateEl.tagName).toBe('SPAN')
+    expect(timeEl.tagName).toBe('SPAN')
+  })
+
+  it('renders sector with dt and dd with title', () => {
+    setup()
+    const sectorVal = screen.getByText('Galpão A')
+    expect(sectorVal.tagName).toBe('DD')
+    expect(sectorVal).toHaveAttribute('title', 'Galpão A')
+    const dt = screen.getByText('Setor')
+    expect(dt.tagName).toBe('DT')
+  })
+
   it('calls onAction only from the action button', () => {
     const onAction = setup()
     fireEvent.click(screen.getByText('Empilhadeira 01'))

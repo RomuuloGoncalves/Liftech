@@ -32,14 +32,6 @@ describe('BottomSheet styles', () => {
 describe('MachineListCard styles', () => {
   const css = read('MachineListCard.module.css')
 
-  it('card has 12px padding, 8px radius and 8px gap', () => {
-    const card = block(css, '.card')
-    expect(card).toMatch(/padding:\s*12px/)
-    expect(card).toMatch(/border-radius:\s*8px/)
-    expect(card).toMatch(/gap:\s*8px/)
-    expect(card).toMatch(/border:\s*1px solid var\(--gray-border\)/)
-  })
-
   it.each([
     ['.disponivel', '--green-bg', '--green'],
     ['.em_uso', '--blue-bg', '--blue'],

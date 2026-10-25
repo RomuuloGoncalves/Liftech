@@ -1,0 +1,42 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.inline {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.inline .label {
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: calc(17 * var(--px, 1px));
+  color: var(--text-h);
+}
+
+.value {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--fs-md);
+  font-weight: 400;
+  line-height: calc(17 * var(--px, 1px));
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.highlight .label {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: calc(22 * var(--px, 1px));
+  color: var(--text-h);
+}

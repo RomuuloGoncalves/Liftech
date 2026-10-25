@@ -138,8 +138,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-grid-min), 1fr));
+  gap: var(--card-grid-gap);
 }
 
 .emptyState {
