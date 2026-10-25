@@ -50,17 +50,10 @@
 }
 
 .lastCard {
-  display: flex;
+  composes: card row from '../../components/common/Card.module.css';
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-width: 0;
-  box-sizing: border-box;
   margin-top: 8px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--bg);
 }
 
 .lastMachineInfo {
@@ -107,7 +100,7 @@
 .lastId,
 .lastTime {
   margin: 0;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text);
 }
 
@@ -122,17 +115,9 @@
 }
 
 .stat {
-  display: flex;
-  flex-direction: column;
+  composes: card gapSm from '../../components/common/Card.module.css';
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 12px 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--bg);
   text-align: center;
 }
 
@@ -140,7 +125,7 @@
   margin: 0;
   font-size: var(--fs-xs);
   font-weight: 500;
-  color: var(--blue);
+  color: var(--text-label);
 }
 
 .statValue {
@@ -152,7 +137,7 @@
 
 .statHint {
   margin: 0;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text);
 }
 

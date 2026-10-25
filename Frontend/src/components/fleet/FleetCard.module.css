@@ -1,14 +1,7 @@
 .card {
+  composes: card from '../common/Card.module.css';
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: calc(8 * var(--px, 1px));
   flex: 0 0 calc(288 * var(--px, 1px));
-  box-sizing: border-box;
-  padding: calc(12 * var(--px, 1px));
-  border: 1px solid var(--line);
-  border-radius: calc(8 * var(--px, 1px));
-  background: var(--white);
 }
 
 .card[draggable='true'] {
@@ -191,7 +184,6 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: calc(8 * var(--px, 1px));
-  margin-top: auto;
 }
 
 .details,
@@ -212,59 +204,28 @@
   text-align: right;
 }
 
-.details > div {
-  min-width: 0;
-}
-
-.details dt,
-.highlight dt {
-  font-size: var(--fs-xs);
-  line-height: calc(14 * var(--px, 1px));
-  color: var(--text);
-}
-
-.details dd,
-.highlight dd {
-  margin: 0;
-  font-size: var(--fs-md);
-  line-height: calc(17 * var(--px, 1px));
-  color: var(--text);
-}
-
-.details dd {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.highlight dd {
-  font-size: var(--fs-xl);
-  font-weight: 700;
-  line-height: calc(22 * var(--px, 1px));
-}
-
-.highlight .session {
+.session {
   color: var(--black-text);
   font-weight: 600;
 }
 
-.highlight .danger {
+.danger {
   color: var(--urgency-critical);
 }
 
-.highlight .warning {
+.warning {
   color: var(--urgency-high);
 }
 
-.highlight .caution {
+.caution {
   color: var(--urgency-medium);
 }
 
-.highlight .info {
+.info {
   color: var(--blue);
 }
 
-.highlight .success {
+.success {
   color: var(--green);
 }
 

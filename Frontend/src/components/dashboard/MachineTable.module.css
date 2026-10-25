@@ -6,6 +6,8 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .topBar {
@@ -15,6 +17,7 @@
   flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .titleArea {
@@ -95,6 +98,10 @@
 
 .tableWrapper {
   overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: 240px;
   margin-bottom: 16px;
 }
 
@@ -153,6 +160,8 @@
   flex-wrap: wrap;
   gap: 12px;
   padding-top: 12px;
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .pageInfo {
@@ -203,4 +212,11 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 0 6px;
+}
+
+@media (max-width: 1100px) {
+  .tableWrapper {
+    max-height: none;
+    overflow-y: visible;
+  }
 }

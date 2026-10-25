@@ -2,6 +2,7 @@ import React from 'react'
 import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
+import { InfoField } from '../common/InfoField'
 import StatusBadge from './StatusBadge'
 import styles from './MachineCard.module.css'
 
@@ -46,21 +47,21 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
       </div>
 
       <dl className={styles.details}>
-        <div className={styles.detailRow}>
-          <dt>{t('machines.sector')}:</dt>
-          <dd>{setor}</dd>
-        </div>
-        <div className={styles.detailRow}>
-          <dt>{t('machines.labelMac')}:</dt>
-          <dd>{dispositivoConectado.enderecoMac}</dd>
-        </div>
+        <InfoField label={`${t('machines.sector')}:`} title={setor}>
+          {setor}
+        </InfoField>
+        <InfoField label={`${t('machines.labelMac')}:`} title={dispositivoConectado.enderecoMac}>
+          {dispositivoConectado.enderecoMac}
+        </InfoField>
       </dl>
 
       <div className={styles.bottomRow}>
         <StatusBadge status={machine.status} />
-        <span className={styles.session}>
-          {t('machines.sessionTime')} <strong>{formatTempoSessao(tempoSessaoMinutos)}</strong>
-        </span>
+        <dl className={styles.session}>
+          <InfoField label={t('machines.sessionTime')} highlight>
+            {formatTempoSessao(tempoSessaoMinutos)}
+          </InfoField>
+        </dl>
       </div>
     </article>
   )
