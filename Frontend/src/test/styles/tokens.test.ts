@@ -59,3 +59,20 @@ describe('Base colors (RST-04, RST-05)', () => {
     expect(token('text')).toBe('var(--black-text)')
   })
 })
+
+describe('Card tokens (CARD-01)', () => {
+  it.each([
+    ['text-label', /--text-label:\s*#707070;/],
+    ['card-pad', /--card-pad:\s*12px;/],
+    ['card-pad-lg', /--card-pad-lg:\s*16px;/],
+    ['card-gap', /--card-gap:\s*8px;/],
+    ['card-gap-lg', /--card-gap-lg:\s*12px;/],
+    ['card-radius', /--card-radius:\s*var\(--radius-md\);/],
+    ['card-border', /--card-border:\s*1px solid var\(--line\);/],
+    ['card-bg', /--card-bg:\s*var\(--bg\);/],
+    ['card-grid-min', /--card-grid-min:\s*240px;/],
+    ['card-grid-gap', /--card-grid-gap:\s*16px;/],
+  ])('declares token --%s with exact design value', (_name, pattern) => {
+    expect(css).toMatch(pattern)
+  })
+})

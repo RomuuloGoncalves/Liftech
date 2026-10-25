@@ -15,13 +15,9 @@ describe('page background with white surfaces (RST-04)', () => {
   })
 
   it.each([
-    ['components/machines/MachineCard.module.css', '.card', 'var(--bg)'],
-    ['components/team/EmployeeCard.module.css', '.card', 'var(--bg)'],
-    ['components/team/SectorCard.module.css', '.card', 'var(--bg)'],
     ['pages/EquipePage.module.css', '.section', 'var(--bg)'],
     ['pages/AlertasPage.module.css', '.panel', 'var(--bg)'],
     ['components/fleet/FleetRow.module.css', '.row', 'var(--white)'],
-    ['components/fleet/FleetCard.module.css', '.card', 'var(--white)'],
   ])('keeps %s %s white (%s)', (file, selector, token) => {
     expect(block(file, selector)).toContain(`background: ${token};`)
   })

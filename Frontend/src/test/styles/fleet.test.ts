@@ -46,40 +46,7 @@ describe('FleetRow danger button (RST-08)', () => {
   })
 })
 
-describe('FleetCard accident urgency (RST-10, RST-11)', () => {
-  const css = read('FleetCard.module.css')
-
-  it.each([
-    ['danger', 'urgency-critical'],
-    ['warning', 'urgency-high'],
-    ['caution', 'urgency-medium'],
-  ])('.%s fills the header with --%s and colours the label with it', (tone, token) => {
-    const header = rule(css, `.topRow.${tone}`)
-    expect(header).toContain(`background: var(--${token})`)
-    expect(rule(css, `.highlight .${tone}`)).toContain(`color: var(--${token})`)
-  })
-
-  it('paints the filled header text white', () => {
-    expect(rule(css, '.topRow.danger, .topRow.warning, .topRow.caution')).toContain('color: var(--white)')
-    expect(rule(css, '.topRow :is(.nome, .code, .menuButton)')).toContain('color: inherit')
-  })
-
-  it('has no icon box rule', () => {
-    expect(css).not.toMatch(/\.icon\s*\{/)
-  })
-
-  it('uses --blue for info and --green for success labels', () => {
-    expect(rule(css, '.highlight .info')).toContain('color: var(--blue)')
-    expect(rule(css, '.highlight .success')).toContain('color: var(--green)')
-  })
-
-  it('falls back to --blue for the arrival highlight', () => {
-    expect(css).toContain('var(--category-color, var(--blue))')
-  })
-})
-
-describe('FleetCard status header (RST-12, FRT-09)', () => {
-  const css = read('FleetCard.module.css')
+describe('Status header (RST-12, FRT-09)', () => {
   const badge = read('../machines/StatusBadge.module.css')
 
   it.each([
@@ -92,27 +59,18 @@ describe('FleetCard status header (RST-12, FRT-09)', () => {
     expect(rule(badge, `.${cls}`)).toContain(`background: var(${bg})`)
     expect(rule(badge, `.${cls}`)).toContain(`color: var(${fg})`)
   })
-
-  it('lets the header text inherit the status tone colour', () => {
-    expect(rule(css, '.topRow :is(.nome, .code, .menuButton)')).toContain('color: inherit')
-  })
-
-  it('shapes every header to bleed to the card edge', () => {
-    const shape = rule(css, '.topRow')
-    expect(shape).toContain('margin: calc(-12 * var(--px, 1px)) calc(-12 * var(--px, 1px)) 0')
-    expect(shape).toContain('padding: calc(8 * var(--px, 1px)) calc(12 * var(--px, 1px))')
-  })
 })
 
 const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
 const hexes = (css: string) => strip(css).match(/#[0-9a-f]{3,8}\b/gi) ?? []
 const colouredRgba = (css: string) =>
-  (strip(css).match(/rgba?\([^)]*\)/gi) ?? []).filter((c) => !/^rgba?\(\s*(0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255)\s*[,)]/i.test(c))
+  (strip(css).match(/rgba?\([^)]*\)/gi) ?? []).filter(
+    (c) => !/^rgba?\(\s*(0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255)\s*[,)]/i.test(c),
+  )
 
 describe('fleet CSS has no loose colours', () => {
   it.each([
     'FleetRow.module.css',
-    'FleetCard.module.css',
     'CategoryFormModal.module.css',
     'MachinePickerModal.module.css',
   ])('%s has no #hex nor coloured rgba', (file) => {

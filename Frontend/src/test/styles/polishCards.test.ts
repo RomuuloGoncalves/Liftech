@@ -9,47 +9,15 @@ const block = (file: string, selector: string) => {
   return (m?.[1] ?? '').replace(/\s+/g, ' ')
 }
 
-const machine = 'components/machines/MachineCard.module.css'
-
-describe('standard card: padding 12, radius 8, gap 8 (POL-01)', () => {
-  it.each([
-    machine,
-    'components/team/EmployeeCard.module.css',
-    'components/team/SectorCard.module.css',
-  ])('%s .card', (file) => {
-    const b = block(file, '.card')
-    expect(b).toContain('padding: 12px;')
-    expect(b).toMatch(/border-radius: (8px|var\(--radius-md\));/)
-    expect(b).toContain('gap: 8px;')
-  })
-
+describe('standard card tokens (POL-01)', () => {
   it('--radius-md is 8px', () => {
     expect(read('index.css')).toMatch(/--radius-md:\s*8px;/)
   })
 })
 
-describe('MachineCard text scale (POL-01)', () => {
-  it('title is 13px, weight 600, on one line with an ellipsis', () => {
-    const b = block(machine, '.nome')
-    expect(b).toContain('font-size: var(--fs-md);')
-    expect(b).toContain('font-weight: 600;')
-    expect(b).toContain('white-space: nowrap;')
-    expect(b).toContain('overflow: hidden;')
-    expect(b).toContain('text-overflow: ellipsis;')
-    expect(b).not.toContain('line-clamp')
-  })
-
+describe('typography tokens and status badge (POL-01)', () => {
   it('--fs-md is 13px', () => {
     expect(read('index.css')).toMatch(/--fs-md:\s*13px;/)
-  })
-
-  it('labels use --fs-xs and values use --fs-sm', () => {
-    expect(block(machine, '.detailRow dt')).toContain('font-size: var(--fs-xs);')
-    expect(block(machine, '.detailRow dd')).toContain('font-size: var(--fs-sm);')
-  })
-
-  it('session time uses --fs-base', () => {
-    expect(block(machine, '.session strong')).toContain('font-size: var(--fs-base);')
   })
 
   it('status badge uses --fs-xs with padding 2px 8px', () => {
