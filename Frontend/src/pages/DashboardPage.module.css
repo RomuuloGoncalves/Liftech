@@ -48,14 +48,8 @@
 }
 
 .quickCard {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  display: flex;
+  composes: cardLg row from '../components/common/Card.module.css';
   align-items: center;
-  gap: 16px;
-  box-sizing: border-box;
 }
 
 .iconSquare {
@@ -78,13 +72,13 @@
 .cardNumber {
   font-size: var(--fs-2xl);
   font-weight: 700;
-  color: var(--black-title);
+  color: var(--text-h);
   line-height: 1.1;
 }
 
 .cardLabel {
   font-size: var(--fs-sm);
-  color: var(--black-text);
+  color: var(--text-label);
   margin-top: 4px;
 }
 
@@ -120,7 +114,7 @@
   display: grid;
   grid-template-columns: 1.9fr 1.1fr;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (max-width: 1100px) {

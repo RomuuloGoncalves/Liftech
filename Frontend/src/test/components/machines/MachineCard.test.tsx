@@ -26,6 +26,22 @@ describe('MachineCard', () => {
     expect(screen.getByText('34 minutos')).toBeInTheDocument()
   })
 
+  it('renders setor and MAC as dd preceded by the correct dt, with title on dd (CARD-04)', () => {
+    render(<MachineCard machine={baseMachine} />)
+
+    const setorDd = screen.getByText('Expedição - Bloco B')
+    expect(setorDd.tagName.toLowerCase()).toBe('dd')
+    expect(setorDd.previousElementSibling?.tagName.toLowerCase()).toBe('dt')
+    expect(setorDd.previousElementSibling?.textContent).toBe('Setor:')
+    expect(setorDd).toHaveAttribute('title', 'Expedição - Bloco B')
+
+    const macDd = screen.getByText('A2:C9:9B:1D:F7')
+    expect(macDd.tagName.toLowerCase()).toBe('dd')
+    expect(macDd.previousElementSibling?.tagName.toLowerCase()).toBe('dt')
+    expect(macDd.previousElementSibling?.textContent).toBe('MAC Address:')
+    expect(macDd).toHaveAttribute('title', 'A2:C9:9B:1D:F7')
+  })
+
   it('renders a menu button without opening any content', () => {
     render(<MachineCard machine={baseMachine} />)
     const menuButton = screen.getByRole('button', { name: /mais ações para emp-084/i })

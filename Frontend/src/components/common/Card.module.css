@@ -1,0 +1,29 @@
+/* Casca única de card. Consumir com composes; --px só existe em Frota/Alertas, fora vale 1px. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--px, 1px));
+  min-width: 0;
+  box-sizing: border-box;
+  padding: calc(12 * var(--px, 1px));
+  border: var(--card-border);
+  border-radius: calc(8 * var(--px, 1px));
+  background: var(--card-bg);
+  box-shadow: none;
+}
+
+.cardLg {
+  composes: card;
+  gap: 12px;
+  padding: 16px;
+}
+
+/* Variantes ficam depois da casca: o composes só ordena certo dentro deste arquivo.
+   Sobrescrever flex-direction/gap numa regra local perde para .card no bundle (mesma especificidade). */
+.row {
+  flex-direction: row;
+}
+
+.gapSm {
+  gap: 4px;
+}

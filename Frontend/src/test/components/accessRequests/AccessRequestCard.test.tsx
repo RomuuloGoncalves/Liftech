@@ -23,6 +23,44 @@ describe('AccessRequestCard', () => {
     expect(screen.getByText(/23 outubro 2026/i)).toBeInTheDocument();
   });
 
+  it('renders each label in dt and value in dd inside dl (CARD-02, CARD-08)', () => {
+    const { container } = render(<AccessRequestCard request={mockRequest} />);
+
+    const dl = container.querySelector('dl');
+    expect(dl).toBeInTheDocument();
+
+    const emailLabel = screen.getByText(/E-mail/i);
+    expect(emailLabel.tagName.toLowerCase()).toBe('dt');
+    const emailValue = screen.getByText('diretoria@acme.com');
+    expect(emailValue.tagName.toLowerCase()).toBe('dd');
+
+    const adminLabel = screen.getByText(/Administrador/i);
+    expect(adminLabel.tagName.toLowerCase()).toBe('dt');
+    const adminValue = screen.getByText('Carlos Silva');
+    expect(adminValue.tagName.toLowerCase()).toBe('dd');
+
+    const dateLabel = screen.getByText(/Enviada em/i);
+    expect(dateLabel.tagName.toLowerCase()).toBe('dt');
+    const dateValue = screen.getByText(/23 outubro 2026/i);
+    expect(dateValue.tagName.toLowerCase()).toBe('dd');
+  });
+
+  it('sets title attribute on long email to allow readable truncation without overflow (CARD-08)', () => {
+    const longEmail = 'super.long.corporate.email.address.that.might.overflow@example.corporation.com';
+    render(
+      <AccessRequestCard
+        request={{
+          ...mockRequest,
+          email: longEmail,
+        }}
+      />
+    );
+
+    const emailValue = screen.getByText(longEmail);
+    expect(emailValue.tagName.toLowerCase()).toBe('dd');
+    expect(emailValue).toHaveAttribute('title', longEmail);
+  });
+
   it('renders accept and reject buttons when handlers are passed and calls them on click', () => {
     const onAccept = vi.fn();
     const onReject = vi.fn();
@@ -66,8 +104,14 @@ describe('AccessRequestCard', () => {
     };
 
     rerender(<AccessRequestCard request={rejectedRequest} />);
-    expect(screen.getByText(/Motivo/i)).toBeInTheDocument();
-    expect(screen.getByText('Falta de documentação comprobatória')).toBeInTheDocument();
+    const reasonLabel = screen.getByText(/Motivo/i);
+    expect(reasonLabel).toBeInTheDocument();
+    expect(reasonLabel.tagName.toLowerCase()).toBe('dt');
+
+    const reasonValue = screen.getByText('Falta de documentação comprobatória');
+    expect(reasonValue).toBeInTheDocument();
+    expect(reasonValue.tagName.toLowerCase()).toBe('dd');
+    expect(reasonValue).toHaveAttribute('title', 'Falta de documentação comprobatória');
   });
 
   it('disables buttons when busy is true', () => {

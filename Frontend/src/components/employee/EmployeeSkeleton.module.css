@@ -90,15 +90,10 @@
 }
 
 .lastCard {
-  display: flex;
+  /* Mesma caixa do .lastCard da Home: compõe card row, 60px de altura (26px caixa + 34px conteúdo). */
+  composes: card row from '../common/Card.module.css';
   justify-content: space-between;
-  gap: 8px;
-  box-sizing: border-box;
   height: 60px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--white);
 }
 
 .lastCol {
@@ -130,15 +125,9 @@
 }
 
 .card {
-  /* Mesma caixa do MachineListCard: 122 = 37 + 1 + 42 + 2 gaps + padding + bordas. */
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--white);
+  /* Mesma caixa do MachineListCard: 123px = 37 (.top) + 1 (.divider) + 43 (.bottom) + 16 (2 gaps de 8) + 24 (padding) + 2 (bordas).
+     .bottom tem 43px = 34px InfoField (rótulo 17px + valor 17px) + 8px padding-top + 1px borda. */
+  composes: card from '../common/Card.module.css';
 }
 
 .cardExtra .cardBottom {
@@ -184,7 +173,7 @@
   align-items: flex-end;
   gap: 16px;
   box-sizing: border-box;
-  height: 42px;
+  height: 43px;
   padding-top: 8px;
   border-top: 1px solid var(--line);
 }

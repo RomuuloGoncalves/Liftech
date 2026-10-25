@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
 import type { Machine } from '../../data/machines'
 import StatusBadge from '../machines/StatusBadge'
+import { InfoField } from '../common/InfoField'
 import styles from './MachineListCard.module.css'
 
 interface MachineListCardProps {
@@ -34,17 +35,17 @@ const MachineListCard: React.FC<MachineListCardProps> = ({
       </div>
       <hr className={styles.divider} />
       <div className={styles.bottom}>
-        <div className={styles.field}>
-          <span className={styles.label}>{t('employee.common.sector')}</span>
-          <span className={styles.value}>{setor}</span>
-        </div>
+        <dl className={styles.fields}>
+        <InfoField label={t('employee.common.sector')} title={setor}>
+          {setor}
+        </InfoField>
         {extra && (
-          <div className={styles.field}>
-            <span className={styles.label}>{t('employee.common.dateTime')}</span>
-            <span className={styles.value}>{extra.date}</span>
-            <span className={styles.value}>{extra.time}</span>
-          </div>
+          <InfoField label={t('employee.common.dateTime')} valueClassName={styles.dateTime}>
+            <span>{extra.date}</span>
+            <span>{extra.time}</span>
+          </InfoField>
         )}
+        </dl>
         <button type="button" className={styles.action} onClick={onAction} disabled={actionDisabled}>
           {actionLabel}
           <ArrowRight size={14} aria-hidden="true" />

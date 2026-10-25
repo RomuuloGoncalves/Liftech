@@ -1,12 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { expectSharedShell } from './cards/shell'
 
 const read = (file: string) => readFileSync(resolve(process.cwd(), 'src', file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
 const block = (css: string, selector: string) =>
   [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].find((m) => m[1].trim() === selector)?.[2] ?? ''
 const px = (css: string, prop: string) => Number(css.match(new RegExp(`(?:^|[\\s;])${prop}:\\s*(\\d+)px`))?.[1])
 
+const cardShell = read('components/common/Card.module.css')
 const skeleton = read('components/common/PageSkeleton.module.css')
 const machineCard = read('components/machines/MachineCard.module.css')
 const fleetCard = read('components/fleet/FleetCard.module.css')
@@ -25,25 +27,34 @@ describe('PageSkeleton styles', () => {
     expect(block(skeleton, '.wrapper')).toMatch(/display:\s*contents/)
   })
 
-  it('machine card uses the MachineCard box: 12px padding, 1px border, 8px gap and radius', () => {
-    const card = block(skeleton, '.machine')
-    const real = block(machineCard, '.card')
-    expect(card).toMatch(/padding:\s*12px/)
-    expect(card).toMatch(/border:\s*1px solid var\(--border\)/)
-    expect(card).toMatch(/border-radius:\s*var\(--radius-md\)/)
-    expect(card).toMatch(/gap:\s*8px/)
-    for (const rule of ['padding', 'border', 'border-radius', 'gap']) {
-      expect(card.match(new RegExp(`${rule}:\\s*([^;]+)`))![1]).toBe(real.match(new RegExp(`${rule}:\\s*([^;]+)`))![1])
-    }
+  it('machine card uses the shared card shell, matching MachineCard', () => {
+    expectSharedShell(skeleton, '.machine', 'card')
+    expectSharedShell(machineCard, '.card', 'card')
   })
 
-  it('machine card is 155px tall: 36px names, 39px details and 38px footer between 8px gaps', () => {
+  it('machine card is 189px tall: 36px names, 72px details and 39px footer between 8px gaps', () => {
     const names = px(block(skeleton, '.machineName'), 'height') + px(block(skeleton, '.machineNames'), 'gap') + px(block(skeleton, '.machineId'), 'height')
-    const total = names + px(block(skeleton, '.machineDetails'), 'height') + px(block(skeleton, '.machineFooter'), 'height')
+    const details = px(block(skeleton, '.machineDetails'), 'height')
+    const footer = px(block(skeleton, '.machineFooter'), 'height')
+    const shellGap = scaled(block(cardShell, '.card'), 'gap')
+    const shellPadding = scaled(block(cardShell, '.card'), 'padding')
+    const border = 1 // 1px solid var(--card-border)
+
+    // Nomes (36px): machineName (17px) + machineNames gap (6px) + machineId (13px)
     expect(names).toBe(36)
-    expect(px(block(skeleton, '.machineDetails'), 'height')).toBe(39)
-    expect(px(block(skeleton, '.machineFooter'), 'height')).toBe(38)
-    expect(total + 2 * 8 + 2 * 12 + 2 * 1).toBe(155)
+    // Detalhes recalculados a partir do CSS real (72px):
+    // 2 InfoFields empilhados (setor e MAC); cada InfoField tem rótulo (17px) + valor (17px) = 34px.
+    // Com 4px de gap em .details: 2 * (17 + 17) + 4 = 72px
+    expect(details).toBe(72)
+    // Rodapé recalculado a partir do CSS real (39px):
+    // InfoField highlight de sessão tem rótulo em destaque (22px) + valor (17px) = 39px.
+    // StatusBadge mede 22px; a linha alinhada pelo item mais alto mede 39px
+    expect(footer).toBe(39)
+
+    // Altura total da caixa do MachineCard recalculada (189px):
+    // 36px nomes + 72px detalhes + 39px rodapé + 2 * 8px gaps da casca + 2 * 12px padding da casca + 2 * 1px bordas = 189px
+    const total = names + details + footer + 2 * shellGap + 2 * shellPadding + 2 * border
+    expect(total).toBe(189)
   })
 })
 
@@ -69,21 +80,24 @@ describe('VisaoGeralPage skeleton toolbar styles', () => {
 describe('PageSkeleton fleet card styles', () => {
   const card = block(skeleton, '.fleet')
 
-  it('is as wide as FleetCard: 288 * var(--px), with the same box', () => {
+  it('is as wide as FleetCard: 288 * var(--px), with the shared card shell', () => {
+    expectSharedShell(skeleton, '.fleet', 'card')
+    expectSharedShell(fleetCard, '.card', 'card')
     expect(card).toMatch(/flex:\s*0 0 calc\(288 \* var\(--px, 1px\)\)/)
     expect(block(fleetCard, '.card')).toMatch(/flex:\s*0 0 calc\(288 \* var\(--px, 1px\)\)/)
-    expect(card).toMatch(/border:\s*1px solid var\(--line\)/)
-    expect(card).toMatch(/border-radius:\s*calc\(8 \* var\(--px, 1px\)\)/)
-    expect(scaled(card, 'padding')).toBe(12)
   })
 
   it('is 170 * var(--px) tall: 47 strip, 8 gap, 3 groups of 31 with 4 between, 12 padding, 1px borders', () => {
     const group = scaled(block(skeleton, '.fleetLabel'), 'height') + scaled(block(skeleton, '.fleetGroup'), 'gap') + scaled(block(skeleton, '.fleetValue'), 'height')
     const body = 3 * group + 2 * scaled(block(skeleton, '.fleetBody'), 'gap')
+    const shellGap = scaled(block(cardShell, '.card'), 'gap')
+    const shellPadding = scaled(block(cardShell, '.card'), 'padding')
     expect(scaled(block(skeleton, '.fleetStrip'), 'height')).toBe(47)
     expect(group).toBe(31)
     expect(body).toBe(101)
-    expect(1 + 47 + scaled(card, 'gap') + body + scaled(card, 'padding') + 1).toBe(170)
+    // Caixa da frota mantida em 170 * var(--px, 1px):
+    // 1px borda sup + 47px faixa + 8px gap da casca + 101px corpo + 12px padding inf da casca + 1px borda inf = 170
+    expect(1 + 47 + shellGap + body + shellPadding + 1).toBe(170)
   })
 
   it('strip bleeds over the card padding like the FleetCard header', () => {
@@ -158,16 +172,23 @@ describe('PageSkeleton team card styles', () => {
   const employee = block(skeleton, '.employee')
   const sector = block(skeleton, '.sector')
 
-  it('employee card has the EmployeeCard box: 12px padding, 0.5px border, radius md', () => {
-    for (const rule of ['padding', 'border', 'border-radius', 'gap']) {
+  it('employee card has the EmployeeCard box: shared shell with row variant', () => {
+    expectSharedShell(skeleton, '.employee', 'card')
+    expectSharedShell(employeeCard, '.card', 'card')
+    expect(employee).toMatch(/composes:\s*card\s+row\b/)
+    expect(block(employeeCard, '.card')).toMatch(/composes:\s*card\s+row\b/)
+    for (const rule of ['align-items', 'justify-content']) {
       expect(employee.match(new RegExp(`${rule}:\\s*([^;]+)`))![1]).toBe(block(employeeCard, '.card').match(new RegExp(`${rule}:\\s*([^;]+)`))![1])
     }
-    expect(employee).toMatch(/border:\s*0\.5px solid var\(--border\)/)
+    expect(employee).not.toContain('0.5px')
   })
 
   it('employee card is 81px tall: 55px info + 24px padding + 2px borders', () => {
     expect(px(block(skeleton, '.employeeInfo'), 'height')).toBe(55)
-    expect(55 + 2 * 12 + 2).toBe(81)
+    const shellPadding = scaled(block(cardShell, '.card'), 'padding')
+    const border = 1 // 1px solid var(--card-border)
+    // Caixa do EmployeeCard: 55px info + 2 * 12px padding da casca + 2 * 1px bordas = 81px
+    expect(55 + 2 * shellPadding + 2 * border).toBe(81)
   })
 
   it('employee info, icons and switch have the real sizes (icons 16, switch 34x18)', () => {
@@ -180,13 +201,20 @@ describe('PageSkeleton team card styles', () => {
   })
 
   it('sector card has the SectorCard box and two 25px buttons, so it is one 51px row', () => {
-    for (const rule of ['padding', 'border', 'border-radius', 'gap', 'align-items']) {
+    expectSharedShell(skeleton, '.sector', 'card')
+    expectSharedShell(sectorCard, '.card', 'card')
+    expect(sector).toMatch(/composes:\s*card\s+row\b/)
+    expect(block(sectorCard, '.card')).toMatch(/composes:\s*card\s+row\b/)
+    for (const rule of ['align-items', 'justify-content']) {
       expect(sector.match(new RegExp(`${rule}:\\s*([^;]+)`))![1]).toBe(block(sectorCard, '.card').match(new RegExp(`${rule}:\\s*([^;]+)`))![1])
     }
     expect(block(skeleton, '.sectorButton')).toMatch(/width:\s*25px/)
     expect(block(skeleton, '.sectorButton')).toMatch(/height:\s*25px/)
     expect(block(sectorCard, '.iconButton')).toMatch(/width:\s*25px/)
-    expect(25 + 2 * 12 + 2).toBe(51)
+    const shellPadding = scaled(block(cardShell, '.card'), 'padding')
+    const border = 1 // 1px solid var(--card-border)
+    // Caixa do SectorCard: 25px botões + 2 * 12px padding da casca + 2 * 1px bordas = 51px
+    expect(25 + 2 * shellPadding + 2 * border).toBe(51)
   })
 
   it('old card classes are gone', () => {
