@@ -1,12 +1,5 @@
 .card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
-  padding: 16px;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg);
+  composes: cardLg from '../common/Card.module.css';
 }
 
 .header {
@@ -28,24 +21,13 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin: 0;
 }
 
-.detailRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-size: var(--fs-sm);
-  line-height: 1.4;
-}
-
-.label {
-  font-weight: 500;
-  color: var(--text);
-}
-
-.value {
-  color: var(--text-h);
-  word-break: break-all;
+.wrapValue {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .reasonBox {
@@ -53,9 +35,7 @@
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   background: var(--bg-page);
-  border: 0.5px solid var(--border);
-  font-size: var(--fs-xs);
-  color: var(--text-h);
+  border: 1px solid var(--border);
 }
 
 .actions {

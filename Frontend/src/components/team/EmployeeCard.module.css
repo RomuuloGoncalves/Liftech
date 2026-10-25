@@ -1,20 +1,21 @@
 .card {
-  display: flex;
+  composes: card row from '../common/Card.module.css';
   align-items: stretch;
   justify-content: space-between;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .openArea {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1;
   min-width: 0;
   padding: 0;
   border: none;
@@ -34,16 +35,19 @@
 .name {
   overflow: hidden;
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-h);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.code,
-.access {
+.code {
   font-size: var(--fs-xs);
-  color: var(--text);
+  color: var(--text-label);
+}
+
+.access {
+  margin: 0;
 }
 
 .allowed {
