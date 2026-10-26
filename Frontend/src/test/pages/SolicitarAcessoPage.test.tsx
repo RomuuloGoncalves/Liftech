@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { AxiosError, type AxiosResponse } from 'axios'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SolicitarAcessoPage from '../../pages/SolicitarAcessoPage'
+import { authService } from '../../services/authService'
+
+vi.mock('../../services/authService')
 
 const renderPage = () =>
   render(
@@ -9,7 +13,6 @@ const renderPage = () =>
       <Routes>
         <Route path="/solicitar-acesso" element={<SolicitarAcessoPage />} />
         <Route path="/login" element={<div>admin login screen</div>} />
-        <Route path="/login/colaborador" element={<div>colaborador screen</div>} />
       </Routes>
     </MemoryRouter>
   )
@@ -22,6 +25,10 @@ const fillAndSubmit = (email: string, empresa: string, admin: string) => {
 }
 
 describe('SolicitarAcessoPage', () => {
+  beforeEach(() => {
+    vi.mocked(authService.solicitarAcesso).mockReset().mockResolvedValue(undefined)
+  })
+
   it('renders the 3 form fields', () => {
     renderPage()
     expect(screen.getByLabelText('Email empresarial')).toBeInTheDocument()
@@ -29,11 +36,16 @@ describe('SolicitarAcessoPage', () => {
     expect(screen.getByLabelText('Nome Administrador')).toBeInTheDocument()
   })
 
-  it('replaces the form with a confirmation message on valid submit, without redirecting', () => {
+  it('sends trimmed data and shows a confirmation message, without redirecting', async () => {
     renderPage()
-    fillAndSubmit('contato@empresa.com', 'Empresa LTDA', 'Maria Souza')
+    fillAndSubmit('  contato@empresa.com ', ' Empresa LTDA ', ' Maria Souza  ')
 
-    expect(screen.getByText('Solicitação enviada!')).toBeInTheDocument()
+    expect(await screen.findByText('Solicitação enviada!')).toBeInTheDocument()
+    expect(authService.solicitarAcesso).toHaveBeenCalledWith({
+      email: 'contato@empresa.com',
+      nomeEmpresa: 'Empresa LTDA',
+      nomeAdministrador: 'Maria Souza',
+    })
     expect(screen.queryByLabelText('Email empresarial')).not.toBeInTheDocument()
     expect(screen.queryByText('admin login screen')).not.toBeInTheDocument()
   })
@@ -43,6 +55,7 @@ describe('SolicitarAcessoPage', () => {
     fillAndSubmit('', '', '')
 
     expect(screen.getAllByText('Campo obrigatório')).toHaveLength(3)
+    expect(authService.solicitarAcesso).not.toHaveBeenCalled()
     expect(screen.queryByText('Solicitação enviada!')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Email empresarial')).toBeInTheDocument()
   })
@@ -52,18 +65,28 @@ describe('SolicitarAcessoPage', () => {
     fillAndSubmit('abc', 'Empresa LTDA', 'Maria Souza')
 
     expect(screen.getByText('E-mail inválido')).toBeInTheDocument()
+    expect(authService.solicitarAcesso).not.toHaveBeenCalled()
     expect(screen.queryByText('Solicitação enviada!')).not.toBeInTheDocument()
   })
 
-  it('navigates to /login/colaborador via the collaborator link', () => {
+  it('shows the duplicate message and keeps the form values on 409', async () => {
+    vi.mocked(authService.solicitarAcesso).mockRejectedValue(
+      new AxiosError('conflict', '409', undefined, undefined, { status: 409 } as AxiosResponse)
+    )
     renderPage()
-    fireEvent.click(screen.getByRole('link', { name: 'Colaborador? Clique aqui!' }))
-    expect(screen.getByText('colaborador screen')).toBeInTheDocument()
+    fillAndSubmit('contato@empresa.com', 'Empresa LTDA', 'Maria Souza')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Já existe uma solicitação pendente para este email.')
+    expect(screen.getByLabelText('Email empresarial')).toHaveValue('contato@empresa.com')
+    expect(screen.getByLabelText('Nome da Empresa')).toHaveValue('Empresa LTDA')
+    expect(screen.getByLabelText('Nome Administrador')).toHaveValue('Maria Souza')
+    expect(screen.queryByText('Solicitação enviada!')).not.toBeInTheDocument()
   })
 
-  it('navigates to /login via the "Entrar Agora!" link', () => {
+  it('does not render the removed cross links and divider', () => {
     renderPage()
-    fireEvent.click(screen.getByRole('link', { name: 'Entrar Agora!' }))
-    expect(screen.getByText('admin login screen')).toBeInTheDocument()
+    expect(screen.queryByText('Já tem cadastro?')).not.toBeInTheDocument()
+    expect(screen.queryByText('ou')).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Entrar Agora!' })).not.toBeInTheDocument()
   })
 })

@@ -1,12 +1,9 @@
 import { Router } from "express";
-import { listar, buscar, criar, deletar, atualizar } from "./incidentController.js";
+import { reportar, listar } from "./incidentController.js";
 
 const router = Router();
 
 router.get("/", listar);
-router.get("/:id", buscar);
-router.post("/", criar);
-router.put("/:id", atualizar);
-router.delete("/:id", deletar);
+router.post("/", reportar);
 
 export default router;

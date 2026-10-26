@@ -1,7 +1,9 @@
 import React from 'react'
-import { Forklift, MoreVertical } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
+import { InfoField } from '../common/InfoField'
+import StatusBadge from './StatusBadge'
 import styles from './MachineCard.module.css'
 
 interface MachineCardProps {
@@ -9,35 +11,18 @@ interface MachineCardProps {
   onOpen?: (machine: Machine) => void
 }
 
-const STATUS_CLASS: Record<Machine['dispositivoConectado']['status'], string> = {
-  Disponível: styles.statusAvailable,
-  'Em uso': styles.statusInUse,
-  Manutenção: styles.statusMaintenance,
-  Offline: styles.statusOffline,
-}
-
 function formatTempoSessao(minutos: number): string {
-  return `${minutos} min`
+  return `${minutos} minutos`
 }
 
 const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
   const { t } = useTranslation()
-  const { identificacao, nome, setor, dispositivoConectado, operadorConectado, tempoSessaoMinutos } = machine
-
-  const getStatusTranslation = (status: string) => {
-    if (status === 'Disponível') return t('machines.statusAvailable')
-    if (status === 'Em uso') return t('machines.statusInUse')
-    if (status === 'Manutenção' || status === 'Em manutenção') return t('machines.statusMaintenance')
-    return status
-  }
+  const { identificacao, nome, setor, dispositivoConectado, tempoSessaoMinutos } = machine
 
   return (
     <article className={styles.card}>
       <div className={styles.topRow}>
         <div className={styles.identity}>
-          <span className={styles.icon}>
-            <Forklift size={20} />
-          </span>
           <div className={styles.names}>
             <h3 className={styles.nome}>
               {onOpen ? (
@@ -62,34 +47,21 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
       </div>
 
       <dl className={styles.details}>
-        <div className={styles.detailRow}>
-          <dt>{t('machines.sector')}:</dt>
-          <dd>{setor}</dd>
-        </div>
-        <div className={styles.detailRow}>
-          <dt>{t('machines.labelMac')}:</dt>
-          <dd>{dispositivoConectado.enderecoMac}</dd>
-        </div>
-        {operadorConectado ? (
-          <div className={styles.detailRow}>
-            <dt>{t('machines.operator')}:</dt>
-            <dd>{operadorConectado.nome}</dd>
-          </div>
-        ) : (
-          <div className={styles.detailRow}>
-            <dt>{t('machines.operator')}:</dt>
-            <dd className={styles.emptyOperator}>{t('machines.noOperator')}</dd>
-          </div>
-        )}
+        <InfoField label={`${t('machines.sector')}:`} title={setor}>
+          {setor}
+        </InfoField>
+        <InfoField label={`${t('machines.labelMac')}:`} title={dispositivoConectado.enderecoMac}>
+          {dispositivoConectado.enderecoMac}
+        </InfoField>
       </dl>
 
       <div className={styles.bottomRow}>
-        <span className={`${styles.statusBadge} ${STATUS_CLASS[dispositivoConectado.status]}`}>
-          {getStatusTranslation(dispositivoConectado.status)}
-        </span>
-        <span className={styles.session}>
-          {t('machines.sessionTime')} <strong>{formatTempoSessao(tempoSessaoMinutos)}</strong>
-        </span>
+        <StatusBadge status={machine.status} />
+        <dl className={styles.session}>
+          <InfoField label={t('machines.sessionTime')} highlight>
+            {formatTempoSessao(tempoSessaoMinutos)}
+          </InfoField>
+        </dl>
       </div>
     </article>
   )

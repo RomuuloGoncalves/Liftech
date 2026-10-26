@@ -1,14 +1,19 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import MachineDetailModal from '../../../components/machines/MachineDetailModal'
-import type { Machine, MachineEvent } from '../../../data/machines'
+import { DEFAULT_PERIOD, defaultPeriodTo, type Machine, type MachineEvent } from '../../../data/machines'
+import { incidentService, type FiltroIncidentes } from '../../../services/incidentService'
+
+vi.mock('../../../services/incidentService', () => ({ incidentService: { listar: vi.fn(), reportar: vi.fn() } }))
+const listarIncidentes = vi.mocked(incidentService.listar)
 
 const machine: Machine = {
   id: '4',
   identificacao: 'EMP-084',
   nome: 'Empilhadeira Elétrica Titan-X',
   setor: 'Expedição - Bloco B',
-  dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', status: 'Disponível', nomeDispositivo: 'Mpa-5312' },
+  setorId: null,
+  status: 'disponivel', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'A:2C:99:B1:DF:7', nomeDispositivo: 'Mpa-5312' },
   tempoSessaoMinutos: 5,
   tempoUsoTotalHoras: 7,
 }
@@ -29,6 +34,27 @@ const events = [
   ev({ id: 'a2', operador: 'Carlos Silva', data: '2025-01-10', inicio: '08:00:00', fim: '08:45:00' }),
   ev({ id: 'm1', tipo: 'manutencao', operador: 'Ana Souza', data: '2025-05-20', inicio: '09:00:00', fim: '10:30:00' }),
 ]
+
+// Stand-in for GET /incidents: the accidents of `events` by local day, inclusive, most recent first.
+const listIncidents = async ({ from, to }: FiltroIncidentes = {}) =>
+  events
+    .filter((e) => e.tipo === 'acidente' && (!from || e.data >= from) && (!to || e.data <= to))
+    .sort((a, b) => (b.data + b.inicio).localeCompare(a.data + a.inicio))
+    .map((e) => ({
+      _id: e.id,
+      machineId: e.machineId,
+      maquina: null,
+      operador: { nome: e.operador },
+      dataIncidente: new Date(`${e.data}T${e.inicio}`).toISOString(),
+      forcaImpacto: null,
+      status: 'pendente',
+      origem: 'sensor' as const,
+      descricao: null,
+    }))
+
+const loaded = () => act(async () => {})
+
+beforeEach(() => listarIncidentes.mockReset().mockImplementation(listIncidents))
 
 function setup(props: Partial<React.ComponentProps<typeof MachineDetailModal>> = {}) {
   const handlers = { onEdit: vi.fn(), onDelete: vi.fn(), onClose: vi.fn() }
@@ -65,7 +91,7 @@ describe('MachineDetailModal: content', () => {
       machine: {
         ...machine,
         tempoUsoTotalHoras: undefined,
-        dispositivoConectado: { enderecoMac: 'x', status: 'Offline' },
+        status: 'offline', categoriaId: null, categoriaTravada: false, dispositivoConectado: { enderecoMac: 'x' },
       },
     })
 
@@ -74,58 +100,67 @@ describe('MachineDetailModal: content', () => {
 })
 
 describe('MachineDetailModal: history', () => {
-  it('opens on the accidents tab, newest first, with date, time range and duration', () => {
+  it('opens on the accidents tab with the API incidents, newest first, with date and time', async () => {
     setup()
+    await loaded()
 
-    expect(screen.getByRole('tab', { name: 'Histórico de acidentes' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByRole('tab', { name: 'Histórico de manutenção' })).toHaveAttribute('aria-selected', 'false')
+    expect(screen.getByRole('tab', { name: 'Acidentes' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Manutenção' })).toHaveAttribute('aria-selected', 'false')
     const items = within(screen.getByRole('tabpanel')).getAllByRole('listitem')
     expect(items).toHaveLength(2)
     expect(items[0]).toHaveTextContent('Alexandre Gomes')
     expect(items[0]).toHaveTextContent('Dom, 14 setembro 2025')
-    expect(items[0]).toHaveTextContent('14:35:25 ~ 16:35:20 (2 horas)')
+    expect(items[0]).toHaveTextContent('14:35:25')
+    expect(items[0]).not.toHaveTextContent('~')
     expect(items[1]).toHaveTextContent('Carlos Silva')
-    expect(items[1]).toHaveTextContent('08:00:00 ~ 08:45:00 (45 minutos)')
+    expect(items[1]).toHaveTextContent('08:00:00')
+    expect(listarIncidentes).toHaveBeenCalledWith({ machineId: '4', from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
   })
 
   it('switches to maintenance and marks that tab selected', () => {
     setup()
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Histórico de manutenção' }))
-    expect(screen.getByRole('tab', { name: 'Histórico de manutenção' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByRole('tab', { name: 'Histórico de acidentes' })).toHaveAttribute('aria-selected', 'false')
+    fireEvent.click(screen.getByRole('tab', { name: 'Manutenção' }))
+    expect(screen.getByRole('tab', { name: 'Manutenção' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Acidentes' })).toHaveAttribute('aria-selected', 'false')
     const items = within(screen.getByRole('tabpanel')).getAllByRole('listitem')
     expect(items).toHaveLength(1)
     expect(items[0]).toHaveTextContent('Ana Souza')
     expect(items[0]).toHaveTextContent('(1 hora 30 minutos)')
   })
 
-  it('defaults the period to 14/07/2024 - 14/07/2026', () => {
+  it('defaults the period from 14/07/2024 to 14/07/2026 or today, whichever is later', () => {
     setup()
 
     expect(screen.getByLabelText('Data inicial')).toHaveValue('2024-07-14')
-    expect(screen.getByLabelText('Data final')).toHaveValue('2026-07-14')
+    expect(screen.getByLabelText('Data final')).toHaveValue(['2026-07-14', new Date().toLocaleDateString('sv')].sort()[1])
   })
 
-  it('filters by the period, inclusive', () => {
+  it('asks the API for the period, inclusive', async () => {
     setup()
 
     setDate('Data inicial', '2025-09-14')
+    await loaded()
+    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: '2025-09-14', to: defaultPeriodTo() })
     expect(within(screen.getByRole('tabpanel')).getAllByRole('listitem')).toHaveLength(1)
     setDate('Data final', '2025-09-13')
+    await loaded()
     expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
-  it('shows the empty state when the start date is after the end date', () => {
+  it('shows the empty state when the start date is after the end date', async () => {
     setup()
 
     setDate('Data inicial', '2026-01-01')
     setDate('Data final', '2025-01-01')
+    await loaded()
     expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
-  it('shows the empty state when the machine has no events', () => {
+  it('shows the empty state when the API has no incident', async () => {
+    listarIncidentes.mockResolvedValue([])
     setup({ events: [] })
+    await loaded()
 
     expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
   })
@@ -179,10 +214,11 @@ describe('MachineDetailModal fleet variant', () => {
     expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toContain('Funcionário—')
   })
 
-  it('shows the repair and alert tabs, starting on repairs', () => {
+  it('shows the repair and alert tabs, starting on repairs', async () => {
     setupFleet()
+    await loaded()
     const tabs = screen.getAllByRole('tab')
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Histórico de reparos', 'Histórico de alertas'])
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Manutenção', 'Acidentes'])
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByText('Ana Souza')).toBeInTheDocument()
     expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
@@ -216,10 +252,11 @@ describe('MachineDetailModal alerts variant', () => {
       />
     )
 
-  it('starts on the alerts tab, listed before repairs', () => {
+  it('starts on the alerts tab, listed before repairs', async () => {
     setupAlerts()
+    await loaded()
     const tabs = screen.getAllByRole('tab')
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Histórico de alertas', 'Histórico de reparos'])
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Acidentes', 'Manutenção'])
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByText('Carlos Silva')).toBeInTheDocument()
     expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
@@ -231,5 +268,56 @@ describe('MachineDetailModal alerts variant', () => {
     expect(screen.queryByText('Disponível')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Excluir/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('MachineDetailModal status pill and buttons (RST-06, RST-08)', () => {
+  it.each([
+    ['disponivel', 'Disponível', 'disponivel'],
+    ['em_uso', 'Em uso', 'em_uso'],
+    ['manutencao', 'Em manutenção', 'manutencao'],
+    ['offline', 'Offline', 'offline'],
+    ['alerta', 'Alerta', 'alerta'],
+  ] as const)('maps %s to %s', (status, label, cls) => {
+    setup({ machine: { ...machine, status } })
+    expect(screen.getByText(label).className).toContain(cls)
+  })
+
+  it('renders Editar and Excluir with edit and delete classes', () => {
+    setup()
+    expect(screen.getByRole('button', { name: 'Editar Máquina' }).className).toContain('edit')
+    expect(screen.getByRole('button', { name: 'Excluir Máquina' }).className).toContain('delete')
+  })
+})
+
+describe('MachineDetailModal status and lock', () => {
+  it('renders neither control without the props', () => {
+    setup()
+    expect(screen.queryByLabelText('Alterar status')).toBeNull()
+    expect(screen.queryByRole('button', { name: /^(Travar|Destravar)$/ })).toBeNull()
+  })
+
+  it('calls onChangeStatus with the chosen code', () => {
+    const onChangeStatus = vi.fn()
+    setup({ onChangeStatus })
+    const select = screen.getByLabelText('Alterar status') as HTMLSelectElement
+    expect(select.value).toBe('disponivel')
+    expect(select.options).toHaveLength(5)
+    fireEvent.change(select, { target: { value: 'manutencao' } })
+    expect(onChangeStatus).toHaveBeenCalledWith('manutencao')
+  })
+
+  it('shows Travar when unlocked and toggles to true', () => {
+    const onToggleLock = vi.fn()
+    setup({ onToggleLock })
+    fireEvent.click(screen.getByRole('button', { name: 'Travar' }))
+    expect(onToggleLock).toHaveBeenCalledWith(true)
+  })
+
+  it('shows Destravar when locked and toggles to false', () => {
+    const onToggleLock = vi.fn()
+    setup({ onToggleLock, machine: { ...machine, categoriaTravada: true } })
+    fireEvent.click(screen.getByRole('button', { name: 'Destravar' }))
+    expect(onToggleLock).toHaveBeenCalledWith(false)
   })
 })

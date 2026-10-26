@@ -1,0 +1,96 @@
+.card {
+  composes: cardLg from '../common/Card.module.css';
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.company {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text-h);
+  word-break: break-word;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.wrapValue {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.reasonBox {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.acceptButton,
+.rejectButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 120ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    opacity 120ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.acceptButton:active:not(:disabled),
+.rejectButton:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.acceptButton:disabled,
+.rejectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.acceptButton {
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+}
+
+.rejectButton {
+  border: 1px solid var(--danger-solid);
+  background: transparent;
+  color: var(--danger-solid);
+}
+
+@media (max-width: 480px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acceptButton,
+  .rejectButton {
+    width: 100%;
+  }
+}

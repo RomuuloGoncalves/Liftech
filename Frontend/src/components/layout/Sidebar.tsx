@@ -1,24 +1,32 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   AlertCircle,
+  AlertTriangle,
   ChevronRight,
   FileText,
   Forklift,
+  LayoutDashboard,
   LogIn,
   MessageCircle,
   Menu,
   PanelLeft,
+  User,
   Users,
   X,
 } from 'lucide-react'
+import BranchSelector from './BranchSelector'
+import { useActiveBranch } from '../../context/ActiveBranchContext'
+import { useAlerts } from '../../context/AlertsContext'
 import logo from '../../assets/logo.svg'
 import logoName from '../../assets/logo-name.svg'
 import styles from './Sidebar.module.css'
 
 const COLLAPSED_STORAGE_KEY = 'liftech.sidebar.collapsed'
 const MOBILE_BREAKPOINT = 768
+
+const FeedbackModal = lazy(() => import('../feedback/FeedbackModal'))
 
 interface NavItem {
   to: string
@@ -27,6 +35,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { to: '/dashboard', labelKey: 'dashboard.navLabel', icon: LayoutDashboard },
   { to: '/', labelKey: 'navigation.overview', icon: FileText },
   { to: '/frota', labelKey: 'navigation.fleet', icon: Forklift },
   { to: '/equipe', labelKey: 'navigation.team', icon: Users },
@@ -37,6 +46,7 @@ const TEMP_AUTH_LINKS: { to: string; label: string }[] = [
   { to: '/login', label: 'Login Admin' },
   { to: '/login/colaborador', label: 'Login Colaborador' },
   { to: '/solicitar-acesso', label: 'Solicitar Acesso' },
+  { to: '/funcionario', label: 'Área do Funcionário' },
 ]
 
 function readStoredCollapsed(): boolean {
@@ -58,9 +68,12 @@ function writeStoredCollapsed(value: boolean): void {
 const Sidebar: React.FC = () => {
   const location = useLocation()
   const { t } = useTranslation()
+  const { user } = useActiveBranch()
+  const { simulate } = useAlerts()
   const [collapsed, setCollapsed] = useState<boolean>(readStoredCollapsed)
   const [isMobile, setIsMobile] = useState<boolean>(() => window.innerWidth < MOBILE_BREAKPOINT)
   const [mobileOpen, setMobileOpen] = useState<boolean>(false)
+  const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -152,6 +165,8 @@ const Sidebar: React.FC = () => {
           )}
         </div>
 
+        <BranchSelector collapsed={showCollapsedLayout} />
+
         {!showCollapsedLayout && <p className={styles.sectionLabel}>{t('navigation.pages')}</p>}
 
         <ul className={styles.nav} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -194,15 +209,44 @@ const Sidebar: React.FC = () => {
                 <span className={styles.navLabel}>{label}</span>
               </Link>
             ))}
+            <button
+              type="button"
+              className={styles.navLink}
+              onClick={() => {
+                if (isMobile) closeMobileDrawer()
+                simulate()
+              }}
+              style={{ fontSize: 12, border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+            >
+              <span className={styles.navIcon}>
+                <AlertTriangle size={16} />
+              </span>
+              <span className={styles.navLabel}>Simular alerta</span>
+            </button>
           </div>
         )}
 
         <div className={styles.footer}>
+          {user?.empresa && (
+            <div
+              className={styles.company}
+              role={showCollapsedLayout ? 'img' : undefined}
+              aria-label={showCollapsedLayout ? user.empresa.nome : undefined}
+              title={showCollapsedLayout ? user.empresa.nome : undefined}
+            >
+              <User size={16} aria-hidden="true" />
+              {!showCollapsedLayout && <span className={styles.companyName}>{user.empresa.nome}</span>}
+            </div>
+          )}
           <button
             type="button"
             className={styles.feedbackButton}
             aria-label={showCollapsedLayout ? t('navigation.feedback') : undefined}
             title={showCollapsedLayout ? t('navigation.feedback') : undefined}
+            onClick={() => {
+              closeMobileDrawer()
+              setFeedbackOpen(true)
+            }}
           >
             <span className={styles.feedbackLabel}>
               <MessageCircle size={16} aria-hidden="true" />
@@ -217,6 +261,12 @@ const Sidebar: React.FC = () => {
           )}
         </div>
       </nav>
+
+      {feedbackOpen && (
+        <Suspense fallback={null}>
+          <FeedbackModal onClose={() => setFeedbackOpen(false)} />
+        </Suspense>
+      )}
     </>
   )
 }

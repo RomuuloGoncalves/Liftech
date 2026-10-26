@@ -6,8 +6,8 @@
   width: 100%;
   box-sizing: border-box;
   padding: 20px 32px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--line);
 }
 
 .title {
@@ -16,8 +16,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 24px;
+  font-size: var(--fs-2xl);
   font-weight: 500;
+  line-height: 1.25;
   color: var(--text-h);
 }
 
@@ -51,9 +52,9 @@
 }
 
 .avatarButton {
-  border-color: var(--active-bg);
-  background: var(--active-bg);
-  color: #fff;
+  border-color: var(--blue);
+  background: var(--blue);
+  color: var(--white);
 }
 
 .popoverAnchor {
@@ -95,7 +96,7 @@
 }
 
 .popoverTitle {
-  font-size: 14px;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--text-h);
 }
@@ -133,7 +134,7 @@
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   text-align: left;
   cursor: pointer;
 }
@@ -167,7 +168,7 @@
   }
 
   .title {
-    font-size: 18px;
+    font-size: var(--fs-xl);
   }
 }
 

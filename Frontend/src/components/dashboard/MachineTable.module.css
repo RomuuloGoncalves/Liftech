@@ -1,0 +1,222 @@
+.container {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  color: var(--black-title);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--black-title);
+  margin: 0;
+}
+
+.actionsArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  height: 38px;
+  padding: 0 12px 0 36px;
+  font-size: var(--fs-sm);
+  color: var(--black-text);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--blue);
+}
+
+.createButton {
+  height: 38px;
+  padding: 0 16px;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.createButton:hover {
+  opacity: 0.9;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: 240px;
+  margin-bottom: 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.th {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.td {
+  font-size: var(--fs-sm);
+  color: var(--black-text);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.nameButton {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--blue);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.nameButton:hover {
+  opacity: 0.8;
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  border-bottom: 1px solid var(--line);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 12px;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.pageInfo {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageButton {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--blue) 15%, var(--white));
+  color: var(--blue);
+  border: 1px solid color-mix(in srgb, var(--blue) 30%, var(--white));
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  padding: 0;
+}
+
+.pageButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--white);
+  border-color: var(--line);
+  color: var(--text-muted);
+}
+
+.pageNumber {
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--black-title);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 6px;
+}
+
+@media (max-width: 1100px) {
+  .tableWrapper {
+    max-height: none;
+    overflow-y: visible;
+  }
+}

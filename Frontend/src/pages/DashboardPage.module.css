@@ -1,0 +1,156 @@
+.page {
+  padding: 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+}
+
+.title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--black-title);
+  margin: 0 0 24px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--black-title);
+  margin: 0 0 16px;
+}
+
+.quickDataGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1100px) {
+  .quickDataGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .quickDataGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quickCard {
+  composes: cardLg row from '../components/common/Card.module.css';
+  align-items: center;
+}
+
+.iconSquare {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--blue);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardNumber {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-h);
+  line-height: 1.1;
+}
+
+.cardLabel {
+  font-size: var(--fs-sm);
+  color: var(--text-label);
+  margin-top: 4px;
+}
+
+.cardError {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+}
+
+.errorMessage {
+  font-size: var(--fs-xs);
+  color: var(--danger-solid);
+  margin: 0;
+}
+
+.retryButton {
+  padding: 6px 12px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 10%, var(--white));
+  border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--white));
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: color-mix(in srgb, var(--blue) 20%, var(--white));
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1.9fr 1.1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.errorContainer {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.cardSkeleton {
+  width: 100%;
+  height: 94px;
+  border-radius: var(--radius-lg);
+}
+
+.tableSkeleton {
+  width: 100%;
+  height: 480px;
+  border-radius: var(--radius-lg);
+}
+
+.heatmapSkeleton {
+  width: 100%;
+  height: 380px;
+  border-radius: var(--radius-lg);
+}

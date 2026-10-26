@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Forklift, MoreVertical } from 'lucide-react'
+import { Lock, MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { CategoryKind } from '../../data/fleet'
-import type { Machine, UrgencyLevel } from '../../data/machines'
+import type { Machine, MachineStatus, UrgencyLevel } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
+import { InfoField } from '../common/InfoField'
+import { STATUS_TONE } from '../machines/StatusBadge'
 import styles from './FleetCard.module.css'
 
 interface FleetCardProps {
   machine: Machine
-  kind: CategoryKind
-  lastAccident?: { data: string; hora: string }
-  /** Acidentes: mostra o nível no lugar do "Urgente" fixo. */
-  urgency?: UrgencyLevel
+  /** Card de ocorrência (Alertas): mostra a data e a urgência dela no lugar do destaque do status. */
+  incident?: { data: string; hora: string; urgency?: UrgencyLevel }
   /** Sem `onMove`/`onRemove` o card não tem menu; sem `onDragStart` não é arrastável. */
   moveTargets?: { id: string; nome: string }[]
   onOpen: (machine: Machine) => void
   onDragStart?: (machineId: string) => void
   onMove?: (machineId: string, categoryId: string) => void
   onRemove?: (machineId: string) => void
+  /** Cadeado aparece só com `categoriaTravada`; o clique destrava. */
+  onToggleLock?: (machineId: string) => void
   /** Card sendo arrastado agora. */
   isDragging?: boolean
   /** Card que acabou de entrar na linha (destaque de 1 s). */
@@ -39,14 +40,13 @@ const URGENCY_TONE: Record<UrgencyLevel, string> = {
 
 const FleetCard: React.FC<FleetCardProps> = ({
   machine,
-  kind,
-  lastAccident,
-  urgency,
+  incident,
   moveTargets = [],
   onOpen,
   onDragStart,
   onMove,
   onRemove,
+  onToggleLock,
   isDragging = false,
   isArriving = false,
 }) => {
@@ -69,24 +69,28 @@ const FleetCard: React.FC<FleetCardProps> = ({
     setMenuOpen(false)
   }
 
-  const highlights: Partial<Record<CategoryKind, Highlight>> = {
-    acidentes: {
-      label: t('fleet.cardUrgency'),
-      value: urgency ? t(`alerts.urgency.${urgency}`) : t('fleet.cardUrgent'),
-      tone: urgency ? URGENCY_TONE[urgency] : styles.danger,
-      left: {
-        label: t('fleet.cardDateTime'),
-        value: lastAccident
-          ? `${formatAlertDate(lastAccident.data, i18n.language)}, ${lastAccident.hora}`
-          : undefinedText,
-      },
+  // ponytail: data e hora do alerta em UTC, como o formatAlertDate; trocar para o fuso local se pedirem.
+  const alertaEm = machine.alertaEm ?? undefined
+  // Horário local, igual aos incidentes de Alertas ('sv' dá YYYY-MM-DD e HH:mm:ss).
+  const alertAt = incident ?? (alertaEm && { data: new Date(alertaEm).toLocaleDateString('sv'), hora: new Date(alertaEm).toLocaleTimeString('sv') })
+  const urgencyTone = incident?.urgency ? URGENCY_TONE[incident.urgency] : styles.danger
+  const alertHighlight: Highlight = {
+    label: t('fleet.cardUrgency'),
+    value: incident?.urgency ? t(`alerts.urgency.${incident.urgency}`) : t('fleet.cardUrgent'),
+    tone: urgencyTone,
+    left: {
+      label: t('fleet.cardDateTime'),
+      value: alertAt ? `${formatAlertDate(alertAt.data, i18n.language)}, ${alertAt.hora}` : undefinedText,
     },
-    ativas: {
+  }
+  const highlights: Partial<Record<MachineStatus, Highlight>> = {
+    alerta: alertHighlight,
+    em_uso: {
       label: t('fleet.cardSessionTime'),
       value: t('fleet.cardMinutes', { count: machine.tempoSessaoMinutos }),
-      tone: styles.info,
+      tone: styles.session,
     },
-    disponiveis: {
+    disponivel: {
       label: t('fleet.cardWeeklyHours'),
       value:
         machine.tempoUsoTotalHoras === undefined
@@ -95,7 +99,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
       tone: styles.success,
     },
   }
-  const highlight = highlights[kind]
+  const highlight = incident ? alertHighlight : highlights[machine.status]
 
   return (
     <article
@@ -108,10 +112,7 @@ const FleetCard: React.FC<FleetCardProps> = ({
         onDragStart?.(machine.id)
       }}
     >
-      <div className={styles.topRow}>
-        <span className={styles.icon}>
-          <Forklift size={20} />
-        </span>
+      <div className={`${styles.topRow} ${incident ? urgencyTone : STATUS_TONE[machine.status]}`}>
         <div className={styles.names}>
           <h3 className={styles.nome}>
             <button
@@ -125,6 +126,18 @@ const FleetCard: React.FC<FleetCardProps> = ({
           </h3>
           <span className={styles.code}>{machine.identificacao}(ID)</span>
         </div>
+        {machine.categoriaTravada && (
+          <button
+            type="button"
+            className={styles.menuButton}
+            aria-label={t('fleet.unlock')}
+            title={t('fleet.unlock')}
+            disabled={!onToggleLock}
+            onClick={() => onToggleLock?.(machine.id)}
+          >
+            <Lock size={14} />
+          </button>
+        )}
         {onMove && onRemove && (
           <div className={styles.menuWrap} ref={menuRef}>
             <button
@@ -169,38 +182,53 @@ const FleetCard: React.FC<FleetCardProps> = ({
         )}
       </div>
 
-      <dl className={styles.details}>
-        <div>
-          <dt>{t('fleet.cardSector')}</dt>
-          <dd>{machine.setor || undefinedText}</dd>
-        </div>
-        {kind === 'manutencao' ? (
-          <div>
-            <dt>{t('fleet.cardMac')}</dt>
-            <dd>{machine.dispositivoConectado.enderecoMac || undefinedText}</dd>
-          </div>
-        ) : (
-          <div>
-            <dt>{t('fleet.cardEmployee')}</dt>
-            <dd>{machine.operadorConectado?.nome || undefinedText}</dd>
-          </div>
-        )}
-      </dl>
+      {/* <StatusBadge status={machine.status} className={styles.badge} /> */}
 
-      {highlight && (
-        <dl className={styles.bottomRow}>
-          {highlight.left && (
-            <div>
-              <dt>{highlight.left.label}</dt>
-              <dd>{highlight.left.value}</dd>
-            </div>
+      <div className={styles.body}>
+        <dl className={styles.details}>
+          <InfoField
+            label={t('fleet.cardSector')}
+            title={machine.setor || undefinedText}
+          >
+            {machine.setor || undefinedText}
+          </InfoField>
+          {machine.status === 'manutencao' && !incident ? (
+            <InfoField
+              label={t('fleet.cardMac')}
+              title={machine.dispositivoConectado.enderecoMac || undefinedText}
+            >
+              {machine.dispositivoConectado.enderecoMac || undefinedText}
+            </InfoField>
+          ) : (
+            <InfoField
+              label={t('fleet.cardEmployee')}
+              title={machine.operadorConectado?.nome || undefinedText}
+            >
+              {machine.operadorConectado?.nome || undefinedText}
+            </InfoField>
           )}
-          <div className={styles.highlight}>
-            <dt>{highlight.label}</dt>
-            <dd className={highlight.tone}>{highlight.value}</dd>
-          </div>
+          {highlight?.left && (
+            <InfoField
+              label={highlight.left.label}
+              title={highlight.left.value}
+            >
+              {highlight.left.value}
+            </InfoField>
+          )}
         </dl>
-      )}
+
+        {highlight && (
+          <dl className={styles.highlight}>
+            <InfoField
+              label={highlight.label}
+              highlight
+              valueClassName={highlight.tone}
+            >
+              {highlight.value}
+            </InfoField>
+          </dl>
+        )}
+      </div>
     </article>
   )
 }

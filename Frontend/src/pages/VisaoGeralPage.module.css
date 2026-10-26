@@ -19,13 +19,15 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  padding: 10px 16px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 16px;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--active-bg);
+  background: var(--blue);
   box-shadow: var(--shadow);
-  color: #fff;
-  font-size: 14px;
+  color: var(--white);
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
   transition: transform 120ms ease, opacity 120ms ease;
@@ -57,12 +59,13 @@
 .searchInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 10px 12px 10px 36px;
+  height: 32px;
+  padding: 0 12px 0 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-h);
-  font-size: 14px;
+  font-size: var(--fs-md);
 }
 
 .searchInput:focus {
@@ -70,15 +73,51 @@
   outline-offset: 1px;
 }
 
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selectLeftIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text);
+  pointer-events: none;
+}
+
 .statusSelect {
   flex-shrink: 0;
-  padding: 10px 12px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px 0 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--text-h);
-  font-size: 14px;
+  color: var(--text);
+  font-size: var(--fs-md);
   cursor: pointer;
+}
+
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.searchSkeleton {
+  flex: 0 1 300px;
+  min-width: 160px;
+  height: 32px;
+}
+
+.selectSkeleton,
+.buttonSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.selectSkeleton {
+  width: 165px;
+}
+
+.buttonSkeleton {
+  width: 173px;
 }
 
 .grid {
@@ -87,11 +126,25 @@
   gap: 16px;
 }
 
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.errorState p {
+  margin: 0;
+}
+
 .emptyState {
   padding: 48px 0;
   text-align: center;
   color: var(--text);
-  font-size: 14px;
+  font-size: var(--fs-base);
 }
 
 @media (max-width: 1279px) {

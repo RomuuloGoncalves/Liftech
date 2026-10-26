@@ -1,7 +1,8 @@
 import React from 'react'
-import { Pencil, Trash2, User } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Employee } from '../../data/team'
+import { InfoField } from '../common/InfoField'
 import styles from './EmployeeCard.module.css'
 
 interface EmployeeCardProps {
@@ -19,26 +20,28 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onOpen, onToggleA
 
   return (
     <article className={styles.card}>
-      <button
-        type="button"
-        className={styles.openArea}
-        aria-label={t('team.openDetails', { name })}
-        onClick={() => onOpen(employee)}
-      >
-        <span className={styles.avatar}>
-          <User size={22} />
-        </span>
-        <span className={styles.info}>
-          <span className={styles.name}>{name}</span>
-          <span className={styles.code}>{employee.matricula}(ID)</span>
-          <span className={styles.access}>
-            {t('team.accessLabel')}:{' '}
-            <span className={allowed ? styles.allowed : styles.denied}>
-              {allowed ? t('team.accessAllowed') : t('team.accessDenied')}
-            </span>
+      <div className={styles.main}>
+        <button
+          type="button"
+          className={styles.openArea}
+          aria-label={t('team.openDetails', { name })}
+          onClick={() => onOpen(employee)}
+        >
+          <span className={styles.info}>
+            <span className={styles.name}>{name}</span>
+            <span className={styles.code}>{employee.matricula}(ID)</span>
           </span>
-        </span>
-      </button>
+        </button>
+        <dl className={styles.access}>
+          <InfoField
+            inline
+            label={`${t('team.accessLabel')}:`}
+            valueClassName={allowed ? styles.allowed : styles.denied}
+          >
+            {allowed ? t('team.accessAllowed') : t('team.accessDenied')}
+          </InfoField>
+        </dl>
+      </div>
 
       <div className={styles.actions}>
         <div className={styles.iconButtons}>
@@ -64,6 +67,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onOpen, onToggleA
           role="switch"
           aria-checked={allowed}
           aria-label={t('team.toggleAccess', { name })}
+          // No login, nothing to allow: the switch waits until the form creates one.
+          disabled={employee.usuario === null}
           className={`${styles.switch} ${allowed ? styles.switchOn : ''}`}
           onClick={() => onToggleAccess(employee)}
         >

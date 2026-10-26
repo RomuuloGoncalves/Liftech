@@ -1,16 +1,17 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import FleetRow from '../../../components/fleet/FleetRow'
-import { lastAccidentDate, type FleetCategory } from '../../../data/fleet'
-import { MACHINES, MACHINE_EVENTS, type Machine } from '../../../data/machines'
+import type { FleetCategory } from '../../../data/fleet'
+import { MACHINES, type Machine } from '../../../data/machines'
 
 const pick = (...codes: string[]) => codes.map((code) => MACHINES.find((m) => m.identificacao === code)!)
 
 const category = (over: Partial<FleetCategory> = {}): FleetCategory => ({
   id: 'ativas',
-  kind: 'ativas',
-  nome: '',
+  nome: 'ativas',
   cor: '#3A9CFF',
+  chave: 'ativas',
+  statusVinculados: ['em_uso'],
   machineIds: [],
   ...over,
 })
@@ -90,11 +91,11 @@ describe('FleetRow', () => {
     expect(onDrop).toHaveBeenCalledWith('ativas')
   })
 
-  it('shows the period only on the accidents row and filters by last accident date', () => {
-    const machines = pick('EMP-081', 'EMP-085')
-    setup(machines, { category: category({ id: 'acidentes', kind: 'acidentes' }), label: 'Acidentes' })
+  it('shows the period only on the accidents row and filters by alertaEm', () => {
+    const machines = pick('EMP-081', 'EMP-085').map((m) => ({ ...m, alertaEm: '2025-03-10T08:00:00.000Z' }))
+    setup(machines, { category: category({ id: 'acidentes', chave: 'acidentes' }), label: 'Acidentes' })
     expect(screen.getByLabelText('Data inicial')).toHaveValue('2024-07-14')
-    expect(screen.getByLabelText('Data final')).toHaveValue('2026-07-14')
+    expect(screen.getByLabelText('Data final')).toHaveValue(['2026-07-14', new Date().toISOString().slice(0, 10)].sort()[1])
     expect(cards()).toEqual(['EMP-081', 'EMP-085'])
 
     fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: '2030-01-01' } })
@@ -103,11 +104,11 @@ describe('FleetRow', () => {
     expect(screen.getByText('Nenhuma máquina encontrada')).toBeInTheDocument()
   })
 
-  it('includes both period bounds when filtering by last accident date', () => {
-    const [machine] = pick('EMP-081')
-    const day = lastAccidentDate(machine.id, MACHINE_EVENTS)!.data
+  it('includes both period bounds when filtering by alertaEm', () => {
+    const day = '2025-03-10'
+    const machine = { ...pick('EMP-081')[0], alertaEm: `${day}T08:00:00.000Z` }
     const shift = (days: number) => new Date(Date.parse(day) + days * 86_400_000).toISOString().slice(0, 10)
-    setup([machine], { category: category({ id: 'acidentes', kind: 'acidentes' }), label: 'Acidentes' })
+    setup([machine], { category: category({ id: 'acidentes', chave: 'acidentes' }), label: 'Acidentes' })
 
     fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: day } })
     fireEvent.change(screen.getByLabelText('Data final'), { target: { value: day } })
@@ -122,20 +123,32 @@ describe('FleetRow', () => {
     expect(cards()).toEqual([])
   })
 
+  it('keeps machines without alertaEm visible on the accidents row', () => {
+    const machine = { ...pick('EMP-082')[0], alertaEm: null }
+    setup([machine], { category: category({ id: 'acidentes', chave: 'acidentes' }), label: 'Acidentes' })
+    fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: '2030-01-01' } })
+    expect(cards()).toEqual(['EMP-082'])
+  })
+
   it('does not show the period on other rows', () => {
     setup(pick('EMP-082'))
     expect(screen.queryByLabelText('Data inicial')).not.toBeInTheDocument()
   })
 
-  it('shows "Excluir categoria" only on custom categories', () => {
-    const { onDelete } = setup([], { category: category({ id: 'custom-1', kind: 'custom', nome: 'Reserva' }), label: 'Reserva' })
+  it('shows edit and delete when the page passes their handlers (CAT-04, FRT-06)', () => {
+    const onEdit = vi.fn()
+    const { onDelete } = setup([], { onEdit })
+    fireEvent.click(screen.getByRole('button', { name: 'Editar categoria' }))
+    expect(onEdit).toHaveBeenCalledWith('ativas')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir categoria' }))
-    expect(onDelete).toHaveBeenCalledWith('custom-1')
+    expect(onDelete).toHaveBeenCalledWith('ativas')
   })
 
-  it('hides "Excluir categoria" on the initial categories', () => {
-    setup([])
+  it('hides edit and delete without their handlers but keeps add (FRT-07)', () => {
+    setup([], { onDelete: undefined })
+    expect(screen.queryByRole('button', { name: 'Editar categoria' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Excluir categoria' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Adicionar máquinas em Ativas' })).toBeInTheDocument()
   })
 })
 
@@ -168,5 +181,22 @@ describe('FleetRow drop target', () => {
     expect(onDragLeaveRow).not.toHaveBeenCalled()
     leave(document.body)
     expect(onDragLeaveRow).toHaveBeenCalledWith('ativas')
+  })
+})
+
+describe('FleetRow category chip (RST-07)', () => {
+  const chip = () => screen.getByText('Ativas').parentElement as HTMLElement
+
+  it.each(['acidentes', 'ativas', 'manutencao', 'disponiveis'] as const)('applies the %s chip class', (chave) => {
+    setup(pick('EMP-082'), { category: category({ id: chave, chave }) })
+    expect(chip().className).toContain(chave)
+  })
+
+  it('does not apply a key chip class to custom categories and keeps --category-color', () => {
+    setup(pick('EMP-082'), { category: category({ id: 'c1', chave: null, cor: '#FF8800' }) })
+    for (const kind of ['acidentes', 'ativas', 'manutencao', 'disponiveis']) {
+      expect(chip().className).not.toContain(kind)
+    }
+    expect(screen.getByRole('region', { name: 'Ativas' }).style.getPropertyValue('--category-color')).toBe('#FF8800')
   })
 })

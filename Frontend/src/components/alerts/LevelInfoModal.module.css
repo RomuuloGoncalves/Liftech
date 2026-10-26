@@ -1,0 +1,45 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.critical {
+  --tone: var(--urgency-critical);
+}
+
+.high {
+  --tone: var(--urgency-high);
+}
+
+.medium {
+  --tone: var(--urgency-medium);
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-left: 20px solid var(--tone);
+  border-radius: 8px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.level {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--tone);
+  margin: 0 0 8px;
+}
+
+.text {
+  font-size: var(--fs-md);
+  color: var(--text);
+  margin: 0;
+}
+
+.text strong {
+  font-weight: 600;
+}

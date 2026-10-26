@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pencil, Trash2, Warehouse } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Sector } from '../../data/team'
 import styles from './SectorCard.module.css'
@@ -23,10 +23,8 @@ const SectorCard: React.FC<SectorCardProps> = ({ sector, onOpen, onEdit, onDelet
         aria-label={t('team.openDetails', { name })}
         onClick={() => onOpen(sector)}
       >
-        <span className={styles.icon}>
-          <Warehouse size={22} />
-        </span>
         <span className={styles.name}>{name}</span>
+        <span className={styles.branch}>{sector.filial.nome}</span>
       </button>
       <div className={styles.actions}>
         <button

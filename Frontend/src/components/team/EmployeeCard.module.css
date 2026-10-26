@@ -1,20 +1,21 @@
 .card {
-  display: flex;
+  composes: card row from '../common/Card.module.css';
   align-items: stretch;
   justify-content: space-between;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 0.5px solid var(--border);
-  border-radius: 10px;
-  background: #fff;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .openArea {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1;
   min-width: 0;
   padding: 0;
   border: none;
@@ -22,18 +23,6 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 0.5px solid var(--border);
-  border-radius: 5px;
-  color: var(--text-h);
 }
 
 .info {
@@ -45,25 +34,28 @@
 
 .name {
   overflow: hidden;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-md);
+  font-weight: 600;
   color: var(--text-h);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.code,
+.code {
+  font-size: var(--fs-xs);
+  color: var(--text-label);
+}
+
 .access {
-  font-size: 11px;
-  color: var(--text);
+  margin: 0;
 }
 
 .allowed {
-  color: #3a9cff;
+  color: var(--blue);
 }
 
 .denied {
-  color: #ef4444;
+  color: var(--red);
 }
 
 .actions {
@@ -88,11 +80,11 @@
 }
 
 .delete {
-  color: #ef4444;
+  color: var(--danger-solid);
 }
 
 .edit {
-  color: #3a9cff;
+  color: var(--blue);
 }
 
 .switch {
@@ -102,12 +94,17 @@
   padding: 0;
   border: none;
   border-radius: 9px;
-  background: #999;
+  background: var(--gray-border);
   cursor: pointer;
 }
 
 .switchOn {
-  background: #3a9cff;
+  background: var(--blue);
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .knob {
@@ -117,7 +114,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--white);
   transition: transform 150ms ease;
 }
 

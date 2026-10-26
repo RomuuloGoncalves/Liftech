@@ -48,4 +48,23 @@ describe('ConfirmDialog', () => {
     expect(onCancel).toHaveBeenCalledTimes(2)
     expect(onConfirm).not.toHaveBeenCalled()
   })
+
+  it('renders custom confirmLabel when provided and calls onConfirm when clicked', () => {
+    const onConfirm = vi.fn()
+    const onCancel = vi.fn()
+    render(
+      <ConfirmDialog
+        title="Aceitar solicitação"
+        message="Deseja aceitar?"
+        confirmLabel="Aceitar"
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
+    )
+
+    const confirmButton = screen.getByRole('button', { name: 'Aceitar' })
+    expect(confirmButton).toBeInTheDocument()
+    fireEvent.click(confirmButton)
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+  })
 })

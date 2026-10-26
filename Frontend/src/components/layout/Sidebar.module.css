@@ -9,7 +9,7 @@
   padding: 20px 16px;
   box-sizing: border-box;
   background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--sidebar-line);
   transition: width 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
@@ -38,7 +38,7 @@
   min-width: 0;
   color: var(--text-h);
   font-weight: 600;
-  font-size: 18px;
+  font-size: var(--fs-xl);
 }
 
 .brandMark {
@@ -76,7 +76,7 @@
 .sectionLabel {
   padding: 0 8px;
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   color: var(--text-h);
   text-align: left;
@@ -98,15 +98,15 @@
   border-radius: var(--radius-md);
   color: var(--text);
   text-decoration: none;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .navLink.active {
-  background: var(--active-bg);
-  color: #fff;
+  background: var(--blue);
+  color: var(--white);
 }
 
 .navIcon {
@@ -129,6 +129,31 @@
   gap: 12px;
 }
 
+.company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--text-h);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.company svg {
+  flex-shrink: 0;
+}
+
+.companyName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .company {
+  justify-content: center;
+}
+
 .feedbackButton {
   display: flex;
   align-items: center;
@@ -138,8 +163,8 @@
   border: none;
   border-radius: var(--radius-sm);
   background: var(--active-bg);
-  color: #fff;
-  font-size: 12px;
+  color: var(--white);
+  font-size: var(--fs-sm);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -164,7 +189,7 @@
 
 .privacyLink {
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--text);
   text-decoration: none;
   white-space: nowrap;

@@ -1,0 +1,228 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text);
+}
+
+.last {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  background: var(--blue);
+  color: var(--white);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.bannerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.lastCard {
+  composes: card row from '../../components/common/Card.module.css';
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.lastMachineInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.forkliftIcon {
+  flex-shrink: 0;
+  color: var(--text-h);
+}
+
+.lastNames,
+.lastMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lastMeta {
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.lastName {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+
+.lastDate {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.lastId,
+.lastTime {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+
+.lastDuration {
+  color: var(--text);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat {
+  composes: card gapSm from '../../components/common/Card.module.css';
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.statLabel {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-label);
+}
+
+.statValue {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.statHint {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.digitBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.digitColon {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-h);
+  padding: 0 1px;
+}
+
+.srOnly {
+  position: absolute;
+  clip-path: inset(50%);
+  height: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.available {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

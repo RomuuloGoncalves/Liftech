@@ -1,19 +1,14 @@
 .card {
-  display: flex;
+  composes: card row from '../common/Card.module.css';
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 0.5px solid var(--border);
-  border-radius: 10px;
-  background: #fff;
 }
 
 .openArea {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   flex: 1;
   min-width: 0;
   padding: 0;
@@ -24,22 +19,21 @@
   cursor: pointer;
 }
 
-.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 0.5px solid var(--border);
-  border-radius: 5px;
-  color: var(--text-h);
-}
-
 .name {
   overflow: hidden;
-  font-size: 12px;
+  max-width: 100%;
+  font-size: var(--fs-md);
+  font-weight: 600;
   color: var(--text-h);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.branch {
+  overflow: hidden;
+  max-width: 100%;
+  font-size: var(--fs-xs);
+  color: var(--text-label);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -52,16 +46,21 @@
 
 .iconButton {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
   padding: 0;
   border: none;
-  background: transparent;
+  border-radius: 5px;
+  color: var(--white);
   cursor: pointer;
 }
 
 .delete {
-  color: #ef4444;
+  background: var(--danger-solid);
 }
 
 .edit {
-  color: #3a9cff;
+  background: var(--blue);
 }

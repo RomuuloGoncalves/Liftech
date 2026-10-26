@@ -1,37 +1,84 @@
 :root {
-  --text: #4c4c4c;
-  --text-h: #202020;
-  --bg: #fff;
-  --border: rgba(21, 28, 39, 0.1);
+  --blue: #3a9cff;
+  --blue-bg: rgba(58, 156, 255, 0.25);
+  --gray-border: rgba(21, 28, 39, 0.1);
+  --gray-bg: #fafafa;
+  --white: #fff;
+  --red: #ff0000;
+  --red-bg: rgba(255, 58, 58, 0.25);
+  --yellow: #e5d000;
+  --yellow-bg: rgba(255, 245, 139, 0.25);
+  --green: #1e8021;
+  --green-bg: rgba(74, 255, 58, 0.25);
+  --black-title: #181818;
+  --black-text: #4c4c4c;
+  --text-muted: #a0aec0;
+
+  /* Texto: 3 níveis. --text-label é o secundário de card (4,95:1 sobre branco). */
+  --text-label: #707070;
+
+  /* Card: casca única (common/Card.module.css). */
+  --card-pad: 12px;
+  --card-pad-lg: 16px;
+  --card-gap: 8px;
+  --card-gap-lg: 12px;
+  --card-radius: var(--radius-md);
+  --card-border: 1px solid var(--line);
+  --card-bg: var(--bg);
+  --card-grid-min: 240px;
+  --card-grid-gap: 16px;
+
+  --danger-solid: #ef4444;
+  --urgency-critical: #c84646;
+  --urgency-high: #d4773f;
+  --urgency-medium: #ffc415;
+  --line: #e3e4e5;
+  --sidebar-line: #eeeff0;
+  --overlay: rgba(245, 245, 245, 0.55);
+  --gradient-brand: linear-gradient(180deg, #41b0ff 20%, #4652ef 100%);
+
+  --bg-page: var(--gray-bg);
+
+  --text: var(--black-text);
+  --text-h: var(--black-title);
+  --bg: var(--white);
+  --border: var(--gray-border);
   --code-bg: #f5f5f5;
-  --bg-sidebar: #fafafa;
-  --active-bg: #3a9cff;
+  --bg-sidebar: var(--gray-bg);
+  --active-bg: var(--blue);
   --radius-sm: 5px;
   --radius-md: 8px;
   --radius-lg: 10px;
-  --accent: #3a9cff;
+  --accent: var(--blue);
   --accent-bg: rgba(21, 28, 39, 0.05);
   --accent-border: rgba(58, 156, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Host Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Host Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  /* Escala tipográfica única: todo font-size do app usa um destes passos. */
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-base: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 18px;
+  --fs-2xl: 24px;
+  --fs-3xl: 32px;
+
+  font: var(--fs-base)/1.45 var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light;
   color: var(--text);
-  background: var(--bg);
+  background: var(--bg-page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 #root {
@@ -42,8 +89,14 @@
   box-sizing: border-box;
 }
 
+/* Rever do por que o root n'ao estar pegando global */
+*{
+  font-family: var(--sans);
+}
+
 body {
   margin: 0;
+  background: var(--bg-page);
 }
 
 h1,
@@ -54,40 +107,19 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
+  font-size: var(--fs-2xl);
   margin: 32px 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
     margin: 20px 0;
   }
 }
 h2 {
-  font-size: 24px;
+  font-size: var(--fs-xl);
   line-height: 118%;
-  letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
 p {
   margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }
 
 /* Quem pede menos movimento no sistema vê tudo sem animação. */

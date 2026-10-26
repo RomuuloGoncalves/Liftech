@@ -2,7 +2,7 @@ import React from 'react'
 import formStyles from '../team/TeamForm.module.css'
 import authStyles from './AuthForm.module.css'
 
-export interface AuthFieldProps {
+interface AuthFieldProps {
   id: string
   label: string
   type?: 'text' | 'email' | 'password'

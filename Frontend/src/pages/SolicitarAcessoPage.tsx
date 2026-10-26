@@ -1,10 +1,11 @@
 import React, { useId, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Trans, useTranslation } from 'react-i18next'
-import { ShieldCheck, Eye, Zap } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { isAxiosError } from 'axios'
 import AuthLayout from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
 import authStyles from '../components/auth/AuthForm.module.css'
+import formStyles from '../components/team/TeamForm.module.css'
+import { authService } from '../services/authService'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -22,12 +23,14 @@ const SolicitarAcessoPage: React.FC = () => {
   const [values, setValues] = useState<FormValues>({ email: '', nomeEmpresa: '', nomeAdministrador: '' })
   const [errors, setErrors] = useState<Errors>({})
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const update = (field: keyof FormValues) => (value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const next: Errors = {}
     if (values.email.trim() === '') {
@@ -40,22 +43,26 @@ const SolicitarAcessoPage: React.FC = () => {
     setErrors(next)
     if (Object.keys(next).length > 0) return
 
-    setSubmitted(true)
+    setLoading(true)
+    setSubmitError('')
+    try {
+      await authService.solicitarAcesso({
+        email: values.email.trim(),
+        nomeEmpresa: values.nomeEmpresa.trim(),
+        nomeAdministrador: values.nomeAdministrador.trim(),
+      })
+      setSubmitted(true)
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 409) setSubmitError(t('auth.requestDuplicate'))
+      else if (isAxiosError(error) && !error.response) setSubmitError(t('auth.networkError'))
+      else setSubmitError(t('auth.requestError'))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <AuthLayout
-      title={t('auth.signupTitle')}
-      subtitle={t('auth.signupSubtitle')}
-      heroTitle={t('auth.heroSignupTitle')}
-      heroSubtitle={t('auth.heroSignupSubtitle')}
-      layout="split"
-      infoCards={[
-        { icon: <ShieldCheck size={12} fill="currentColor" stroke="#fff" />, title: t('auth.infoSecurityTitle'), description: t('auth.infoSecurityDesc') },
-        { icon: <Eye size={12} />, title: t('auth.infoControlTitle'), description: t('auth.infoControlDesc') },
-        { icon: <Zap size={12} fill="currentColor" />, title: t('auth.infoEfficiencyTitle'), description: t('auth.infoEfficiencyDesc') },
-      ]}
-    >
+    <AuthLayout title={t('auth.signupTitle')} subtitle={t('auth.signupSubtitle')}>
       {submitted ? (
         <div className={authStyles.successBox} role="status">
           <p className={authStyles.successTitle}>{t('auth.requestSuccessTitle')}</p>
@@ -94,19 +101,14 @@ const SolicitarAcessoPage: React.FC = () => {
             onChange={update('nomeAdministrador')}
             accentLabel
           />
-          <button type="submit" className={authStyles.submitButton}>
+          {submitError && (
+            <span role="alert" className={formStyles.error}>
+              {submitError}
+            </span>
+          )}
+          <button type="submit" className={authStyles.submitButton} disabled={loading}>
             {t('auth.requestAccessButton')}
           </button>
-          <Link to="/login/colaborador" className={authStyles.crossLink}>
-            <Trans i18nKey="auth.collaboratorLink" components={{ b: <strong /> }} />
-          </Link>
-          <div className={authStyles.divider}>{t('auth.or')}</div>
-          <div className={authStyles.secondaryRow}>
-            <span className={authStyles.secondaryLabel}>{t('auth.alreadyRegistered')}</span>
-            <Link to="/login" className={authStyles.secondaryButton}>
-              {t('auth.enterNow')}
-            </Link>
-          </div>
         </form>
       )}
     </AuthLayout>

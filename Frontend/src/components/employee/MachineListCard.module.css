@@ -1,0 +1,95 @@
+.card {
+  composes: card from '../common/Card.module.css';
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nome {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.identificacao {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-label);
+}
+
+.chip {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.bottom {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin: 0;
+  min-width: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin: 0;
+  min-width: 0;
+}
+
+.dateTime {
+  display: flex;
+  flex-direction: column;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  margin-left: auto;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: none;
+  border-radius: 5px;
+  background: var(--blue);
+  box-shadow: var(--shadow);
+  color: var(--white);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.divider {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}

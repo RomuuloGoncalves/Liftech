@@ -13,15 +13,15 @@ Consulte a [Documentação de Arquitetura](./docs/arquitetura.md) para detalhes 
 ### Frontend
 *   React.js com Vite
 *   TypeScript
-*   Ant Design (UI)
-*   Redux 
+*   CSS Modules (estilo) e lucide-react (ícones)
+*   i18next (7 idiomas)
 *   Axios e React Router
 
 ### Backend
 *   Node.js e Express
 *   TypeScript (Motor de Dev: `tsx`)
 *   Banco de Dados: MongoDB via Mongoose
-*   Validação: Schemas de Validação (DTOs)
+*   Validação: regras com `request-check` (`*Rules.ts` de cada feature)
 *   Arquitetura: Baseada em Módulos (Domain-Driven Design), isolando componentes por entidade.
 
 ## Inicialização Local
@@ -43,3 +43,7 @@ yarn dev
 ```
 
 Você verá os logs do Backend e Frontend no mesmo terminal. O Backend reinicia automaticamente com `tsx watch` e o Frontend usa o servidor do Vite.
+
+## Testes
+
+`yarn test` (na raiz, em `Backend/` ou em `Frontend/`) roda só os testes unitários (`vitest run`), que usam mocks e não tocam no banco; no Backend, o `yarn test` cobre apenas `tests/unit`. Os testes de integração do Backend conectam ao MongoDB configurado em `.env` e rodam à parte, com `yarn test:integration` dentro de `Backend/`.

@@ -17,7 +17,7 @@
   justify-content: center;
   gap: calc(17 * var(--px, 1px));
   padding-bottom: calc(12 * var(--px, 1px));
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--line);
 }
 
 .createButton {
@@ -25,16 +25,18 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  padding: 10px 16px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 16px;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--active-bg);
+  background: var(--blue);
   box-shadow: var(--shadow);
   font-family: inherit;
   line-height: normal;
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 600;
-  color: #fff;
+  color: var(--white);
   cursor: pointer;
   transition: transform 120ms ease;
 }
@@ -48,13 +50,13 @@
   align-items: center;
   gap: calc(16 * var(--px, 1px));
   width: 300px;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   padding: 0 calc(14 * var(--px, 1px));
-  border: 1px solid #ececec;
+  border: 1px solid var(--line);
   border-radius: calc(3 * var(--px, 1px));
-  background: #fff;
-  color: #8a8a8a;
+  background: var(--bg);
+  color: color-mix(in srgb, var(--black-text) 55%, transparent);
 }
 
 .search input {
@@ -64,7 +66,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: calc(12 * var(--px, 1px));
+  font-size: var(--fs-md);
   color: var(--text-h);
 }
 
@@ -72,17 +74,50 @@
   border-color: var(--accent);
 }
 
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selectLeftIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text);
+  pointer-events: none;
+}
+
 .filter {
-  width: calc(98 * var(--px, 1px));
-  height: 36px;
-  padding: 0 calc(8 * var(--px, 1px));
-  border: 1px solid #ececec;
-  border-radius: calc(3 * var(--px, 1px));
-  background: #fff;
-  font: inherit;
-  font-size: calc(11 * var(--px, 1px));
-  color: #8a8a8a;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px 0 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: var(--fs-md);
   cursor: pointer;
+}
+
+/* Placeholders da barra no skeleton, com as medidas dos controles reais. */
+.searchSkeleton,
+.selectSkeleton,
+.buttonSkeleton {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.searchSkeleton {
+  width: 300px;
+}
+
+.selectSkeleton {
+  width: 142px;
+}
+
+.buttonSkeleton {
+  width: 175px;
 }
 
 .rows {
@@ -102,12 +137,33 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: #3a9cff;
-  color: #fff;
+  background: var(--blue);
+  color: var(--white);
   cursor: pointer;
   transition: transform 120ms ease;
 }
 
 .addCategory:active {
   transform: scale(0.94);
+}
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.errorState p {
+  margin: 0;
+}
+
+.noCategories {
+  margin: 0;
+  padding: 48px 0;
+  text-align: center;
+  color: var(--text);
+  font-size: var(--fs-base);
 }

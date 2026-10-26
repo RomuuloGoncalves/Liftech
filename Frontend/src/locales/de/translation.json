@@ -8,7 +8,8 @@
     "save": "Speichern",
     "close": "Schließen",
     "loading": "Wird geladen...",
-    "closeNotification": "Hinweis schließen"
+    "closeNotification": "Hinweis schließen",
+    "retry": "Erneut versuchen"
   },
   "navigation": {
     "overview": "Übersicht",
@@ -18,7 +19,8 @@
     "notFound": "Seite nicht gefunden",
     "pages": "Seiten",
     "feedback": "Feedback & Vorschläge",
-    "privacy": "Datenschutzrichtlinie"
+    "privacy": "Datenschutzrichtlinie",
+    "logout": "Abmelden"
   },
   "machines": {
     "registerButton": "Maschine registrieren",
@@ -32,11 +34,13 @@
     "operator": "Bediener",
     "noOperator": "Kein Bediener",
     "emptyState": "Keine Maschinen gefunden",
+    "loadError": "Die Maschinen konnten nicht geladen werden.",
     "newMachineTitle": "Neue Maschine",
     "labelId": "ID",
     "labelName": "Name",
     "labelSector": "Sektor",
     "labelMac": "MAC-Adresse",
+    "labelBranch": "Filiale",
     "detailCode": "Code",
     "detailMac": "Mac",
     "detailSector": "Bereich",
@@ -61,7 +65,20 @@
     "openDetails": "Details von {{name}} anzeigen",
     "toastCreated": "Maschine „{{name}}“ angelegt",
     "toastSaved": "Maschine „{{name}}“ gespeichert",
-    "toastDeleted": "Maschine „{{name}}“ gelöscht"
+    "toastDeleted": "Maschine „{{name}}“ gelöscht",
+    "saveError": "Die Maschine konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "deleteInSession": "Maschine mit offener Sitzung: Beenden Sie die Sitzung vor dem Löschen.",
+    "status": {
+      "disponivel": "Verfügbar",
+      "em_uso": "In Benutzung",
+      "manutencao": "In Wartung",
+      "alerta": "Warnung",
+      "offline": "Nicht verbunden"
+    },
+    "changeStatus": "Status ändern",
+    "sectorNone": "Kein Sektor",
+    "filterSectorAll": "Alle Sektoren",
+    "filterSectorLabel": "Nach Sektor filtern"
   },
   "alerts": {
     "accidents": "Unfälle",
@@ -113,9 +130,7 @@
     "editSectorTitle": "Bereich bearbeiten",
     "sectorInfoTitle": "Bereichsdaten",
     "labelSectorName": "Bereichsname",
-    "labelUnit": "Einheit",
     "phSectorName": "Bereichsname",
-    "phUnit": "Einheit",
     "createSector": "Bereich erstellen",
     "required": "Pflichtfeld",
     "usernameTaken": "Dieser Benutzername ist bereits vergeben",
@@ -128,7 +143,18 @@
     "toastEmployeeDeleted": "Mitarbeiter „{{name}}“ gelöscht",
     "toastSectorCreated": "Bereich „{{name}}“ angelegt",
     "toastSectorSaved": "Bereich „{{name}}“ gespeichert",
-    "toastSectorDeleted": "Bereich „{{name}}“ gelöscht"
+    "toastSectorDeleted": "Bereich „{{name}}“ gelöscht",
+    "usernameInvalid": "3 bis 40 Zeichen, ohne Leerzeichen",
+    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen haben",
+    "phPasswordKeep": "Leer lassen, um das aktuelle zu behalten",
+    "loadError": "Die Mitarbeiter konnten nicht geladen werden.",
+    "saveError": "Der Mitarbeiter konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "loginError": "Mitarbeiter angelegt, aber der Login konnte nicht erstellt werden. Bearbeiten Sie ihn, um es erneut zu versuchen.",
+    "deleteInSession": "Mitarbeiter mit offener Sitzung: Beenden Sie die Sitzung vor dem Löschen.",
+    "labelSectorBranch": "Filiale",
+    "sectorNameTaken": "In dieser Filiale gibt es bereits einen Sektor mit diesem Namen",
+    "sectorHasMachines": "Sektor mit {{n}} verknüpften Maschine(n)",
+    "sectorMoveHasMachines": "Ein Sektor mit {{n}} verknüpften Maschine(n) kann die Filiale nicht wechseln"
   },
   "languages": {
     "title": "Sprache wählen",
@@ -151,9 +177,7 @@
     "passwordLabel": "Passwort",
     "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
     "enterButton": "Anmelden",
-    "forgotPassword": "Passwort vergessen? <b>Hier klicken</b>",
-    "collaboratorLink": "Mitarbeiter? <b>Hier klicken!</b>",
-    "administratorLink": "Administrator? <b>Hier klicken!</b>",
+    "forgotPassword": "Passwort vergessen? <b>Hier klicken!</b>",
     "signupTitle": "Willkommen bei Liftech",
     "signupSubtitle": "Überwachen Sie Ihre Maschinen, verfolgen Sie jeden Vorfall und behalten Sie Ihren Betrieb unter Kontrolle – mit mehr Sicherheit und Effizienz.",
     "signupSectionTitle": "Zugang zur Plattform anfordern",
@@ -162,9 +186,6 @@
     "adminNameLabel": "Name des Administrators",
     "adminNamePlaceholder": "Geben Sie den Namen des Administrators ein",
     "requestAccessButton": "Zugang anfordern",
-    "alreadyRegistered": "Bereits registriert?",
-    "enterNow": "Jetzt anmelden!",
-    "or": "oder",
     "requestSuccessTitle": "Anfrage gesendet!",
     "requestSuccessMessage": "Wir melden uns in Kürze bei Ihnen.",
     "required": "Pflichtfeld",
@@ -176,7 +197,16 @@
     "infoControlTitle": "Mehr Kontrolle",
     "infoControlDesc": "Verfolgen Sie Ihre Aktivitäten in Echtzeit.",
     "infoEfficiencyTitle": "Mehr Effizienz",
-    "infoEfficiencyDesc": "Erledigen Sie Ihre Aufgaben schneller."
+    "infoEfficiencyDesc": "Erledigen Sie Ihre Aufgaben schneller.",
+    "tabRequest": "Zugang anfordern",
+    "tabAdmin": "Als Administrator anmelden",
+    "tabCollaborator": "Mitarbeiter",
+    "invalidCredentials": "Ungültiger Benutzername oder ungültiges Passwort.",
+    "networkError": "Verbindung zum Server nicht möglich.",
+    "loginError": "Fehler bei der Anmeldung.",
+    "requestDuplicate": "Für diese E-Mail liegt bereits eine ausstehende Anfrage vor.",
+    "requestError": "Die Anfrage konnte nicht gesendet werden.",
+    "tabsLabel": "Zugangsart"
   },
   "fleet": {
     "pageTitle": "Maschinenverwaltung",
@@ -231,6 +261,202 @@
     "toastCategoryCreated": "Kategorie „{{name}}“ erstellt",
     "toastCategoryDeleted": "Kategorie „{{name}}“ gelöscht",
     "toastMachinesAdded": "Maschinen zu „{{name}}“ hinzugefügt",
-    "toastMachineRemoved": "{{name}} aus der Kategorie entfernt"
+    "toastMachineRemoved": "{{name}} aus der Kategorie entfernt",
+    "lock": "Sperren",
+    "unlock": "Entsperren",
+    "editCategory": "Kategorie bearbeiten",
+    "linkedStatus": "Verknüpfte Status",
+    "statusTaken": "Bereits mit einer anderen Kategorie verknüpft",
+    "saveError": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+    "noCategories": "Keine Kategorien vorhanden"
+  },
+  "employee": {
+    "settings": {
+      "title": "Einstellungen",
+      "close": "Schließen",
+      "general": "Allgemein",
+      "userData": "Benutzerdaten",
+      "name": "Name",
+      "phone": "Telefon",
+      "position": "Position",
+      "changeNoticeTitle": "Änderungsanfrage",
+      "changeNotice": "Um Ihre Daten zu ändern, wenden Sie sich an den zuständigen Vorgesetzten.",
+      "logout": "Abmelden",
+      "feedbackTitle": "Feedback & Vorschläge",
+      "feedbackQuestion": "Wie war Ihre Erfahrung?",
+      "privacy": "Datenschutzrichtlinie",
+      "feedbackPlaceholder": "Geben Sie einen Verbesserungsvorschlag oder Feedback ein!"
+    },
+    "session": {
+      "startError": "Die Sitzung konnte nicht gestartet werden. Bitte erneut versuchen.",
+      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen."
+    },
+    "incident": {
+      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen."
+    }
+  },
+  "branches": {
+    "label": "Filialen",
+    "all": "Alle Filialen",
+    "manage": "Filialen verwalten",
+    "doneManaging": "Fertig",
+    "create": "Filiale anlegen",
+    "nameLabel": "Name der Filiale",
+    "confirm": "Bestätigen",
+    "rename": "{{name}} umbenennen",
+    "remove": "{{name}} löschen",
+    "deleteTitle": "Filiale löschen",
+    "deleteMessage": "Filiale {{name}} löschen?",
+    "saveError": "Die Filiale konnte nicht gespeichert werden.",
+    "deleteError": "Die Filiale konnte nicht gelöscht werden.",
+    "deleteBlocked": "Löschen nicht möglich: Die Filiale ist die Zentrale oder hat noch Ressourcen."
+  },
+  "notFound": {
+    "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "backHome": "Zurück zur Startseite"
+  },
+  "accessRequests": {
+    "title": "Zugriffsanfragen",
+    "tabs": {
+      "pendente": "Ausstehend",
+      "aprovada": "Genehmigt",
+      "recusada": "Abgelehnt"
+    },
+    "empty": {
+      "pendente": "Keine ausstehenden Anfragen.",
+      "aprovada": "Keine genehmigten Anfragen.",
+      "recusada": "Keine abgelehnten Anfragen."
+    },
+    "loadError": "Anfragen konnten nicht geladen werden.",
+    "email": "E-Mail-Adresse",
+    "company": "Unternehmen",
+    "admin": "Systemadministrator",
+    "sentAt": "Gesendet am",
+    "reason": "Begründung",
+    "accept": "Akzeptieren",
+    "reject": "Ablehnen",
+    "acceptTitle": "Anfrage annehmen",
+    "acceptMessage": "Möchten Sie die Anfrage des Unternehmens {{company}} annehmen?",
+    "rejectTitle": "Anfrage ablehnen",
+    "reasonLabel": "Ablehnungsgrund (optional)",
+    "reasonPlaceholder": "Geben Sie den Ablehnungsgrund ein (optional)...",
+    "passwordTitle": "Initiales Passwort generiert",
+    "passwordLabel": "Initiales Passwort",
+    "passwordWarning": "Kopieren und speichern Sie dieses Passwort sicher. Es wird nicht erneut angezeigt.",
+    "copy": "Kopieren",
+    "copied": "Passwort kopiert!",
+    "rejected": "Anfrage erfolgreich abgelehnt.",
+    "saveError": "Anfrage konnte nicht gespeichert werden.",
+    "alreadyDecided": "Diese Anfrage wurde bereits entschieden.",
+    "conflictEmail": "Ein Benutzer mit dieser E-Mail existiert bereits.",
+    "conflictCompany": "Ein Unternehmen mit diesem Namen existiert bereits."
+  },
+  "levelInfo": {
+    "title": "Informationen zur kritischen Stufe",
+    "open": "Über die Dringlichkeitsstufen",
+    "level": {
+      "critica": "Kritisch",
+      "alta": "Hoch",
+      "media": "Mittel"
+    },
+    "description": {
+      "tombamento": "Kritische Dringlichkeitsstufe im Zusammenhang mit einem <b>Umkippen</b>.",
+      "colisao": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Kollision</b>.",
+      "frenagem": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Vollbremsung</b>."
+    }
+  },
+  "feedback": {
+    "title": "Senden Sie uns Feedback oder einen Vorschlag",
+    "question": "Wie war Ihre Erfahrung?",
+    "placeholder": "Geben Sie einen Verbesserungsvorschlag oder Feedback ein!",
+    "send": "Senden",
+    "sent": "Feedback gesendet. Danke!",
+    "error": "Feedback konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+  },
+  "dashboard": {
+    "navLabel": "Dashboard",
+    "title": "Dashboard",
+    "quickData": "Schnelldaten",
+    "machinesRegistered": "Registrierte Maschinen",
+    "employeesRegistered": "Registrierte Mitarbeiter",
+    "machinesMaintenance": "Maschinen in Wartung",
+    "machinesDisabled": "Deaktivierte Maschinen",
+    "machinesInfo": "Informationen über die Maschinen",
+    "machineList": "Maschinenliste",
+    "searchLabel": "Maschinen suchen",
+    "colName": "Name",
+    "colSector": "Bereich",
+    "colTime": "Zeit",
+    "colStatus": "Status",
+    "minutes_zero": "{{count}} Minuten",
+    "minutes_one": "{{count}} Minute",
+    "minutes_other": "{{count}} Minuten",
+    "pageInfo_zero": "Anzeige von {{count}} Maschinen - Seite {{page}} von {{pages}}",
+    "pageInfo_one": "Anzeige von {{count}} Maschine - Seite {{page}} von {{pages}}",
+    "pageInfo_other": "Anzeige von {{count}} Maschinen - Seite {{page}} von {{pages}}",
+    "prevPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
+    "noResults": "Keine Maschinen gefunden",
+    "usageTitle": "Zeiterfassung",
+    "weekdays": {
+      "mon": "Mo",
+      "tue": "Di",
+      "wed": "Mi",
+      "thu": "Do",
+      "fri": "Fr",
+      "sat": "Sa",
+      "sun": "So"
+    },
+    "hourLabel": "{{hour}} Uhr",
+    "cellLabel_zero": "{{day}}, {{hour}} Uhr: {{count}} Sitzungen",
+    "cellLabel_one": "{{day}}, {{hour}} Uhr: {{count}} Sitzung",
+    "cellLabel_other": "{{day}}, {{hour}} Uhr: {{count}} Sitzungen",
+    "less": "Weniger",
+    "more": "Mehr",
+    "period": "Sitzungen in den letzten 4 Wochen",
+    "noSessions": "Keine Einträge im Zeitraum",
+    "loadError": "Daten konnten nicht geladen werden."
+  },
+  "alertModal": {
+    "title": "Alarm!",
+    "message": "Unfall im Sektor <b>{{setor}}</b>, <b>{{funcionario}}</b> verantwortlicher Mitarbeiter für Maschine {{maquina}}.",
+    "notInformed": "nicht angegeben",
+    "ok": "Ok"
+  },
+  "profile": {
+    "title": "Profil",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "newEmail": "Neue E-Mail",
+    "newPassword": "Neues Passwort",
+    "currentPassword": "Aktuelles Passwort",
+    "open": "Benutzerprofil",
+    "editEmail": "E-Mail bearbeiten",
+    "editPassword": "Passwort bearbeiten",
+    "deleteAccount": "Konto löschen",
+    "logout": "Abmelden",
+    "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden. Um das Löschen Ihres Kontos zu bestätigen, geben Sie Ihr aktuelles Passwort ein.",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "emailChanged": "E-Mail geändert",
+    "passwordChanged": "Passwort geändert",
+    "wrongPassword": "Aktuelles Passwort ist falsch",
+    "emailInUse": "E-Mail wird bereits verwendet",
+    "onlyAdmin": "Sie sind der einzige Administrator des Unternehmens",
+    "genericError": "Die Aktion konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
+    "minLength": "Das Passwort muss mindestens 8 Zeichen lang sein"
+  },
+  "alertsDropdown": {
+    "bell": "Benachrichtigungen",
+    "bellUnseen": "Benachrichtigungen (neue Warnungen)",
+    "title": "Aktuelle Warnungen",
+    "close": "Aktuelle Warnungen schließen",
+    "more": "Mehr",
+    "loading": "Warnungen werden geladen…",
+    "empty": "Keine aktuellen Warnungen",
+    "error": "Warnungen konnten nicht geladen werden",
+    "retry": "Erneut versuchen",
+    "unknownMachine": "Nicht angegebene Maschine"
   }
 }

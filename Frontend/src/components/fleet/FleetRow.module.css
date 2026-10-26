@@ -5,16 +5,16 @@
   gap: calc(12 * var(--px, 1px));
   min-width: 0;
   padding: calc(12 * var(--px, 1px)) calc(20 * var(--px, 1px)) calc(20 * var(--px, 1px));
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: calc(8 * var(--px, 1px));
-  background: #fff;
+  background: var(--white);
 }
 
 /* Destino do arrasto: borda tracejada e fundo na cor da categoria. */
 .row[data-drop-target] {
   border-style: dashed;
   border-color: var(--category-color);
-  background: color-mix(in srgb, var(--category-color) 14%, #fff);
+  background: color-mix(in srgb, var(--category-color) 14%, var(--white));
 }
 
 .header {
@@ -26,6 +26,9 @@
 }
 
 .label {
+  --chip: var(--category-color);
+  --chip-bg: color-mix(in srgb, var(--category-color) 25%, var(--white));
+  --chip-text: color-mix(in srgb, var(--category-color) 60%, black);
   display: flex;
   align-items: center;
   gap: calc(8 * var(--px, 1px));
@@ -33,21 +36,47 @@
   height: calc(24 * var(--px, 1px));
   box-sizing: border-box;
   padding: 0 calc(6 * var(--px, 1px)) 0 calc(14 * var(--px, 1px));
-  border: 1px solid var(--category-color);
+  border: 1px solid var(--chip);
   border-radius: calc(2 * var(--px, 1px));
-  background: color-mix(in srgb, var(--category-color) 25%, #fff);
-  font-size: calc(8 * var(--px, 1px));
+  background: var(--chip-bg);
+  font-size: calc(11 * var(--px, 1px));
+  border-left: 2px solid var(--chip);
+}
+
+
+.acidentes {
+  --chip: var(--red);
+  --chip-bg: var(--red-bg);
+  --chip-text: var(--red);
+}
+
+.ativas {
+  --chip: var(--blue);
+  --chip-bg: var(--blue-bg);
+  --chip-text: var(--blue);
+}
+
+.manutencao {
+  --chip: var(--yellow);
+  --chip-bg: var(--yellow-bg);
+  --chip-text: var(--yellow);
+}
+
+.disponiveis {
+  --chip: var(--green);
+  --chip-bg: var(--green-bg);
+  --chip-text: var(--green);
 }
 
 .labelIcon {
   display: inline-flex;
-  color: var(--category-color);
+  color: var(--chip);
 }
 
 .labelText {
   flex: 1;
   overflow: hidden;
-  color: color-mix(in srgb, var(--category-color) 60%, #000);
+  color: var(--chip-text);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -55,11 +84,11 @@
 .count {
   min-width: calc(9 * var(--px, 1px));
   padding: 0 calc(2 * var(--px, 1px));
-  border: 1px solid color-mix(in srgb, var(--category-color) 40%, #fff);
+  border: 1px solid color-mix(in srgb, var(--category-color) 40%, var(--white));
   border-radius: calc(2 * var(--px, 1px));
-  background: #fff;
-  font-size: calc(5 * var(--px, 1px));
-  line-height: calc(8 * var(--px, 1px));
+  background: var(--white);
+  font-size: var(--fs-xs);
+  line-height: calc(14 * var(--px, 1px));
   text-align: center;
   color: var(--text);
 }
@@ -80,9 +109,9 @@
   height: calc(24 * var(--px, 1px));
   box-sizing: border-box;
   padding: 0 calc(12 * var(--px, 1px));
-  border: 1px solid #ececec;
+  border: 1px solid var(--line);
   border-radius: calc(2 * var(--px, 1px));
-  color: #8a8a8a;
+  color: var(--black-text);
 }
 
 .search input {
@@ -92,12 +121,12 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: calc(9 * var(--px, 1px));
+  font-size: calc(11 * var(--px, 1px));
   color: var(--text-h);
 }
 
 .search input::placeholder {
-  color: #9a9a9a;
+  color: var(--black-text);
 }
 
 .search:focus-within {
@@ -105,27 +134,36 @@
 }
 
 .period {
-  display: flex;
+  border: 0.5px solid var(--border);
+  border-radius: 5px;
+    height: 25px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
+  background: var(--bg-sidebar);
+  display: inline-flex;
   align-items: center;
-  gap: calc(4 * var(--px, 1px));
-  height: calc(24 * var(--px, 1px));
-  box-sizing: border-box;
-  padding: 0 calc(8 * var(--px, 1px));
-  border: 1px solid #d9d9d9;
-  border-radius: calc(2 * var(--px, 1px));
-  font-size: calc(7 * var(--px, 1px));
-  color: var(--text-h);
+  gap: 6px;
+  margin-left: auto;
+  padding: 0px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .period input {
-  width: calc(72 * var(--px, 1px));
+  padding: 0;
   border: none;
   background: transparent;
   font: inherit;
-  font-size: calc(7 * var(--px, 1px));
-  color: var(--text-h);
+  font-weight: 400;
+  color: var(--text);
+  width: calc(76 * var(--px, 1px));
 }
 
+.period input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.editButton,
 .deleteButton {
   display: inline-flex;
   align-items: center;
@@ -134,12 +172,20 @@
   padding: 0 calc(14 * var(--px, 1px));
   border: none;
   border-radius: calc(2 * var(--px, 1px));
-  background: #ef4444;
   font: inherit;
-  font-size: calc(7 * var(--px, 1px));
+  font-size: calc(11 * var(--px, 1px));
   font-weight: 700;
-  color: #fff;
   cursor: pointer;
+}
+
+.deleteButton {
+  background: var(--danger-solid);
+  color: var(--white);
+}
+
+.editButton {
+  background: var(--blue);
+  color: var(--white);
 }
 
 .cards {
@@ -172,8 +218,8 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: #3a9cff;
-  color: #fff;
+  background: var(--blue);
+  color: var(--white);
   cursor: pointer;
   transition: transform 120ms ease;
 }

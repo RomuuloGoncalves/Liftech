@@ -13,6 +13,7 @@ describe('NotFoundPage component', () => {
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('404')
     expect(screen.getByText(/página não encontrada/i)).toBeInTheDocument()
+    expect(screen.getByText(/não existe ou foi movida/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /voltar para o início/i })).toHaveAttribute('href', '/')
   })
 })

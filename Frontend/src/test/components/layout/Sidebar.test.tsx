@@ -2,7 +2,18 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Sidebar from '../../../components/layout/Sidebar'
+import { ActiveBranchProvider } from '../../../context/ActiveBranchContext'
+import { AlertsProvider } from '../../../context/AlertsContext'
+import { incidentService } from '../../../services/incidentService'
+import '../../../components/alerts/AlertModal'
 import styles from '../../../components/layout/Sidebar.module.css'
+
+vi.mock('../../../services/incidentService', () => ({
+  incidentService: {
+    listar: vi.fn().mockResolvedValue([]),
+    reportar: vi.fn(),
+  },
+}))
 
 const STORAGE_KEY = 'liftech.sidebar.collapsed'
 const DESKTOP_WIDTH = 1280
@@ -19,6 +30,7 @@ function renderSidebarAt(path: string) {
       <Sidebar />
       <Routes>
         <Route path="/" element={<div>Página Visão Geral</div>} />
+        <Route path="/dashboard" element={<div>Página Dashboard</div>} />
         <Route path="/frota" element={<div>Página Frota</div>} />
       </Routes>
     </MemoryRouter>
@@ -35,17 +47,23 @@ describe('Sidebar component', () => {
     setViewportWidth(DESKTOP_WIDTH)
   })
 
+  it('shows the temporary Área do Funcionário link pointing to /funcionario', () => {
+    renderSidebarAt('/')
+    expect(screen.getByRole('link', { name: 'Área do Funcionário' })).toHaveAttribute('href', '/funcionario')
+  })
+
   it('renders the Liftech brand name', () => {
     renderSidebarAt('/')
     expect(screen.getByAltText('Liftech')).toBeInTheDocument()
   })
 
-  it('renders exactly 4 navigation links, in order, each with an icon', () => {
+  it('renders exactly 5 navigation links, in order, each with an icon', () => {
     renderSidebarAt('/')
     const list = screen.getByRole('list')
     const links = within(list).getAllByRole('link')
-    expect(links).toHaveLength(4)
+    expect(links).toHaveLength(5)
     expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Dashboard',
       'Visão Geral',
       'Gerenciamento Frota',
       'Gestão de Equipe',
@@ -53,6 +71,43 @@ describe('Sidebar component', () => {
     ])
     links.forEach((link) => {
       expect(link.querySelector('svg')).toBeInTheDocument()
+    })
+  })
+
+  it('highlights only Dashboard with aria-current="page" on /dashboard, pointing to /dashboard', () => {
+    renderSidebarAt('/dashboard')
+    const dashLink = screen.getByRole('link', { name: 'Dashboard' })
+    expect(dashLink).toHaveAttribute('aria-current', 'page')
+    expect(dashLink).toHaveAttribute('href', '/dashboard')
+    expect(dashLink.className).toContain(styles.active)
+
+    const otherLinks = [
+      screen.getByRole('link', { name: /visão geral/i }),
+      screen.getByRole('link', { name: /gerenciamento frota/i }),
+      screen.getByRole('link', { name: /gestão de equipe/i }),
+      screen.getByRole('link', { name: /histórico de alertas/i }),
+    ]
+    otherLinks.forEach((link) => {
+      expect(link).not.toHaveAttribute('aria-current')
+      expect(link.className).not.toContain(styles.active)
+    })
+  })
+
+  it('highlights only Visão Geral with aria-current="page" on /', () => {
+    renderSidebarAt('/')
+    const vgLink = screen.getByRole('link', { name: /visão geral/i })
+    expect(vgLink).toHaveAttribute('aria-current', 'page')
+    expect(vgLink.className).toContain(styles.active)
+
+    const otherLinks = [
+      screen.getByRole('link', { name: 'Dashboard' }),
+      screen.getByRole('link', { name: /gerenciamento frota/i }),
+      screen.getByRole('link', { name: /gestão de equipe/i }),
+      screen.getByRole('link', { name: /histórico de alertas/i }),
+    ]
+    otherLinks.forEach((link) => {
+      expect(link).not.toHaveAttribute('aria-current')
+      expect(link.className).not.toContain(styles.active)
     })
   })
 
@@ -225,5 +280,153 @@ describe('Sidebar component', () => {
     expect(screen.queryByRole('button', { name: /abrir menu/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /fechar menu/i })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /colapsar menu/i })).toBeInTheDocument()
+  })
+})
+
+describe('Sidebar branch selector and company', () => {
+  const user = {
+    _id: 'u1',
+    nome: 'Ana',
+    role: 'admin',
+    empresa: { _id: 'e1', nome: 'Acme Logística' },
+    escopo: 'empresa',
+    filiais: [
+      { _id: 'f1', nome: 'Filial 01', matriz: true },
+      { _id: 'f2', nome: 'Filial 02', matriz: false },
+    ],
+  }
+
+  const renderWithSession = () =>
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <ActiveBranchProvider>
+          <Sidebar />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    setViewportWidth(DESKTOP_WIDTH)
+  })
+
+  it('shows the branch selector between the logo and the pages list when there is a session', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    const selector = screen.getByRole('button', { name: /Filiais/ })
+    expect(selector).toHaveTextContent('Todas as filiais')
+    const logo = screen.getByAltText('Liftech')
+    const pages = screen.getByText('Páginas')
+    expect(logo.compareDocumentPosition(selector) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(selector.compareDocumentPosition(pages) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('shows neither the selector nor the company row without a session', () => {
+    renderWithSession()
+
+    expect(screen.queryByRole('button', { name: /Filiais/ })).not.toBeInTheDocument()
+    expect(screen.queryByText('Acme Logística')).not.toBeInTheDocument()
+  })
+
+  it('shows a user icon and the company name in the footer', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    const company = screen.getByText('Acme Logística')
+    expect(company.parentElement?.querySelector('svg')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /feedback & sugestões/i }).parentElement).toContainElement(company)
+  })
+
+  it('shows only the icon, named by aria-label and title, when collapsed', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    expect(screen.queryByText('Acme Logística')).not.toBeInTheDocument()
+    const company = screen.getByRole('img', { name: 'Acme Logística' })
+    expect(company).toHaveAttribute('aria-label', 'Acme Logística')
+    expect(company).toHaveAttribute('title', 'Acme Logística')
+    expect(company.querySelector('svg')).toBeInTheDocument()
+  })
+
+  it('collapses the selector to the branch initial when the sidebar is collapsed', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    expect(screen.getByRole('button', { name: 'Todas as filiais' })).toHaveTextContent(/^T$/)
+  })
+
+  it('keeps a single list on the page, the navigation one', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+    fireEvent.click(screen.getByRole('button', { name: /Filiais/ }))
+
+    expect(screen.getAllByRole('list')).toHaveLength(1)
+  })
+
+  it('clicar no botão Feedback & Sugestões abre o diálogo Envie-nos feedback ou uma sugestão', async () => {
+    renderSidebarAt('/')
+    fireEvent.click(screen.getByRole('button', { name: /feedback & sugestões/i }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Envie-nos feedback ou uma sugestão' })
+    expect(dialog).toBeInTheDocument()
+  })
+
+  it('com a sidebar recolhida, o botão só-ícone também abre o modal', async () => {
+    renderSidebarAt('/')
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    fireEvent.click(screen.getByRole('button', { name: /feedback & sugestões/i }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Envie-nos feedback ou uma sugestão' })
+    expect(dialog).toBeInTheDocument()
+  })
+
+  it('fechar pelo X remove o diálogo', async () => {
+    renderSidebarAt('/')
+    fireEvent.click(screen.getByRole('button', { name: /feedback & sugestões/i }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Envie-nos feedback ou uma sugestão' })
+    expect(dialog).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+    expect(screen.queryByRole('dialog', { name: 'Envie-nos feedback ou uma sugestão' })).not.toBeInTheDocument()
+  })
+
+  it('clicar em "Simular alerta" mostra o alertdialog com Alexandre Mattos e não chama listar a mais', async () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    const listarMock = vi.mocked(incidentService.listar)
+    listarMock.mockClear()
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <ActiveBranchProvider>
+          <AlertsProvider>
+            <Sidebar />
+          </AlertsProvider>
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+
+    const chamadasAntes = listarMock.mock.calls.length
+    const botaoSimular = screen.getByRole('button', { name: 'Simular alerta' })
+    fireEvent.click(botaoSimular)
+
+    const modal = await screen.findByRole('alertdialog')
+    expect(modal).toHaveTextContent('Alexandre Mattos')
+    expect(listarMock.mock.calls.length).toBe(chamadasAntes)
+  })
+
+  it('com a sidebar colapsada o botão "Simular alerta" não aparece', () => {
+    window.localStorage.setItem('user', JSON.stringify(user))
+    renderWithSession()
+
+    expect(screen.getByRole('button', { name: 'Simular alerta' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
+
+    expect(screen.queryByRole('button', { name: 'Simular alerta' })).not.toBeInTheDocument()
   })
 })

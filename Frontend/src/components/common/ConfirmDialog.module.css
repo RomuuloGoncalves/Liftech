@@ -1,5 +1,5 @@
 .message {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--fs-base);
   color: var(--text);
 }

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import Header from '../../../components/layout/Header'
 
@@ -15,6 +15,11 @@ describe('Header component', () => {
   it('renders the title matching the current route', () => {
     renderHeaderAt('/frota')
     expect(screen.getByRole('heading', { name: 'Gerenciamento das máquinas' })).toBeInTheDocument()
+  })
+
+  it('renders Dashboard as title on /dashboard', () => {
+    renderHeaderAt('/dashboard')
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
   })
 
   it('renders the team page title on /equipe', () => {
@@ -75,5 +80,58 @@ describe('Header component', () => {
 
     fireEvent.mouseDown(document.body)
     expect(screen.queryByRole('dialog', { name: /escolha um idioma/i })).not.toBeInTheDocument()
+  })
+
+  it('logs out: clears token/user and navigates to /login', () => {
+    localStorage.setItem('token', 'abc')
+    localStorage.setItem('user', '{"id":"1"}')
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<Header />} />
+          <Route path="/login" element={<div>login screen</div>} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }))
+
+    expect(localStorage.getItem('token')).toBeNull()
+    expect(localStorage.getItem('user')).toBeNull()
+    expect(screen.getByText('login screen')).toBeInTheDocument()
+  })
+
+  it('opens the recent alerts popover when the bell is clicked', () => {
+    renderHeaderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: /notificações|alertas/i }))
+
+    expect(screen.getByRole('dialog', { name: /alertas recentes/i })).toBeInTheDocument()
+  })
+
+  it('opens profile modal when avatar is clicked', async () => {
+    renderHeaderAt('/')
+    const avatar = screen.getByRole('button', { name: /perfil do usuário/i })
+    expect(avatar).toHaveAttribute('aria-haspopup', 'dialog')
+
+    fireEvent.click(avatar)
+
+    const dialog = await screen.findByRole('dialog', { name: /perfil/i })
+    expect(dialog).toBeInTheDocument()
+  })
+
+  it('returns focus to avatar button when profile modal is closed', async () => {
+    renderHeaderAt('/')
+    const avatar = screen.getByRole('button', { name: /perfil do usuário/i })
+
+    fireEvent.click(avatar)
+
+    const dialog = await screen.findByRole('dialog', { name: /perfil/i })
+    expect(dialog).toBeInTheDocument()
+
+    const closeBtn = screen.getByRole('button', { name: /fechar/i })
+    fireEvent.click(closeBtn)
+
+    expect(screen.queryByRole('dialog', { name: /perfil/i })).not.toBeInTheDocument()
+    expect(document.activeElement).toBe(avatar)
   })
 })

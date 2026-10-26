@@ -22,9 +22,9 @@
   width: 44px;
   height: 40px;
   padding: 0;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 5px;
-  background: #fff;
+  background: var(--white);
   cursor: pointer;
 }
 
@@ -41,14 +41,15 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  width: 118px;
+  width: 200px;
   padding: 18px 8px 8px;
   box-sizing: border-box;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: #fff;
+  background: var(--white);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   animation: menu-in 120ms ease-out;
+  transform: translateX(-40%);
 }
 
 .popoverClose {
@@ -66,11 +67,12 @@
 .swatches {
   display: flex;
   justify-content: space-between;
+  padding: 10px;
 }
 
 .swatch {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -87,16 +89,16 @@
   align-items: center;
   gap: 6px;
   height: 14px;
-  padding: 0 6px;
-  border: 1px solid #dedede;
+  padding: 8px 12px;
+  border: 1px solid var(--gray-border);
   border-radius: 7px;
-  font-size: 5px;
-  color: #9a9a9a;
+  font-size: var(--fs-xs);
+  color: var(--black-text);
 }
 
 .hex .dot {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 
 .hex input {
@@ -106,7 +108,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: 5px;
+  font-size: var(--fs-xs);
   color: var(--text-h);
 }
 
@@ -121,25 +123,25 @@
   height: 40px;
   box-sizing: border-box;
   padding: 0 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--gray-border);
   border-radius: 3px;
-  background: #f7f7f7;
+  background: var(--bg-page);
   font: inherit;
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--text-h);
 }
 
 .nameInput::placeholder {
-  color: #b5b5b5;
+  color: var(--black-text);
 }
 
 .nameInput[aria-invalid='true'] {
-  border-color: #ef4444;
+  border-color: var(--danger-solid);
 }
 
 .error {
-  font-size: 11px;
-  color: #ef4444;
+  font-size: var(--fs-xs);
+  color: var(--danger-solid);
 }
 
 @keyframes menu-in {
@@ -147,4 +149,39 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+}
+
+.statusList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-size: var(--fs-sm);
+}
+
+.statusList legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 600;
+}
+
+.statusOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusOption:has(input:disabled) {
+  opacity: 0.6;
+}
+
+.taken {
+  font-size: var(--fs-xs);
+  color: var(--black-text);
+}
+
+p.error {
+  margin: 0;
 }

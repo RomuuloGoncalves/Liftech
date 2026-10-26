@@ -8,7 +8,8 @@
     "save": "Enregistrer",
     "close": "Fermer",
     "loading": "Chargement...",
-    "closeNotification": "Fermer la notification"
+    "closeNotification": "Fermer la notification",
+    "retry": "Réessayer"
   },
   "navigation": {
     "overview": "Aperçu",
@@ -18,7 +19,8 @@
     "notFound": "Page non trouvée",
     "pages": "Pages",
     "feedback": "Commentaires & Suggestions",
-    "privacy": "Politique de confidentialité"
+    "privacy": "Politique de confidentialité",
+    "logout": "Se déconnecter"
   },
   "machines": {
     "registerButton": "Enregistrer la Machine",
@@ -32,11 +34,13 @@
     "operator": "Opérateur",
     "noOperator": "Aucun opérateur",
     "emptyState": "Aucune machine trouvée",
+    "loadError": "Impossible de charger les machines.",
     "newMachineTitle": "Nouvelle Machine",
     "labelId": "ID",
     "labelName": "Nom",
     "labelSector": "Secteur",
     "labelMac": "Adresse MAC",
+    "labelBranch": "Filiale",
     "detailCode": "Code",
     "detailMac": "Mac",
     "detailSector": "Secteur",
@@ -61,7 +65,20 @@
     "openDetails": "Voir les détails de {{name}}",
     "toastCreated": "Machine « {{name}} » enregistrée",
     "toastSaved": "Machine « {{name}} » enregistrée",
-    "toastDeleted": "Machine « {{name}} » supprimée"
+    "toastDeleted": "Machine « {{name}} » supprimée",
+    "saveError": "Impossible d'enregistrer la machine. Veuillez réessayer.",
+    "deleteInSession": "Machine avec une session ouverte : terminez la session avant de la supprimer.",
+    "status": {
+      "disponivel": "Disponible",
+      "em_uso": "En utilisation",
+      "manutencao": "En maintenance",
+      "alerta": "Alerte",
+      "offline": "Hors ligne"
+    },
+    "changeStatus": "Changer le statut",
+    "sectorNone": "Aucun secteur",
+    "filterSectorAll": "Tous les secteurs",
+    "filterSectorLabel": "Filtrer par secteur"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -113,9 +130,7 @@
     "editSectorTitle": "Modifier le secteur",
     "sectorInfoTitle": "Informations du secteur",
     "labelSectorName": "Nom du secteur",
-    "labelUnit": "Unité",
     "phSectorName": "Nom du secteur",
-    "phUnit": "Unité",
     "createSector": "Créer le secteur",
     "required": "Champ obligatoire",
     "usernameTaken": "Ce nom d'utilisateur est déjà utilisé",
@@ -128,7 +143,18 @@
     "toastEmployeeDeleted": "Employé « {{name}} » supprimé",
     "toastSectorCreated": "Secteur « {{name}} » enregistré",
     "toastSectorSaved": "Secteur « {{name}} » mis à jour",
-    "toastSectorDeleted": "Secteur « {{name}} » supprimé"
+    "toastSectorDeleted": "Secteur « {{name}} » supprimé",
+    "usernameInvalid": "Utilisez 3 à 40 caractères, sans espaces",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "phPasswordKeep": "Laissez vide pour garder l'actuel",
+    "loadError": "Impossible de charger les employés.",
+    "saveError": "Impossible d'enregistrer l'employé. Veuillez réessayer.",
+    "loginError": "Employé enregistré, mais l'identifiant n'a pas pu être créé. Modifiez-le pour réessayer.",
+    "deleteInSession": "Employé avec une session ouverte : terminez la session avant de le supprimer.",
+    "labelSectorBranch": "Filiale",
+    "sectorNameTaken": "Un secteur portant ce nom existe déjà dans cette filiale",
+    "sectorHasMachines": "Secteur avec {{n}} machine(s) liée(s)",
+    "sectorMoveHasMachines": "Un secteur avec {{n}} machine(s) liée(s) ne peut pas changer de filiale"
   },
   "languages": {
     "title": "Choisissez une langue",
@@ -151,9 +177,7 @@
     "passwordLabel": "Mot de passe",
     "passwordPlaceholder": "Saisissez votre mot de passe",
     "enterButton": "Se connecter",
-    "forgotPassword": "Mot de passe oublié ? <b>Cliquez ici</b>",
-    "collaboratorLink": "Collaborateur ? <b>Cliquez ici !</b>",
-    "administratorLink": "Administrateur ? <b>Cliquez ici !</b>",
+    "forgotPassword": "Mot de passe oublié ? <b>Cliquez ici !</b>",
     "signupTitle": "Bienvenue chez Liftech",
     "signupSubtitle": "Surveillez vos machines, suivez chaque incident et gardez votre opération sous contrôle, avec plus de sécurité et d'efficacité.",
     "signupSectionTitle": "Demandez l'accès à la plateforme",
@@ -162,9 +186,6 @@
     "adminNameLabel": "Nom de l'administrateur",
     "adminNamePlaceholder": "Saisissez le nom de l'administrateur",
     "requestAccessButton": "Demander l'accès",
-    "alreadyRegistered": "Déjà inscrit ?",
-    "enterNow": "Se connecter maintenant !",
-    "or": "ou",
     "requestSuccessTitle": "Demande envoyée !",
     "requestSuccessMessage": "Nous vous contacterons bientôt.",
     "required": "Champ obligatoire",
@@ -176,7 +197,16 @@
     "infoControlTitle": "Plus de contrôle",
     "infoControlDesc": "Suivez vos activités en temps réel.",
     "infoEfficiencyTitle": "Plus d'efficacité",
-    "infoEfficiencyDesc": "Réalisez vos tâches avec plus d'agilité."
+    "infoEfficiencyDesc": "Réalisez vos tâches avec plus d'agilité.",
+    "tabRequest": "Demander l'accès",
+    "tabAdmin": "Connexion Administrateur",
+    "tabCollaborator": "Collaborateur",
+    "invalidCredentials": "Identifiant ou mot de passe invalide.",
+    "networkError": "Impossible de se connecter au serveur.",
+    "loginError": "Erreur lors de la connexion.",
+    "requestDuplicate": "Une demande est déjà en attente pour cet e-mail.",
+    "requestError": "Impossible d'envoyer la demande.",
+    "tabsLabel": "Type d'accès"
   },
   "fleet": {
     "pageTitle": "Gestion des machines",
@@ -231,6 +261,202 @@
     "toastCategoryCreated": "Catégorie « {{name}} » créée",
     "toastCategoryDeleted": "Catégorie « {{name}} » supprimée",
     "toastMachinesAdded": "Machines ajoutées à « {{name}} »",
-    "toastMachineRemoved": "{{name}} retirée de la catégorie"
+    "toastMachineRemoved": "{{name}} retirée de la catégorie",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "editCategory": "Modifier la catégorie",
+    "linkedStatus": "Statuts associés",
+    "statusTaken": "Déjà associé à une autre catégorie",
+    "saveError": "Impossible d'enregistrer. Veuillez réessayer.",
+    "noCategories": "Aucune catégorie enregistrée"
+  },
+  "employee": {
+    "settings": {
+      "title": "Paramètres",
+      "close": "Fermer",
+      "general": "Général",
+      "userData": "Données de l'utilisateur",
+      "name": "Nom",
+      "phone": "Téléphone",
+      "position": "Poste",
+      "changeNoticeTitle": "Demande de modification",
+      "changeNotice": "Pour modifier vos données, adressez-vous au superviseur responsable.",
+      "logout": "Se déconnecter",
+      "feedbackTitle": "Commentaires et suggestions",
+      "feedbackQuestion": "Comment s'est passée votre expérience ?",
+      "privacy": "Politique de confidentialité",
+      "feedbackPlaceholder": "Saisissez une suggestion d'amélioration ou un commentaire !"
+    },
+    "session": {
+      "startError": "Impossible de démarrer la session. Réessayez.",
+      "endError": "Impossible de terminer la session. Réessayez."
+    },
+    "incident": {
+      "sendError": "Impossible d'envoyer l'incident. Réessayez."
+    }
+  },
+  "branches": {
+    "label": "Filiales",
+    "all": "Toutes les filiales",
+    "manage": "Gérer les filiales",
+    "doneManaging": "Terminé",
+    "create": "Créer une filiale",
+    "nameLabel": "Nom de la filiale",
+    "confirm": "Confirmer",
+    "rename": "Renommer {{name}}",
+    "remove": "Supprimer {{name}}",
+    "deleteTitle": "Supprimer la filiale",
+    "deleteMessage": "Supprimer la filiale {{name}} ?",
+    "saveError": "Impossible d'enregistrer la filiale.",
+    "deleteError": "Impossible de supprimer la filiale.",
+    "deleteBlocked": "Suppression impossible : la filiale est le siège ou possède encore des ressources."
+  },
+  "notFound": {
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "accessRequests": {
+    "title": "Demandes d'accès",
+    "tabs": {
+      "pendente": "En attente",
+      "aprovada": "Approuvées",
+      "recusada": "Rejetées"
+    },
+    "empty": {
+      "pendente": "Aucune demande en attente.",
+      "aprovada": "Aucune demande approuvée.",
+      "recusada": "Aucune demande rejetée."
+    },
+    "loadError": "Impossible de charger les demandes.",
+    "email": "Adresse e-mail",
+    "company": "Entreprise demandeuse",
+    "admin": "Administrateur",
+    "sentAt": "Envoyée le",
+    "reason": "Motif",
+    "accept": "Accepter",
+    "reject": "Rejeter",
+    "acceptTitle": "Accepter la demande",
+    "acceptMessage": "Souhaitez-vous accepter la demande de l'entreprise {{company}} ?",
+    "rejectTitle": "Rejeter la demande",
+    "reasonLabel": "Motif du refus (optionnel)",
+    "reasonPlaceholder": "Indiquez le motif du refus (optionnel)...",
+    "passwordTitle": "Mot de passe initial généré",
+    "passwordLabel": "Mot de passe initial",
+    "passwordWarning": "Copiez et conservez ce mot de passe en lieu sûr. Il ne sera plus affiché.",
+    "copy": "Copier le mot de passe",
+    "copied": "Mot de passe copié !",
+    "rejected": "Demande rejetée avec succès.",
+    "saveError": "Impossible d'enregistrer la demande.",
+    "alreadyDecided": "Cette demande a déjà été traitée.",
+    "conflictEmail": "Un utilisateur avec cet e-mail existe déjà.",
+    "conflictCompany": "Une entreprise avec ce nom existe déjà."
+  },
+  "levelInfo": {
+    "title": "Informations sur le niveau critique",
+    "open": "À propos des niveaux d'urgence",
+    "level": {
+      "critica": "Critique",
+      "alta": "Élevée",
+      "media": "Moyenne"
+    },
+    "description": {
+      "tombamento": "Niveau d'urgence critique associé à un <b>renversement</b>.",
+      "colisao": "Niveau d'urgence critique associé à une <b>collision</b>.",
+      "frenagem": "Niveau d'urgence critique associé à un <b>freinage brusque</b>."
+    }
+  },
+  "feedback": {
+    "title": "Envoyez-nous des commentaires ou une suggestion",
+    "question": "Comment s'est passée votre expérience ?",
+    "placeholder": "Saisissez une suggestion d'amélioration ou un commentaire !",
+    "send": "Envoyer",
+    "sent": "Commentaires envoyés. Merci !",
+    "error": "Impossible d'envoyer les commentaires. Veuillez réessayer."
+  },
+  "dashboard": {
+    "navLabel": "Tableau de bord",
+    "title": "Tableau de bord",
+    "quickData": "Données rapides",
+    "machinesRegistered": "Machines enregistrées",
+    "employeesRegistered": "Employés enregistrés",
+    "machinesMaintenance": "Machines en maintenance",
+    "machinesDisabled": "Machines désactivées",
+    "machinesInfo": "Informations sur les machines",
+    "machineList": "Liste des machines",
+    "searchLabel": "Rechercher des machines",
+    "colName": "Nom",
+    "colSector": "Secteur",
+    "colTime": "Temps",
+    "colStatus": "Statut",
+    "minutes_zero": "{{count}} minutes",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "pageInfo_zero": "Affichage de {{count}} machines - Page {{page}} sur {{pages}}",
+    "pageInfo_one": "Affichage de {{count}} machine - Page {{page}} sur {{pages}}",
+    "pageInfo_other": "Affichage de {{count}} machines - Page {{page}} sur {{pages}}",
+    "prevPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "noResults": "Aucune machine trouvée",
+    "usageTitle": "Enregistrement par temps",
+    "weekdays": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam",
+      "sun": "Dim"
+    },
+    "hourLabel": "{{hour}} h",
+    "cellLabel_zero": "{{day}}, {{hour}} h : {{count}} sessions",
+    "cellLabel_one": "{{day}}, {{hour}} h : {{count}} session",
+    "cellLabel_other": "{{day}}, {{hour}} h : {{count}} sessions",
+    "less": "Moins",
+    "more": "Plus",
+    "period": "Sessions des 4 dernières semaines",
+    "noSessions": "Aucun enregistrement sur la période",
+    "loadError": "Impossible de charger les données."
+  },
+  "alertModal": {
+    "title": "Alerte !",
+    "message": "Accident dans le secteur <b>{{setor}}</b>, <b>{{funcionario}}</b> employé responsable de la machine {{maquina}}.",
+    "notInformed": "non renseigné",
+    "ok": "Ok"
+  },
+  "profile": {
+    "title": "Profil",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "newEmail": "Nouvel e-mail",
+    "newPassword": "Nouveau mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "open": "Profil de l'utilisateur",
+    "editEmail": "Modifier l'e-mail",
+    "editPassword": "Modifier le mot de passe",
+    "deleteAccount": "Supprimer le compte",
+    "logout": "Se déconnecter",
+    "deleteWarning": "Cette action est irréversible. Pour confirmer la suppression de votre compte, saisissez votre mot de passe actuel.",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "emailChanged": "E-mail modifié",
+    "passwordChanged": "Mot de passe modifié",
+    "wrongPassword": "Mot de passe actuel incorrect",
+    "emailInUse": "E-mail déjà utilisé",
+    "onlyAdmin": "Vous êtes le seul administrateur de l'entreprise",
+    "genericError": "Impossible de terminer l'action. Veuillez réessayer.",
+    "minLength": "Le mot de passe doit comporter au moins 8 caractères"
+  },
+  "alertsDropdown": {
+    "bell": "Notifications",
+    "bellUnseen": "Notifications (nouvelles alertes)",
+    "title": "Alertes Récentes",
+    "close": "Fermer les alertes récentes",
+    "more": "Plus",
+    "loading": "Chargement des alertes…",
+    "empty": "Aucune alerte récente",
+    "error": "Impossible de charger les alertes",
+    "retry": "Réessayer",
+    "unknownMachine": "Machine non renseignée"
   }
 }
