@@ -1,4 +1,4 @@
-import { MACHINES } from '../../data/machines'
+import { MACHINES } from './machines'
 import type { FiltroSessoes, Sessao } from '../../services/sessionService'
 
 /** Builds an API session from local date and times, as the backend would send it. */

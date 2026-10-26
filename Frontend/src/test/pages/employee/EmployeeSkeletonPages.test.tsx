@@ -9,7 +9,8 @@ import EmployeeMachinesPage from '../../../pages/employee/EmployeeMachinesPage'
 import EmployeeSessionPage from '../../../pages/employee/EmployeeSessionPage'
 import EmployeeSettingsPage from '../../../pages/employee/EmployeeSettingsPage'
 import { resetWorkSession } from '../../../hooks/useWorkSession'
-import { MACHINES, type Machine } from '../../../data/machines'
+import type { Machine } from '../../../data/machines'
+import { MACHINES } from '../../fixtures/machines'
 import { sessionService, type Sessao } from '../../../services/sessionService'
 import { machineService } from '../../../services/machineService'
 
@@ -17,7 +18,7 @@ vi.mock('../../../services/sessionService', () => ({
   sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn().mockResolvedValue([]) },
 }))
 vi.mock('../../../services/machineService', async () => {
-  const { MACHINES } = await import('../../../data/machines')
+  const { MACHINES } = await import('../../fixtures/machines')
   return { machineService: { listar: vi.fn().mockResolvedValue(MACHINES) } }
 })
 

@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import MachinePickerModal from '../../../components/fleet/MachinePickerModal'
-import { MACHINES, type Machine } from '../../../data/machines'
+import type { Machine } from '../../../data/machines'
+import { MACHINES } from '../../fixtures/machines'
 
 const pick = (...codes: string[]) => codes.map((code) => MACHINES.find((m) => m.identificacao === code)!)
 
