@@ -9,7 +9,8 @@ import styles from '../../pages/VisaoGeralPage.module.css'
 import { machineService } from '../../services/machineService'
 import { sectorService, type Setor } from '../../services/sectorService'
 import type { NewMachineFormValues } from '../../components/machines/NewMachinePanel'
-import { DEFAULT_PERIOD, MACHINES, eventsForMachine, filterEvents, type Machine } from '../../data/machines'
+import { type Machine } from '../../data/machines'
+import { MACHINES } from '../fixtures/machines'
 
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
@@ -471,34 +472,20 @@ describe('VisaoGeralPage: API', () => {
     expect(listar).toHaveBeenCalledTimes(1)
   })
 
-  it('detail repairs show the mock events of the machine with the same identificacao, even with an API id', async () => {
-    const listItemsInDetail = async (machine: Machine) => {
+  it('detail repairs show the same empty list for a machine from the old mock (EMP-084) and an unknown one (EMP-777) (RM-04)', async () => {
+    const assertEmptyRepairsInDetail = async (machine: Machine) => {
       listar.mockResolvedValue([machine])
       const { unmount } = render(<VisaoGeralPage />)
       await screen.findAllByRole('article')
       openDetail(machine.identificacao)
       fireEvent.click(screen.getByRole('tab', { name: 'Manutenção' }))
-      const count = within(screen.getByRole('dialog')).getAllByRole('listitem').length
+      expect(within(screen.getByRole('tabpanel')).queryAllByRole('listitem')).toHaveLength(0)
+      expect(within(screen.getByRole('tabpanel')).getByText('Nenhum registro no período')).toBeInTheDocument()
       unmount()
-      return count
     }
 
-    const withMockHistory = await listItemsInDetail(apiMachine())
-    const withoutHistory = await listItemsInDetail(apiMachine({ identificacao: 'EMP-777' }))
-
-    const expectedEvents = filterEvents(eventsForMachine('4'), { tipo: 'manutencao', ...DEFAULT_PERIOD }).length
-    expect(expectedEvents).toBeGreaterThan(0)
-    expect(withMockHistory - withoutHistory).toBe(expectedEvents)
-  })
-
-  it('detail history is empty for a machine whose identificacao is not in the mock', async () => {
-    listar.mockResolvedValue([apiMachine({ identificacao: 'EMP-777' })])
-
-    render(<VisaoGeralPage />)
-    await screen.findAllByRole('article')
-    openDetail('EMP-777')
-
-    expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+    await assertEmptyRepairsInDetail(apiMachine())
+    await assertEmptyRepairsInDetail(apiMachine({ identificacao: 'EMP-777' }))
   })
 
   it('shows a machine with an unknown status under "Todos" and hides it under another status filter', async () => {

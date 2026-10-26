@@ -21,7 +21,7 @@ import {
   type CategoryKey,
   type FleetCategory,
 } from '../data/fleet'
-import { MACHINES, eventsForMachine, type Machine } from '../data/machines'
+import { type Machine } from '../data/machines'
 import { authService } from '../services/authService'
 import { categoryService, type Categoria } from '../services/categoryService'
 import { machineService } from '../services/machineService'
@@ -43,10 +43,6 @@ const LABEL_KEYS: Record<CategoryKey, string> = {
   manutencao: 'fleet.categoryManutencao',
   disponiveis: 'fleet.categoryDisponiveis',
 }
-
-// ponytail: o histórico do detalhe ainda é mock (não há rota de incident); casa pela identificacao porque os ids da API são ObjectId.
-const mockEventsFor = (machine: Machine) =>
-  eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
 const ARRIVE_MS = 1000
 const rowOf = (categoria: Categoria) => montarQuadro([categoria], [])[0]
@@ -404,7 +400,6 @@ const FrotaPage: React.FC = () => {
       {detail && (
         <MachineDetailModal
           machine={detail}
-          events={mockEventsFor(detail)}
           onClose={close}
           variant="fleet"
           onChangeStatus={(status) => updateMachine(detail, { status }, () => machineService.alterarStatus(detail.id, status))}

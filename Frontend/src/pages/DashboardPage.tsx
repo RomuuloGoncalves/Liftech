@@ -359,7 +359,6 @@ export const DashboardPage: React.FC = () => {
       {detailMachine && (
         <MachineDetailModal
           machine={detailMachine}
-          events={[]}
           variant="overview"
           onClose={() => setDetailId(null)}
         />

@@ -58,7 +58,7 @@ beforeEach(() => listarIncidentes.mockReset().mockImplementation(listIncidents))
 
 function setup(props: Partial<React.ComponentProps<typeof MachineDetailModal>> = {}) {
   const handlers = { onEdit: vi.fn(), onDelete: vi.fn(), onClose: vi.fn() }
-  render(<MachineDetailModal machine={machine} events={events} {...handlers} {...props} />)
+  render(<MachineDetailModal machine={machine} {...handlers} {...props} />)
   return handlers
 }
 
@@ -123,10 +123,8 @@ describe('MachineDetailModal: history', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Manutenção' }))
     expect(screen.getByRole('tab', { name: 'Manutenção' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tab', { name: 'Acidentes' })).toHaveAttribute('aria-selected', 'false')
-    const items = within(screen.getByRole('tabpanel')).getAllByRole('listitem')
-    expect(items).toHaveLength(1)
-    expect(items[0]).toHaveTextContent('Ana Souza')
-    expect(items[0]).toHaveTextContent('(1 hora 30 minutos)')
+    expect(within(screen.getByRole('tabpanel')).queryAllByRole('listitem')).toHaveLength(0)
+    expect(within(screen.getByRole('tabpanel')).getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
   it('defaults the period from 14/07/2024 to 14/07/2026 or today, whichever is later', () => {
@@ -159,7 +157,7 @@ describe('MachineDetailModal: history', () => {
 
   it('shows the empty state when the API has no incident', async () => {
     listarIncidentes.mockResolvedValue([])
-    setup({ events: [] })
+    setup()
     await loaded()
 
     expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
@@ -191,7 +189,7 @@ describe('MachineDetailModal fleet variant', () => {
 
   const setupFleet = () => {
     const onClose = vi.fn()
-    render(<MachineDetailModal machine={fleetMachine} events={events} onClose={onClose} variant="fleet" />)
+    render(<MachineDetailModal machine={fleetMachine} onClose={onClose} variant="fleet" />)
     return onClose
   }
 
@@ -210,7 +208,7 @@ describe('MachineDetailModal fleet variant', () => {
   })
 
   it('shows an em dash when the machine has no employee', () => {
-    render(<MachineDetailModal machine={machine} events={events} onClose={vi.fn()} variant="fleet" />)
+    render(<MachineDetailModal machine={machine} onClose={vi.fn()} variant="fleet" />)
     expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toContain('Funcionário—')
   })
 
@@ -220,12 +218,11 @@ describe('MachineDetailModal fleet variant', () => {
     const tabs = screen.getAllByRole('tab')
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Manutenção', 'Acidentes'])
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByText('Ana Souza')).toBeInTheDocument()
+    expect(within(screen.getByRole('tabpanel')).getByText('Nenhum registro no período')).toBeInTheDocument()
     expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
 
     fireEvent.click(tabs[1])
     expect(screen.getByText('Carlos Silva')).toBeInTheDocument()
-    expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
   })
 
   it('keeps the period filter', () => {
@@ -246,7 +243,6 @@ describe('MachineDetailModal alerts variant', () => {
     render(
       <MachineDetailModal
         machine={{ ...machine, operadorConectado: { nome: 'Alexandre Gomes' } }}
-        events={events}
         onClose={vi.fn()}
         variant="alerts"
       />
