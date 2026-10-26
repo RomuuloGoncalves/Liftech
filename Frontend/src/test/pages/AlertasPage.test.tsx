@@ -4,7 +4,8 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AlertasPage from '../../pages/AlertasPage'
 import styles from '../../pages/AlertasPage.module.css'
-import { DEFAULT_PERIOD, MACHINES, MACHINE_EVENTS, defaultPeriodTo } from '../../data/machines'
+import { DEFAULT_PERIOD, defaultPeriodTo } from '../../data/machines'
+import { MACHINES } from '../fixtures/machines'
 import { incidentService, type FiltroIncidentes, type Incidente } from '../../services/incidentService'
 import { machineService } from '../../services/machineService'
 import { formatAlertDate } from '../../utils/format'
@@ -14,21 +15,40 @@ vi.mock('../../services/machineService', () => ({ machineService: { listar: vi.f
 
 const listarIncidentes = vi.mocked(incidentService.listar)
 
+const ACCIDENT_SLOTS = [
+  ['14:35:25', '16:35:20'],
+  ['08:10:00', '08:55:00'],
+  ['09:00:00', '10:30:00'],
+  ['13:15:30', '16:15:30'],
+]
+const ACCIDENT_OPERATORS = ['Alexandre Gomes', 'Carlos Silva', 'Ana Souza', 'João Pereira', 'Marina Costa']
+const FIRST_EVENT_DAY = Date.UTC(2024, 7, 1)
+const DAY_MS = 24 * 60 * 60 * 1000
+
 // The mock accidents as the API would send them: odd ones reported by the collaborator.
-const ACCIDENTS = MACHINE_EVENTS.filter((e) => e.tipo === 'acidente').map((e, index) => ({
-  event: e,
-  incident: {
-    _id: e.id,
-    machineId: e.machineId,
-    maquina: { nome: 'x', identificacao: 'x', setor: 'x' },
-    operador: { nome: e.operador },
-    dataIncidente: new Date(`${e.data}T${e.inicio}`).toISOString(),
-    forcaImpacto: null,
-    status: 'pendente',
-    origem: index % 2 ? 'funcionario' : 'sensor',
-    descricao: null,
-  } satisfies Incidente,
-}))
+const ACCIDENTS = MACHINES.flatMap((machine, machineIndex) =>
+  ACCIDENT_SLOTS.map(([inicio, fim], slot) => {
+    const dayOffset = (machineIndex * 7 + slot * 45) % 600
+    const data = new Date(FIRST_EVENT_DAY + dayOffset * DAY_MS).toISOString().slice(0, 10)
+    const operador = ACCIDENT_OPERATORS[(machineIndex + slot) % ACCIDENT_OPERATORS.length]
+    const id = `${machine.id}-acidente-${slot}`
+    const event = { id, machineId: machine.id, tipo: 'acidente' as const, operador, data, inicio, fim }
+    return {
+      event,
+      incident: {
+        _id: id,
+        machineId: machine.id,
+        maquina: { nome: 'x', identificacao: 'x', setor: 'x' },
+        operador: { nome: operador },
+        dataIncidente: new Date(`${data}T${inicio}`).toISOString(),
+        forcaImpacto: null,
+        status: 'pendente' as const,
+        origem: (machineIndex * 4 + slot) % 2 ? ('funcionario' as const) : ('sensor' as const),
+        descricao: null,
+      } satisfies Incidente,
+    }
+  })
+)
 
 const accidentsIn = (from: string, to: string) =>
   ACCIDENTS.filter(({ event: e }) => (!from || e.data >= from) && (!to || e.data <= to)).sort((a, b) =>
@@ -180,7 +200,7 @@ describe('AlertasPage', () => {
     expect(counter()).toBe('0')
   })
 
-  it('opens the machine detail on the alerts tab with the API incidents, repairs from the mock, and closes keeping filters', async () => {
+  it('opens the machine detail on the alerts tab with the API incidents, empty repairs, and closes keeping filters', async () => {
     await renderPage()
     search('EMP-084')
     const visible = cards().length
@@ -198,8 +218,8 @@ describe('AlertasPage', () => {
     expect(within(dialog).queryByRole('button', { name: /Editar|Excluir/ })).not.toBeInTheDocument()
 
     fireEvent.click(tabs[1])
-    const repairs = MACHINE_EVENTS.filter((e) => e.machineId === '4' && e.tipo === 'manutencao' && e.data >= DEFAULT_PERIOD.from)
-    expect(within(within(dialog).getByRole('tabpanel')).getAllByRole('listitem')).toHaveLength(repairs.length)
+    expect(within(within(dialog).getByRole('tabpanel')).queryAllByRole('listitem')).toHaveLength(0)
+    expect(within(within(dialog).getByRole('tabpanel')).getByText('Nenhum registro no período')).toBeInTheDocument()
 
     fireEvent.click(within(dialog).getByRole('button', { name: /fechar/i }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

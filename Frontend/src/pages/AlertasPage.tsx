@@ -7,10 +7,8 @@ import LevelInfoModal from '../components/alerts/LevelInfoModal'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import {
   DEFAULT_PERIOD,
-  MACHINES,
   defaultPeriodTo,
   eventUrgency,
-  eventsForMachine,
   incidentToEvent,
   type Machine,
   type MachineEvent,
@@ -18,10 +16,6 @@ import {
 import { incidentService } from '../services/incidentService'
 import { machineService } from '../services/machineService'
 import styles from './AlertasPage.module.css'
-
-// ponytail: repairs are still mock; matched by identificacao because API ids are ObjectId (same as FrotaPage).
-const repairsFor = (machine: Machine) =>
-  eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
 const AlertasPage: React.FC = () => {
   const { t } = useTranslation()
@@ -179,7 +173,6 @@ const AlertasPage: React.FC = () => {
         <MachineDetailModal
           variant="alerts"
           machine={detailMachine}
-          events={repairsFor(detailMachine)}
           onClose={() => setDetailId(null)}
         />
       )}

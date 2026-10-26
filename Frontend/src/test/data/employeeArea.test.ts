@@ -5,7 +5,7 @@ import {
   toUsageRecord,
   type UsageRecord,
 } from '../../data/employeeArea'
-import { MACHINES } from '../../data/machines'
+import { MACHINES } from '../fixtures/machines'
 
 const maquinaOf = (machineId: string) => {
   const machine = MACHINES.find((item) => item.id === machineId)!

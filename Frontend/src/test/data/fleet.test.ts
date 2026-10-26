@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { MACHINES as MOCK, type Machine, type MachineEvent } from '../../data/machines'
+import type { Machine, MachineEvent } from '../../data/machines'
+import { MACHINES as MOCK } from '../fixtures/machines'
 import type { Categoria } from '../../services/categoryService'
 import {
   addMachines,
