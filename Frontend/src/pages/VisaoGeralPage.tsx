@@ -12,9 +12,7 @@ import { useActiveBranch } from '../context/ActiveBranchContext'
 import { machineService } from '../services/machineService'
 import { sectorService, type Setor } from '../services/sectorService'
 import {
-  MACHINES,
   MACHINE_STATUSES,
-  eventsForMachine,
   filterMachines,
   type Machine,
   type MachineStatus,
@@ -23,10 +21,6 @@ import styles from './VisaoGeralPage.module.css'
 
 type StatusFilter = MachineStatus | 'Todos'
 type LoadState = 'loading' | 'ready' | 'error'
-
-// ponytail: o histórico do detalhe ainda é mock (não há rota de incident); casa pela identificacao porque os ids da API são ObjectId.
-const mockEventsFor = (machine: Machine) =>
-  eventsForMachine(MACHINES.find((item) => item.identificacao === machine.identificacao)?.id ?? '')
 
 // Id da máquina recém-cadastrada até a API responder com o id de verdade.
 let nextTempId = 0
@@ -280,7 +274,6 @@ const VisaoGeralPage: React.FC = () => {
       {detailMachine && subDialog === null && (
         <MachineDetailModal
           machine={detailMachine}
-          events={mockEventsFor(detailMachine)}
           onEdit={() => setSubDialog('edit')}
           onDelete={() => setSubDialog('delete')}
           onChangeStatus={(next) => updateMachine({ status: next }, (id) => machineService.alterarStatus(id, next))}

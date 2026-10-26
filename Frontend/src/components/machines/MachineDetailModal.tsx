@@ -6,7 +6,6 @@ import {
   DEFAULT_PERIOD,
   MACHINE_STATUSES,
   defaultPeriodTo,
-  filterEvents,
   incidentToEvent,
   type Machine,
   type MachineEvent,
@@ -25,8 +24,6 @@ interface MachineDetailModalProps {
   onClose: () => void
   onChangeStatus?: (status: MachineStatus) => void
   onToggleLock?: (valor: boolean) => void
-  /** Repairs (`manutencao`); accidents come from the incidents API. */
-  events: MachineEvent[]
   /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. `alerts`: igual, com a aba de alertas primeiro e sem selo de status. */
   variant?: 'overview' | 'fleet' | 'alerts'
 }
@@ -48,7 +45,6 @@ const TABS: Record<'overview' | 'fleet' | 'alerts', { type: MachineEventType; la
 
 const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   machine,
-  events,
   onEdit,
   onDelete,
   onClose,
@@ -76,8 +72,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   }, [machine.id, from, to])
 
   const visibleEvents = useMemo(
-    () => (tab === 'acidente' ? accidents : filterEvents(events, { tipo: tab, from, to })),
-    [accidents, events, tab, from, to]
+    () => (tab === 'acidente' ? accidents : []),
+    [accidents, tab]
   )
   const { enderecoMac, nomeDispositivo } = machine.dispositivoConectado
   const dash = '—'

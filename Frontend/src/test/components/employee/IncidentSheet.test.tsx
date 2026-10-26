@@ -5,7 +5,7 @@ import App from '../../../App'
 import { ToastProvider } from '../../../components/common/Toast'
 import IncidentSheet from '../../../components/employee/IncidentSheet'
 import { incidentService } from '../../../services/incidentService'
-import { MACHINES } from '../../../data/machines'
+import { MACHINES } from '../../fixtures/machines'
 import { resetWorkSession } from '../../../hooks/useWorkSession'
 import { sessionService } from '../../../services/sessionService'
 
@@ -13,7 +13,7 @@ vi.mock('../../../services/sessionService', () => ({
   sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn().mockResolvedValue([]) },
 }))
 vi.mock('../../../services/machineService', async () => {
-  const { MACHINES } = await import('../../../data/machines')
+  const { MACHINES } = await import('../../fixtures/machines')
   return { machineService: { listar: vi.fn().mockResolvedValue(MACHINES) } }
 })
 
