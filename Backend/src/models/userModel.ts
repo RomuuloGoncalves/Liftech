@@ -6,6 +6,12 @@ interface Acesso {
     empresaId?: string;
     escopo?: string;
     filiaisIds?: string[];
+    // Credenciais e vínculos: lidos pelos services, nunca entram no obterDados.
+    email?: string;
+    usuario?: string;
+    senhaHash?: string;
+    operadorId?: string;
+    acessoNegado?: boolean;
 }
 
 export class userModel extends coreModel {
@@ -17,6 +23,7 @@ export class userModel extends coreModel {
     protected empresaId: string | undefined;
     protected escopo: string | undefined;
     protected filiaisIds: string[];
+    protected credenciais: Pick<Acesso, "email" | "usuario" | "senhaHash" | "operadorId" | "acessoNegado">;
 
     constructor(nome: string, role: string, id?: string, acesso: Acesso = {}) {
         super();
@@ -28,6 +35,13 @@ export class userModel extends coreModel {
         this.empresaId = acesso.empresaId;
         this.escopo = acesso.escopo;
         this.filiaisIds = acesso.filiaisIds ?? [];
+        this.credenciais = {
+            email: acesso.email,
+            usuario: acesso.usuario,
+            senhaHash: acesso.senhaHash,
+            operadorId: acesso.operadorId,
+            acessoNegado: acesso.acessoNegado,
+        };
     }
 
     obterDados(): Record<string, unknown> {
@@ -61,5 +75,45 @@ export class userModel extends coreModel {
 
     public setRole(value: string): void {
         this.role = value;
+    }
+
+    public getTelefone(): string | undefined {
+        return this.telefone;
+    }
+
+    public getCargo(): string | undefined {
+        return this.cargo;
+    }
+
+    public getEmpresaId(): string | undefined {
+        return this.empresaId;
+    }
+
+    public getEscopo(): string | undefined {
+        return this.escopo;
+    }
+
+    public getFiliaisIds(): string[] {
+        return this.filiaisIds;
+    }
+
+    public getEmail(): string | undefined {
+        return this.credenciais.email;
+    }
+
+    public getUsuario(): string | undefined {
+        return this.credenciais.usuario;
+    }
+
+    public getSenhaHash(): string | undefined {
+        return this.credenciais.senhaHash;
+    }
+
+    public getOperadorId(): string | undefined {
+        return this.credenciais.operadorId;
+    }
+
+    public getAcessoNegado(): boolean {
+        return this.credenciais.acessoNegado === true;
     }
 }

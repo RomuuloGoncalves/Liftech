@@ -13,7 +13,8 @@ export class ForkliftRepository extends RepositoryBase<forkliftModel> {
       documento.dispositivoConectadoId ? String(documento.dispositivoConectadoId) : undefined,
       documento.operadorConectadoId ? String(documento.operadorConectadoId) : undefined,
       String(documento._id ?? ""),
-      documento.filialId ? String(documento.filialId) : undefined
+      documento.filialId ? String(documento.filialId) : undefined,
+      documento
     );
   }
 

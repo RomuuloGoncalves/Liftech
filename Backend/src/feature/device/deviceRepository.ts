@@ -12,7 +12,8 @@ export class DeviceRepository extends RepositoryBase<deviceModel> {
       String(documento._id ?? ""),
       String(documento.enderecoMac ?? ""),
       String(documento.status ?? ""),
-      documento.empilhadeiraId ? String(documento.empilhadeiraId) : null
+      documento.empilhadeiraId ? String(documento.empilhadeiraId) : null,
+      documento
     );
   }
 

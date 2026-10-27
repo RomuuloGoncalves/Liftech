@@ -18,8 +18,18 @@ export class UserRepository extends RepositoryBase<userModel> {
           empresaId: documento.empresaId ? String(documento.empresaId) : undefined,
           escopo: documento.escopo ? String(documento.escopo) : undefined,
           filiaisIds: ((documento.filiaisIds as unknown[] | undefined) ?? []).map(String),
+          email: documento.email as string | undefined,
+          usuario: documento.usuario as string | undefined,
+          senhaHash: documento.senhaHash as string | undefined,
+          operadorId: documento.operadorId ? String(documento.operadorId) : undefined,
+          acessoNegado: documento.acessoNegado as boolean | undefined,
         },
      );
+ }
+
+ // Conta com login: as credenciais (email/usuario e senhaHash) não passam pelo obterDados do modelo, que vai para a API.
+ async criarComCredenciais(dados: Record<string, unknown>): Promise<userModel> {
+    return this.criarDados(dados);
  }
 
  async obterPorNome(nome: string): Promise<userModel | null> {
