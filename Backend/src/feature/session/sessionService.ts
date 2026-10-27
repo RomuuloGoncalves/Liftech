@@ -2,6 +2,10 @@ import { Types } from "mongoose";
 import { WorkSession } from "../../schemas/workSession.js";
 import { Forklift } from "../../schemas/forklift.js";
 import { Operator } from "../../schemas/operator.js";
+import { workSessionModel } from "../../models/workSessionModel.js";
+import { WorkSessionRepository } from "./workSessionRepository.js";
+import { ForkliftRepository } from "../forklift/forkliftRepository.js";
+import { OperatorRepository } from "../operator/operatorRepository.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import type { UsuarioRequisicao } from "../../core/autenticar.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
@@ -63,18 +67,23 @@ export function lerPeriodo(from: unknown, to: unknown): Record<string, Date> | n
 
 export const LIMITE_HISTORICO = 500;
 
+const sessoes = new WorkSessionRepository(WorkSession);
+const empilhadeiras = new ForkliftRepository(Forklift);
+const operadores = new OperatorRepository(Operator);
+
 // Máquina e operador por id; a sessão de uma máquina apagada continua com `maquina: null`.
-async function formatar(sessoes: any[]) {
-  const [maquinas, operadores]: [any[], any[]] = await Promise.all([
-    Forklift.find({ _id: { $in: sessoes.map((s) => s.empilhadeiraId) } }).lean(),
-    Operator.find({ _id: { $in: sessoes.map((s) => s.operadorId) } }).lean(),
+async function formatar(lista: workSessionModel[]) {
+  const registros: any[] = lista.map((s) => s.obterDados());
+  const [maquinas, ops] = await Promise.all([
+    empilhadeiras.obterTodos({ _id: { $in: registros.map((s) => s.empilhadeiraId) } }).then((l) => l.map((m) => m.getDocumento())),
+    operadores.obterTodos({ _id: { $in: registros.map((s) => s.operadorId) } }).then((l) => l.map((o) => o.obterDados())),
   ]);
   const setores = await nomesDosSetores(maquinas.map((m) => m.setorId));
   const porId = (lista: any[]) => new Map(lista.map((d) => [String(d._id), d]));
   const maquinaDe = porId(maquinas);
-  const operadorDe = porId(operadores);
+  const operadorDe = porId(ops);
 
-  return sessoes.map((s) => {
+  return registros.map((s) => {
     const maquina = maquinaDe.get(String(s.empilhadeiraId));
     return {
       _id: String(s._id),
@@ -88,7 +97,7 @@ async function formatar(sessoes: any[]) {
 }
 
 async function buscarUma(filtro: Record<string, unknown>) {
-  const sessao = await WorkSession.findOne(filtro).lean();
+  const sessao = await sessoes.obterUm(filtro);
   return sessao ? (await formatar([sessao]))[0]! : null;
 }
 
@@ -102,33 +111,33 @@ export async function iniciar(escopo: Escopo, usuario: UsuarioRequisicao, machin
   const operadorId = exigirOperador(usuario);
   const maquina = await obterMaquina(escopo, machineId);
   if (maquina.status !== "disponivel") throw new ErroHttp(StatusCode.CONFLICT, "A máquina não está disponível.");
-  if (await WorkSession.exists({ fim: null, $or: [{ operadorId }, { empilhadeiraId: machineId }] })) throw ocupada();
+  if (await sessoes.existe({ fim: null, $or: [{ operadorId }, { empilhadeiraId: machineId }] })) throw ocupada();
 
   const inicio = new Date();
-  let sessao: any;
+  let sessao: workSessionModel | null;
   try {
-    sessao = await WorkSession.create({ operadorId, empilhadeiraId: machineId, filialId: maquina.filialId, inicio });
+    sessao = await sessoes.criar(new workSessionModel({ operadorId, empilhadeiraId: machineId, filialId: maquina.filialId, inicio }));
   } catch (error: any) {
     // Corrida: o índice único parcial recusa a segunda sessão aberta.
     throw error.code === 11000 ? ocupada() : error;
   }
-  await Forklift.updateOne({ _id: machineId }, { $set: { operadorConectadoId: operadorId, sessaoIniciadaEm: inicio } });
+  await empilhadeiras.atualizarUm({ _id: machineId }, { $set: { operadorConectadoId: operadorId, sessaoIniciadaEm: inicio } });
   await aplicarStatus(machineId, "em_uso");
-  return buscarUma({ _id: sessao._id });
+  return buscarUma({ _id: sessao?.getIdOriginal() });
 }
 
 // Alerta (ou outro status) não volta para disponível sozinho; máquina apagada só fecha a sessão.
 export async function encerrar(usuario: UsuarioRequisicao) {
-  const sessao: any = await WorkSession.findOne({ operadorId: exigirOperador(usuario), fim: null }).lean();
+  const sessao = await sessoes.obterUm({ operadorId: exigirOperador(usuario), fim: null });
   if (!sessao) throw new ErroHttp(StatusCode.CONFLICT, "Nenhuma sessão aberta.");
 
-  await WorkSession.updateOne({ _id: sessao._id }, { $set: { fim: new Date() } });
-  const maquina: any = await Forklift.findById(sessao.empilhadeiraId).lean();
+  await sessoes.atualizarUm({ _id: sessao.getIdOriginal() }, { $set: { fim: new Date() } });
+  const maquina = (await empilhadeiras.buscarPorId(sessao.getDados().empilhadeiraId))?.getDocumento();
   if (maquina) {
-    await Forklift.updateOne({ _id: maquina._id }, { $unset: { operadorConectadoId: 1, sessaoIniciadaEm: 1 } });
+    await empilhadeiras.atualizarUm({ _id: maquina._id }, { $unset: { operadorConectadoId: 1, sessaoIniciadaEm: 1 } });
     if (maquina.status === "em_uso") await aplicarStatus(String(maquina._id), "disponivel");
   }
-  return buscarUma({ _id: sessao._id });
+  return buscarUma({ _id: sessao.getIdOriginal() });
 }
 
 // Sem `machineId`, admin vê todas do escopo (com filialId opcional); colaborador só as suas. Com ela, as de qualquer operador da máquina no escopo.
@@ -152,5 +161,5 @@ export async function listar(escopo: Escopo, usuario: UsuarioRequisicao, filtro:
   };
   if (!periodo) return [];
   if (Object.keys(periodo).length > 0) consulta.inicio = periodo;
-  return formatar(await WorkSession.find(consulta).sort({ inicio: -1 }).limit(LIMITE_HISTORICO).lean());
+  return formatar(await sessoes.obterTodos(consulta, { ordenacao: { inicio: -1 }, limite: LIMITE_HISTORICO }));
 }

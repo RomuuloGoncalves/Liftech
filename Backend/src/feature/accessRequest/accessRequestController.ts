@@ -7,9 +7,9 @@ import {
   responderErro,
   ErroHttp,
 } from "../../utils/responseHandler.js";
-import { AccessRequest } from "../../schemas/accessRequest.js";
 import regras from "./accessRequestRules.js";
 import * as servicoAccessRequest from "./accessRequestService.js";
+import * as servicoSolicitacao from "./solicitarAcessoService.js";
 
 function lerId(req: Request): string {
   const id = req.params.id;
@@ -31,20 +31,10 @@ export async function criar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
-    const emailNormalizado = email.trim().toLowerCase();
-
-    if (await AccessRequest.findOne({ email: emailNormalizado, status: "pendente" }).lean()) {
-      return respostaErro(res, StatusCode.CONFLICT, "Já existe uma solicitação pendente para este email.");
-    }
-
-    const doc = await AccessRequest.create({
-      email: emailNormalizado,
-      nomeEmpresa: nomeEmpresa.trim(),
-      nomeAdministrador: nomeAdministrador.trim(),
-    });
-    return respostaSucesso(res, StatusCode.CREATED, doc.toObject());
+    const criada = await servicoSolicitacao.solicitar({ email, nomeEmpresa, nomeAdministrador });
+    return respostaSucesso(res, StatusCode.CREATED, criada);
   } catch (error: any) {
-    return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error.message);
+    return responderErro(res, error);
   }
 }
 
