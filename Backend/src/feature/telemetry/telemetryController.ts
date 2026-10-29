@@ -6,6 +6,7 @@ import { TelemetryRepository } from "./telemetryRepository.js";
 import { TelemetryService } from "./telemetryService.js";
 import { ErroHttp, StatusCode, respostaSucesso, respostaErro, responderErro } from "../../utils/responseHandler.js";
 import { Device } from "../../schemas/device.js";
+import { DeviceRepository } from "../device/deviceRepository.js";
 import { filtroPorFilial } from "../../core/escopo.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
 import regras from "./telemetryRules.js";
@@ -13,6 +14,7 @@ import { limiteImpacto, registrarImpacto } from "../machine/statusService.js";
 
 const repositorioTelemetry = new TelemetryRepository(Telemetry);
 export const servicoTelemetry = new TelemetryService(repositorioTelemetry);
+const repositorioDevice = new DeviceRepository(Device);
 
 function obterId(req: Request): string | null {
   const idDoParams = req.params.id;
@@ -26,7 +28,7 @@ function obterId(req: Request): string | null {
 
 // A telemetria não tem filial: ela é isolada pelos dispositivos que estão nas filiais do escopo.
 async function idsDosDispositivos(req: Request): Promise<string[]> {
-  return (await Device.find(filtroPorFilial(req.escopo)).distinct("_id")).map(String);
+  return (await repositorioDevice.obterIds(filtroPorFilial(req.escopo))).map(String);
 }
 
 const filtroDosDispositivos = (ids: string[]) => ({ dispositivoId: { $in: ids } });

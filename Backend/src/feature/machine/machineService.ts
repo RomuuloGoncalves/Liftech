@@ -4,6 +4,11 @@ import { Category } from "../../schemas/category.js";
 import { WorkSession } from "../../schemas/workSession.js";
 import { Device } from "../../schemas/device.js";
 import "../../schemas/operator.js";
+import { ForkliftRepository } from "../forklift/forkliftRepository.js";
+import { IncidentRepository } from "../incident/incidentRepository.js";
+import { CategoryRepository } from "../category/categoryRepository.js";
+import { WorkSessionRepository } from "../session/workSessionRepository.js";
+import { DeviceRepository } from "../device/deviceRepository.js";
 import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { categoriaDoStatus } from "./statusService.js";
@@ -20,6 +25,12 @@ export interface DadosMaquina {
   enderecoMac?: string;
 }
 
+const empilhadeiras = new ForkliftRepository(Forklift);
+const incidentes = new IncidentRepository(Incident);
+const categorias = new CategoryRepository(Category);
+const sessoes = new WorkSessionRepository(WorkSession);
+const dispositivos = new DeviceRepository(Device);
+
 const normalizarMac = (mac: string) => mac.trim().toUpperCase();
 
 // O índice único em device.enderecoMac recusa o MAC repetido numa corrida (11000).
@@ -29,28 +40,28 @@ function traduzirErro(error: any): never {
 
 // Monta as máquinas no formato do front. `alertaEm` vem do incidente pendente mais recente, numa consulta só.
 async function consultar(filtro: Record<string, unknown>) {
-  const empilhadeiras: any[] = await Forklift.find(filtro)
-    .sort({ identificacao: 1 })
-    .populate("dispositivoConectadoId")
-    .populate("operadorConectadoId")
-    .lean();
+  const maquinas = (await empilhadeiras.obterTodos(filtro, {
+    ordenacao: { identificacao: 1 },
+    popular: [{ caminho: "dispositivoConectadoId" }, { caminho: "operadorConectadoId" }],
+  })).map((m) => m.getDocumento());
 
-  const emAlerta = empilhadeiras.filter((f) => f.status === "alerta").map((f) => f._id);
+  const emAlerta = maquinas.filter((f) => f.status === "alerta").map((f) => f._id);
   const alertaEm = new Map<string, string>();
   if (emAlerta.length > 0) {
-    const pendentes: any[] = await Incident.find({ empilhadeiraId: { $in: emAlerta }, status: "pendente" })
-      .sort({ dataIncidente: -1 })
-      .lean();
+    const pendentes: any[] = (await incidentes.obterTodos(
+      { empilhadeiraId: { $in: emAlerta }, status: "pendente" },
+      { ordenacao: { dataIncidente: -1 } }
+    )).map((i) => i.obterDados());
     for (const incidente of pendentes) {
       const chave = String(incidente.empilhadeiraId);
       if (!alertaEm.has(chave)) alertaEm.set(chave, new Date(incidente.dataIncidente).toISOString());
     }
   }
 
-  const setores = await nomesDosSetores(empilhadeiras.map((f) => f.setorId));
+  const setores = await nomesDosSetores(maquinas.map((f) => f.setorId));
   const agora = Date.now();
 
-  return empilhadeiras.map((f) => {
+  return maquinas.map((f) => {
     const dispositivo = f.dispositivoConectadoId;
     const operador = f.operadorConectadoId;
     const inicio = f.sessaoIniciadaEm ? new Date(f.sessaoIniciadaEm).getTime() : agora;
@@ -89,7 +100,7 @@ export async function obterMaquina(escopo: Escopo, id: string) {
 // Trava só muda a trava: a máquina fica na categoria atual até a próxima mudança de status.
 export async function definirTrava(escopo: Escopo, id: string, categoriaTravada: boolean) {
   await obterMaquina(escopo, id);
-  await Forklift.updateOne({ _id: id }, { $set: { categoriaTravada } });
+  await empilhadeiras.atualizarUm({ _id: id }, { $set: { categoriaTravada } });
   return obterMaquina(escopo, id);
 }
 
@@ -97,29 +108,29 @@ export async function definirTrava(escopo: Escopo, id: string, categoriaTravada:
 export async function moverParaCategoria(escopo: Escopo, machineIds: string[], categoriaId: string | null) {
   const ids = [...new Set(machineIds)];
   const doEscopo = { _id: { $in: ids }, ...filtroPorFilial(escopo) };
-  if ((await Forklift.countDocuments(doEscopo)) !== ids.length) {
+  if ((await empilhadeiras.contar(doEscopo)) !== ids.length) {
     throw new ErroHttp(StatusCode.NOT_FOUND, "Máquina não encontrada.");
   }
-  if (categoriaId !== null && !(await Category.exists({ _id: categoriaId, empresaId: escopo.empresaId }))) {
+  if (categoriaId !== null && !(await categorias.existe({ _id: categoriaId, empresaId: escopo.empresaId }))) {
     throw new ErroHttp(StatusCode.NOT_FOUND, "Categoria não encontrada.");
   }
-  await Forklift.updateMany({ _id: { $in: ids } }, { $set: { categoriaId } });
+  await empilhadeiras.atualizarVarios({ _id: { $in: ids } }, { $set: { categoriaId } });
   return consultar(doEscopo);
 }
 
 // ponytail: device e forklift sem transação; se o forklift falhar, apaga o device (compensação). Transação quando houver replica set.
 export async function criarMaquina(escopo: Escopo, dados: DadosMaquina & { filialId: string }) {
   const enderecoMac = normalizarMac(dados.enderecoMac ?? "");
-  if (await Forklift.exists({ identificacao: dados.identificacao })) {
+  if (await empilhadeiras.existe({ identificacao: dados.identificacao })) {
     throw new ErroHttp(StatusCode.CONFLICT, `Já existe uma empilhadeira com a identificação "${dados.identificacao}".`);
   }
-  if (await Device.exists({ enderecoMac })) throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
+  if (await dispositivos.existe({ enderecoMac })) throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
   if (dados.setorId) await exigirSetorDaFilial(dados.setorId, dados.filialId);
 
-  const dispositivo = await Device.create({ enderecoMac, nome: dados.nomeDispositivo, filialId: dados.filialId }).catch(traduzirErro);
+  const dispositivo = await dispositivos.criar({ enderecoMac, nome: dados.nomeDispositivo, filialId: dados.filialId }).catch(traduzirErro);
   let empilhadeira;
   try {
-    empilhadeira = await Forklift.create({
+    empilhadeira = await empilhadeiras.criarDados({
       identificacao: dados.identificacao,
       nome: dados.nome,
       setorId: dados.setorId ?? null,
@@ -127,18 +138,18 @@ export async function criarMaquina(escopo: Escopo, dados: DadosMaquina & { filia
       statusAlteradoEm: new Date(),
       categoriaId: await categoriaDoStatus(dados.filialId, "disponivel"),
       filialId: dados.filialId,
-      dispositivoConectadoId: dispositivo._id,
+      dispositivoConectadoId: dispositivo.getIdOriginal(),
     });
   } catch (error) {
-    await Device.deleteOne({ _id: dispositivo._id });
+    await dispositivos.deletarUm({ _id: dispositivo.getIdOriginal() });
     return traduzirErro(error);
   }
-  return obterMaquina(escopo, String(empilhadeira._id));
+  return obterMaquina(escopo, String(empilhadeira.getIdOriginal()));
 }
 
 export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosMaquina) {
   await obterMaquina(escopo, id);
-  const empilhadeira: any = await Forklift.findById(id).lean();
+  const empilhadeira = (await empilhadeiras.buscarPorId(id))?.getDocumento();
   const dispositivoId = empilhadeira?.dispositivoConectadoId;
 
   const doForklift: Record<string, unknown> = {};
@@ -149,17 +160,17 @@ export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosM
   if (dados.nomeDispositivo !== undefined) doDevice.nome = dados.nomeDispositivo;
   if (dados.enderecoMac !== undefined) doDevice.enderecoMac = normalizarMac(dados.enderecoMac);
 
-  if (doForklift.identificacao !== undefined && (await Forklift.exists({ identificacao: doForklift.identificacao, _id: { $ne: id } }))) {
+  if (doForklift.identificacao !== undefined && (await empilhadeiras.existe({ identificacao: doForklift.identificacao, _id: { $ne: id } }))) {
     throw new ErroHttp(StatusCode.CONFLICT, `Já existe uma empilhadeira com a identificação "${doForklift.identificacao}".`);
   }
-  if (doDevice.enderecoMac !== undefined && (await Device.exists({ enderecoMac: doDevice.enderecoMac, _id: { $ne: dispositivoId } }))) {
+  if (doDevice.enderecoMac !== undefined && (await dispositivos.existe({ enderecoMac: doDevice.enderecoMac, _id: { $ne: dispositivoId } }))) {
     throw new ErroHttp(StatusCode.CONFLICT, MAC_REPETIDO);
   }
   if (dados.setorId) await exigirSetorDaFilial(dados.setorId, empilhadeira?.filialId);
 
-  if (Object.keys(doForklift).length > 0) await Forklift.updateOne({ _id: id }, { $set: doForklift });
+  if (Object.keys(doForklift).length > 0) await empilhadeiras.atualizarUm({ _id: id }, { $set: doForklift });
   // ponytail: máquina sem device ligado (dado antigo) ignora os campos do device; criar o device aqui se aparecer o caso.
-  if (Object.keys(doDevice).length > 0 && dispositivoId) await Device.updateOne({ _id: dispositivoId }, { $set: doDevice }).catch(traduzirErro);
+  if (Object.keys(doDevice).length > 0 && dispositivoId) await dispositivos.atualizarUm({ _id: dispositivoId }, { $set: doDevice }).catch(traduzirErro);
   return obterMaquina(escopo, id);
 }
 
@@ -167,11 +178,11 @@ export async function atualizarMaquina(escopo: Escopo, id: string, dados: DadosM
 // ponytail: forklift e device apagados sem transação; uma falha no meio deixa o device órfão.
 export async function excluirMaquina(escopo: Escopo, id: string) {
   await obterMaquina(escopo, id);
-  if (await WorkSession.exists({ empilhadeiraId: id, fim: null })) {
+  if (await sessoes.existe({ empilhadeiraId: id, fim: null })) {
     throw new ErroHttp(StatusCode.CONFLICT, "Máquina com sessão aberta.");
   }
-  const empilhadeira: any = await Forklift.findById(id).lean();
-  await Forklift.deleteOne({ _id: id });
-  if (empilhadeira?.dispositivoConectadoId) await Device.deleteOne({ _id: empilhadeira.dispositivoConectadoId });
+  const empilhadeira = (await empilhadeiras.buscarPorId(id))?.getDocumento();
+  await empilhadeiras.deletarUm({ _id: id });
+  if (empilhadeira?.dispositivoConectadoId) await dispositivos.deletarUm({ _id: empilhadeira.dispositivoConectadoId });
   return { _id: id, message: "Máquina excluída com sucesso." };
 }

@@ -1,27 +1,21 @@
 import { Feedback } from "../../schemas/feedback.js";
+import { feedbackModel } from "../../models/feedbackModel.js";
+import { FeedbackRepository } from "./feedbackRepository.js";
 import type { UsuarioRequisicao } from "../../core/autenticar.js";
 import type { Escopo } from "../../core/escopo.js";
+
+const repositorio = new FeedbackRepository(Feedback);
 
 export async function enviar(
   usuario: UsuarioRequisicao,
   escopo: Escopo,
   mensagem: string
 ): Promise<{ _id: string; criadoEm: string }> {
-  const doc = await Feedback.create({
-    mensagem,
-    usuarioId: usuario._id,
-    empresaId: escopo.empresaId ?? null,
-    role: usuario.role,
-  });
-
-  const criadoEm =
-    doc.criadoEm instanceof Date
-      ? doc.criadoEm.toISOString()
-      : new Date(doc.criadoEm).toISOString();
+  const criado = await repositorio.criar(new feedbackModel(mensagem, usuario._id, escopo.empresaId ?? null, usuario.role));
 
   return {
-    _id: String(doc._id),
-    criadoEm,
+    _id: String(criado?.getID()),
+    criadoEm: new Date(criado?.getCriadoEm() as Date).toISOString(),
   };
 }
 

@@ -6,15 +6,20 @@ export class forkliftModel extends coreModel {
     protected dispositivoConectadoId: string | undefined;
     protected operadorConectadoId: string | undefined;
     protected filialId: string | undefined;
+    // Documento como veio do banco (status, setor, categoria, sessão, ids originais): lido pelos services de máquina.
+    // Não entra no obterDados, que é o formato de /api/forklifts.
+    protected documento: Record<string, any>;
 
     constructor(
         identificacao: string,
         dispositivoConectadoId?: string,
         operadorConectadoId?: string,
         id?: string,
-        filialId?: string
+        filialId?: string,
+        documento: Record<string, any> = {}
     ) {
         super();
+        this.documento = documento;
         this.id = id;
         this.identificacao = identificacao;
         this.dispositivoConectadoId = dispositivoConectadoId;
@@ -34,6 +39,14 @@ export class forkliftModel extends coreModel {
 
     public getID(): string | undefined {
         return this.id;
+    }
+
+    public getIdOriginal(): unknown {
+        return this.documento._id;
+    }
+
+    public getDocumento(): Record<string, any> {
+        return this.documento;
     }
 
     public getIdentificacao(): string {
