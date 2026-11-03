@@ -9,7 +9,11 @@
     "close": "Cerrar",
     "loading": "Cargando...",
     "closeNotification": "Cerrar aviso",
-    "retry": "Intentar de nuevo"
+    "retry": "Intentar de nuevo",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "routeLoadError": "Ocurrió un error al cargar la página.",
+    "reload": "Recargar"
   },
   "navigation": {
     "overview": "Visión General",
@@ -20,7 +24,8 @@
     "pages": "Páginas",
     "feedback": "Comentarios y Sugerencias",
     "privacy": "Políticas de Privacidad",
-    "logout": "Salir"
+    "logout": "Salir",
+    "mainLabel": "Navegación principal"
   },
   "machines": {
     "registerButton": "Registrar Máquina",
@@ -78,7 +83,13 @@
     "changeStatus": "Cambiar estado",
     "sectorNone": "Sin sector",
     "filterSectorAll": "Todos los sectores",
-    "filterSectorLabel": "Filtrar por sector"
+    "filterSectorLabel": "Filtrar por sector",
+    "newMachineSubtitle": "Registra una nueva carretilla para tu flota.",
+    "labelDeviceName": "Nombre del dispositivo",
+    "searchAriaLabel": "Buscar máquina por identificación o sector",
+    "statusFilterAriaLabel": "Filtrar máquinas por estado",
+    "moreActions": "Más acciones para {{name}}",
+    "phName": "Ej.: Carretilla Elevadora Titan-X"
   },
   "alerts": {
     "accidents": "Accidentes",
@@ -164,7 +175,9 @@
     "fr": "Francés",
     "ja": "Japonés",
     "de": "Alemán",
-    "ru": "Ruso"
+    "ru": "Ruso",
+    "selectLabel": "Seleccionar idioma",
+    "closeLabel": "Cerrar selección de idioma"
   },
   "auth": {
     "loginAdminTitle": "Bienvenido de nuevo",
@@ -289,10 +302,94 @@
     },
     "session": {
       "startError": "No se pudo iniciar la sesión de uso. Inténtalo de nuevo.",
-      "endError": "No se pudo finalizar la sesión de uso. Inténtalo de nuevo."
+      "endError": "No se pudo finalizar la sesión de uso. Inténtalo de nuevo.",
+      "description": "El <b>registro del tiempo de uso</b> ya está en curso. Al finalizar, recuerda <b>cerrar la operación</b>.",
+      "timerLabel": "Tiempo de sesión",
+      "end": "Finalizar sesión",
+      "reportIncident": "Reportar una incidencia"
     },
     "incident": {
-      "sendError": "No se pudo enviar el incidente. Inténtalo de nuevo."
+      "sendError": "No se pudo enviar el incidente. Inténtalo de nuevo.",
+      "title": "Reporta una incidencia",
+      "employeeName": "Nombre del empleado",
+      "sector": "Sector",
+      "machine": "Máquina",
+      "time": "Horario",
+      "employeeNamePlaceholder": "Ej.: Alexandre Mattos",
+      "sectorPlaceholder": "Ej.: Expedición - Bloque B",
+      "machinePlaceholder": "Ej.: Carretilla Elevadora Titan-X",
+      "cancel": "Cancelar",
+      "submit": "Enviar incidencia",
+      "required": "Campo obligatorio",
+      "toastSent": "Incidencia enviada con éxito"
+    },
+    "sessionBar": {
+      "title": "Sesión en curso"
+    },
+    "nav": {
+      "overview": "Visión general",
+      "machines": "Carretillas",
+      "history": "Historial"
+    },
+    "common": {
+      "available": "Disponible",
+      "inUse": "En uso",
+      "maintenance": "Mantenimiento",
+      "offline": "Offline",
+      "sector": "Sector",
+      "dateTime": "Fecha y hora",
+      "cancel": "Cancelar",
+      "navigationLabel": "Navegación del empleado",
+      "alertButton": "Reportar una incidencia",
+      "menuButton": "Abrir configuración"
+    },
+    "home": {
+      "title": "Visión general",
+      "subtitle": "Sigue tus últimas actualizaciones y consulta las máquinas disponibles para su uso.",
+      "totalTime": "Tiempo total",
+      "lastMachine": "Última máquina",
+      "workday": "Jornada de trabajo",
+      "workdaySchedule": "De 8:00 a 17:00",
+      "workdayDaily": "Jornada diaria de 8 horas.",
+      "remaining": "Tiempo restante de la jornada",
+      "remainingValue": "04 Horas",
+      "availableTitle": "Carretillas disponibles",
+      "more": "Más"
+    },
+    "machines": {
+      "title": "Máquinas disponibles",
+      "subtitle": "Sigue tus últimas actualizaciones y consulta las máquinas disponibles para su uso.",
+      "searchPlaceholder": "Buscar máquina o sector",
+      "searchLabel": "Buscar carretilla",
+      "select": "Seleccionar",
+      "empty": "No se encontraron carretillas disponibles"
+    },
+    "detail": {
+      "title": "Seleccionar máquina",
+      "mac": "Mac",
+      "code": "Código",
+      "sector": "Sector",
+      "deviceName": "Nombre del dispositivo",
+      "history": "Historial de uso",
+      "date": "Fecha",
+      "periodFrom": "Fecha inicial",
+      "periodTo": "Fecha final",
+      "historyEmpty": "Sin registros en el período",
+      "cancel": "Cancelar",
+      "activate": "Activar máquina",
+      "activeSessionHint": "Ya tienes una sesión en curso."
+    },
+    "history": {
+      "title": "Historial",
+      "subtitle": "Consulta tus usos anteriores y filtra por período, horario o máquina.",
+      "filters": "Filtros",
+      "periodFrom": "Fecha inicial",
+      "periodTo": "Fecha final",
+      "startTime": "Hora",
+      "endTime": "Hora final",
+      "searchPlaceholder": "Buscar máquina",
+      "empty": "No se encontraron registros",
+      "moreDetails": "Más detalles"
     }
   },
   "branches": {

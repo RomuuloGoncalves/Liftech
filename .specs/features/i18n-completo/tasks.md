@@ -335,11 +335,11 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Paridade de `es` passa (chaves base, placeholders, valores não vazios, sem chave extra).
-- [ ] Nenhuma chave existente do es foi alterada (o diff só adiciona linhas).
-- [ ] Textos de `employee.*` estão em espanhol, não em português (conferir 10 chaves ao acaso; cognatos como "Offline" são aceitos).
-- [ ] `PENDING_LOCALES` sem `'es'`.
-- [ ] Gate check passes: `cd Frontend && yarn -s test`
+- [x] Paridade de `es` passa (chaves base, placeholders, valores não vazios, sem chave extra).
+- [x] Nenhuma chave existente do es foi alterada (o diff só adiciona linhas).
+- [x] Textos de `employee.*` estão em espanhol, não em português (conferir 10 chaves ao acaso; cognatos como "Offline" são aceitos).
+- [x] `PENDING_LOCALES` sem `'es'`.
+- [x] Gate check passes: `cd Frontend && yarn -s test`
 
 **Tests**: unit (paridade em `Frontend/src/test/config/i18n.test.ts`)
 **Gate**: full
