@@ -145,10 +145,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Paridade de en-US passa: nenhuma chave base de pt-BR faltando, mesmos placeholders (`{{name}}` em `moreActions`), valores não vazios.
-- [ ] `PENDING_LOCALES` em `i18n.test.ts` não tem mais `'en-US'` (edição de uma linha, citada na mensagem do commit).
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/config/i18n.test.ts`
-- [ ] Gate de build da fase: `cd Frontend && yarn -s lint && npx tsc -b && yarn -s test` passa (≥ 1718 testes).
+- [x] Paridade de en-US passa: nenhuma chave base de pt-BR faltando, mesmos placeholders (`{{name}}` em `moreActions`), valores não vazios.
+- [x] `PENDING_LOCALES` em `i18n.test.ts` não tem mais `'en-US'` (edição de uma linha, citada na mensagem do commit).
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/config/i18n.test.ts`
+- [x] Gate de build da fase: `cd Frontend && yarn -s lint && npx tsc -b && yarn -s test` passa (≥ 1718 testes).
 
 **Tests**: unit
 **Gate**: build

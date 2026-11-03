@@ -9,7 +9,11 @@
     "close": "Close",
     "loading": "Loading...",
     "closeNotification": "Close notification",
-    "retry": "Try again"
+    "retry": "Try again",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "routeLoadError": "An error occurred while loading the page.",
+    "reload": "Reload"
   },
   "navigation": {
     "overview": "Overview",
@@ -20,7 +24,8 @@
     "pages": "Pages",
     "feedback": "Feedback & Suggestions",
     "privacy": "Privacy Policy",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "mainLabel": "Main navigation"
   },
   "machines": {
     "registerButton": "Register Machine",
@@ -36,9 +41,11 @@
     "emptyState": "No machines found",
     "loadError": "Could not load the machines.",
     "newMachineTitle": "New Machine",
+    "newMachineSubtitle": "Register a new forklift for your fleet.",
     "labelId": "ID",
     "labelName": "Name",
     "labelSector": "Sector",
+    "labelDeviceName": "Device name",
     "labelMac": "MAC Address",
     "labelBranch": "Branch",
     "detailCode": "Code",
@@ -78,7 +85,11 @@
     "changeStatus": "Change status",
     "sectorNone": "No sector",
     "filterSectorAll": "All sectors",
-    "filterSectorLabel": "Filter by sector"
+    "filterSectorLabel": "Filter by sector",
+    "searchAriaLabel": "Search machine by ID or sector",
+    "statusFilterAriaLabel": "Filter machines by status",
+    "moreActions": "More actions for {{name}}",
+    "phName": "E.g.: Titan-X Electric Forklift"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -164,7 +175,9 @@
     "fr": "French",
     "ja": "Japanese",
     "de": "German",
-    "ru": "Russian"
+    "ru": "Russian",
+    "selectLabel": "Select language",
+    "closeLabel": "Close language selection"
   },
   "auth": {
     "loginAdminTitle": "Welcome back",
