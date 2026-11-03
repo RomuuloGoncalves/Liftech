@@ -114,7 +114,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
               <input
                 type="text"
                 className={styles.input}
-                placeholder="Ex: Empilhadeira Elétrica Titan-X"
+                placeholder={t('machines.phName')}
                 value={values.nome}
                 onChange={updateField('nome')}
                 required

@@ -280,10 +280,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Em pt-BR o placeholder continua "Ex: Empilhadeira Elétrica Titan-X" (testes antigos passam sem edição).
-- [ ] Teste novo em `NewMachinePanel.test.tsx`: em en-US o campo de nome tem placeholder "E.g.: Titan-X Electric Forklift".
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/machines/NewMachinePanel.test.tsx`
-- [ ] Test count: ≥ 1 teste novo, nenhum removido.
+- [x] Em pt-BR o placeholder continua "Ex: Empilhadeira Elétrica Titan-X" (testes antigos passam sem edição).
+- [x] Teste novo em `NewMachinePanel.test.tsx`: em en-US o campo de nome tem placeholder "E.g.: Titan-X Electric Forklift".
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/machines/NewMachinePanel.test.tsx`
+- [x] Test count: ≥ 1 teste novo, nenhum removido.
 
 **Tests**: unit (`Frontend/src/test/components/machines/NewMachinePanel.test.tsx`)
 **Gate**: quick

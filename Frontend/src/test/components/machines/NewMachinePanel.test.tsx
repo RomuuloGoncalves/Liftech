@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import NewMachinePanel from '../../../components/machines/NewMachinePanel'
 import type { Machine } from '../../../data/machines'
+import i18n from '../../../config/i18n'
 
 const SECTORS = [
   { _id: 's1', nome: 'Expedição - Bloco B', filialId: 'f1', filial: { nome: 'Matriz' } },
@@ -19,6 +20,10 @@ function fillRequiredFields() {
 }
 
 describe('NewMachinePanel', () => {
+  afterEach(async () => {
+    await i18n.changeLanguage('pt-BR')
+  })
+
   it('renders the title, subtitle and all form fields', () => {
     render(<NewMachinePanel sectors={SECTORS} onClose={vi.fn()} onCreate={vi.fn()} />)
 
@@ -288,5 +293,12 @@ describe('NewMachinePanel sector select', () => {
     fillRequiredFields()
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f2', setorId: '' }))
+  })
+
+  it('renders translated placeholder for machine name in en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    render(<NewMachinePanel sectors={SECTORS} onClose={vi.fn()} onCreate={vi.fn()} />)
+
+    expect(screen.getByPlaceholderText('E.g.: Titan-X Electric Forklift')).toBeInTheDocument()
   })
 })
