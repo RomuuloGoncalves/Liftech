@@ -1,6 +1,7 @@
 import React, { Component, lazy, Suspense, type ErrorInfo, type ReactNode } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import PageSkeleton from '../components/common/PageSkeleton'
+import i18n from '../config/i18n'
 
 // Carregamento lazy de páginas e layout para otimização de bundle
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
@@ -50,9 +51,9 @@ export class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, Route
     if (this.state.hasError) {
       return (
         <div role="alert" style={{ padding: '2rem', textAlign: 'center' }}>
-          <p>Ocorreu um erro ao carregar a página.</p>
+          <p>{i18n.t('common.routeLoadError')}</p>
           <button type="button" onClick={this.handleReload}>
-            Recarregar
+            {i18n.t('common.reload')}
           </button>
         </div>
       )

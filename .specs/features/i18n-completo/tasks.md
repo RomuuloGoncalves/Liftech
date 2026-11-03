@@ -307,11 +307,11 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Em pt-BR a mensagem e o botão seguem iguais (testes antigos de `appRoutes.test.tsx` passam sem edição).
-- [ ] Teste novo em `appRoutes.test.tsx`: em en-US o boundary mostra "An error occurred while loading the page." e o botão "Reload".
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/routes/appRoutes.test.tsx`
-- [ ] Gate de build da fase: `cd Frontend && yarn -s lint && npx tsc -b && yarn -s test` passa.
-- [ ] Nenhum dos 11 literais aparece mais em `Frontend/src` fora de `locales` e `test` (`grep -rn` dos 11 textos, exceto o bloco DEV, devolve vazio).
+- [x] Em pt-BR a mensagem e o botão seguem iguais (testes antigos de `appRoutes.test.tsx` passam sem edição).
+- [x] Teste novo em `appRoutes.test.tsx`: em en-US o boundary mostra "An error occurred while loading the page." e o botão "Reload".
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/routes/appRoutes.test.tsx`
+- [x] Gate de build da fase: `cd Frontend && yarn -s lint && npx tsc -b && yarn -s test` passa.
+- [x] Nenhum dos 11 literais aparece mais em `Frontend/src` fora de `locales` e `test` (`grep -rn` dos 11 textos, exceto o bloco DEV, devolve vazio).
 
 **Tests**: unit (`Frontend/src/test/routes/appRoutes.test.tsx`)
 **Gate**: build

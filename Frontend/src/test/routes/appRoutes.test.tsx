@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import AppRoutes, { RouteErrorBoundary } from '../../routes/appRoutes'
 import { ToastProvider } from '../../components/common/Toast'
+import i18n from '../../config/i18n'
 
 vi.mock('../../services/accessRequestService', () => ({
   accessRequestService: {
@@ -40,6 +41,10 @@ vi.mock('../../services/sectorService', () => ({
 }))
 
 describe('Centralized AppRoutes', () => {
+  afterEach(async () => {
+    await i18n.changeLanguage('pt-BR')
+  })
+
   it('renders 404 NotFoundPage for unmatched routes', async () => {
     render(
       <MemoryRouter initialEntries={['/unknown-route']}>
@@ -101,6 +106,27 @@ describe('Centralized AppRoutes', () => {
 
     fireEvent.click(reloadButton)
     expect(reloadMock).toHaveBeenCalledTimes(1)
+
+    console.error = originalConsoleError
+  })
+
+  it('renders translated error message and reload button in en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    const originalConsoleError = console.error
+    console.error = vi.fn()
+
+    const FailingLazyComponent = React.lazy(() => Promise.reject(new Error('Failed to load chunk')))
+
+    render(
+      <RouteErrorBoundary>
+        <Suspense fallback={<div>Loading...</div>}>
+          <FailingLazyComponent />
+        </Suspense>
+      </RouteErrorBoundary>
+    )
+
+    expect(await screen.findByRole('button', { name: 'Reload' })).toBeInTheDocument()
+    expect(screen.getByText('An error occurred while loading the page.')).toBeInTheDocument()
 
     console.error = originalConsoleError
   })
