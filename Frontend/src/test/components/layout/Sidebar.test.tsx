@@ -5,6 +5,7 @@ import Sidebar from '../../../components/layout/Sidebar'
 import { ActiveBranchProvider } from '../../../context/ActiveBranchContext'
 import { AlertsProvider } from '../../../context/AlertsContext'
 import { incidentService } from '../../../services/incidentService'
+import i18n from '../../../config/i18n'
 import '../../../components/alerts/AlertModal'
 import styles from '../../../components/layout/Sidebar.module.css'
 
@@ -43,8 +44,9 @@ describe('Sidebar component', () => {
     setViewportWidth(DESKTOP_WIDTH)
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     setViewportWidth(DESKTOP_WIDTH)
+    await i18n.changeLanguage('pt-BR')
   })
 
   it('shows the temporary Área do Funcionário link pointing to /funcionario', () => {
@@ -428,5 +430,19 @@ describe('Sidebar branch selector and company', () => {
     fireEvent.click(screen.getByRole('button', { name: /colapsar menu/i }))
 
     expect(screen.queryByRole('button', { name: 'Simular alerta' })).not.toBeInTheDocument()
+  })
+
+  it('renders translated menu labels when language is en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    setViewportWidth(MOBILE_WIDTH)
+    renderSidebarAt('/')
+
+    const openBtn = screen.getByRole('button', { name: 'Open menu' })
+    expect(openBtn).toBeInTheDocument()
+
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument()
+
+    fireEvent.click(openBtn)
+    expect(screen.getByRole('button', { name: 'Close menu' })).toBeInTheDocument()
   })
 })

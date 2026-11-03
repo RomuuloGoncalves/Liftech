@@ -116,7 +116,7 @@ const Sidebar: React.FC = () => {
         <button
           type="button"
           className={styles.hamburgerButton}
-          aria-label="Abrir menu"
+          aria-label={t('common.openMenu')}
           onClick={() => setMobileOpen(true)}
         >
           <Menu size={20} />
@@ -131,7 +131,7 @@ const Sidebar: React.FC = () => {
         className={`${styles.sidebar} ${showCollapsedLayout ? styles.collapsed : ''} ${
           isMobile && mobileOpen ? styles.mobileOpen : ''
         }`}
-        aria-label="Navegação principal"
+        aria-label={t('navigation.mainLabel')}
       >
         <div className={styles.header}>
           <div className={styles.brand}>
@@ -146,7 +146,7 @@ const Sidebar: React.FC = () => {
               <button
                 type="button"
                 className={styles.toggleButton}
-                aria-label="Fechar menu"
+                aria-label={t('common.closeMenu')}
                 onClick={closeMobileDrawer}
               >
                 <X size={16} />

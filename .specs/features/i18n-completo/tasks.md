@@ -172,10 +172,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Em pt-BR os 3 rótulos continuam com o texto de hoje (testes antigos de `Sidebar.test.tsx` e `App.test.tsx` passam sem edição).
-- [ ] Teste novo em `Sidebar.test.tsx`: com `i18n.changeLanguage('en-US')`, `getByRole('navigation', { name: 'Main navigation' })` e os botões "Open menu" / "Close menu" existem; volta para pt-BR no `afterEach`.
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/layout/Sidebar.test.tsx src/test/App.test.tsx`
-- [ ] Test count: ≥ 1 teste novo, nenhum removido.
+- [x] Em pt-BR os 3 rótulos continuam com o texto de hoje (testes antigos de `Sidebar.test.tsx` e `App.test.tsx` passam sem edição).
+- [x] Teste novo em `Sidebar.test.tsx`: com `i18n.changeLanguage('en-US')`, `getByRole('navigation', { name: 'Main navigation' })` e os botões "Open menu" / "Close menu" existem; volta para pt-BR no `afterEach`.
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/layout/Sidebar.test.tsx src/test/App.test.tsx`
+- [x] Test count: ≥ 1 teste novo, nenhum removido.
 
 **Tests**: unit (`Frontend/src/test/components/layout/Sidebar.test.tsx`)
 **Gate**: quick
