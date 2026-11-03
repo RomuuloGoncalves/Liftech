@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ToastProvider } from '../../components/common/Toast'
 import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext'
@@ -59,6 +59,10 @@ beforeEach(() => {
   atualizar.mockImplementation(async (id, values) => savedFrom(values, MACHINES.find((m) => m.id === id) ?? { id }))
   remover.mockReset()
   remover.mockResolvedValue(undefined)
+})
+
+afterEach(async () => {
+  await i18n.changeLanguage('pt-BR')
 })
 
 const renderLoaded = async () => {
@@ -506,6 +510,14 @@ describe('VisaoGeralPage: API', () => {
 
     expect(await screen.findByText('Could not load the machines.')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument())
+  })
+
+  it('renders translated search and filter labels when language is en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    await renderLoaded()
+
+    expect(screen.getByLabelText('Search machine by ID or sector')).toBeInTheDocument()
+    expect(screen.getByLabelText('Filter machines by status')).toBeInTheDocument()
   })
 })
 

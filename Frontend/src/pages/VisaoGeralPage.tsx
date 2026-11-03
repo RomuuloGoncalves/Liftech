@@ -204,7 +204,7 @@ const VisaoGeralPage: React.FC = () => {
             type="search"
             className={styles.searchInput}
             placeholder={t('machines.searchPlaceholder')}
-            aria-label="Buscar máquina por identificação ou setor"
+            aria-label={t('machines.searchAriaLabel')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -215,7 +215,7 @@ const VisaoGeralPage: React.FC = () => {
 
           <select
             className={styles.statusSelect}
-            aria-label="Filtrar máquinas por status"
+            aria-label={t('machines.statusFilterAriaLabel')}
             value={status}
             onChange={(event) => setStatus(event.target.value as StatusFilter)}
           >

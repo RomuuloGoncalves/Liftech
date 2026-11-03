@@ -226,10 +226,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Em pt-BR os 2 rótulos seguem iguais (testes antigos passam sem edição).
-- [ ] Teste novo em `VisaoGeralPage.test.tsx`: em en-US `getByLabelText('Search machine by ID or sector')` e `getByLabelText('Filter machines by status')` existem.
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/pages/VisaoGeralPage.test.tsx`
-- [ ] Test count: ≥ 1 teste novo, nenhum removido.
+- [x] Em pt-BR os 2 rótulos seguem iguais (testes antigos passam sem edição).
+- [x] Teste novo em `VisaoGeralPage.test.tsx`: em en-US `getByLabelText('Search machine by ID or sector')` e `getByLabelText('Filter machines by status')` existem.
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/pages/VisaoGeralPage.test.tsx`
+- [x] Test count: ≥ 1 teste novo, nenhum removido.
 
 **Tests**: unit (`Frontend/src/test/pages/VisaoGeralPage.test.tsx`)
 **Gate**: quick
