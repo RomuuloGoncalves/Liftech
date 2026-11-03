@@ -658,3 +658,195 @@ describe('profile module translations', () => {
   });
 });
 
+export const PENDING_LOCALES = ['en-US', 'es', 'fr', 'de', 'ja', 'ru'];
+
+export const folhas = (obj: object, prefix = ''): Record<string, string> =>
+  Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? { ...acc, ...folhas(value as object, path) }
+      : { ...acc, [path]: String(value) };
+  }, {});
+
+export const chaveBase = (caminho: string): string =>
+  caminho.replace(/_(zero|one|two|few|many|other)$/, '');
+
+export const placeholders = (texto: string): string[] => {
+  const matches = texto.match(/\{\{[^}]+\}\}/g);
+  return matches ? Array.from(new Set(matches)).sort() : [];
+};
+
+export const assertLocaleParity = (code: string, data: object, baseData: object = ptBR) => {
+  const baseFolhas = folhas(baseData);
+  const targetFolhas = folhas(data);
+
+  const baseKeysByBase = new Map<string, { keys: string[]; placeholders: string[]; isPlural: boolean }>();
+  for (const [key, val] of Object.entries(baseFolhas)) {
+    const bk = chaveBase(key);
+    const phs = placeholders(val);
+    const isPluralKey = /_(zero|one|two|few|many|other)$/.test(key);
+    const existing = baseKeysByBase.get(bk);
+    if (existing) {
+      existing.keys.push(key);
+      if (isPluralKey) existing.isPlural = true;
+    } else {
+      baseKeysByBase.set(bk, { keys: [key], placeholders: phs, isPlural: isPluralKey });
+    }
+  }
+
+  const targetKeysByBase = new Map<string, string[]>();
+  for (const key of Object.keys(targetFolhas)) {
+    const bk = chaveBase(key);
+    const existing = targetKeysByBase.get(bk);
+    if (existing) {
+      existing.push(key);
+    } else {
+      targetKeysByBase.set(bk, [key]);
+    }
+  }
+
+  // 1. Missing base keys
+  for (const baseKey of baseKeysByBase.keys()) {
+    expect(
+      targetKeysByBase.has(baseKey),
+      `Locale "${code}" is missing "${baseKey}"`
+    ).toBe(true);
+  }
+
+  // 2. Extra keys that are not plural variants of a base key
+  for (const key of Object.keys(targetFolhas)) {
+    const bk = chaveBase(key);
+    const baseInfo = baseKeysByBase.get(bk);
+    expect(
+      baseInfo !== undefined,
+      `Locale "${code}" has extra key "${key}"`
+    ).toBe(true);
+
+    if (baseInfo && !baseInfo.isPlural) {
+      expect(
+        key === bk,
+        `Locale "${code}" has extra key "${key}"`
+      ).toBe(true);
+    }
+  }
+
+  // 3. Values must be non-empty and have matching placeholders
+  for (const [key, val] of Object.entries(targetFolhas)) {
+    expect(
+      val.trim(),
+      `Locale "${code}" key "${key}" is empty`
+    ).not.toBe('');
+
+    const bk = chaveBase(key);
+    const baseInfo = baseKeysByBase.get(bk);
+    if (baseInfo) {
+      expect(
+        placeholders(val),
+        `Locale "${code}" key "${key}" has mismatched placeholders`
+      ).toEqual(baseInfo.placeholders);
+    }
+  }
+};
+
+describe('locale parity helpers', () => {
+  it('folhas flattens nested objects to dot-notation paths', () => {
+    expect(folhas({ a: { b: '1', c: { d: '2' } } })).toEqual({
+      'a.b': '1',
+      'a.c.d': '2',
+    });
+  });
+
+  it('chaveBase strips plural suffixes', () => {
+    expect(chaveBase('minutes_one')).toBe('minutes');
+    expect(chaveBase('minutes_other')).toBe('minutes');
+    expect(chaveBase('minutes_few')).toBe('minutes');
+    expect(chaveBase('minutes_many')).toBe('minutes');
+    expect(chaveBase('minutes_zero')).toBe('minutes');
+    expect(chaveBase('minutes_two')).toBe('minutes');
+    expect(chaveBase('minutes')).toBe('minutes');
+  });
+
+  it('placeholders extracts unique sorted placeholders', () => {
+    expect(placeholders('Olá {{name}}, você tem {{count}} itens e {{name}}')).toEqual([
+      '{{count}}',
+      '{{name}}',
+    ]);
+    expect(placeholders('Sem variáveis')).toEqual([]);
+  });
+
+  it('assertLocaleParity accepts different plural variants (ja with _other, ru with _few and _many)', () => {
+    const base = {
+      dashboard: {
+        minutes_one: '{{count}} minuto',
+        minutes_other: '{{count}} minutos',
+      },
+    };
+    const jaLocale = {
+      dashboard: {
+        minutes_other: '{{count}} 分',
+      },
+    };
+    const ruLocale = {
+      dashboard: {
+        minutes_one: '{{count}} минута',
+        minutes_few: '{{count}} минуты',
+        minutes_many: '{{count}} минут',
+        minutes_other: '{{count}} минут',
+      },
+    };
+
+    expect(() => assertLocaleParity('ja', jaLocale, base)).not.toThrow();
+    expect(() => assertLocaleParity('ru', ruLocale, base)).not.toThrow();
+  });
+
+  it('assertLocaleParity fails when placeholders do not match', () => {
+    const base = {
+      greeting: 'Olá {{name}}',
+    };
+    const bad = {
+      greeting: 'Olá {{user}}',
+    };
+    expect(() => assertLocaleParity('es', bad, base)).toThrow(/mismatched placeholders/);
+  });
+
+  it('assertLocaleParity fails and cites locale and key when a key is missing', () => {
+    const base = {
+      employee: {
+        home: {
+          title: 'Início',
+        },
+      },
+    };
+    const bad = {
+      employee: {
+        home: {},
+      },
+    };
+    expect(() => assertLocaleParity('es', bad, base)).toThrow(
+      'Locale "es" is missing "employee.home.title"'
+    );
+  });
+
+  it('assertLocaleParity fails when an extra non-plural key is present', () => {
+    const base = {
+      title: 'Título',
+    };
+    const bad = {
+      title: 'Título',
+      extra: 'Extra',
+    };
+    expect(() => assertLocaleParity('es', bad, base)).toThrow(
+      'Locale "es" has extra key "extra"'
+    );
+  });
+});
+
+describe('locale parity', () => {
+  const activeLocales = ALL_LOCALES.filter(({ code }) => !PENDING_LOCALES.includes(code));
+
+  it.each(activeLocales)('locale $code satisfies parity with pt-BR', ({ code, data }) => {
+    assertLocaleParity(code, data, ptBR);
+  });
+});
+
+

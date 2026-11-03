@@ -90,11 +90,11 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] `PENDING_LOCALES` existe com os 6 idiomas e há um `it.each` sobre `ALL_LOCALES` sem os pendentes (hoje só pt-BR, que se compara a si mesmo).
-- [ ] Testes dos helpers cobrem: plural com sufixos diferentes aceito (ja só com `_other`; ru com `_few` e `_many`), placeholder trocado falha, chave faltando cita idioma e chave, chave extra não plural falha.
-- [ ] A mensagem de falha cita o idioma e a chave (`Locale "es" is missing "employee.home.title"`).
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/config/i18n.test.ts`
-- [ ] Os testes antigos do arquivo seguem passando (nenhum removido).
+- [x] `PENDING_LOCALES` existe com os 6 idiomas e há um `it.each` sobre `ALL_LOCALES` sem os pendentes (hoje só pt-BR, que se compara a si mesmo).
+- [x] Testes dos helpers cobrem: plural com sufixos diferentes aceito (ja só com `_other`; ru com `_few` e `_many`), placeholder trocado falha, chave faltando cita idioma e chave, chave extra não plural falha.
+- [x] A mensagem de falha cita o idioma e a chave (`Locale "es" is missing "employee.home.title"`).
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/config/i18n.test.ts`
+- [x] Os testes antigos do arquivo seguem passando (nenhum removido).
 
 **Tests**: unit
 **Gate**: quick
