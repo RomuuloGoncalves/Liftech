@@ -363,11 +363,11 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Paridade de `fr` passa.
-- [ ] O diff só adiciona linhas ao JSON.
-- [ ] Textos de `employee.*` estão em francês (conferir 10 chaves ao acaso).
-- [ ] `PENDING_LOCALES` sem `'fr'`.
-- [ ] Gate check passes: `cd Frontend && yarn -s test`
+- [x] Paridade de `fr` passa.
+- [x] O diff só adiciona linhas ao JSON.
+- [x] Textos de `employee.*` estão em francês (conferir 10 chaves ao acaso).
+- [x] `PENDING_LOCALES` sem `'fr'`.
+- [x] Gate check passes: `cd Frontend && yarn -s test`
 
 **Tests**: unit
 **Gate**: full

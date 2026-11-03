@@ -9,7 +9,11 @@
     "close": "Fermer",
     "loading": "Chargement...",
     "closeNotification": "Fermer la notification",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "routeLoadError": "Une erreur s'est produite lors du chargement de la page.",
+    "reload": "Recharger"
   },
   "navigation": {
     "overview": "Aperçu",
@@ -20,7 +24,8 @@
     "pages": "Pages",
     "feedback": "Commentaires & Suggestions",
     "privacy": "Politique de confidentialité",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "mainLabel": "Navigation principale"
   },
   "machines": {
     "registerButton": "Enregistrer la Machine",
@@ -78,7 +83,13 @@
     "changeStatus": "Changer le statut",
     "sectorNone": "Aucun secteur",
     "filterSectorAll": "Tous les secteurs",
-    "filterSectorLabel": "Filtrer par secteur"
+    "filterSectorLabel": "Filtrer par secteur",
+    "newMachineSubtitle": "Enregistrez un nouveau chariot pour votre flotte.",
+    "labelDeviceName": "Nom de l'appareil",
+    "searchAriaLabel": "Rechercher une machine par identification ou secteur",
+    "statusFilterAriaLabel": "Filtrar les machines par statut",
+    "moreActions": "Plus d'actions pour {{name}}",
+    "phName": "Ex. : Chariot Élévateur Titan-X"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -164,7 +175,9 @@
     "fr": "Français",
     "ja": "Japonais",
     "de": "Allemand",
-    "ru": "Russe"
+    "ru": "Russe",
+    "selectLabel": "Sélectionner la langue",
+    "closeLabel": "Fermer la sélection de langue"
   },
   "auth": {
     "loginAdminTitle": "Content de vous revoir",
@@ -289,10 +302,94 @@
     },
     "session": {
       "startError": "Impossible de démarrer la session. Réessayez.",
-      "endError": "Impossible de terminer la session. Réessayez."
+      "endError": "Impossible de terminer la session. Réessayez.",
+      "description": "Le <b>suivi du temps d'utilisation</b> est déjà en cours. Lorsque vous avez terminé, n'oubliez pas de <b>mettre fin à l'opération</b>.",
+      "timerLabel": "Temps de session",
+      "end": "Terminer la session",
+      "reportIncident": "Signaler un incident"
     },
     "incident": {
-      "sendError": "Impossible d'envoyer l'incident. Réessayez."
+      "sendError": "Impossible d'envoyer l'incident. Réessayez.",
+      "title": "Signalez un incident",
+      "employeeName": "Nom de l'employé",
+      "sector": "Secteur",
+      "machine": "Machine",
+      "time": "Heure",
+      "employeeNamePlaceholder": "Ex. : Alexandre Mattos",
+      "sectorPlaceholder": "Ex. : Expédition - Bâtiment B",
+      "machinePlaceholder": "Ex. : Chariot Élévateur Titan-X",
+      "cancel": "Annuler",
+      "submit": "Envoyer l'incident",
+      "required": "Champ obligatoire",
+      "toastSent": "Incident envoyé avec succès"
+    },
+    "sessionBar": {
+      "title": "Session en cours"
+    },
+    "nav": {
+      "overview": "Vue d'ensemble",
+      "machines": "Chariots",
+      "history": "Historique"
+    },
+    "common": {
+      "available": "Disponible",
+      "inUse": "En cours d'utilisation",
+      "maintenance": "En maintenance",
+      "offline": "Hors ligne",
+      "sector": "Secteur",
+      "dateTime": "Date et heure",
+      "cancel": "Annuler",
+      "navigationLabel": "Navigation de l'employé",
+      "alertButton": "Signaler un incident",
+      "menuButton": "Ouvrir les paramètres"
+    },
+    "home": {
+      "title": "Vue d'ensemble",
+      "subtitle": "Suivez vos dernières mises à jour et consultez les machines disponibles pour utilisation.",
+      "totalTime": "Temps total",
+      "lastMachine": "Dernière machine",
+      "workday": "Journée de travail",
+      "workdaySchedule": "De 8h à 17h",
+      "workdayDaily": "Journée quotidienne de 8 heures.",
+      "remaining": "Temps restant de la journée",
+      "remainingValue": "04 Heures",
+      "availableTitle": "Chariots disponibles",
+      "more": "Plus"
+    },
+    "machines": {
+      "title": "Machines disponibles",
+      "subtitle": "Suivez vos dernières mises à jour et consultez les machines disponibles pour utilisation.",
+      "searchPlaceholder": "Rechercher une machine ou un secteur",
+      "searchLabel": "Rechercher un chariot",
+      "select": "Sélectionner",
+      "empty": "Aucun chariot disponible trouvé"
+    },
+    "detail": {
+      "title": "Sélectionner la machine",
+      "mac": "Mac",
+      "code": "Code",
+      "sector": "Secteur",
+      "deviceName": "Nom de l'appareil",
+      "history": "Historique d'utilisation",
+      "date": "Date",
+      "periodFrom": "Date de début",
+      "periodTo": "Date de fin",
+      "historyEmpty": "Aucun enregistrement sur la période",
+      "cancel": "Annuler",
+      "activate": "Activer la machine",
+      "activeSessionHint": "Vous avez déjà une session en cours."
+    },
+    "history": {
+      "title": "Historique",
+      "subtitle": "Consultez vos utilisations précédentes et filtrez par période, heure ou machine.",
+      "filters": "Filtres",
+      "periodFrom": "Date de début",
+      "periodTo": "Date de fin",
+      "startTime": "Heure",
+      "endTime": "Heure de fin",
+      "searchPlaceholder": "Rechercher une machine",
+      "empty": "Aucun enregistrement trouvé",
+      "moreDetails": "Plus de détails"
     }
   },
   "branches": {
