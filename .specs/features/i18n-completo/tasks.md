@@ -253,10 +253,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Em pt-BR o rótulo continua "Mais ações para EMP-081" (testes antigos passam sem edição).
-- [ ] Teste novo em `MachineCard.test.tsx`: em en-US o botão se chama "More actions for EMP-081"; com identificação `A&B <1>` o rótulo contém o texto sem escape.
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/machines/MachineCard.test.tsx`
-- [ ] Test count: ≥ 2 testes novos, nenhum removido.
+- [x] Em pt-BR o rótulo continua "Mais ações para EMP-081" (testes antigos passam sem edição).
+- [x] Teste novo em `MachineCard.test.tsx`: em en-US o botão se chama "More actions for EMP-081"; com identificação `A&B <1>` o rótulo contém o texto sem escape.
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/machines/MachineCard.test.tsx`
+- [x] Test count: ≥ 2 testes novos, nenhum removido.
 
 **Tests**: unit (`Frontend/src/test/components/machines/MachineCard.test.tsx`)
 **Gate**: quick

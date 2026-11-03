@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import MachineCard from '../../../components/machines/MachineCard'
 import type { Machine } from '../../../data/machines'
+import i18n from '../../../config/i18n'
 
 const baseMachine: Machine = {
   id: '1',
@@ -15,6 +16,10 @@ const baseMachine: Machine = {
 }
 
 describe('MachineCard', () => {
+  afterEach(async () => {
+    await i18n.changeLanguage('pt-BR')
+  })
+
   it('renders name, identificacao, setor, endereco mac, status and tempo de sessao', () => {
     render(<MachineCard machine={baseMachine} />)
 
@@ -79,6 +84,20 @@ describe('MachineCard', () => {
     render(<MachineCard machine={baseMachine} />)
 
     expect(screen.queryByRole('button', { name: /ver detalhes/i })).not.toBeInTheDocument()
+  })
+
+  it('renders translated action button label in en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    render(<MachineCard machine={{ ...baseMachine, identificacao: 'EMP-081' }} />)
+
+    expect(screen.getByRole('button', { name: 'More actions for EMP-081' })).toBeInTheDocument()
+  })
+
+  it('renders action button label with special characters without double-escaping', async () => {
+    await i18n.changeLanguage('en-US')
+    render(<MachineCard machine={{ ...baseMachine, identificacao: 'A&B <1>' }} />)
+
+    expect(screen.getByRole('button', { name: 'More actions for A&B <1>' })).toBeInTheDocument()
   })
 })
 

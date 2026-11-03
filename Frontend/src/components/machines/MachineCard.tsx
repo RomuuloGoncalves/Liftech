@@ -41,7 +41,7 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
             <span className={styles.identificacao}>{identificacao}(ID)</span>
           </div>
         </div>
-        <button type="button" className={styles.menuButton} aria-label={`Mais ações para ${identificacao}`}>
+        <button type="button" className={styles.menuButton} aria-label={t('machines.moreActions', { name: identificacao })}>
           <MoreVertical size={18} />
         </button>
       </div>
