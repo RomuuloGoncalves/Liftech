@@ -1,13 +1,12 @@
-import mongoose from "mongoose";
-import { RepositoryBase } from "../../core/coreRepository.js";
-import { accessRequestModel } from "../../models/accessRequestModel.js";
+import { RepositoryBase, type ModeloMongoose } from "../../core/coreRepository.js";
+import { AccessRequestModel } from "../../models/accessRequestModel.js";
 
-export class AccessRequestRepository extends RepositoryBase<accessRequestModel> {
-  constructor(mongoDB: mongoose.Model<any>) {
-    super(mongoDB);
+export class AccessRequestRepository extends RepositoryBase<AccessRequestModel> {
+  constructor(bd: ModeloMongoose) {
+    super(bd);
   }
 
-  protected converterParaModelo(documento: Record<string, any>): accessRequestModel {
-    return new accessRequestModel({ ...documento });
+  protected converterParaModelo(documento: Record<string, unknown>): AccessRequestModel {
+    return new AccessRequestModel({ ...documento });
   }
 }

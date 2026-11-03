@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-import { coreModel } from "./coreModel.js";
+import { CoreModel } from "./coreModel.js";
+
+// Os repositories recebem o model do Mongoose de qualquer schema.
+export type ModeloMongoose = mongoose.Model<any>;
 
 export interface OpcoesConsulta {
   ordenacao?: Record<string, 1 | -1>;
@@ -13,10 +16,10 @@ interface Popular {
   campos?: string;
 }
 
-export abstract class RepositoryBase<T extends coreModel> {
-  protected bd: mongoose.Model<any>;
+export abstract class RepositoryBase<T extends CoreModel> {
+  protected bd: ModeloMongoose;
 
-  constructor(bd: mongoose.Model<any>) {
+  constructor(bd: ModeloMongoose) {
     this.bd = bd;
   }
 
@@ -32,9 +35,7 @@ export abstract class RepositoryBase<T extends coreModel> {
     }
 
     const documentos = await consulta.lean();
-    return documentos.map((doc) =>
-      this.converterParaModelo(doc as Record<string, unknown>)
-    );
+    return documentos.map((doc) => this.converterParaModelo(doc as Record<string, unknown>));
   }
 
   // Grava os dados como vieram: para entidades cujo obterDados é o formato da API, e não o do banco.
@@ -100,8 +101,8 @@ export abstract class RepositoryBase<T extends coreModel> {
     return this.converterParaModelo(documento as Record<string, unknown>);
   }
 
-  // Com `options` (ex.: session) o Mongoose exige a forma em lista; sem, grava o objeto direto.
-  // `id` em texto ou ObjectId; `campos` traz o que o schema esconde (ex.: "+senhaHash").
+  // Sem filtro de escopo: para ids que já vieram do banco. `id` em texto ou ObjectId;
+  // `campos` traz o que o schema esconde (ex.: "+senhaHash").
   async buscarPorId(id: unknown, campos?: string): Promise<T | null> {
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return null;
@@ -127,6 +128,7 @@ export abstract class RepositoryBase<T extends coreModel> {
     return this.converterParaModelo(documento as Record<string, unknown>);
   }
 
+  // Com `options` (ex.: session) o Mongoose exige a forma em lista; sem, grava o objeto direto.
   async criar(modelo: T, options?: mongoose.SaveOptions): Promise<T | null> {
     const dados = modelo.obterDados();
     const documento = options ? (await this.bd.create([dados], options))?.[0] : await this.bd.create(dados);
@@ -134,12 +136,15 @@ export abstract class RepositoryBase<T extends coreModel> {
       return null;
     }
 
-    return this.converterParaModelo(
-      (documento.toObject ? documento.toObject() : documento) as Record<string, unknown>
-    );
+    return this.converterParaModelo((documento.toObject ? documento.toObject() : documento) as Record<string, unknown>);
   }
 
-  async atualizarPorId(id: string, dados: Partial<Record<string, unknown>>, options?: mongoose.QueryOptions, filtro: Record<string, unknown> = {}): Promise<T | null> {
+  async atualizarPorId(
+    id: string,
+    dados: Partial<Record<string, unknown>>,
+    options?: mongoose.QueryOptions,
+    filtro: Record<string, unknown> = {}
+  ): Promise<T | null> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return null;
     }

@@ -1,9 +1,10 @@
+import { conflitoSeDuplicado } from "../../utils/mongo.js";
 import { Branch } from "../../schemas/branch.js";
 import { Forklift } from "../../schemas/forklift.js";
 import { Device } from "../../schemas/device.js";
 import { Operator } from "../../schemas/operator.js";
 import { Incident } from "../../schemas/incident.js";
-import { branchModel } from "../../models/branchModel.js";
+import { BranchModel } from "../../models/branchModel.js";
 import { BranchRepository } from "./branchRepository.js";
 import { ForkliftRepository } from "../forklift/forkliftRepository.js";
 import { DeviceRepository } from "../device/deviceRepository.js";
@@ -14,20 +15,23 @@ import type { Escopo } from "../../core/escopo.js";
 
 const filiais = new BranchRepository(Branch);
 // Recursos que prendem a filial: com qualquer um deles ligado, ela não pode ser excluída.
-const recursos = [new ForkliftRepository(Forklift), new DeviceRepository(Device), new OperatorRepository(Operator), new IncidentRepository(Incident)];
+const recursos = [
+  new ForkliftRepository(Forklift),
+  new DeviceRepository(Device),
+  new OperatorRepository(Operator),
+  new IncidentRepository(Incident),
+];
 
-const paraFilial = (f: branchModel) => ({ _id: String(f.getID()), nome: f.getNome(), matriz: f.getMatriz() });
+const paraFilial = (f: BranchModel) => ({ _id: String(f.getID()), nome: f.getNome(), matriz: f.getMatriz() });
 
 const naoEncontrada = () => new ErroHttp(StatusCode.NOT_FOUND, "Filial não encontrada.");
 
 // O índice único { empresaId, nome } faz o Mongo recusar o nome repetido (código 11000).
-function traduzirErro(error: any): never {
-  throw error.code === 11000 ? new ErroHttp(StatusCode.CONFLICT, "Já existe uma filial com este nome.") : error;
-}
+const traduzirErro = conflitoSeDuplicado("Já existe uma filial com este nome.");
 
 export async function criar(escopo: Escopo, nome: string) {
   try {
-    return paraFilial((await filiais.criar(new branchModel(nome, escopo.empresaId)))!);
+    return paraFilial((await filiais.criar(new BranchModel(nome, escopo.empresaId)))!);
   } catch (error) {
     return traduzirErro(error);
   }
@@ -35,7 +39,12 @@ export async function criar(escopo: Escopo, nome: string) {
 
 export async function renomear(escopo: Escopo, id: string, nome: string) {
   try {
-    const filial = await filiais.atualizarPorId(id, { nome }, { returnDocument: "after", runValidators: true }, { empresaId: escopo.empresaId });
+    const filial = await filiais.atualizarPorId(
+      id,
+      { nome },
+      { returnDocument: "after", runValidators: true },
+      { empresaId: escopo.empresaId }
+    );
     if (!filial) throw naoEncontrada();
     return paraFilial(filial);
   } catch (error) {

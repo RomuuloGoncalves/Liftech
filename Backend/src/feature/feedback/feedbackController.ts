@@ -1,10 +1,5 @@
 import type { Request, Response } from "express";
-import {
-  ErroHttp,
-  StatusCode,
-  respostaSucesso,
-  responderErro,
-} from "../../utils/responseHandler.js";
+import { ErroHttp, StatusCode, respostaSucesso, responderErro } from "../../utils/responseHandler.js";
 import * as feedbackService from "./feedbackService.js";
 
 const TAMANHO_MAXIMO = 1000;
@@ -25,13 +20,9 @@ function lerMensagem(req: Request): string {
 export async function enviar(req: Request, res: Response) {
   try {
     const mensagem = lerMensagem(req);
-    const resultado = await feedbackService.enviar(
-      req.usuario,
-      req.escopo,
-      mensagem
-    );
+    const resultado = await feedbackService.enviar(req.usuario, req.escopo, mensagem);
     return respostaSucesso(res, StatusCode.CREATED, resultado);
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }

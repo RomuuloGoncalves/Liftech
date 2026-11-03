@@ -26,7 +26,7 @@ function lerOcorrencia(req: Request): servicoIncidente.DadosOcorrencia {
 export async function reportar(req: Request, res: Response) {
   try {
     return respostaSucesso(res, StatusCode.CREATED, await servicoIncidente.reportar(req.usuario, lerOcorrencia(req)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -34,7 +34,7 @@ export async function reportar(req: Request, res: Response) {
 export async function listar(req: Request, res: Response) {
   try {
     return respostaSucesso(res, StatusCode.OK, await servicoIncidente.listar(req.escopo, req.query));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }

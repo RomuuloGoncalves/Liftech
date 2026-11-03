@@ -87,15 +87,11 @@ describe("meController", () => {
       );
 
       expect(status).toHaveBeenCalledWith(400);
-      expect(json).toHaveBeenCalledWith(
-        expect.objectContaining({ error: expect.any(String) })
-      );
+      expect(json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
     });
 
     test("repassa 403 do serviço", async () => {
-      vi.mocked(meService.atualizarConta).mockRejectedValue(
-        new ErroHttp(StatusCode.FORBIDDEN, "Senha atual incorreta.")
-      );
+      vi.mocked(meService.atualizarConta).mockRejectedValue(new ErroHttp(StatusCode.FORBIDDEN, "Senha atual incorreta."));
 
       await atualizar(
         req({
@@ -111,9 +107,7 @@ describe("meController", () => {
     });
 
     test("repassa 404 do serviço", async () => {
-      vi.mocked(meService.atualizarConta).mockRejectedValue(
-        new ErroHttp(StatusCode.NOT_FOUND, "Usuário não encontrado(a).")
-      );
+      vi.mocked(meService.atualizarConta).mockRejectedValue(new ErroHttp(StatusCode.NOT_FOUND, "Usuário não encontrado(a)."));
 
       await atualizar(
         req({
@@ -129,9 +123,7 @@ describe("meController", () => {
     });
 
     test("repassa 409 do serviço", async () => {
-      vi.mocked(meService.atualizarConta).mockRejectedValue(
-        new ErroHttp(StatusCode.CONFLICT, "E-mail já em uso.")
-      );
+      vi.mocked(meService.atualizarConta).mockRejectedValue(new ErroHttp(StatusCode.CONFLICT, "E-mail já em uso."));
 
       await atualizar(
         req({
@@ -183,11 +175,7 @@ describe("meController", () => {
         res
       );
 
-      expect(meService.excluirConta).toHaveBeenCalledWith(
-        usuario,
-        escopo.empresaId,
-        "senha123"
-      );
+      expect(meService.excluirConta).toHaveBeenCalledWith(usuario, escopo.empresaId, "senha123");
       respondeu(200, {
         _id: usuario._id,
         message: "Conta excluída com sucesso.",
@@ -203,15 +191,11 @@ describe("meController", () => {
       );
 
       expect(status).toHaveBeenCalledWith(400);
-      expect(json).toHaveBeenCalledWith(
-        expect.objectContaining({ error: expect.any(String) })
-      );
+      expect(json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
     });
 
     test("repassa 403 do serviço", async () => {
-      vi.mocked(meService.excluirConta).mockRejectedValue(
-        new ErroHttp(StatusCode.FORBIDDEN, "Senha atual incorreta.")
-      );
+      vi.mocked(meService.excluirConta).mockRejectedValue(new ErroHttp(StatusCode.FORBIDDEN, "Senha atual incorreta."));
 
       await excluir(
         req({
@@ -226,12 +210,7 @@ describe("meController", () => {
     });
 
     test("repassa 409 do serviço", async () => {
-      vi.mocked(meService.excluirConta).mockRejectedValue(
-        new ErroHttp(
-          StatusCode.CONFLICT,
-          "Você é o único administrador da empresa."
-        )
-      );
+      vi.mocked(meService.excluirConta).mockRejectedValue(new ErroHttp(StatusCode.CONFLICT, "Você é o único administrador da empresa."));
 
       await excluir(
         req({
@@ -250,10 +229,7 @@ describe("meController", () => {
 
   describe("rotas registradas (meRouter)", () => {
     test("confere rotas registradas em meRouter", () => {
-      const rotas = meRouter.stack.map((c: any) => [
-        Object.keys(c.route.methods)[0],
-        c.route.path,
-      ]);
+      const rotas = meRouter.stack.map((c: any) => [Object.keys(c.route.methods)[0], c.route.path]);
       expect(rotas).toEqual([
         ["put", "/"],
         ["delete", "/"],

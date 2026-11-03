@@ -14,10 +14,7 @@ export async function login(req: Request, res: Response) {
 
     const resultado = await servicoAuth.login(role, login, senha);
     return respostaSucesso(res, StatusCode.OK, resultado);
-  } catch (error: any) {
-    if (error.message === servicoAuth.CREDENCIAIS_INVALIDAS) {
-      return respostaErro(res, StatusCode.UNAUTHORIZED, error.message);
-    }
+  } catch (error) {
     return responderErro(res, error);
   }
 }

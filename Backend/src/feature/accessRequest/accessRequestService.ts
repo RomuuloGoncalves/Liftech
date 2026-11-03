@@ -1,12 +1,14 @@
+import { ehChaveDuplicada } from "../../utils/mongo.js";
 import { randomBytes } from "node:crypto";
 import { AccessRequest } from "../../schemas/accessRequest.js";
 import { Company } from "../../schemas/company.js";
 import { Branch } from "../../schemas/branch.js";
 import { User } from "../../schemas/user.js";
 import { MATRIZ_NOME } from "../../scripts/seedDataset.js";
-import { companyModel } from "../../models/companyModel.js";
-import { branchModel } from "../../models/branchModel.js";
-import type { userModel } from "../../models/userModel.js";
+import { CompanyModel } from "../../models/companyModel.js";
+import { BranchModel } from "../../models/branchModel.js";
+import { AccessRequestModel } from "../../models/accessRequestModel.js";
+import type { UserModel } from "../../models/userModel.js";
 import { AccessRequestRepository } from "./accessRequestRepository.js";
 import { CompanyRepository } from "../company/companyRepository.js";
 import { BranchRepository } from "../branch/branchRepository.js";
@@ -16,10 +18,34 @@ import { gerarHashSenha } from "../../utils/senha.js";
 
 export type StatusFiltro = "pendente" | "aprovada" | "recusada";
 
+export interface DadosSolicitacao {
+  email: string;
+  nomeEmpresa: string;
+  nomeAdministrador: string;
+}
+
 const solicitacoes = new AccessRequestRepository(AccessRequest);
 const empresas = new CompanyRepository(Company);
 const filiais = new BranchRepository(Branch);
 const usuarios = new UserRepository(User);
+
+// Pedido público de acesso (tela "Solicite o acesso"): um pendente por email.
+export async function solicitar(dados: DadosSolicitacao) {
+  const email = dados.email.trim().toLowerCase();
+
+  if (await solicitacoes.obterUm({ email, status: "pendente" })) {
+    throw new ErroHttp(StatusCode.CONFLICT, "Já existe uma solicitação pendente para este email.");
+  }
+
+  const criada = await solicitacoes.criar(
+    new AccessRequestModel({
+      email,
+      nomeEmpresa: dados.nomeEmpresa.trim(),
+      nomeAdministrador: dados.nomeAdministrador.trim(),
+    })
+  );
+  return criada?.obterDados();
+}
 
 export function gerarSenhaInicial(): string {
   return randomBytes(9).toString("base64url");
@@ -53,9 +79,9 @@ export async function aprovar(id: string) {
     return await naoPendente(id);
   }
 
-  let companyCriada: companyModel | null = null;
-  let branchCriada: branchModel | null = null;
-  let userCriado: userModel | null = null;
+  let companyCriada: CompanyModel | null = null;
+  let branchCriada: BranchModel | null = null;
+  let userCriado: UserModel | null = null;
 
   try {
     const email = solicitacao.getEmail().trim().toLowerCase();
@@ -73,9 +99,9 @@ export async function aprovar(id: string) {
     const senhaHash = gerarHashSenha(senhaInicial);
 
     try {
-      companyCriada = await empresas.criar(new companyModel(nomeEmpresa));
-    } catch (err: any) {
-      if (err?.code === 11000) {
+      companyCriada = await empresas.criar(new CompanyModel(nomeEmpresa));
+    } catch (err) {
+      if (ehChaveDuplicada(err)) {
         throw new ErroHttp(StatusCode.CONFLICT, "Já existe uma empresa com este nome.");
       }
       throw err;
@@ -83,10 +109,10 @@ export async function aprovar(id: string) {
 
     const empresaId = companyCriada?.getID();
 
-    branchCriada = await filiais.criar(new branchModel(MATRIZ_NOME, empresaId, true));
+    branchCriada = await filiais.criar(new BranchModel(MATRIZ_NOME, empresaId, true));
 
     try {
-      userCriado = await usuarios.criarComCredenciais({
+      userCriado = await usuarios.criarDados({
         nome: nomeAdministrador,
         email,
         role: "admin",
@@ -94,8 +120,8 @@ export async function aprovar(id: string) {
         empresaId,
         senhaHash,
       });
-    } catch (err: any) {
-      if (err?.code === 11000) {
+    } catch (err) {
+      if (ehChaveDuplicada(err)) {
         throw new ErroHttp(StatusCode.CONFLICT, "Já existe um usuário com este e-mail.");
       }
       throw err;
@@ -123,10 +149,7 @@ export async function aprovar(id: string) {
       await empresas.deletarUm({ _id: companyCriada.getID() }).catch(() => {});
     }
 
-    await solicitacoes.atualizarUm(
-      { _id: id, status: "aprovando" },
-      { $set: { status: "pendente" } }
-    ).catch(() => {});
+    await solicitacoes.atualizarUm({ _id: id, status: "aprovando" }, { $set: { status: "pendente" } }).catch(() => {});
 
     throw error;
   }
@@ -142,12 +165,7 @@ export async function recusar(id: string, motivo?: string) {
     setPayload.motivoRecusa = motivoNormalizado;
   }
 
-  const recusada = await solicitacoes.atualizarPorId(
-    id,
-    { $set: setPayload },
-    { returnDocument: "after" },
-    { status: "pendente" }
-  );
+  const recusada = await solicitacoes.atualizarPorId(id, { $set: setPayload }, { returnDocument: "after" }, { status: "pendente" });
 
   if (!recusada) {
     return await naoPendente(id);
