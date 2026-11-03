@@ -118,10 +118,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] As 11 chaves existem em pt-BR com o texto exato acima (um teste novo em `i18n.test.ts` lê cada chave e compara com o texto, lista `A11Y_KEYS`).
-- [ ] Nenhuma chave existente foi alterada ou removida (`git diff` só tem linhas adicionadas no JSON).
-- [ ] JSON válido e mesma indentação do arquivo.
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/config/i18n.test.ts`
+- [x] As 11 chaves existem em pt-BR com o texto exato acima (um teste novo em `i18n.test.ts` lê cada chave e compara com o texto, lista `A11Y_KEYS`).
+- [x] Nenhuma chave existente foi alterada ou removida (`git diff` só tem linhas adicionadas no JSON).
+- [x] JSON válido e mesma indentação do arquivo.
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/config/i18n.test.ts`
 
 **Tests**: unit (teste da lista `A11Y_KEYS` em `Frontend/src/test/config/i18n.test.ts`)
 **Gate**: quick

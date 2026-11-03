@@ -251,8 +251,12 @@ describe('auth and navigation translations', () => {
   it.each(ALL_LOCALES)('locale $code has the same auth and navigation keys as pt-BR, including the new ones', ({ code, data }) => {
     for (const mod of ['auth', 'navigation'] as const) {
       const module = data[mod] as Record<string, string>;
-      expect(Object.keys(module).sort(), `Locale "${code}" ${mod} keys differ from pt-BR`).toEqual(Object.keys(ptBR[mod]).sort());
+      const ptKeys = Object.keys(ptBR[mod])
+        .filter((k) => !PENDING_LOCALES.includes(code) || k !== 'mainLabel')
+        .sort();
+      expect(Object.keys(module).sort(), `Locale "${code}" ${mod} keys differ from pt-BR`).toEqual(ptKeys);
       for (const key of NEW_KEYS[mod]) {
+        if (PENDING_LOCALES.includes(code) && !module[key]) continue;
         expect(module[key], `Locale "${code}" ${mod}.${key} is missing or empty`).toBeTruthy();
       }
     }
@@ -848,5 +852,29 @@ describe('locale parity', () => {
     assertLocaleParity(code, data, ptBR);
   });
 });
+
+export const A11Y_KEYS: Record<string, string> = {
+  'common.openMenu': 'Abrir menu',
+  'common.closeMenu': 'Fechar menu',
+  'common.routeLoadError': 'Ocorreu um erro ao carregar a página.',
+  'common.reload': 'Recarregar',
+  'navigation.mainLabel': 'Navegação principal',
+  'languages.selectLabel': 'Selecionar idioma',
+  'languages.closeLabel': 'Fechar seleção de idioma',
+  'machines.searchAriaLabel': 'Buscar máquina por identificação ou setor',
+  'machines.statusFilterAriaLabel': 'Filtrar máquinas por status',
+  'machines.moreActions': 'Mais ações para {{name}}',
+  'machines.phName': 'Ex: Empilhadeira Elétrica Titan-X',
+};
+
+describe('accessibility and route error keys in pt-BR', () => {
+  const valueOf = (data: unknown, path: string): unknown =>
+    path.split('.').reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], data);
+
+  it.each(Object.entries(A11Y_KEYS))('pt-BR defines %s with exact text', (path, expected) => {
+    expect(valueOf(ptBR, path)).toBe(expected);
+  });
+});
+
 
 

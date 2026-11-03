@@ -9,7 +9,11 @@
     "close": "Fechar",
     "loading": "Carregando...",
     "closeNotification": "Fechar aviso",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "routeLoadError": "Ocorreu um erro ao carregar a página.",
+    "reload": "Recarregar"
   },
   "navigation": {
     "overview": "Visão Geral",
@@ -20,7 +24,8 @@
     "pages": "Páginas",
     "feedback": "Feedback & Sugestões",
     "privacy": "Políticas & Privacidades",
-    "logout": "Sair"
+    "logout": "Sair",
+    "mainLabel": "Navegação principal"
   },
   "machines": {
     "registerButton": "Cadastrar Máquina",
@@ -80,7 +85,11 @@
     "changeStatus": "Alterar status",
     "sectorNone": "Sem setor",
     "filterSectorAll": "Todos os setores",
-    "filterSectorLabel": "Filtrar por setor"
+    "filterSectorLabel": "Filtrar por setor",
+    "searchAriaLabel": "Buscar máquina por identificação ou setor",
+    "statusFilterAriaLabel": "Filtrar máquinas por status",
+    "moreActions": "Mais ações para {{name}}",
+    "phName": "Ex: Empilhadeira Elétrica Titan-X"
   },
   "alerts": {
     "accidents": "Acidentes",
@@ -166,7 +175,9 @@
     "fr": "Francês",
     "ja": "Japonês",
     "de": "Alemão",
-    "ru": "Russo"
+    "ru": "Russo",
+    "selectLabel": "Selecionar idioma",
+    "closeLabel": "Fechar seleção de idioma"
   },
   "auth": {
     "loginAdminTitle": "Bem-vindo de volta",
