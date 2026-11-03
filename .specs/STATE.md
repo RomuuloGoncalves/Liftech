@@ -151,6 +151,17 @@
   - `yarn migrate:sectors` leva os textos antigos para setores (idempotente); seed e reset criam e limpam setores.
   - Front: aba Setores pela API com otimista e rollback; seletor de filial no formulário conforme escopo; select de setor no cadastro de máquina; filtro por setor na Visão Geral e na Frota.
 
+### AD-014: i18n completo e teste de paridade (`i18n-completo`)
+- **Date**: 2026-11-03
+- **Status**: Approved (spec e tasks prontos; execução por worker, verificação independente depois)
+- **Context**: es, fr, de, ja e ru estavam sem cerca de 70 chaves de `employee.*`; en-US e os demais sem 2 chaves de `machines`; 11 textos de acessibilidade/erro estavam fixos no JSX. O teste de estrutura ignorava `employee`.
+- **Decision**:
+  - A paridade compara a chave base de plural (sem `_zero|_one|_two|_few|_many|_other`): japonês só tem `other` e russo tem `few`/`many`, então exigir os sufixos de pt-BR estaria errado.
+  - O teste não compara texto com pt-BR (cognatos como "Offline" dariam falso positivo); confere presença, `{{placeholders}}` iguais, valor não vazio e ausência de chave extra que não seja plural.
+  - As traduções de es, fr, de, ja e ru saem de modelo de linguagem, sem revisão de falante nativo; fica registrado como risco no `validation.md`.
+  - Fora de escopo: bloco DEV da Sidebar, placeholders de formato (`EMP-084`, MAC), marca "Liftech", `console.error` e a máquina de exemplo `DEFAULT_LAST_MACHINE` da home do funcionário.
+  - Frontend roda com Node >= 20.19 (`engines`); a máquina tem 20.18 por padrão, que quebra o `jsdom`. Os gates usam o Node 22.22.2 do nvm.
+
 ## Handoff Snapshot
 - **Branch**: `feature/machines-team-crud` (local, nada enviado ao remoto, sem PR).
 - **Feature**: `sectors` concluída (T1–T15) e verificada: PASS na rodada 2 (rodada 1 FAIL por 5 mutantes vivos, corrigidos só com testes).
