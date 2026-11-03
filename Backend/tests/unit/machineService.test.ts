@@ -12,8 +12,7 @@ vi.mock('../../src/schemas/incident.js', () => ({ Incident: { find: vi.fn() } })
 import { Device } from '../../src/schemas/device.js';
 import { Branch } from '../../src/schemas/branch.js';
 import { WorkSession } from '../../src/schemas/workSession.js';
-vi.mock('../../src/schemas/workSession.js', () => ({ WorkSession: { exists: vi.fn() } }));
-vi.mock('../../src/schemas/device.js', () => ({ Device: { exists: vi.fn(), create: vi.fn(), deleteOne: vi.fn(), updateOne: vi.fn() } }));
+vi.mock('../../src/schemas/workSession.js', () => ({ WorkSession: { exists: vi.fn(), aggregate: vi.fn().mockResolvedValue([]) } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findById: vi.fn() } }));
 import { Sector } from '../../src/schemas/sector.js';
@@ -87,8 +86,43 @@ describe('listarMaquinas', () => {
             dispositivoConectado: { enderecoMac: 'A2:C9:9B:1D:F7' },
             operadorConectado: { nome: 'Carlos Silva' },
             tempoSessaoMinutos: 34,
+            tempoUsoTotalHoras: 0,
+            tempoUsoSemanaHoras: 0,
+            ultimoOperador: null,
         });
     });
+
+    test('tempo de uso total, da semana e último operador vêm das sessões, em horas com uma casa', async () => {
+        mockarLista([base]);
+        vi.mocked(WorkSession.aggregate).mockResolvedValueOnce([
+            { _id: ID, totalMs: 7.5 * 3_600_000, semanaMs: 2.25 * 3_600_000, operador: [{ _id: 'o9', nome: 'Ana Souza' }] },
+        ] as any);
+
+        const [item] = await listarMaquinas(ESCOPO);
+
+        expect(item).toMatchObject({ tempoUsoTotalHoras: 7.5, tempoUsoSemanaHoras: 2.3, ultimoOperador: { nome: 'Ana Souza' } });
+    });
+
+    test('a agregação filtra as máquinas da lista e conta a semana a partir de segunda 00:00', async () => {
+        mockarLista([base]);
+
+        await listarMaquinas(ESCOPO);
+
+        const [pipeline] = vi.mocked(WorkSession.aggregate).mock.calls[0]! as any;
+        expect(pipeline[0]).toEqual({ $match: { empilhadeiraId: { $in: [ID] } } });
+        // AGORA é terça 13/10/2026: a semana começa na segunda 12/10 à meia-noite, no fuso do servidor.
+        const segunda = new Date(2026, 9, 12, 0, 0, 0, 0);
+        expect(JSON.stringify(pipeline)).toContain(segunda.toISOString());
+    });
+
+    test('sem máquinas na lista, não consulta as sessões', async () => {
+        mockarLista([]);
+
+        await listarMaquinas(ESCOPO);
+
+        expect(WorkSession.aggregate).not.toHaveBeenCalled();
+    });
+
 
     test('setor é o nome do setor ligado, buscado numa consulta só', async () => {
         mockarLista([base, { ...base, _id: new Types.ObjectId() }]);

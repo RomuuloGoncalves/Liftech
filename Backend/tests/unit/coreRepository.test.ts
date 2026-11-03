@@ -268,12 +268,15 @@ describe('RepositoryBase: filtro de escopo', () => {
         expect(distinct).toHaveBeenCalledWith('_id');
     });
 
-    test('distinto devolve o distinct do campo no filtro', async () => {
-        const bd = { distinct: vi.fn().mockResolvedValue(['EMP-001']) };
+    test('agregar repassa o pipeline ao aggregate e devolve os documentos como vieram', async () => {
+        const pipeline = [{ $match: { a: 1 } }];
+        const bd = { aggregate: vi.fn().mockResolvedValue([{ _id: 'x', total: 3 }]) };
 
-        await expect(new ItemRepository(bd as unknown as mongoose.Model<any>).distinto('matricula', { filialId: 'f1' })).resolves.toEqual(['EMP-001']);
-        expect(bd.distinct).toHaveBeenCalledWith('matricula', { filialId: 'f1' });
+        await expect(new ItemRepository(bd as unknown as mongoose.Model<any>).agregar(pipeline)).resolves.toEqual([{ _id: 'x', total: 3 }]);
+        expect(bd.aggregate).toHaveBeenCalledWith(pipeline);
     });
+
+    test('distinto devolve o distinct do campo no filtro', async () => {
 
     test('criar sem options grava o objeto do modelo e aceita documento sem toObject', async () => {
         const bd = { create: vi.fn().mockResolvedValue({ _id: 'a', nome: 'x' }) };

@@ -82,6 +82,11 @@ export abstract class RepositoryBase<T extends coreModel> {
     return this.bd.find(filtro).distinct("_id");
   }
 
+  // Agregação do Mongo: devolve os documentos como o pipeline montou, sem converter para modelo.
+  async agregar(pipeline: Record<string, unknown>[]): Promise<Record<string, any>[]>{
+    return this.bd.aggregate(pipeline as unknown as mongoose.PipelineStage[]);
+  }
+
   // Valores distintos de um campo entre os documentos do filtro.
   async distinto(campo: string, filtro: Record<string, unknown>): Promise<unknown[]> {
     return this.bd.distinct(campo, filtro);
