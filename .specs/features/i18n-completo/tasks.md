@@ -199,10 +199,10 @@ T9 → T10 → T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Em pt-BR os 2 rótulos continuam iguais (testes antigos de `Header.test.tsx` passam sem edição).
-- [ ] Teste novo em `Header.test.tsx`: em en-US o botão "Select language" existe e, com o popover aberto, "Close language selection" existe.
-- [ ] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/layout/Header.test.tsx`
-- [ ] Test count: ≥ 1 teste novo, nenhum removido.
+- [x] Em pt-BR os 2 rótulos continuam iguais (testes antigos de `Header.test.tsx` passam sem edição).
+- [x] Teste novo em `Header.test.tsx`: em en-US o botão "Select language" existe e, com o popover aberto, "Close language selection" existe.
+- [x] Gate check passes: `cd Frontend && yarn -s vitest run src/test/components/layout/Header.test.tsx`
+- [x] Test count: ≥ 1 teste novo, nenhum removido.
 
 **Tests**: unit (`Frontend/src/test/components/layout/Header.test.tsx`)
 **Gate**: quick

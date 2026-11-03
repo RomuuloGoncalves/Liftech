@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, afterEach } from 'vitest'
 import Header from '../../../components/layout/Header'
+import i18n from '../../../config/i18n'
 
 function renderHeaderAt(path: string) {
   return render(
@@ -53,7 +54,7 @@ describe('Header component', () => {
     // After click, the language is English, so texts translate to English!
     // And since we didn't close the dialog in the test (wait, click changes language AND closes the popover now!)
     // So we need to re-open the popover to see the radios.
-    fireEvent.click(screen.getByRole('button', { name: /selecionar idioma/i }))
+    fireEvent.click(screen.getByRole('button', { name: /select language/i }))
 
     expect(screen.getByRole('radio', { name: 'English' })).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByRole('radio', { name: 'Portuguese (Brazil)' })).toHaveAttribute('aria-checked', 'false')
@@ -133,5 +134,20 @@ describe('Header component', () => {
 
     expect(screen.queryByRole('dialog', { name: /perfil/i })).not.toBeInTheDocument()
     expect(document.activeElement).toBe(avatar)
+  })
+
+  afterEach(async () => {
+    await i18n.changeLanguage('pt-BR')
+  })
+
+  it('renders translated language selection labels when language is en-US', async () => {
+    await i18n.changeLanguage('en-US')
+    renderHeaderAt('/')
+
+    const openBtn = screen.getByRole('button', { name: 'Select language' })
+    expect(openBtn).toBeInTheDocument()
+
+    fireEvent.click(openBtn)
+    expect(screen.getByRole('button', { name: 'Close language selection' })).toBeInTheDocument()
   })
 })

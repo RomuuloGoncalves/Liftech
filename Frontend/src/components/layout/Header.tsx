@@ -73,7 +73,7 @@ const Header: React.FC = () => {
           <button
             type="button"
             className={styles.iconButton}
-            aria-label="Selecionar idioma"
+            aria-label={t('languages.selectLabel')}
             aria-expanded={languageOpen}
             onClick={() => setLanguageOpen((prev) => !prev)}
           >
@@ -87,7 +87,7 @@ const Header: React.FC = () => {
                 <button
                   type="button"
                   className={styles.popoverClose}
-                  aria-label="Fechar seleção de idioma"
+                  aria-label={t('languages.closeLabel')}
                   onClick={closeLanguagePopover}
                 >
                   <X size={16} />
