@@ -58,6 +58,9 @@ const MACHINES: Machine[] = MOCK.map((m) => ({
 }))
 
 beforeEach(() => {
+  // "Hoje" fixo perto do alertaEm dos dados de exemplo (01/09/2026): a linha Acidentes mostra os últimos 30 dias.
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(2026, 8, 15, 12, 0, 0))
   listarSetores.mockReset()
   listarSetores.mockResolvedValue(SETORES)
   listarMaquinas.mockReset()
@@ -77,7 +80,10 @@ beforeEach(() => {
   alterarStatus.mockImplementation(async (id, status) => ({ ...MACHINES.find((m) => m.id === id)!, status }))
 })
 
-afterEach(() => localStorage.clear())
+afterEach(() => {
+  localStorage.clear()
+  vi.useRealTimers()
+})
 
 const renderPage = async (ui: React.ReactElement = <FrotaPage />) => {
   const view = render(ui)

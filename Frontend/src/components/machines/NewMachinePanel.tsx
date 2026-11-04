@@ -13,7 +13,7 @@ export interface NewMachineFormValues {
   setorId: string
   nomeDispositivo: string
   enderecoMac: string
-  /** Only set on create when the branch picker is shown. */
+  /** Set on create from the branches given: picked in the form with 2+, the only one without asking. */
   filialId?: string
 }
 
@@ -51,7 +51,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
           nomeDispositivo: machine.dispositivoConectado.nomeDispositivo ?? '',
           enderecoMac: machine.dispositivoConectado.enderecoMac,
         }
-      : showBranch
+      : branches.length > 0
         ? { ...EMPTY_FORM, filialId: branches[0]._id }
         : EMPTY_FORM
   )

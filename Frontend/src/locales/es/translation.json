@@ -202,6 +202,7 @@
     "tabAdmin": "Entrar como Administrador",
     "tabCollaborator": "Colaborador",
     "invalidCredentials": "Usuario o contraseña inválidos.",
+    "accessDenied": "Acceso denegado. Habla con tu supervisor.",
     "networkError": "No fue posible conectar con el servidor.",
     "loginError": "Error al iniciar sesión.",
     "requestDuplicate": "Ya existe una solicitud pendiente para este correo.",

@@ -3,9 +3,8 @@ import { Calendar, CircleUser, Cpu, MapPin, Pencil, Timer, Trash2 } from 'lucide
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
 import {
-  DEFAULT_PERIOD,
   MACHINE_STATUSES,
-  defaultPeriodTo,
+  defaultPeriod,
   incidentToEvent,
   type Machine,
   type MachineEvent,
@@ -56,8 +55,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   const uid = useId()
   const tabs = TABS[variant]
   const [tab, setTab] = useState<MachineEventType>(tabs[0].type)
-  const [from, setFrom] = useState(DEFAULT_PERIOD.from)
-  const [to, setTo] = useState(defaultPeriodTo)
+  const [from, setFrom] = useState(() => defaultPeriod().from)
+  const [to, setTo] = useState(() => defaultPeriod().to)
   const [accidents, setAccidents] = useState<MachineEvent[]>([])
 
   useEffect(() => {
@@ -87,7 +86,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
           {
             icon: <CircleUser size={14} />,
             label: t('fleet.detailEmployee'),
-            value: machine.operadorConectado?.nome || dash,
+            // Quem usou por último (ou está usando agora).
+            value: machine.ultimoOperador?.nome || machine.operadorConectado?.nome || dash,
           },
           {
             icon: <Timer size={14} />,

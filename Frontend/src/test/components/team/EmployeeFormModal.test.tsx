@@ -174,13 +174,13 @@ describe('EmployeeFormModal (create) branch', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f2' }))
   })
 
-  it('has no branch field with a single branch', () => {
+  it('has no branch field with a single branch and saves to that branch', () => {
     const { onSave } = renderForm({ branches: [branches[0]] })
 
     expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
     fillRequired()
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
-    expect(onSave.mock.calls[0][0]).not.toHaveProperty('filialId')
+    expect(onSave.mock.calls[0][0]).toHaveProperty('filialId', 'f1')
   })
 
   it('has no branch field when editing', () => {

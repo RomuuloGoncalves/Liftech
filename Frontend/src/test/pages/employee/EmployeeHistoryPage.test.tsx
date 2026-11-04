@@ -6,7 +6,7 @@ import { MACHINES } from '../../fixtures/machines'
 import { resetWorkSession } from '../../../hooks/useWorkSession'
 import { machineService } from '../../../services/machineService'
 import { sessionService } from '../../../services/sessionService'
-import { listSessions } from '../../fixtures/employeeSessions'
+import { listSessions, sessao } from '../../fixtures/employeeSessions'
 
 vi.mock('../../../services/sessionService', () => ({
   sessionService: { atual: vi.fn(), iniciar: vi.fn(), encerrar: vi.fn(), listar: vi.fn() },
@@ -59,6 +59,17 @@ describe('EmployeeHistoryPage', () => {
     await loaded()
     expect(listarSessoes).toHaveBeenCalledWith()
     expect(cards()).toHaveLength(32)
+  })
+
+  it('shows the session data when the machine is not in the current list, without status and details', async () => {
+    listarSessoes.mockResolvedValue([sessao('4', '2026-09-05', '10:00:00', '11:00:00')])
+    listarMaquinas.mockResolvedValue(MACHINES.filter((m) => m.id !== '4'))
+    setup()
+    await loaded()
+    expect(cards()).toHaveLength(1)
+    expect(screen.getByText('EMP-084')).toBeInTheDocument()
+    expect(screen.queryByText(/^(Disponível|Em uso|Manutenção|Alerta|Offline)$/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Mais detalhes/ })).toBeDisabled()
   })
 
   it('shows the empty message when the API has no session', async () => {

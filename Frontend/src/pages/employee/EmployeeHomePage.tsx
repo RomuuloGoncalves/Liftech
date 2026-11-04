@@ -4,21 +4,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Forklift, History } from 'lucide-react'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import MachineListCard from '../../components/employee/MachineListCard'
-import { filterAvailableMachines } from '../../data/employeeArea'
+import { filterAvailableMachines, formatDuration } from '../../data/employeeArea'
 import { useEmployeeData } from '../../hooks/useEmployeeData'
 import { formatAlertDate } from '../../utils/format'
 import styles from './EmployeeHomePage.module.css'
 
 const MAX_CARDS = 3
-
-const DEFAULT_LAST_MACHINE = {
-  maquina: {
-    nome: 'Empilhadeira elétrica Tital-X',
-    identificacao: 'EMP - 084(ID)',
-  },
-  date: '2026-09-05',
-  durationLabel: '6 h 34m',
-}
 
 const EmployeeHomePage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -26,7 +17,10 @@ const EmployeeHomePage: React.FC = () => {
   const { machines, records, loading } = useEmployeeData()
   const available = filterAvailableMachines(machines, '').slice(0, MAX_CARDS)
   const lastSession = records.find((record): record is typeof record & { maquina: NonNullable<typeof record.maquina> } => record.maquina !== null)
-  const last = lastSession ?? DEFAULT_LAST_MACHINE
+  // Tempo total do colaborador na última máquina: soma das sessões dele nela.
+  const minutesOnLast = lastSession
+    ? records.filter((record) => record.machineId === lastSession.machineId).reduce((total, record) => total + record.durationMinutes, 0)
+    : 0
 
   if (loading) {
     return (
@@ -43,29 +37,31 @@ const EmployeeHomePage: React.FC = () => {
         <p className={styles.subtitle}>{t('employee.home.subtitle')}</p>
       </header>
 
-      <section className={styles.last} aria-label={t('employee.home.lastMachine')}>
-        <div className={styles.banner}>
-          <History size={16} aria-hidden="true" />
-          <span className={styles.bannerText}>{t('employee.home.lastMachine')}</span>
-          <ArrowRight size={16} aria-hidden="true" />
-        </div>
-        <div className={styles.lastCard}>
-          <div className={styles.lastMachineInfo}>
-            <Forklift size={20} className={styles.forkliftIcon} aria-hidden="true" />
-            <div className={styles.lastNames}>
-              <p className={styles.lastName}>{last.maquina.nome}</p>
-              <p className={styles.lastId}>{last.maquina.identificacao}</p>
+      {lastSession && (
+        <section className={styles.last} aria-label={t('employee.home.lastMachine')}>
+          <div className={styles.banner}>
+            <History size={16} aria-hidden="true" />
+            <span className={styles.bannerText}>{t('employee.home.lastMachine')}</span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </div>
+          <div className={styles.lastCard}>
+            <div className={styles.lastMachineInfo}>
+              <Forklift size={20} className={styles.forkliftIcon} aria-hidden="true" />
+              <div className={styles.lastNames}>
+                <p className={styles.lastName}>{lastSession.maquina.nome}</p>
+                <p className={styles.lastId}>{lastSession.maquina.identificacao}</p>
+              </div>
+            </div>
+            <div className={styles.lastMeta}>
+              <p className={styles.lastDate}>{formatAlertDate(lastSession.date, i18n.language)}</p>
+              <p className={styles.lastTime}>
+                <span className={styles.lastDuration}>{formatDuration(minutesOnLast)} | </span>
+                <span>{t('employee.home.totalTime')}</span>
+              </p>
             </div>
           </div>
-          <div className={styles.lastMeta}>
-            <p className={styles.lastDate}>{formatAlertDate(last.date, i18n.language)}</p>
-            <p className={styles.lastTime}>
-              {last.durationLabel && <span className={styles.lastDuration}>{last.durationLabel} | </span>}
-              <span>{t('employee.home.totalTime')}</span>
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <div className={styles.stats}>
         <div className={styles.stat}>

@@ -16,6 +16,7 @@ import { categoriaDoStatus } from "./statusService.js";
 import { exigirSetorDaFilial, nomesDosSetores } from "../sector/sectorService.js";
 
 const MINUTO_MS = 60_000;
+const HORA_MS = 60 * MINUTO_MS;
 const MAC_REPETIDO = "Já existe um dispositivo com este endereço MAC.";
 
 export interface DadosMaquina {
@@ -33,6 +34,44 @@ const sessoes = new WorkSessionRepository(WorkSession);
 const dispositivos = new DeviceRepository(Device);
 
 const normalizarMac = (mac: string) => mac.trim().toUpperCase();
+
+// Horas com uma casa decimal.
+const emHoras = (ms: number | undefined) => Math.round((ms ?? 0) / (HORA_MS / 10)) / 10;
+
+// Segunda-feira 00:00 da semana de `agora`, no fuso do servidor (o mesmo critério de lerPeriodo).
+function inicioDaSemana(agora: Date): Date {
+  const inicio = new Date(agora);
+  inicio.setHours(0, 0, 0, 0);
+  inicio.setDate(inicio.getDate() - ((inicio.getDay() + 6) % 7));
+  return inicio;
+}
+
+interface UsoDaMaquina {
+  totalMs: number;
+  semanaMs: number;
+  operador: { nome?: string }[];
+}
+
+// Tempo de uso (total e da semana) e o operador da sessão mais recente de cada máquina, numa agregação só.
+// Sessão aberta conta até agora; de uma sessão que começou antes da segunda, só conta a parte da semana.
+async function usoDasMaquinas(ids: unknown[], agora: Date): Promise<Map<string, UsoDaMaquina>> {
+  if (ids.length === 0) return new Map();
+  const fim = { $ifNull: ["$fim", agora] };
+  const usos = await sessoes.agregar([
+    { $match: { empilhadeiraId: { $in: ids } } },
+    { $sort: { inicio: -1 } },
+    {
+      $group: {
+        _id: "$empilhadeiraId",
+        totalMs: { $sum: { $subtract: [fim, "$inicio"] } },
+        semanaMs: { $sum: { $max: [0, { $subtract: [fim, { $max: ["$inicio", inicioDaSemana(agora)] }] }] } },
+        ultimoOperadorId: { $first: "$operadorId" },
+      },
+    },
+    { $lookup: { from: "operators", localField: "ultimoOperadorId", foreignField: "_id", as: "operador" } },
+  ]);
+  return new Map(usos.map((uso) => [String(uso._id), uso as UsoDaMaquina]));
+}
 
 // O índice único em device.enderecoMac recusa o MAC repetido numa corrida (11000).
 const traduzirErro = conflitoSeDuplicado(MAC_REPETIDO);
@@ -60,12 +99,15 @@ async function consultar(filtro: Record<string, unknown>) {
 
   const setores = await nomesDosSetores(maquinas.map((f) => f.setorId));
   const agora = Date.now();
+  const usos = await usoDasMaquinas(maquinas.map((f) => f._id), new Date(agora));
 
   return maquinas.map((f) => {
     const dispositivo = f.dispositivoConectadoId;
     const operador = f.operadorConectadoId;
     const inicio = f.sessaoIniciadaEm ? new Date(f.sessaoIniciadaEm).getTime() : agora;
     const status = f.status ?? "disponivel";
+    const uso = usos.get(String(f._id));
+    const ultimoOperador = uso?.operador[0];
 
     return {
       id: String(f._id),
@@ -81,6 +123,9 @@ async function consultar(filtro: Record<string, unknown>) {
       dispositivoConectado: { enderecoMac: dispositivo?.enderecoMac ?? "", nomeDispositivo: dispositivo?.nome },
       ...(operador && { operadorConectado: { nome: operador.nome } }),
       tempoSessaoMinutos: Math.max(0, Math.floor((agora - inicio) / MINUTO_MS)),
+      tempoUsoTotalHoras: emHoras(uso?.totalMs),
+      tempoUsoSemanaHoras: emHoras(uso?.semanaMs),
+      ultimoOperador: ultimoOperador ? { nome: ultimoOperador.nome } : null,
     };
   });
 }

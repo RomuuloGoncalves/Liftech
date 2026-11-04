@@ -5,9 +5,9 @@ import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
 import FleetCard from '../components/fleet/FleetCard'
 import LevelInfoModal from '../components/alerts/LevelInfoModal'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
+import { useActiveBranch } from '../context/ActiveBranchContext'
 import {
-  DEFAULT_PERIOD,
-  defaultPeriodTo,
+  defaultPeriod,
   eventUrgency,
   incidentToEvent,
   type Machine,
@@ -20,8 +20,10 @@ import styles from './AlertasPage.module.css'
 const AlertasPage: React.FC = () => {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
-  const [from, setFrom] = useState(DEFAULT_PERIOD.from)
-  const [to, setTo] = useState(defaultPeriodTo)
+  const [from, setFrom] = useState(() => defaultPeriod().from)
+  const [to, setTo] = useState(() => defaultPeriod().to)
+  const { activeBranch } = useActiveBranch()
+  const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [detailId, setDetailId] = useState<string | null>(null)
   const [showLevelInfo, setShowLevelInfo] = useState(false)
   const helpRef = useRef<HTMLButtonElement>(null)
@@ -31,15 +33,15 @@ const AlertasPage: React.FC = () => {
 
   useEffect(() => {
     let stale = false
-    machineService.listar().then((list) => !stale && setMachines(list), () => {})
+    machineService.listar(filialId).then((list) => !stale && setMachines(list), () => {})
     return () => {
       stale = true
     }
-  }, [])
+  }, [filialId])
 
   useEffect(() => {
     let stale = false
-    incidentService.listar({ from: from || undefined, to: to || undefined }).then(
+    incidentService.listar({ from: from || undefined, to: to || undefined, ...(filialId && { filialId }) }).then(
       (list) => {
         if (!stale) {
           setEvents(list.map(incidentToEvent))
@@ -56,7 +58,7 @@ const AlertasPage: React.FC = () => {
     return () => {
       stale = true
     }
-  }, [from, to])
+  }, [from, to, filialId])
 
   const machineById = useMemo(() => new Map(machines.map((machine) => [machine.id, machine])), [machines])
 
