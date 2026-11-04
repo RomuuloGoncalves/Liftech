@@ -662,7 +662,7 @@ describe('profile module translations', () => {
   });
 });
 
-export const PENDING_LOCALES = ['de', 'ja', 'ru'];
+export const PENDING_LOCALES = ['ja', 'ru'];
 
 export const folhas = (obj: object, prefix = ''): Record<string, string> =>
   Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {

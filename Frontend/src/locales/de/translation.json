@@ -9,7 +9,11 @@
     "close": "Schließen",
     "loading": "Wird geladen...",
     "closeNotification": "Hinweis schließen",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "routeLoadError": "Beim Laden der Seite ist ein Fehler aufgetreten.",
+    "reload": "Neu laden"
   },
   "navigation": {
     "overview": "Übersicht",
@@ -20,7 +24,8 @@
     "pages": "Seiten",
     "feedback": "Feedback & Vorschläge",
     "privacy": "Datenschutzrichtlinie",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "mainLabel": "Hauptnavigation"
   },
   "machines": {
     "registerButton": "Maschine registrieren",
@@ -78,7 +83,13 @@
     "changeStatus": "Status ändern",
     "sectorNone": "Kein Sektor",
     "filterSectorAll": "Alle Sektoren",
-    "filterSectorLabel": "Nach Sektor filtern"
+    "filterSectorLabel": "Nach Sektor filtern",
+    "newMachineSubtitle": "Registrieren Sie einen neuen Stapler für Ihre Flotte.",
+    "labelDeviceName": "Gerätename",
+    "searchAriaLabel": "Maschine nach Kennung oder Sektor suchen",
+    "statusFilterAriaLabel": "Maschinen nach Status filtern",
+    "moreActions": "Weitere Aktionen für {{name}}",
+    "phName": "Z. B.: Elektrischer Gabelstapler Titan-X"
   },
   "alerts": {
     "accidents": "Unfälle",
@@ -164,7 +175,9 @@
     "fr": "Französisch",
     "ja": "Japanisch",
     "de": "Deutsch",
-    "ru": "Russisch"
+    "ru": "Russisch",
+    "selectLabel": "Sprache auswählen",
+    "closeLabel": "Sprachauswahl schließen"
   },
   "auth": {
     "loginAdminTitle": "Willkommen zurück",
@@ -289,10 +302,94 @@
     },
     "session": {
       "startError": "Die Sitzung konnte nicht gestartet werden. Bitte erneut versuchen.",
-      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen."
+      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen.",
+      "description": "Die <b>Erfassung der Nutzungszeit</b> läuft bereits. Denken Sie daran, den Vorgang nach Abschluss zu <b>beenden</b>.",
+      "timerLabel": "Sitzungszeit",
+      "end": "Sitzung beenden",
+      "reportIncident": "Vorfall melden"
     },
     "incident": {
-      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen."
+      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen.",
+      "title": "Einen Vorfall melden",
+      "employeeName": "Mitarbeitername",
+      "sector": "Sektor",
+      "machine": "Maschine",
+      "time": "Uhrzeit",
+      "employeeNamePlaceholder": "Z. B.: Alexandre Mattos",
+      "sectorPlaceholder": "Z. B.: Versand - Block B",
+      "machinePlaceholder": "Z. B.: Elektrischer Gabelstapler Titan-X",
+      "cancel": "Abbrechen",
+      "submit": "Vorfall senden",
+      "required": "Pflichtfeld",
+      "toastSent": "Vorfall erfolgreich gemeldet"
+    },
+    "sessionBar": {
+      "title": "Laufende Sitzung"
+    },
+    "nav": {
+      "overview": "Übersicht",
+      "machines": "Stapler",
+      "history": "Verlauf"
+    },
+    "common": {
+      "available": "Verfügbar",
+      "inUse": "In Gebrauch",
+      "maintenance": "In Wartung",
+      "offline": "Offline",
+      "sector": "Sektor",
+      "dateTime": "Datum und Uhrzeit",
+      "cancel": "Abbrechen",
+      "navigationLabel": "Mitarbeiter-Navigation",
+      "alertButton": "Vorfall melden",
+      "menuButton": "Einstellungen öffnen"
+    },
+    "home": {
+      "title": "Übersicht",
+      "subtitle": "Verfolgen Sie Ihre aktuellen Updates und sehen Sie die verfügbaren Maschinen zur Nutzung ein.",
+      "totalTime": "Gesamtzeit",
+      "lastMachine": "Letzte Maschine",
+      "workday": "Arbeitsschicht",
+      "workdaySchedule": "Von 8:00 bis 17:00 Uhr",
+      "workdayDaily": "Tägliche Schicht von 8 Stunden.",
+      "remaining": "Verbleibende Schichtzeit",
+      "remainingValue": "04 Stunden",
+      "availableTitle": "Verfügbare Stapler",
+      "more": "Mehr"
+    },
+    "machines": {
+      "title": "Verfügbare Maschinen",
+      "subtitle": "Verfolgen Sie Ihre aktuellen Updates und sehen Sie die verfügbaren Maschinen zur Nutzung ein.",
+      "searchPlaceholder": "Maschine oder Sektor suchen",
+      "searchLabel": "Stapler suchen",
+      "select": "Auswählen",
+      "empty": "Keine verfügbaren Stapler gefunden"
+    },
+    "detail": {
+      "title": "Maschine auswählen",
+      "mac": "Mac",
+      "code": "Code",
+      "sector": "Sektor",
+      "deviceName": "Gerätename",
+      "history": "Nutzungsverlauf",
+      "date": "Datum",
+      "periodFrom": "Startdatum",
+      "periodTo": "Enddatum",
+      "historyEmpty": "Keine Einträge im Zeitraum",
+      "cancel": "Abbrechen",
+      "activate": "Maschine aktivieren",
+      "activeSessionHint": "Sie haben bereits eine laufende Sitzung."
+    },
+    "history": {
+      "title": "Verlauf",
+      "subtitle": "Überprüfen Sie Ihre bisherigen Nutzungen und filtern Sie nach Zeitraum, Uhrzeit oder Maschine.",
+      "filters": "Filter",
+      "periodFrom": "Startdatum",
+      "periodTo": "Enddatum",
+      "startTime": "Uhrzeit",
+      "endTime": "Endzeit",
+      "searchPlaceholder": "Maschine suchen",
+      "empty": "Keine Einträge gefunden",
+      "moreDetails": "Weitere Details"
     }
   },
   "branches": {
