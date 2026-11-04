@@ -36,7 +36,11 @@ export async function autenticar(req: Request, res: Response, next: NextFunction
     const usuario = await User.findById(sub).lean();
     if (!usuario || usuario.acessoNegado === true) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);
 
-    req.usuario = { _id: String(usuario._id), role: String(usuario.role), operadorId: usuario.operadorId ? String(usuario.operadorId) : null };
+    req.usuario = {
+      _id: String(usuario._id),
+      role: String(usuario.role),
+      operadorId: usuario.operadorId ? String(usuario.operadorId) : null,
+    };
     req.escopo = await carregarEscopo(usuario);
   } catch (error: any) {
     if (ERROS_DE_TOKEN.includes(error.name)) return respostaErro(res, StatusCode.UNAUTHORIZED, NAO_AUTENTICADO);

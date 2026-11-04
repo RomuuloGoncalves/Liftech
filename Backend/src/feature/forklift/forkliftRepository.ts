@@ -1,24 +1,23 @@
-import mongoose from "mongoose";
-import { RepositoryBase } from "../../core/coreRepository.js";
-import { forkliftModel } from "../../models/forkliftModel.js";
+import { RepositoryBase, type ModeloMongoose } from "../../core/coreRepository.js";
+import { ForkliftModel, type DocumentoEmpilhadeira } from "../../models/forkliftModel.js";
 
-export class ForkliftRepository extends RepositoryBase<forkliftModel> {
-  constructor(mongoDB: mongoose.Model<any>) {
-    super(mongoDB);
+export class ForkliftRepository extends RepositoryBase<ForkliftModel> {
+  constructor(bd: ModeloMongoose) {
+    super(bd);
   }
 
-  protected converterParaModelo(documento: Record<string, unknown>): forkliftModel {
-    return new forkliftModel(
+  protected converterParaModelo(documento: Record<string, unknown>): ForkliftModel {
+    return new ForkliftModel(
       String(documento.identificacao ?? ""),
       documento.dispositivoConectadoId ? String(documento.dispositivoConectadoId) : undefined,
       documento.operadorConectadoId ? String(documento.operadorConectadoId) : undefined,
       String(documento._id ?? ""),
       documento.filialId ? String(documento.filialId) : undefined,
-      documento
+      documento as unknown as DocumentoEmpilhadeira
     );
   }
 
-  async obterPorIdentificacao(identificacao: string): Promise<forkliftModel | null> {
+  async obterPorIdentificacao(identificacao: string): Promise<ForkliftModel | null> {
     const documento = await this.bd.findOne({ identificacao }).lean();
     if (!documento) return null;
     return this.converterParaModelo(documento as Record<string, unknown>);

@@ -1,8 +1,9 @@
+import { ehChaveDuplicada } from "../../utils/mongo.js";
 import { Types } from "mongoose";
 import { WorkSession } from "../../schemas/workSession.js";
 import { Forklift } from "../../schemas/forklift.js";
 import { Operator } from "../../schemas/operator.js";
-import { workSessionModel } from "../../models/workSessionModel.js";
+import { WorkSessionModel } from "../../models/workSessionModel.js";
 import { WorkSessionRepository } from "./workSessionRepository.js";
 import { ForkliftRepository } from "../forklift/forkliftRepository.js";
 import { OperatorRepository } from "../operator/operatorRepository.js";
@@ -46,7 +47,8 @@ export function lerFilialId(valor: unknown): string | undefined {
 function lerDia(valor: unknown, campo: string): Date | undefined {
   if (valor === undefined || valor === "") return undefined;
   const data = typeof valor === "string" && DIA.test(valor) ? new Date(`${valor}T00:00:00`) : null;
-  if (!data || Number.isNaN(data.getTime())) throw new ErroHttp(StatusCode.BAD_REQUEST, `O campo '${campo}' deve estar no formato YYYY-MM-DD.`);
+  if (!data || Number.isNaN(data.getTime()))
+    throw new ErroHttp(StatusCode.BAD_REQUEST, `O campo '${campo}' deve estar no formato YYYY-MM-DD.`);
   return data;
 }
 
@@ -72,7 +74,7 @@ const empilhadeiras = new ForkliftRepository(Forklift);
 const operadores = new OperatorRepository(Operator);
 
 // Máquina e operador por id; a sessão de uma máquina apagada continua com `maquina: null`.
-async function formatar(lista: workSessionModel[]) {
+async function formatar(lista: WorkSessionModel[]) {
   const registros: any[] = lista.map((s) => s.obterDados());
   const [maquinas, ops] = await Promise.all([
     empilhadeiras.obterTodos({ _id: { $in: registros.map((s) => s.empilhadeiraId) } }).then((l) => l.map((m) => m.getDocumento())),
@@ -88,7 +90,9 @@ async function formatar(lista: workSessionModel[]) {
     return {
       _id: String(s._id),
       machineId: String(s.empilhadeiraId),
-      maquina: maquina ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: setores.get(String(maquina.setorId)) ?? "" } : null,
+      maquina: maquina
+        ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: setores.get(String(maquina.setorId)) ?? "" }
+        : null,
       operador: { nome: operadorDe.get(String(s.operadorId))?.nome ?? "" },
       inicio: new Date(s.inicio).toISOString(),
       fim: s.fim ? new Date(s.fim).toISOString() : null,
@@ -114,12 +118,12 @@ export async function iniciar(escopo: Escopo, usuario: UsuarioRequisicao, machin
   if (await sessoes.existe({ fim: null, $or: [{ operadorId }, { empilhadeiraId: machineId }] })) throw ocupada();
 
   const inicio = new Date();
-  let sessao: workSessionModel | null;
+  let sessao: WorkSessionModel | null;
   try {
-    sessao = await sessoes.criar(new workSessionModel({ operadorId, empilhadeiraId: machineId, filialId: maquina.filialId, inicio }));
-  } catch (error: any) {
+    sessao = await sessoes.criar(new WorkSessionModel({ operadorId, empilhadeiraId: machineId, filialId: maquina.filialId, inicio }));
+  } catch (error) {
     // Corrida: o índice único parcial recusa a segunda sessão aberta.
-    throw error.code === 11000 ? ocupada() : error;
+    throw ehChaveDuplicada(error) ? ocupada() : error;
   }
   await empilhadeiras.atualizarUm({ _id: machineId }, { $set: { operadorConectadoId: operadorId, sessaoIniciadaEm: inicio } });
   await aplicarStatus(machineId, "em_uso");
@@ -149,11 +153,7 @@ export async function listar(escopo: Escopo, usuario: UsuarioRequisicao, filtro:
   const permitidas = filtroPorFilial(escopo).filialId.$in;
   const filialFiltro = { filialId: { $in: filialId ? permitidas.filter((id) => id === filialId) : permitidas } };
 
-  const donoFiltro = machineId
-    ? { empilhadeiraId: machineId }
-    : usuario.role === "admin"
-      ? {}
-      : { operadorId: exigirOperador(usuario) };
+  const donoFiltro = machineId ? { empilhadeiraId: machineId } : usuario.role === "admin" ? {} : { operadorId: exigirOperador(usuario) };
 
   const consulta: Record<string, unknown> = {
     ...filialFiltro,

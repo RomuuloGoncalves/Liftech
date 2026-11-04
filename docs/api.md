@@ -356,6 +356,7 @@ Os acessos do seed são fixos (`SENHA_PADRAO` e `ADMIN` em `seedDataset.ts`): `a
 |---------|------------|-------|
 | `yarn test` | `vitest run tests/unit`. Só os testes unitários, com mocks. Na raiz do monorepo, `yarn test` roda isso no Backend e a suíte do Frontend. | Não acessa. |
 | `yarn test:integration` | `vitest run tests/integration`. Os testes de `tests/integration/feature/*` importam os schemas e a conexão real e gravam e apagam documentos. | **Acessa o banco do `.env`.** |
+| `yarn format` / `yarn format:check` | Prettier (`.prettierrc` em `Backend/`) em `src` e `tests`: formata ou só confere. | Não acessa. |
 
 Em `tests/integration/` também está `forkliftController.test.ts`, que usa `vi.mock` e não deveria tocar no banco, mas roda junto com o `yarn test:integration`. Não rodei nenhum dos dois comandos para confirmar o comportamento; o texto vem dos scripts do `package.json`, dos imports dos arquivos de teste e do `README.md`.
 

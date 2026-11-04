@@ -1,47 +1,38 @@
-export class deviceModel {
-    private id?: string;
-    private enderecoMac: string;
-    private status: string;
-    private empilhadeiraId?: string | null;
-    // Documento como veio do banco (ids originais, nome): lido pelos services de máquina. Não entra no obterDados.
-    private documento: Record<string, any>;
+import { CoreModel } from "../core/coreModel.js";
 
-    constructor(id: string | undefined, enderecoMac: string, status: string, empilhadeiraId?: string | null, documento: Record<string, any> = {}) {
-        this.documento = documento;
-        this.id = id;
-        this.enderecoMac = enderecoMac;
-        this.status = status;
-        this.empilhadeiraId = empilhadeiraId;
-    }
+export class DeviceModel extends CoreModel {
+  private id?: string;
+  private enderecoMac: string;
+  private status: string;
+  private empilhadeiraId?: string | null;
+  // Documento como veio do banco (ids originais, nome): lido pelos services de máquina. Não entra no obterDados.
+  private documento: Record<string, unknown>;
 
-    protected setEnderecoMac(value: string): number | void {
-        if (!value) return 0;
-        this.enderecoMac = value;
-    }
+  constructor(
+    id: string | undefined,
+    enderecoMac: string,
+    status: string,
+    empilhadeiraId?: string | null,
+    documento: Record<string, unknown> = {}
+  ) {
+    super();
+    this.documento = documento;
+    this.id = id;
+    this.enderecoMac = enderecoMac;
+    this.status = status;
+    this.empilhadeiraId = empilhadeiraId;
+  }
 
-    protected getEnderecoMac(): string {
-        return this.enderecoMac;
-    }
+  public getIdOriginal(): unknown {
+    return this.documento._id;
+  }
 
-    protected setStatus(value: string): number | void {
-        if (!value) return 0;
-        this.status = value;
-    }
-
-    protected getStatus(): string {
-        return this.status;
-    }
-
-    public getIdOriginal(): unknown {
-        return this.documento._id;
-    }
-
-    public obterDados() {
-        return {
-            id: this.id,
-            enderecoMac: this.enderecoMac,
-            status: this.status,
-            empilhadeiraId: this.empilhadeiraId
-        };
-    }
+  public obterDados(): Record<string, unknown> {
+    return {
+      id: this.id,
+      enderecoMac: this.enderecoMac,
+      status: this.status,
+      empilhadeiraId: this.empilhadeiraId,
+    };
+  }
 }
