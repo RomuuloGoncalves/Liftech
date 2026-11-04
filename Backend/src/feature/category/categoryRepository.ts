@@ -1,19 +1,18 @@
-import mongoose from "mongoose";
-import { RepositoryBase } from "../../core/coreRepository.js";
-import { categoryModel } from "../../models/categoryModel.js";
+import { RepositoryBase, type ModeloMongoose } from "../../core/coreRepository.js";
+import { CategoryModel } from "../../models/categoryModel.js";
 
-export class CategoryRepository extends RepositoryBase<categoryModel> {
-  constructor(mongoDB: mongoose.Model<any>) {
-    super(mongoDB);
+export class CategoryRepository extends RepositoryBase<CategoryModel> {
+  constructor(bd: ModeloMongoose) {
+    super(bd);
   }
 
-  protected converterParaModelo(documento: Record<string, any>): categoryModel {
-    return new categoryModel(
+  protected converterParaModelo(documento: Record<string, unknown>): CategoryModel {
+    return new CategoryModel(
       documento.empresaId ? String(documento.empresaId) : undefined,
       String(documento.nome ?? ""),
       String(documento.cor ?? ""),
-      documento.statusVinculados ?? [],
-      documento.chave ?? null,
+      (documento.statusVinculados as string[] | undefined) ?? [],
+      (documento.chave as string | null | undefined) ?? null,
       documento._id
     );
   }

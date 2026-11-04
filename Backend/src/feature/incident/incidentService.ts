@@ -3,7 +3,7 @@ import { Incident } from "../../schemas/incident.js";
 import { WorkSession } from "../../schemas/workSession.js";
 import { Forklift } from "../../schemas/forklift.js";
 import { Operator } from "../../schemas/operator.js";
-import { incidentModel } from "../../models/incidentModel.js";
+import { IncidentModel } from "../../models/incidentModel.js";
 import { IncidentRepository } from "./incidentRepository.js";
 import { WorkSessionRepository } from "../session/workSessionRepository.js";
 import { ForkliftRepository } from "../forklift/forkliftRepository.js";
@@ -25,7 +25,7 @@ export interface DadosOcorrencia {
   descricao?: string | null;
 }
 
-async function formatar(lista: incidentModel[]) {
+async function formatar(lista: IncidentModel[]) {
   const registros: any[] = lista.map((i) => i.obterDados());
   const [maquinas, ops] = await Promise.all([
     empilhadeiras.obterTodos({ _id: { $in: registros.map((i) => i.empilhadeiraId) } }).then((l) => l.map((m) => m.getDocumento())),
@@ -41,7 +41,9 @@ async function formatar(lista: incidentModel[]) {
     return {
       _id: String(i._id),
       machineId: String(i.empilhadeiraId),
-      maquina: maquina ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: setores.get(String(maquina.setorId)) ?? "" } : null,
+      maquina: maquina
+        ? { nome: maquina.nome, identificacao: maquina.identificacao, setor: setores.get(String(maquina.setorId)) ?? "" }
+        : null,
       operador: operador ? { nome: operador.nome } : null,
       dataIncidente: new Date(i.dataIncidente).toISOString(),
       forcaImpacto: i.forcaImpacto ?? null,
@@ -65,15 +67,17 @@ export async function reportar(usuario: UsuarioRequisicao, dados: DadosOcorrenci
     dataIncidente.setHours(hora!, minuto!, 0, 0);
   }
 
-  const incidente = await incidentes.criar(new incidentModel({
-    empilhadeiraId: sessao.empilhadeiraId,
-    operadorId,
-    filialId: sessao.filialId,
-    dataIncidente,
-    status: "pendente",
-    origem: "funcionario",
-    descricao: dados.descricao ?? null,
-  }));
+  const incidente = await incidentes.criar(
+    new IncidentModel({
+      empilhadeiraId: sessao.empilhadeiraId,
+      operadorId,
+      filialId: sessao.filialId,
+      dataIncidente,
+      status: "pendente",
+      origem: "funcionario",
+      descricao: dados.descricao ?? null,
+    })
+  );
   await aplicarStatus(String(sessao.empilhadeiraId), "alerta");
   return (await formatar([incidente!]))[0]!;
 }

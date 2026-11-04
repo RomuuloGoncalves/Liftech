@@ -23,9 +23,7 @@ export async function login(role: RoleLogin, login: string, senha: string) {
     throw new Error("JWT_SECRET não configurado.");
   }
 
-  const filtro = role === "admin"
-    ? { role, email: login.trim().toLowerCase() }
-    : { role, usuario: login.trim() };
+  const filtro = role === "admin" ? { role, email: login.trim().toLowerCase() } : { role, usuario: login.trim() };
 
   const usuario = await usuarios.obterUm(filtro, "+senhaHash");
   const senhaHash = usuario?.getSenhaHash();

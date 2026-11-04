@@ -43,7 +43,7 @@ export async function listar(req: Request, res: Response) {
       throw erro("O filialId fornecido não é um ObjectId válido do MongoDB.");
     }
     return respostaSucesso(res, StatusCode.OK, await servicoSetor.listar(req.escopo, filialId));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -55,7 +55,7 @@ export async function criar(req: Request, res: Response) {
     const nome = lerNome(corpo.nome);
     const filialId = resolverFilial(req.escopo, corpo.filialId);
     return respostaSucesso(res, StatusCode.CREATED, await servicoSetor.criar(req.escopo, { nome, filialId }));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -73,7 +73,7 @@ export async function atualizar(req: Request, res: Response) {
       ...(corpo.filialId !== undefined && { filialId: corpo.filialId }),
     };
     return respostaSucesso(res, StatusCode.OK, await servicoSetor.atualizar(req.escopo, id, dados));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -82,7 +82,7 @@ export async function deletar(req: Request, res: Response) {
   try {
     exigirAdmin(req);
     return respostaSucesso(res, StatusCode.OK, await servicoSetor.excluir(req.escopo, lerId(req)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }

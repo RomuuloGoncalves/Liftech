@@ -36,7 +36,9 @@ export async function carregarEscopo(usuario: UsuarioComEscopo): Promise<Escopo>
   const tipo = usuario.escopo === "empresa" ? "empresa" : "filiais";
   const doUsuario = tipo === "empresa" ? {} : { _id: { $in: usuario.filiaisIds ?? [] } };
   // O filtro por empresaId descarta filial apagada ou de outra empresa.
-  const filiais = await Branch.find({ empresaId: usuario.empresaId, ...doUsuario }).sort({ matriz: -1, nome: 1 }).lean();
+  const filiais = await Branch.find({ empresaId: usuario.empresaId, ...doUsuario })
+    .sort({ matriz: -1, nome: 1 })
+    .lean();
 
   return {
     empresaId: String(usuario.empresaId),

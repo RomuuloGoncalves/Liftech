@@ -1,8 +1,9 @@
+import { conflitoSeDuplicado, ehChaveDuplicada } from "../../utils/mongo.js";
 import { Operator } from "../../schemas/operator.js";
 import { User } from "../../schemas/user.js";
 import { WorkSession } from "../../schemas/workSession.js";
 import { Branch } from "../../schemas/branch.js";
-import { operatorModel } from "../../models/operatorModel.js";
+import { OperatorModel } from "../../models/operatorModel.js";
 import { OperatorRepository } from "./operatorRepository.js";
 import { UserRepository } from "../user/userRepository.js";
 import { WorkSessionRepository } from "../session/workSessionRepository.js";
@@ -33,12 +34,10 @@ const naoEncontrado = () => new ErroHttp(StatusCode.NOT_FOUND, "Operador não en
 const semLogin = () => new ErroHttp(StatusCode.NOT_FOUND, "Operador sem login.");
 
 // O índice único em user.usuario recusa o usuário repetido numa corrida (11000).
-function traduzirErro(error: any): never {
-  throw error.code === 11000 ? new ErroHttp(StatusCode.CONFLICT, USUARIO_EM_USO) : error;
-}
+const traduzirErro = conflitoSeDuplicado(USUARIO_EM_USO);
 
 // Junta o login de cada operador numa consulta só. Acesso 'Permitido' só com login e sem acessoNegado.
-async function formatar(lista: operatorModel[]) {
+async function formatar(lista: OperatorModel[]) {
   const logins = await usuarios.obterTodos({ operadorId: { $in: lista.map((o) => o.getIdOriginal()) } });
   const loginDe = new Map(logins.map((u) => [String(u.getOperadorId()), u]));
   return lista.map((o) => {
@@ -91,11 +90,11 @@ async function criarComMatricula(escopo: Escopo, dados: DadosOperador & { filial
   for (let tentativa = 1; ; tentativa++) {
     try {
       const operador = await operadores.criar(
-        new operatorModel({ ...dados, empresaId: escopo.empresaId, matricula: await proximaMatricula(escopo) })
+        new OperatorModel({ ...dados, empresaId: escopo.empresaId, matricula: await proximaMatricula(escopo) })
       );
       return operador!;
-    } catch (error: any) {
-      if (error.code !== 11000 || tentativa >= TENTATIVAS_MATRICULA) throw error;
+    } catch (error) {
+      if (!ehChaveDuplicada(error) || tentativa >= TENTATIVAS_MATRICULA) throw error;
     }
   }
 }
@@ -145,16 +144,18 @@ export async function criarLogin(escopo: Escopo, id: string, dados: { usuario: s
   const operador = await obter(escopo, id);
   if (await usuarios.existe({ operadorId: id })) throw new ErroHttp(StatusCode.CONFLICT, "Este operador já tem login.");
   if (await usuarios.existe({ usuario: dados.usuario })) throw new ErroHttp(StatusCode.CONFLICT, USUARIO_EM_USO);
-  await usuarios.criarComCredenciais({
-    nome: operador.getNome(),
-    role: "colaborador",
-    usuario: dados.usuario,
-    senhaHash: gerarHashSenha(dados.senha),
-    empresaId: escopo.empresaId,
-    escopo: "filiais",
-    filiaisIds: [operador.getFilialId()],
-    operadorId: id,
-  }).catch(traduzirErro);
+  await usuarios
+    .criarDados({
+      nome: operador.getNome(),
+      role: "colaborador",
+      usuario: dados.usuario,
+      senhaHash: gerarHashSenha(dados.senha),
+      empresaId: escopo.empresaId,
+      escopo: "filiais",
+      filiaisIds: [operador.getFilialId()],
+      operadorId: id,
+    })
+    .catch(traduzirErro);
   return obterFormatado(escopo, id);
 }
 

@@ -1,6 +1,7 @@
+import { conflitoSeDuplicado } from "../../utils/mongo.js";
 import { Sector } from "../../schemas/sector.js";
 import { Forklift } from "../../schemas/forklift.js";
-import { sectorModel } from "../../models/sectorModel.js";
+import { SectorModel } from "../../models/sectorModel.js";
 import { SectorRepository } from "./sectorRepository.js";
 import { ForkliftRepository } from "../forklift/forkliftRepository.js";
 import { exigirEmpresa, filtroPorFilial, resolverFilial, type Escopo } from "../../core/escopo.js";
@@ -15,7 +16,7 @@ const setores = new SectorRepository(Sector);
 const empilhadeiras = new ForkliftRepository(Forklift);
 
 // O nome da filial vem do escopo: todo setor listado é de uma filial do escopo.
-const paraSetor = (escopo: Escopo, s: sectorModel) => {
+const paraSetor = (escopo: Escopo, s: SectorModel) => {
   const filialId = s.getFilialId();
   return {
     _id: String(s.getID()),
@@ -28,9 +29,7 @@ const paraSetor = (escopo: Escopo, s: sectorModel) => {
 const naoEncontrado = () => new ErroHttp(StatusCode.NOT_FOUND, "Setor não encontrado.");
 
 // O índice único { filialId, nome } (sem caixa) faz o Mongo recusar o nome repetido (código 11000).
-function traduzirErro(error: any): never {
-  throw error.code === 11000 ? new ErroHttp(StatusCode.CONFLICT, "Já existe um setor com este nome nesta filial.") : error;
-}
+const traduzirErro = conflitoSeDuplicado("Já existe um setor com este nome nesta filial.");
 
 const contarMaquinas = (id: string) => empilhadeiras.contar({ setorId: id });
 
@@ -44,7 +43,7 @@ export async function listar(escopo: Escopo, filialId?: string) {
 
 export async function criar(escopo: Escopo, dados: { nome: string; filialId: string }) {
   try {
-    return paraSetor(escopo, (await setores.criar(new sectorModel(dados.nome, dados.filialId)))!);
+    return paraSetor(escopo, (await setores.criar(new SectorModel(dados.nome, dados.filialId)))!);
   } catch (error) {
     return traduzirErro(error);
   }

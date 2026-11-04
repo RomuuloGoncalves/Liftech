@@ -1,6 +1,7 @@
+import { conflitoSeDuplicado } from "../../utils/mongo.js";
 import { Category } from "../../schemas/category.js";
 import { Forklift } from "../../schemas/forklift.js";
-import { categoryModel } from "../../models/categoryModel.js";
+import { CategoryModel } from "../../models/categoryModel.js";
 import { CategoryRepository } from "./categoryRepository.js";
 import { ForkliftRepository } from "../forklift/forkliftRepository.js";
 import { filtroPorEmpresa, type Escopo } from "../../core/escopo.js";
@@ -24,7 +25,7 @@ const QUADRO_INICIAL = [
 const categorias = new CategoryRepository(Category);
 const empilhadeiras = new ForkliftRepository(Forklift);
 
-const paraCategoria = (c: categoryModel) => ({
+const paraCategoria = (c: CategoryModel) => ({
   _id: String(c.getID()),
   nome: c.getNome(),
   cor: c.getCor(),
@@ -35,9 +36,7 @@ const paraCategoria = (c: categoryModel) => ({
 const naoEncontrada = () => new ErroHttp(StatusCode.NOT_FOUND, "Categoria não encontrada.");
 
 // O índice único { empresaId, nome } (sem caixa) faz o Mongo recusar o nome repetido (código 11000).
-function traduzirErro(error: any): never {
-  throw error.code === 11000 ? new ErroHttp(StatusCode.CONFLICT, "Já existe uma categoria com este nome.") : error;
-}
+const traduzirErro = conflitoSeDuplicado("Já existe uma categoria com este nome.");
 
 function lerStatusVinculados(valor: unknown): Status[] {
   if (!Array.isArray(valor) || !valor.every(ehStatus) || new Set(valor).size !== valor.length) {
@@ -67,7 +66,9 @@ export async function criar(escopo: Escopo, dados: DadosCategoria) {
   const statusVinculados = lerStatusVinculados(dados.statusVinculados ?? []);
   await exigirStatusLivres(escopo, statusVinculados);
   try {
-    const categoria = await categorias.criar(new categoryModel(escopo.empresaId, dados.nome as string, dados.cor as string, statusVinculados));
+    const categoria = await categorias.criar(
+      new CategoryModel(escopo.empresaId, dados.nome as string, dados.cor as string, statusVinculados)
+    );
     return paraCategoria(categoria!);
   } catch (error) {
     return traduzirErro(error);
@@ -115,7 +116,7 @@ export async function excluir(escopo: Escopo, id: string) {
 export async function criarQuadroInicial(empresaId: unknown): Promise<Map<Status, unknown> | null> {
   if (await categorias.existe({ empresaId })) return null;
   const ids = await categorias.criarVarios(
-    QUADRO_INICIAL.map(({ chave, nome, cor, status }) => new categoryModel(empresaId, nome, cor, [status], chave))
+    QUADRO_INICIAL.map(({ chave, nome, cor, status }) => new CategoryModel(empresaId, nome, cor, [status], chave))
   );
   return new Map(QUADRO_INICIAL.map(({ status }, i) => [status as Status, ids[i]]));
 }

@@ -1,3 +1,4 @@
+import { ehChaveDuplicada } from "../../utils/mongo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
 import { User } from "../../schemas/user.js";
@@ -91,10 +92,7 @@ export function validarExclusao(corpo: unknown): DadosExclusao {
   };
 }
 
-export async function atualizarConta(
-  usuario: UsuarioRequisicao,
-  dados: DadosAtualizacao
-): Promise<{ email: string }> {
+export async function atualizarConta(usuario: UsuarioRequisicao, dados: DadosAtualizacao): Promise<{ email: string }> {
   exigirAdmin(usuario, "Apenas administradores podem atualizar os dados de conta.");
 
   const usuarioDb = await usuarios.buscarPorId(usuario._id, "+senhaHash");
@@ -117,8 +115,8 @@ export async function atualizarConta(
 
   try {
     await usuarios.atualizarUm({ _id: usuario._id }, { $set: updateFields });
-  } catch (error: any) {
-    if (error?.code === 11000) {
+  } catch (error) {
+    if (ehChaveDuplicada(error)) {
       throw new ErroHttp(StatusCode.CONFLICT, "E-mail já em uso.");
     }
     throw error;
@@ -129,11 +127,7 @@ export async function atualizarConta(
   };
 }
 
-export async function excluirConta(
-  usuario: UsuarioRequisicao,
-  empresaId: string | undefined,
-  senhaAtual: string
-): Promise<void> {
+export async function excluirConta(usuario: UsuarioRequisicao, empresaId: string | undefined, senhaAtual: string): Promise<void> {
   exigirAdmin(usuario, "Apenas administradores podem excluir a conta.");
 
   const usuarioDb = await usuarios.buscarPorId(usuario._id, "+senhaHash");

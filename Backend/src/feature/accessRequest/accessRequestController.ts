@@ -1,23 +1,13 @@
 import type { Request, Response } from "express";
 import { Types as mongooseTypes } from "mongoose";
-import {
-  StatusCode,
-  respostaSucesso,
-  respostaErro,
-  responderErro,
-  ErroHttp,
-} from "../../utils/responseHandler.js";
+import { StatusCode, respostaSucesso, respostaErro, responderErro, ErroHttp } from "../../utils/responseHandler.js";
 import regras from "./accessRequestRules.js";
 import * as servicoAccessRequest from "./accessRequestService.js";
-import * as servicoSolicitacao from "./solicitarAcessoService.js";
 
 function lerId(req: Request): string {
   const id = req.params.id;
   if (typeof id !== "string" || !mongooseTypes.ObjectId.isValid(id)) {
-    throw new ErroHttp(
-      StatusCode.BAD_REQUEST,
-      "O ID fornecido não é um ObjectId válido do MongoDB."
-    );
+    throw new ErroHttp(StatusCode.BAD_REQUEST, "O ID fornecido não é um ObjectId válido do MongoDB.");
   }
   return id;
 }
@@ -31,9 +21,9 @@ export async function criar(req: Request, res: Response) {
       return respostaErro(res, StatusCode.BAD_REQUEST, erros);
     }
 
-    const criada = await servicoSolicitacao.solicitar({ email, nomeEmpresa, nomeAdministrador });
+    const criada = await servicoAccessRequest.solicitar({ email, nomeEmpresa, nomeAdministrador });
     return respostaSucesso(res, StatusCode.CREATED, criada);
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -44,21 +34,15 @@ export async function listar(req: Request, res: Response) {
     let status: servicoAccessRequest.StatusFiltro | undefined = undefined;
 
     if (statusQuery !== undefined) {
-      if (
-        typeof statusQuery !== "string" ||
-        !["pendente", "aprovada", "recusada"].includes(statusQuery)
-      ) {
-        throw new ErroHttp(
-          StatusCode.BAD_REQUEST,
-          "O campo 'status' deve ser pendente, aprovada ou recusada."
-        );
+      if (typeof statusQuery !== "string" || !["pendente", "aprovada", "recusada"].includes(statusQuery)) {
+        throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'status' deve ser pendente, aprovada ou recusada.");
       }
       status = statusQuery as servicoAccessRequest.StatusFiltro;
     }
 
     const solicitacoes = await servicoAccessRequest.listar(status);
     return respostaSucesso(res, StatusCode.OK, solicitacoes);
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -68,7 +52,7 @@ export async function aprovar(req: Request, res: Response) {
     const id = lerId(req);
     const resultado = await servicoAccessRequest.aprovar(id);
     return respostaSucesso(res, StatusCode.OK, resultado);
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -81,17 +65,11 @@ export async function recusar(req: Request, res: Response) {
 
     if (motivoRaw !== undefined && motivoRaw !== null) {
       if (typeof motivoRaw !== "string") {
-        throw new ErroHttp(
-          StatusCode.BAD_REQUEST,
-          "O campo 'motivo' deve ser texto de até 200 caracteres."
-        );
+        throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'motivo' deve ser texto de até 200 caracteres.");
       }
       const cortado = motivoRaw.trim();
       if (cortado.length > 200) {
-        throw new ErroHttp(
-          StatusCode.BAD_REQUEST,
-          "O campo 'motivo' deve ser texto de até 200 caracteres."
-        );
+        throw new ErroHttp(StatusCode.BAD_REQUEST, "O campo 'motivo' deve ser texto de até 200 caracteres.");
       }
       if (cortado.length > 0) {
         motivo = cortado;
@@ -100,7 +78,7 @@ export async function recusar(req: Request, res: Response) {
 
     const resultado = await servicoAccessRequest.recusar(id, motivo);
     return respostaSucesso(res, StatusCode.OK, resultado);
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }

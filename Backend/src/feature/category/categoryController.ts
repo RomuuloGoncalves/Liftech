@@ -45,7 +45,7 @@ function lerDados(req: Request, obrigatorio: boolean): servicoCategoria.DadosCat
 export async function listar(req: Request, res: Response) {
   try {
     return respostaSucesso(res, StatusCode.OK, await servicoCategoria.listar(req.escopo));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -54,7 +54,7 @@ export async function criar(req: Request, res: Response) {
   try {
     exigirEmpresa(req);
     return respostaSucesso(res, StatusCode.CREATED, await servicoCategoria.criar(req.escopo, lerDados(req, true)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -64,7 +64,7 @@ export async function atualizar(req: Request, res: Response) {
     exigirEmpresa(req);
     const id = lerId(req);
     return respostaSucesso(res, StatusCode.OK, await servicoCategoria.atualizar(req.escopo, id, lerDados(req, false)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -73,7 +73,7 @@ export async function deletar(req: Request, res: Response) {
   try {
     exigirEmpresa(req);
     return respostaSucesso(res, StatusCode.OK, await servicoCategoria.excluir(req.escopo, lerId(req)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }

@@ -2,7 +2,7 @@ import { Forklift } from "../../schemas/forklift.js";
 import { Incident } from "../../schemas/incident.js";
 import { Category } from "../../schemas/category.js";
 import { Branch } from "../../schemas/branch.js";
-import { incidentModel } from "../../models/incidentModel.js";
+import { IncidentModel } from "../../models/incidentModel.js";
 import { ForkliftRepository } from "../forklift/forkliftRepository.js";
 import { IncidentRepository } from "../incident/incidentRepository.js";
 import { CategoryRepository } from "../category/categoryRepository.js";
@@ -41,7 +41,7 @@ export async function aplicarStatus(forkliftId: string, novo: Status): Promise<v
   const empilhadeira = (await empilhadeiras.buscarPorId(forkliftId))?.getDocumento();
   if (!empilhadeira) throw new ErroHttp(StatusCode.NOT_FOUND, "Empilhadeira não encontrada.");
 
-  const atual: Status = empilhadeira.status ?? "disponivel";
+  const atual = empilhadeira.status ?? "disponivel";
   // Status repetido não mexe em nada: uma leitura repetida não desfaz um ajuste manual.
   if (atual === novo) return;
 
@@ -64,14 +64,16 @@ export async function registrarImpacto(dispositivoId: string, forcaImpacto: numb
   const empilhadeira = (await empilhadeiras.obterUm({ dispositivoConectadoId: dispositivoId }))?.getDocumento();
   if (!empilhadeira) return;
 
-  await incidentes.criar(new incidentModel({
-    empilhadeiraId: empilhadeira._id,
-    operadorId: empilhadeira.operadorConectadoId,
-    filialId: empilhadeira.filialId,
-    forcaImpacto,
-    dataIncidente: data,
-    status: "pendente",
-    origem: "sensor",
-  }));
+  await incidentes.criar(
+    new IncidentModel({
+      empilhadeiraId: empilhadeira._id,
+      operadorId: empilhadeira.operadorConectadoId,
+      filialId: empilhadeira.filialId,
+      forcaImpacto,
+      dataIncidente: data,
+      status: "pendente",
+      origem: "sensor",
+    })
+  );
   await aplicarStatus(String(empilhadeira._id), "alerta");
 }

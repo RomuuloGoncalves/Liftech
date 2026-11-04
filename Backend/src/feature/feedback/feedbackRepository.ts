@@ -1,20 +1,19 @@
-import mongoose from "mongoose";
-import { RepositoryBase } from "../../core/coreRepository.js";
-import { feedbackModel } from "../../models/feedbackModel.js";
+import { RepositoryBase, type ModeloMongoose } from "../../core/coreRepository.js";
+import { FeedbackModel } from "../../models/feedbackModel.js";
 
-export class FeedbackRepository extends RepositoryBase<feedbackModel> {
-  constructor(mongoDB: mongoose.Model<any>) {
-    super(mongoDB);
+export class FeedbackRepository extends RepositoryBase<FeedbackModel> {
+  constructor(bd: ModeloMongoose) {
+    super(bd);
   }
 
-  protected converterParaModelo(documento: Record<string, any>): feedbackModel {
-    return new feedbackModel(
+  protected converterParaModelo(documento: Record<string, unknown>): FeedbackModel {
+    return new FeedbackModel(
       String(documento.mensagem ?? ""),
       String(documento.usuarioId ?? ""),
       documento.empresaId ? String(documento.empresaId) : null,
       String(documento.role ?? ""),
       documento._id ? String(documento._id) : undefined,
-      documento.criadoEm !== undefined ? new Date(documento.criadoEm) : undefined
+      documento.criadoEm !== undefined ? new Date(documento.criadoEm as string | number | Date) : undefined
     );
   }
 }

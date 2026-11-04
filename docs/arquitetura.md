@@ -12,19 +12,19 @@ O Backend usa uma arquitetura baseada em módulos, inspirada em Domain-Driven De
 
 ### Estrutura de Pastas do Backend (`Backend/src/`)
 * **config/**: Configurações de ambiente (`env.ts`) e conexão com o banco (`conn.ts`).
-* **core/**: Classes base abstratas: `coreModel`, `RepositoryBase` (CRUD genérico sobre um modelo Mongoose) e `ServiceBase` (listar, obter, criar, atualizar e deletar em cima do repositório).
+* **core/**: Classes base abstratas: `CoreModel`, `RepositoryBase` (CRUD genérico sobre um modelo Mongoose) e `ServiceBase` (listar, obter, criar, atualizar e deletar em cima do repositório).
 * **feature/**: A base do sistema. Cada pasta representa uma funcionalidade isolada (ex: `forklift`, `user`, `auth`) e traz o próprio Router, além de Controller, Service, Repository e `*Rules.ts` (validação do corpo da requisição) quando a feature precisa deles.
-* **models/**: Classes com regras de domínio, que estendem `coreModel`.
+* **models/**: Classes com regras de domínio (nomes em PascalCase, como `BranchModel`), que estendem `CoreModel`.
 * **schemas/**: Mapeamento do banco de dados (MongoDB/Mongoose). Veja a [Modelagem de Dados](./modelagem_de_dados.md) para detalhes.
 * **scripts/**: Seeds de desenvolvimento (ver abaixo).
-* **utils/**: Funções genéricas e utilitárias (logger, hash de senha, formato de resposta).
+* **utils/**: Funções genéricas e utilitárias (logger, hash de senha, formato de resposta, `ErroHttp`, tradução de chave duplicada do Mongo em `mongo.ts` e leitura do id da requisição em `corpo.ts`).
 
 Não há pastas `middlewares/` nem `routes/`: as rotas ficam em cada feature e `server.ts` as monta sob `/api/...`.
 
 ### Camadas do Backend
 O fluxo de uma requisição é Router -> Controller -> Service -> Repository (decisão AD-002 em `.specs/STATE.md`). O Controller valida o corpo com as regras da feature e responde com `respostaSucesso`/`respostaErro`; o Service aplica as regras de negócio (ex: `ForkliftService` recusa identificação repetida) e estende `ServiceBase`; o Repository estende `RepositoryBase` e é o único que fala com o Mongoose, convertendo documentos em modelos.
 
-Nem toda feature segue a cadeia completa. `authService` (login e emissão do JWT) e `machineService` (lista as máquinas da Visão Geral juntando empilhadeira, dispositivo e operador) são funções que usam o schema direto, sem classe nem repositório. O `accessRequestController` também grava no schema direto.
+Nem toda feature segue a cadeia completa. `authService`, `machineService`, `sessionService` e outros são funções (sem classe), mas todos falam com o banco só pelos repositories (`new XRepository(Schema)` no escopo do módulo); só `ServiceBase` e seus filhos (`forklift`, `user`, `device`, `telemetry`) são classes. Erros de negócio saem como `ErroHttp` (404, 409...) e o controller só chama `responderErro`: nenhum controller decide o status pelo texto da mensagem.
 
 ### Seeds (`Backend/src/scripts/`)
 * `seedAdmin.ts` (`yarn seed`, ou `yarn dev:seed` junto do servidor): cria o admin fixo `admin@admin.com` / `asdasdasd`; se ele já existe, volta escopo e senha para os fixos.

@@ -1,7 +1,8 @@
-import { coreModel } from "./coreModel.js";
+import { ErroHttp, StatusCode } from "../utils/responseHandler.js";
+import { CoreModel } from "./coreModel.js";
 import { RepositoryBase } from "./coreRepository.js";
 
-export abstract class ServiceBase<T extends coreModel, R extends RepositoryBase<T>> {
+export abstract class ServiceBase<T extends CoreModel, R extends RepositoryBase<T>> {
   protected readonly repositorio: R;
   protected abstract readonly nomeEntidade: string;
 
@@ -17,7 +18,7 @@ export abstract class ServiceBase<T extends coreModel, R extends RepositoryBase<
   async obterPorId(id: string, filtro?: Record<string, unknown>): Promise<T> {
     const entidade = await this.repositorio.obterPorId(id, filtro);
     if (!entidade) {
-      throw new Error(`${this.nomeEntidade} não encontrado(a).`);
+      throw new ErroHttp(StatusCode.NOT_FOUND, `${this.nomeEntidade} não encontrado(a).`);
     }
     return entidade;
   }
@@ -33,7 +34,7 @@ export abstract class ServiceBase<T extends coreModel, R extends RepositoryBase<
   async atualizar(id: string, dados: Partial<Record<string, unknown>>, filtro?: Record<string, unknown>): Promise<T> {
     const atualizado = await this.repositorio.atualizarPorId(id, dados, undefined, filtro);
     if (!atualizado) {
-      throw new Error(`${this.nomeEntidade} não encontrado(a).`);
+      throw new ErroHttp(StatusCode.NOT_FOUND, `${this.nomeEntidade} não encontrado(a).`);
     }
     return atualizado;
   }
@@ -41,7 +42,7 @@ export abstract class ServiceBase<T extends coreModel, R extends RepositoryBase<
   async deletar(id: string, filtro?: Record<string, unknown>): Promise<T> {
     const deletado = await this.repositorio.deletarPorId(id, filtro);
     if (!deletado) {
-      throw new Error(`${this.nomeEntidade} não encontrado(a).`);
+      throw new ErroHttp(StatusCode.NOT_FOUND, `${this.nomeEntidade} não encontrado(a).`);
     }
     return deletado;
   }

@@ -72,7 +72,7 @@ export async function listar(req: Request, res: Response) {
       throw erro("O filialId fornecido não é um ObjectId válido do MongoDB.");
     }
     return respostaSucesso(res, StatusCode.OK, await servicoOperador.listar(req.escopo, filialId));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -84,9 +84,16 @@ export async function criar(req: Request, res: Response) {
     const dados = lerDados(corpo, true);
     const filialId = resolverFilial(req.escopo, corpo.filialId);
     // `usuario` e `senha` vêm juntos ou nenhum: com eles o cadastro já cria o login.
-    const login = corpo.usuario === undefined && corpo.senha === undefined ? undefined : { usuario: lerUsuario(corpo.usuario), senha: lerSenha(corpo.senha) };
-    return respostaSucesso(res, StatusCode.CREATED, await servicoOperador.criar(req.escopo, { ...dados, filialId, ...(login && { login }) }));
-  } catch (error: any) {
+    const login =
+      corpo.usuario === undefined && corpo.senha === undefined
+        ? undefined
+        : { usuario: lerUsuario(corpo.usuario), senha: lerSenha(corpo.senha) };
+    return respostaSucesso(
+      res,
+      StatusCode.CREATED,
+      await servicoOperador.criar(req.escopo, { ...dados, filialId, ...(login && { login }) })
+    );
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -99,7 +106,7 @@ export async function atualizar(req: Request, res: Response) {
     const fora = Object.keys(corpo).find((campo) => !(CAMPOS_LIVRES as readonly string[]).includes(campo));
     if (fora) throw erro(`O campo '${fora}' não pode ser alterado.`);
     return respostaSucesso(res, StatusCode.OK, await servicoOperador.atualizar(req.escopo, id, lerDados(corpo, false)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -108,7 +115,7 @@ export async function deletar(req: Request, res: Response) {
   try {
     exigirAdmin(req);
     return respostaSucesso(res, StatusCode.OK, await servicoOperador.excluir(req.escopo, lerId(req)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -118,8 +125,12 @@ export async function criarLogin(req: Request, res: Response) {
     exigirAdmin(req);
     const id = lerId(req);
     const { usuario, senha } = lerCorpo(req);
-    return respostaSucesso(res, StatusCode.CREATED, await servicoOperador.criarLogin(req.escopo, id, { usuario: lerUsuario(usuario), senha: lerSenha(senha) }));
-  } catch (error: any) {
+    return respostaSucesso(
+      res,
+      StatusCode.CREATED,
+      await servicoOperador.criarLogin(req.escopo, id, { usuario: lerUsuario(usuario), senha: lerSenha(senha) })
+    );
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -136,7 +147,7 @@ export async function atualizarLogin(req: Request, res: Response) {
       ...(acessoNegado !== undefined && { acessoNegado }),
     };
     return respostaSucesso(res, StatusCode.OK, await servicoOperador.atualizarLogin(req.escopo, id, dados));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -145,7 +156,7 @@ export async function removerLogin(req: Request, res: Response) {
   try {
     exigirAdmin(req);
     return respostaSucesso(res, StatusCode.OK, await servicoOperador.removerLogin(req.escopo, lerId(req)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }

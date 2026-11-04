@@ -1,16 +1,16 @@
-import { conn } from "../config/conn.js"
+import { conn } from "../config/conn.js";
 
-const { Schema } = conn.mongoose
+const { Schema } = conn.mongoose;
 
 const telemetrySchema = new Schema({
-    dataDados: Date,
-    forcaImpacto: Number,
-    dispositivoId: { 
-        type: conn.mongoose.Schema.Types.ObjectId,
-        ref: 'device'
-    },
-})
+  dataDados: Date,
+  forcaImpacto: Number,
+  dispositivoId: {
+    type: conn.mongoose.Schema.Types.ObjectId,
+    ref: "device",
+  },
+});
 
 telemetrySchema.index({ dispositivoId: 1, dataDados: -1 });
 
-export const Telemetry = conn.mongoose.model('telemetry', telemetrySchema)
+export const Telemetry = conn.mongoose.model("telemetry", telemetrySchema);

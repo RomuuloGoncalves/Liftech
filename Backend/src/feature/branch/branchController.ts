@@ -32,7 +32,7 @@ export async function criar(req: Request, res: Response) {
     exigirEmpresa(req);
     const nome = lerNome(req);
     return respostaSucesso(res, StatusCode.CREATED, await servicoBranch.criar(req.escopo, nome));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -43,7 +43,7 @@ export async function atualizar(req: Request, res: Response) {
     const id = lerId(req);
     const nome = lerNome(req);
     return respostaSucesso(res, StatusCode.OK, await servicoBranch.renomear(req.escopo, id, nome));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
@@ -52,7 +52,7 @@ export async function deletar(req: Request, res: Response) {
   try {
     exigirEmpresa(req);
     return respostaSucesso(res, StatusCode.OK, await servicoBranch.excluir(req.escopo, lerId(req)));
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   }
 }
