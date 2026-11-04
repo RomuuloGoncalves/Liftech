@@ -24,7 +24,12 @@ export interface Machine {
     nome: string
   }
   tempoSessaoMinutos: number
+  /** Horas de uso somando todas as sessões da máquina. */
   tempoUsoTotalHoras?: number
+  /** Horas de uso na semana atual (segunda a domingo). */
+  tempoUsoSemanaHoras?: number
+  /** Operador da sessão mais recente (ou da aberta); null se a máquina nunca foi usada. */
+  ultimoOperador?: { nome: string } | null
 }
 
 export type MachineEventType = 'acidente' | 'manutencao'
@@ -48,7 +53,16 @@ export interface MachineEvent {
   causa?: AccidentCause
 }
 
-export const DEFAULT_PERIOD = { from: '2024-07-14', to: '2026-07-14' }
+/** Dias do período padrão dos filtros de data. */
+export const DEFAULT_PERIOD_DAYS = 30
+
+/** Período padrão dos filtros: dos últimos 30 dias até hoje, em data local ('sv' formata como AAAA-MM-DD). */
+export function defaultPeriod(): { from: string; to: string } {
+  const to = new Date()
+  const from = new Date(to)
+  from.setDate(from.getDate() - DEFAULT_PERIOD_DAYS)
+  return { from: from.toLocaleDateString('sv'), to: to.toLocaleDateString('sv') }
+}
 
 /** API incident as an `acidente` event; the sensor reports a collision, the collaborator report has no cause. */
 export function incidentToEvent(incident: Incidente): MachineEvent {
@@ -68,9 +82,6 @@ export function incidentToEvent(incident: Incidente): MachineEvent {
 
 /** Card urgency: the cause decides; a collaborator report without cause is `alta`. */
 export const eventUrgency = (event: MachineEvent): UrgencyLevel => (event.causa ? ACCIDENT_URGENCY[event.causa] : 'alta')
-
-/** Default end of the period: today when it is past DEFAULT_PERIOD.to, so new incidents show up. */
-export const defaultPeriodTo = () => [DEFAULT_PERIOD.to, new Date().toLocaleDateString('sv')].sort()[1]
 
 export interface MachineFilters {
   query?: string

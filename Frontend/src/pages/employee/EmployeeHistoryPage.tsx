@@ -101,15 +101,18 @@ const EmployeeHistoryPage: React.FC = () => {
       ) : (
         <div className={styles.list}>
           {records.map((record) => {
+            // A sessão traz nome, código e setor da máquina; sem eles (máquina apagada) não há o que mostrar.
+            if (!record.maquina) return null
+            // A máquina atual só dá o selo de status e o detalhe; fora da lista (outra filial), o card fica sem os dois.
             const machine = machines.find((item) => item.id === record.machineId)
-            if (!machine) return null
             return (
               <MachineListCard
                 key={record.id}
-                machine={machine}
+                machine={{ ...record.maquina, status: machine?.status }}
                 extra={{ date: formatDate(record.date), time: record.start }}
                 actionLabel={t('employee.history.moreDetails')}
-                onAction={() => navigate(`/funcionario/maquinas/${machine.id}`)}
+                onAction={() => navigate(`/funcionario/maquinas/${record.machineId}`)}
+                actionDisabled={!machine}
               />
             )
           })}

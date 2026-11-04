@@ -214,6 +214,16 @@ describe('NewMachinePanel branch picker', () => {
     expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
   })
 
+  it('with a single branch, creates in it without asking', () => {
+    const onCreate = vi.fn()
+    render(<NewMachinePanel sectors={SECTORS} branches={[branches[0]]} onClose={vi.fn()} onCreate={onCreate} />)
+
+    fillRequiredFields()
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f1' }))
+  })
+
   it('hides the Filial select when editing a machine', () => {
     const machine = {
       id: 'm1', identificacao: 'EMP-081', nome: 'Titan-X', setor: 'Doca', status: 'disponivel',

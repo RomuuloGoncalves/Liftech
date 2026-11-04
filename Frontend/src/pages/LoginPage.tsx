@@ -43,6 +43,7 @@ const LoginPage: React.FC<{ role: RoleLogin }> = ({ role }) => {
       navigate(role === 'colaborador' ? '/funcionario' : '/')
     } catch (e) {
       if (axios.isAxiosError(e) && e.response?.status === 401) setApiError(t('auth.invalidCredentials'))
+      else if (axios.isAxiosError(e) && e.response?.status === 403) setApiError(t('auth.accessDenied'))
       else if (axios.isAxiosError(e) && !e.response) setApiError(t('auth.networkError'))
       else setApiError(t('auth.loginError'))
       setIsLoading(false)

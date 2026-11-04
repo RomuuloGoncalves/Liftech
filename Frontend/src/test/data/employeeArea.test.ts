@@ -21,6 +21,7 @@ const record = (overrides: Partial<UsageRecord>): UsageRecord => ({
   start: '08:00:00',
   end: '09:00:00',
   durationLabel: '1h 00min',
+  durationMinutes: 60,
   ...overrides,
 })
 
@@ -44,6 +45,7 @@ describe('toUsageRecord', () => {
       start: '14:35:25',
       end: '16:35:20',
       durationLabel: '2h 00min',
+      durationMinutes: 7195 / 60,
     })
   })
 
@@ -52,6 +54,7 @@ describe('toUsageRecord', () => {
     const result = toUsageRecord({ ...sessao, maquina: null, fim: null }, now)
     expect(result.end).toBe('')
     expect(result.durationLabel).toBe('45min')
+    expect(result.durationMinutes).toBe(45)
     expect(result.maquina).toBeNull()
   })
 })

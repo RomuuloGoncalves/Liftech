@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MachineDetailModal from '../../../components/machines/MachineDetailModal'
-import { DEFAULT_PERIOD, defaultPeriodTo, type Machine, type MachineEvent } from '../../../data/machines'
+import { defaultPeriod, type Machine, type MachineEvent } from '../../../data/machines'
 import { incidentService, type FiltroIncidentes } from '../../../services/incidentService'
 
 vi.mock('../../../services/incidentService', () => ({ incidentService: { listar: vi.fn(), reportar: vi.fn() } }))
@@ -31,7 +31,7 @@ const ev = (over: Partial<MachineEvent>): MachineEvent => ({
 
 const events = [
   ev({ id: 'a1' }),
-  ev({ id: 'a2', operador: 'Carlos Silva', data: '2025-01-10', inicio: '08:00:00', fim: '08:45:00' }),
+  ev({ id: 'a2', operador: 'Carlos Silva', data: '2025-09-10', inicio: '08:00:00', fim: '08:45:00' }),
   ev({ id: 'm1', tipo: 'manutencao', operador: 'Ana Souza', data: '2025-05-20', inicio: '09:00:00', fim: '10:30:00' }),
 ]
 
@@ -54,7 +54,13 @@ const listIncidents = async ({ from, to }: FiltroIncidentes = {}) =>
 
 const loaded = () => act(async () => {})
 
-beforeEach(() => listarIncidentes.mockReset().mockImplementation(listIncidents))
+// "Hoje" fixo: os acidentes de exemplo ficam dentro do período padrão (últimos 30 dias).
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(2025, 8, 20, 12, 0, 0))
+  listarIncidentes.mockReset().mockImplementation(listIncidents)
+})
+afterEach(() => vi.useRealTimers())
 
 function setup(props: Partial<React.ComponentProps<typeof MachineDetailModal>> = {}) {
   const handlers = { onEdit: vi.fn(), onDelete: vi.fn(), onClose: vi.fn() }
@@ -114,7 +120,7 @@ describe('MachineDetailModal: history', () => {
     expect(items[0]).not.toHaveTextContent('~')
     expect(items[1]).toHaveTextContent('Carlos Silva')
     expect(items[1]).toHaveTextContent('08:00:00')
-    expect(listarIncidentes).toHaveBeenCalledWith({ machineId: '4', from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
+    expect(listarIncidentes).toHaveBeenCalledWith({ machineId: '4', from: defaultPeriod().from, to: defaultPeriod().to })
   })
 
   it('switches to maintenance and marks that tab selected', () => {
@@ -127,11 +133,13 @@ describe('MachineDetailModal: history', () => {
     expect(within(screen.getByRole('tabpanel')).getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
-  it('defaults the period from 14/07/2024 to 14/07/2026 or today, whichever is later', () => {
+  it('defaults the period to the last 30 days, ending today', () => {
     setup()
 
-    expect(screen.getByLabelText('Data inicial')).toHaveValue('2024-07-14')
-    expect(screen.getByLabelText('Data final')).toHaveValue(['2026-07-14', new Date().toLocaleDateString('sv')].sort()[1])
+    const inicio = new Date()
+    inicio.setDate(inicio.getDate() - 30)
+    expect(screen.getByLabelText('Data inicial')).toHaveValue(inicio.toLocaleDateString('sv'))
+    expect(screen.getByLabelText('Data final')).toHaveValue(new Date().toLocaleDateString('sv'))
   })
 
   it('asks the API for the period, inclusive', async () => {
@@ -139,7 +147,7 @@ describe('MachineDetailModal: history', () => {
 
     setDate('Data inicial', '2025-09-14')
     await loaded()
-    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: '2025-09-14', to: defaultPeriodTo() })
+    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: '2025-09-14', to: defaultPeriod().to })
     expect(within(screen.getByRole('tabpanel')).getAllByRole('listitem')).toHaveLength(1)
     setDate('Data final', '2025-09-13')
     await loaded()

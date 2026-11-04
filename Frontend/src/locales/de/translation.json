@@ -202,6 +202,7 @@
     "tabAdmin": "Als Administrator anmelden",
     "tabCollaborator": "Mitarbeiter",
     "invalidCredentials": "Ungültiger Benutzername oder ungültiges Passwort.",
+    "accessDenied": "Zugriff verweigert. Wenden Sie sich an Ihren Vorgesetzten.",
     "networkError": "Verbindung zum Server nicht möglich.",
     "loginError": "Fehler bei der Anmeldung.",
     "requestDuplicate": "Für diese E-Mail liegt bereits eine ausstehende Anfrage vor.",

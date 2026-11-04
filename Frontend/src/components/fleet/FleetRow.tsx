@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Calendar, CircleCheck, CircleDot, CirclePlus, Pencil, Search, Trash2, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { matchesMachine, type CategoryKey, type FleetCategory } from '../../data/fleet'
-import { DEFAULT_PERIOD, type Machine } from '../../data/machines'
+import { defaultPeriod, type Machine } from '../../data/machines'
 import styles from './FleetRow.module.css'
 
 interface FleetRowProps {
@@ -45,9 +45,8 @@ const FleetRow: React.FC<FleetRowProps> = ({
 }) => {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
-  const [from, setFrom] = useState(DEFAULT_PERIOD.from)
-  // Até hoje, para não esconder alertas mais novos que o período padrão.
-  const [to, setTo] = useState(() => [DEFAULT_PERIOD.to, new Date().toISOString().slice(0, 10)].sort()[1])
+  const [from, setFrom] = useState(() => defaultPeriod().from)
+  const [to, setTo] = useState(() => defaultPeriod().to)
   const isAccidents = category.chave === 'acidentes'
 
   const visible = machines.filter((machine) => {

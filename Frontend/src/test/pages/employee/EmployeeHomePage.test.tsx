@@ -57,16 +57,24 @@ describe('EmployeeHomePage', () => {
     expect(banner.getByText('Tempo total')).toBeInTheDocument()
   })
 
-  it('shows the default last machine banner when there are no API sessions', async () => {
-    listarSessoes.mockResolvedValue([])
+  it('total time is the sum of the collaborator sessions on that machine', async () => {
+    listarSessoes.mockResolvedValue([
+      sessao('4', '2026-09-05', '10:00:00', '11:00:00'),
+      sessao('1', '2026-09-03', '10:00:00', '12:00:00'),
+      sessao('4', '2026-09-01', '08:00:00', '08:30:00'),
+    ])
     setup()
     await loaded()
     const banner = within(screen.getByRole('region', { name: 'Última máquina' }))
-    expect(banner.getByText('Última máquina')).toBeInTheDocument()
-    expect(banner.getByText('Empilhadeira elétrica Tital-X')).toBeInTheDocument()
-    expect(banner.getByText('EMP - 084(ID)')).toBeInTheDocument()
-    expect(banner.getByText('5 Setembro 2026')).toBeInTheDocument()
-    expect(banner.getByText('Tempo total')).toBeInTheDocument()
+    expect(banner.getByText('1h 30min |')).toBeInTheDocument()
+  })
+
+  it('hides the last machine banner when there are no API sessions', async () => {
+    listarSessoes.mockResolvedValue([])
+    setup()
+    await loaded()
+    expect(screen.queryByRole('region', { name: 'Última máquina' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Empilhadeira elétrica Tital-X')).not.toBeInTheDocument()
   })
 
   it('shows no machine card when the API has no available machine', async () => {
