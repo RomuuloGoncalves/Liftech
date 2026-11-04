@@ -83,7 +83,7 @@ export abstract class RepositoryBase<T extends coreModel> {
   }
 
   // Agregação do Mongo: devolve os documentos como o pipeline montou, sem converter para modelo.
-  async agregar(pipeline: Record<string, unknown>[]): Promise<Record<string, any>[]>{
+  async agregar(pipeline: Record<string, unknown>[]): Promise<Record<string, any>[]> {
     return this.bd.aggregate(pipeline as unknown as mongoose.PipelineStage[]);
   }
 

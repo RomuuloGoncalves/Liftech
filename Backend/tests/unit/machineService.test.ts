@@ -13,6 +13,7 @@ import { Device } from '../../src/schemas/device.js';
 import { Branch } from '../../src/schemas/branch.js';
 import { WorkSession } from '../../src/schemas/workSession.js';
 vi.mock('../../src/schemas/workSession.js', () => ({ WorkSession: { exists: vi.fn(), aggregate: vi.fn().mockResolvedValue([]) } }));
+vi.mock('../../src/schemas/device.js', () => ({ Device: { exists: vi.fn(), create: vi.fn(), deleteOne: vi.fn(), updateOne: vi.fn() } }));
 vi.mock('../../src/schemas/operator.js', () => ({ Operator: {} }));
 vi.mock('../../src/schemas/branch.js', () => ({ Branch: { findById: vi.fn() } }));
 import { Sector } from '../../src/schemas/sector.js';
@@ -122,7 +123,6 @@ describe('listarMaquinas', () => {
 
         expect(WorkSession.aggregate).not.toHaveBeenCalled();
     });
-
 
     test('setor é o nome do setor ligado, buscado numa consulta só', async () => {
         mockarLista([base, { ...base, _id: new Types.ObjectId() }]);
