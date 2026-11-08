@@ -39,7 +39,7 @@ const SECTORS: Setor[] = [
   { _id: 'se', nome: 'Expedição - Bloco B', filialId: 'f1', filial: { nome: 'Filial 01' } },
 ]
 
-// What the API answers by default: the machine as sent, with a server id.
+// O que a API responde por padrão: a máquina como enviada, com um id do servidor.
 const savedFrom = (values: NewMachineFormValues, base: Partial<Machine> = {}): Machine =>
   ({
     status: 'disponivel',
@@ -1092,13 +1092,11 @@ describe('VisaoGeralPage: sector filter', () => {
       await renderWithLive()
       const callsBefore = listar.mock.calls.length
 
-      // Machine 1 is initially available
       const m1 = MACHINES[0]
       const card = screen.getByText(`${m1.identificacao}(ID)`).closest('article') as HTMLElement
       expect(card).toBeInTheDocument()
       expect(card.className).not.toContain('offline')
 
-      // Receive maquina stream event
       await act(async () => {
         sseCallback?.({
           event: 'maquina',
@@ -1111,7 +1109,6 @@ describe('VisaoGeralPage: sector filter', () => {
         })
       })
 
-      // Status changed and offline class applied without reloading
       expect(within(card).getByText('Em manutenção')).toBeInTheDocument()
       expect(card.className).toContain('offline')
       expect(listar).toHaveBeenCalledTimes(callsBefore)
@@ -1151,12 +1148,10 @@ describe('VisaoGeralPage: sector filter', () => {
       await renderWithLive()
       const callsBefore = listar.mock.calls.length
 
-      // Connection dropped
       await act(async () => {
         triggerClose?.()
       })
 
-      // Wait for 1s backoff reconnect timer to trigger connect()
       await act(async () => {
         await new Promise((r) => setTimeout(r, 1150))
       })
@@ -1169,7 +1164,6 @@ describe('VisaoGeralPage: sector filter', () => {
       await renderWithLive()
       const callsBefore = listar.mock.calls.length
 
-      // Emit event for branch f2
       const m1 = MACHINES[0]
       await act(async () => {
         sseCallback?.({
@@ -1182,7 +1176,6 @@ describe('VisaoGeralPage: sector filter', () => {
         })
       })
 
-      // Should not have reloaded nor changed
       expect(listar).toHaveBeenCalledTimes(callsBefore)
     })
   })

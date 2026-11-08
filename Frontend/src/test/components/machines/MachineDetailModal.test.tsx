@@ -36,7 +36,7 @@ const events = [
   ev({ id: 'm1', tipo: 'manutencao', operador: 'Ana Souza', data: '2025-05-20', inicio: '09:00:00', fim: '10:30:00' }),
 ]
 
-// Stand-in for GET /incidents: the accidents of `events` by local day, inclusive, most recent first.
+// Substituto para GET /incidents: os acidentes de `events` por dia local, inclusivo, mais recentes primeiro.
 const listIncidents = async ({ from, to }: FiltroIncidentes = {}) =>
   events
     .filter((e) => e.tipo === 'acidente' && (!from || e.data >= from) && (!to || e.data <= to))

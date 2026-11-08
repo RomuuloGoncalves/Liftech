@@ -15,18 +15,18 @@ export interface NewMachineFormValues {
   setorId: string
   nomeDispositivo: string
   enderecoMac: string
-  /** Set on create from the branches given: picked in the form with 2+, the only one without asking. */
+  /** Definida na criação a partir das filiais informadas: escolhida no formulário havendo 2+, ou a única sem perguntar. */
   filialId?: string
 }
 
 interface NewMachinePanelProps {
-  /** When given, the panel edits this machine; `onCreate` receives the edited values. */
+  /** Quando informada, o painel edita esta máquina; `onCreate` recebe os valores editados. */
   machine?: Machine
-  /** With 2+ branches the create form asks which branch the machine belongs to. */
+  /** Com 2+ filiais o formulário de cadastro pergunta a qual filial a máquina pertence. */
   branches?: Filial[]
-  /** Sectors of the page; the select shows those of the form's branch. */
+  /** Setores da página; o seletor exibe os da filial do formulário. */
   sectors: Setor[]
-  /** Branch of a new machine when the form has no branch picker. */
+  /** Filial de uma nova máquina quando o formulário não tem seletor de filial. */
   defaultFilialId?: string
   onClose: () => void
   onCreate: (values: NewMachineFormValues) => void | Promise<void>
@@ -90,7 +90,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
       await onCreate(values)
       onClose()
     } catch {
-      // Falha mantém o formulário aberto com os dados preenchidos
+      // ignora
     } finally {
       setSaving(false)
     }

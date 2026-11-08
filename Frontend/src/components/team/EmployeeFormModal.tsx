@@ -16,16 +16,16 @@ export interface EmployeeFormValues {
   horarioEntrada: string
   horarioSaida: string
   usuario: string
-  /** Empty means no new password: on edit the current one stays. */
+  /** Vazio significa sem nova senha: na edição a atual é mantida. */
   senha: string
-  /** Only on create, when the form asks for the branch. */
+  /** Apenas no cadastro, quando o formulário solicita a filial. */
   filialId?: string
 }
 
 interface EmployeeFormModalProps {
   employee?: Employee
   existing: Employee[]
-  /** With 2+ branches the create form asks which branch the employee belongs to. */
+  /** Com 2+ filiais o formulário de cadastro pergunta a qual filial o funcionário pertence. */
   branches?: Filial[]
   onSave: (values: EmployeeFormValues) => Promise<void> | void
   onClose: () => void
@@ -33,7 +33,7 @@ interface EmployeeFormModalProps {
 
 type Errors = Partial<Record<keyof EmployeeFormValues, string>>
 
-// Same rules as the backend: usuario 3-40 characters without spaces, senha 8+.
+// Mesmas regras do backend: usuário de 3 a 40 caracteres sem espaços, senha com 8 ou mais.
 const USUARIO = /^\S{3,40}$/
 const SENHA_MINIMA = 8
 
@@ -50,7 +50,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
     horarioSaida: employee?.horarioSaida ?? '',
     usuario: employee?.usuario ?? '',
     senha: '',
-    // With one branch there is no picker: the employee goes to it without asking.
+    // Com apenas uma filial não há seletor: o funcionário é atribuído a ela diretamente.
     ...(!employee && branches.length > 0 && { filialId: branches[0]._id }),
   })
   const [errors, setErrors] = useState<Errors>({})
@@ -65,7 +65,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
     if (saving) return
     const next: Errors = {}
     const usuario = values.usuario.trim()
-    // Create needs the login; an edit without login may add one, usuario and senha together.
+    // Cadastro exige login; edição sem login pode adicionar um, usuário e senha juntos.
     const loginRequired = !employee || (!hasLogin && (usuario !== '' || values.senha !== ''))
     for (const field of ['nome', 'cargo'] as const) {
       if (values[field].trim() === '') next[field] = t('team.required')
@@ -98,7 +98,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
         senha: values.senha.trim() === '' ? '' : values.senha,
       })
     } catch {
-      // Keeps form open with entered data on error
+      // ignora
     } finally {
       setSaving(false)
     }
@@ -189,7 +189,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
           </div>
         )}
         <div className={styles.divider} />
-        {/* An existing login keeps its usuario; the backend has no route to rename it. */}
+        {/* Um login existente mantém seu usuário; o backend não possui rota para renomeá-lo. */}
         {field('usuario', t('team.labelUsername'), t('team.phUsername'), { disabled: hasLogin })}
         {field('senha', t('team.labelPassword'), hasLogin ? t('team.phPasswordKeep') : t('team.phPassword'), { icon: 'password' })}
         <div className={buttons.actions}>

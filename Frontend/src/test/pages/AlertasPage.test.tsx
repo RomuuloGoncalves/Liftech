@@ -27,7 +27,7 @@ const ACCIDENT_OPERATORS = ['Alexandre Gomes', 'Carlos Silva', 'Ana Souza', 'Jo�
 const FIRST_EVENT_DAY = Date.UTC(2024, 7, 1)
 const DAY_MS = 24 * 60 * 60 * 1000
 
-// The mock accidents as the API would send them: odd ones reported by the collaborator.
+// Os acidentes simulados conforme a API enviaria: os ímpares reportados pelo colaborador.
 const ACCIDENTS = MACHINES.flatMap((machine, machineIndex) =>
   ACCIDENT_SLOTS.map(([inicio, fim], slot) => {
     const dayOffset = (machineIndex * 7 + slot * 45) % 600
@@ -57,7 +57,7 @@ const accidentsIn = (from: string, to: string) =>
     (b.event.data + b.event.inicio).localeCompare(a.event.data + a.event.inicio)
   )
 
-// Stand-in for GET /incidents: by machine and local day, inclusive, most recent first.
+// Substituto para GET /incidents: por máquina e dia local, inclusivo, mais recentes primeiro.
 const listIncidents = async ({ machineId, from, to }: FiltroIncidentes = {}) =>
   accidentsIn(from ?? '', to ?? '')
     .filter(({ event }) => !machineId || event.machineId === machineId)
@@ -325,14 +325,14 @@ describe('AlertasPage skeleton', () => {
       await renderPage()
       const helpButton = screen.getByRole('button', { name: 'Sobre os níveis de urgência' })
 
-      // Test Escape
+      // Testa Escape
       fireEvent.click(helpButton)
       expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
       fireEvent.keyDown(window, { key: 'Escape' })
       expect(screen.queryByRole('dialog', { name: 'Informações sobre nível crítico' })).not.toBeInTheDocument()
       expect(document.activeElement).toBe(helpButton)
 
-      // Test Fechar click
+      // Testa clique em Fechar
       fireEvent.click(helpButton)
       expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
       fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))

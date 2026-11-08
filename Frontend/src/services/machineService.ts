@@ -2,7 +2,7 @@ import api from './api';
 import type { Machine, MachineStatus } from '../data/machines';
 import type { NewMachineFormValues } from '../components/machines/NewMachinePanel';
 
-// Only the fields the backend stores; the branch goes separately, on create.
+// Apenas os campos persistidos pelo backend; a filial é enviada separadamente no cadastro.
 const corpo = ({ nome, identificacao, setorId, nomeDispositivo, enderecoMac }: NewMachineFormValues) =>
   ({ nome, identificacao, setorId: setorId || null, nomeDispositivo, enderecoMac });
 

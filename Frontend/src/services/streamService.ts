@@ -40,7 +40,7 @@ function parseBlock(block: string, onEvento: StreamEventHandler) {
 
   for (const line of lines) {
     if (!line || line.startsWith(':')) {
-      // Empty line or comment (e.g. : ping)
+      // Linha vazia ou comentário (ex.: : ping)
       continue;
     }
     if (line.startsWith('event:')) {
@@ -50,7 +50,7 @@ function parseBlock(block: string, onEvento: StreamEventHandler) {
     }
   }
 
-  // Ignore blocks without event
+  // Ignora blocos sem evento
   if (!event) return;
 
   const rawData = dataLines.join('\n');
@@ -58,7 +58,7 @@ function parseBlock(block: string, onEvento: StreamEventHandler) {
   try {
     parsedData = JSON.parse(rawData);
   } catch {
-    // Keep raw data if not JSON
+    // Mantém dados brutos se não for JSON
   }
 
   onEvento({ event, data: parsedData });
@@ -126,7 +126,7 @@ export const streamService = {
       try {
         void reader.cancel();
       } catch {
-        // ignore
+        // ignora
       }
     };
 
@@ -134,7 +134,7 @@ export const streamService = {
       try {
         void reader.cancel();
       } catch {
-        // ignore
+        // ignora
       }
       return;
     }
@@ -169,7 +169,7 @@ export const streamService = {
       try {
         reader.releaseLock();
       } catch {
-        // ignore
+        // ignora
       }
     }
   },

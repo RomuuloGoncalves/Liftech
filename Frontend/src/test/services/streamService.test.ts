@@ -180,7 +180,7 @@ describe('streamService.abrir', () => {
     const onEvento = vi.fn()
     const promise = streamService.abrir(onEvento, controller.signal)
 
-    // Wait a tick so reading begins, then abort
+    // Aguarda um instante para que a leitura se inicie, então cancela
     await new Promise((r) => setTimeout(r, 10))
     controller.abort()
     await promise

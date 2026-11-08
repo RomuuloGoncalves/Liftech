@@ -57,7 +57,7 @@ const find = (id: string) => EMPLOYEES.find((e) => e.id === id) as Employee
 const operatorFields = ({ nome, telefone, cargo, horarioEntrada, horarioSaida }: EmployeeFormValues) =>
   ({ nome, telefone, cargo, horarioEntrada, horarioSaida })
 
-// What the API answers by default: the operator as sent, a generated matricula, the login when created.
+// O que a API responde por padrão: o operador como enviado, uma matrícula gerada e o login quando criado.
 beforeEach(() => {
   localStorage.clear()
   listar.mockReset()
@@ -88,7 +88,7 @@ beforeEach(() => {
   removerSetor.mockResolvedValue(undefined)
 })
 
-// The page loads the employees first; the toast provider is there so error toasts can be read.
+// A página carrega os funcionários primeiro; o provedor de toast está presente para que os toasts de erro possam ser lidos.
 const renderLoaded = async () => {
   const view = render(
     <ToastProvider>

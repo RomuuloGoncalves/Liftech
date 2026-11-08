@@ -106,7 +106,7 @@ describe('EmployeeSessionPage', () => {
     expect(screen.getByTestId('spinner')).toBeInTheDocument()
     expect(reportButton).toBeDisabled()
 
-    // Second click does nothing
+    // Segundo clique não faz nada
     fireEvent.click(endingBtn)
     expect(encerrar).toHaveBeenCalledTimes(1)
 

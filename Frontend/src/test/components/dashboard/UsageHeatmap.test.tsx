@@ -26,7 +26,7 @@ describe('UsageHeatmap', () => {
 
   it('renders cell with aria-label and strong level class when it is the maximum, and light class for zero', () => {
     const grid = Array.from({ length: 7 }, () => Array(7).fill(0));
-    // Row 0 (6 hrs), Col 0 (Seg) = 3 sessions (max)
+    // Linha 0 (6 hrs), Col 0 (Seg) = 3 sessões (máx)
     grid[0]![0] = 3;
 
     render(<UsageHeatmap counts={grid} />);

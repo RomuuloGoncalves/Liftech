@@ -575,19 +575,16 @@ describe('AlertsContext', () => {
     expect(screen.getByTestId('recent-ids').textContent).toBe('inc-stream-dup');
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
 
-    // Close the dialog
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
     });
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-    // Now polling runs returning this same incident
     listar.mockResolvedValue([incidente]);
     await act(async () => {
       await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS);
     });
 
-    // Recent still contains it, but dialog did NOT re-open!
     expect(screen.getByTestId('recent-ids').textContent).toBe('inc-stream-dup');
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -606,15 +603,11 @@ describe('AlertsContext', () => {
     await renderWithProviders();
     expect(listar).toHaveBeenCalledTimes(1);
 
-    // Simulate stream reconnect triggering onOpen
     await act(async () => {
-      // First open sets connected state
       capturedOpts?.onOpen?.();
     });
 
-    // Now call onOpen after a reconnect
     await act(async () => {
-      // Trigger reload directly or through reconnect callback
       screen.getByText('reload').click();
     });
 
@@ -644,17 +637,14 @@ describe('AlertsContext', () => {
       });
     });
 
-    // Pop-up shows machine identification
     const dialog = screen.getByRole('alertdialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveTextContent('EMP-OFFLINE-99');
 
-    // Does NOT affect recent alerts or unseen status
     expect(screen.getByTestId('recent-count').textContent).toBe('0');
     expect(screen.getByTestId('recent-ids').textContent).toBe('');
     expect(screen.getByTestId('hasUnseen').textContent).toBe('false');
 
-    // Dismiss pop-up
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
     });
@@ -670,12 +660,10 @@ describe('AlertsContext', () => {
 
     await renderWithProviders();
 
-    // Select filial f1
     await act(async () => {
       screen.getByText('branch-f1').click();
     });
 
-    // Receive offline event for branch f2
     await act(async () => {
       sseCallback?.({
         event: 'dispositivo_offline',
@@ -687,7 +675,6 @@ describe('AlertsContext', () => {
       });
     });
 
-    // Dialog should NOT open
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -700,12 +687,10 @@ describe('AlertsContext', () => {
 
     await renderWithProviders();
 
-    // Select filial f1
     await act(async () => {
       screen.getByText('branch-f1').click();
     });
 
-    // 1. Incidente com filialId: 'f2' (outra filial) -> deve ser descartado
     await act(async () => {
       sseCallback?.({
         event: 'incidente',
@@ -715,7 +700,6 @@ describe('AlertsContext', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(screen.getByTestId('recent-ids')).not.toHaveTextContent('inc-branch-f2');
 
-    // 2. Incidente com filialId: 'f1' (mesma filial ativa) -> deve ser aceito
     await act(async () => {
       sseCallback?.({
         event: 'incidente',
@@ -725,13 +709,11 @@ describe('AlertsContext', () => {
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(screen.getByTestId('recent-ids')).toHaveTextContent('inc-branch-f1');
 
-    // Fechar dialog
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
     });
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-    // 3. Incidente sem filialId -> deve ser aceito
     await act(async () => {
       sseCallback?.({
         event: 'incidente',
@@ -751,7 +733,6 @@ describe('AlertsContext', () => {
 
     await renderWithProviders();
 
-    // filial ativa já é 'todas'
     await act(async () => {
       sseCallback?.({
         event: 'incidente',
@@ -770,7 +751,6 @@ describe('AlertsContext', () => {
       return new Promise(() => {});
     });
 
-    // Controlamos a resolução do primeiro listar
     let resolveFirstPoll!: (value: Incidente[]) => void;
     listar.mockImplementationOnce(
       () =>
@@ -781,18 +761,14 @@ describe('AlertsContext', () => {
 
     await renderWithProviders();
 
-    // Neste momento, o primeiro poll ainda está pendente (known.current é null)
-    // Chega um incidente via SSE
     const liveInc = makeIncident('inc-live-early');
     await act(async () => {
       sseCallback?.({ event: 'incidente', data: liveInc });
     });
 
-    // O modal deve abrir apenas para o incidente live
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(screen.getByTestId('recent-ids')).toHaveTextContent('inc-live-early');
 
-    // Agora o primeiro poll resolve com 5 itens históricos antigos
     const historicalIncidents = [
       makeIncident('h1'),
       makeIncident('h2'),
@@ -805,12 +781,10 @@ describe('AlertsContext', () => {
       await Promise.resolve();
     });
 
-    // Fechar o popup do inc-live-early
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
     });
 
-    // NÃO deve haver nenhum outro popup aberto (os 5 históricos NÃO viraram pop-ups em massa!)
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });

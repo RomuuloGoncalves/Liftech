@@ -65,7 +65,6 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 
   const selectedOption = options.find((opt) => opt.value === value);
 
-  // Position detection: open upward if not enough room below
   const updatePlacement = () => {
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
@@ -88,7 +87,6 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     }
   }, [isOpen]);
 
-  // Support change event on button for test compatibility
   useEffect(() => {
     const btn = buttonRef.current;
     if (!btn) return;
@@ -104,7 +102,6 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     };
   }, [onChange]);
 
-  // Click outside and Esc handling
   useEffect(() => {
     if (!isOpen) return;
 
@@ -137,7 +134,6 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     };
   }, [isOpen]);
 
-  // Scroll highlighted option into view
   useEffect(() => {
     if (isOpen && highlightedIndex >= 0 && optionRefs.current[highlightedIndex]) {
       optionRefs.current[highlightedIndex]?.scrollIntoView?.({
@@ -209,7 +205,6 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
       return;
     }
 
-    // When list is open
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setHighlightedIndex((prev) => getNextEnabledIndex(prev, 1));
@@ -235,7 +230,6 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     } else if (e.key === 'Tab') {
       closeList(false);
     } else if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-      // Typeahead: search starting letter
       const char = e.key.toLowerCase();
       const matchIndex = options.findIndex(
         (opt) => !opt.disabled && opt.label.trim().toLowerCase().startsWith(char)

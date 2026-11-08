@@ -36,7 +36,6 @@ const dispositivos = new DeviceRepository(Device);
 
 const normalizarMac = (mac: string) => mac.trim().toUpperCase();
 
-// Horas com uma casa decimal.
 const emHoras = (ms: number | undefined) => Math.round((ms ?? 0) / (HORA_MS / 10)) / 10;
 
 // Segunda-feira 00:00 da semana de `agora`, no fuso do servidor (o mesmo critério de lerPeriodo).

@@ -125,7 +125,7 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }
 
-  // ponytail: Polling fetches up to 500 incidents per query because GET /api/incidents has no limit param yet (LIMITE_HISTORICO). Pauses when hidden; upgrade to query limit once history grows.
+  // ponytail: O polling busca até 500 incidentes por requisição porque GET /api/incidents ainda não possui parâmetro de limite (LIMITE_HISTORICO). Pausa quando oculto; atualizar para limite na query conforme o histórico crescer.
   useEffect(() => {
     if (!userId) {
       return;

@@ -158,7 +158,7 @@ describe('IncidentSheet', () => {
     expect(screen.getByTestId('spinner')).toBeInTheDocument()
     expect(footerButton('Cancelar')).toBeDisabled()
 
-    // Second click does nothing
+    // Segundo clique não faz nada
     fireEvent.click(submitBtn)
     expect(reportar).toHaveBeenCalledTimes(1)
 

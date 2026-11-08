@@ -117,7 +117,7 @@ describe('FeedbackModal', () => {
 
     expect(feedbackService.enviar).toHaveBeenCalledTimes(1)
 
-    // Verify busy state
+    // Verifica o estado ocupado (busy)
     const sendingButton = screen.getByRole('button', { name: /Enviando…/ })
     expect(sendingButton).toBeDisabled()
     expect(sendingButton).toHaveAttribute('aria-busy', 'true')

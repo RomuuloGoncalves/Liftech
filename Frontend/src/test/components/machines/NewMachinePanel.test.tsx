@@ -145,11 +145,11 @@ describe('NewMachinePanel', () => {
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Fechar' })).toBeDisabled()
 
-    // Does not double submit while saving
+    // Não submete duas vezes enquanto salva
     fireEvent.click(submitBtn)
     expect(onCreate).toHaveBeenCalledTimes(1)
 
-    // Closes on success
+    // Fecha após sucesso
     await act(async () => {
       resolve()
     })
@@ -170,7 +170,7 @@ describe('NewMachinePanel', () => {
 
     expect(screen.getByTestId('spinner')).toBeInTheDocument()
 
-    // Reject promise
+    // Rejeita a Promise
     await act(async () => {
       reject(new Error('fail'))
     })

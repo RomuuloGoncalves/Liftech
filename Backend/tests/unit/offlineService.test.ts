@@ -177,19 +177,15 @@ describe("offlineService (T18: Varredor de offline)", () => {
     iniciarVarredor(10000);
     expect(_obterEstadoVarredor().ativo).toBe(true);
 
-    // Dispara 1º tick (ainda pendente)
     vi.advanceTimersByTime(10000);
     expect(mockEmpilhadeiras.obterTodos).toHaveBeenCalledTimes(1);
 
-    // Dispara 2º tick enquanto 1º está rodando: deve ignorar
     vi.advanceTimersByTime(10000);
     expect(mockEmpilhadeiras.obterTodos).toHaveBeenCalledTimes(1);
 
-    // Conclui 1º tick
     resolverPrimeiroTick!();
     await vi.advanceTimersByTimeAsync(0);
 
-    // Dispara 3º tick após liberação
     vi.advanceTimersByTime(10000);
     expect(mockEmpilhadeiras.obterTodos).toHaveBeenCalledTimes(2);
 

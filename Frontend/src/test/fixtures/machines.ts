@@ -202,7 +202,7 @@ const BASE_MACHINES: Omit<Machine, 'setorId'>[] = [
   },
 ]
 
-/** Stand-in for GET /machines: 16 machines matching the original mock dataset. */
+/** Substituto para GET /machines: 16 máquinas correspondentes ao conjunto de dados simulado original. */
 export const MACHINES: Machine[] = BASE_MACHINES.map((machine, index) => ({
   ...machine,
   setorId: null,

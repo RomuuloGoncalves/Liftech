@@ -8,7 +8,7 @@ export interface Machine {
   id: string
   identificacao: string
   nome: string
-  /** Name of the linked sector, '' without one. */
+  /** Nome do setor vinculado, '' se não houver. */
   setor: string
   setorId: string | null
   filialId?: string
@@ -108,7 +108,7 @@ export function defaultPeriod(): { from: string; to: string } {
   return { from: from.toLocaleDateString('sv'), to: to.toLocaleDateString('sv') }
 }
 
-/** API incident as an `acidente` event; the sensor reports an accident cause (default colisao), the collaborator report has no cause. */
+/** Incidente da API como evento `acidente`; o sensor reporta causa do acidente (padrão colisao), o relato do colaborador não possui causa. */
 export function incidentToEvent(incident: Incidente): MachineEvent {
   const date = new Date(incident.dataIncidente)
   const time = date.toLocaleTimeString('sv')
@@ -124,13 +124,13 @@ export function incidentToEvent(incident: Incidente): MachineEvent {
   }
 }
 
-/** Card urgency: the cause decides; a collaborator report without cause is `alta`. */
+/** Urgência do card: a causa determina; relato do colaborador sem causa é `alta`. */
 export const eventUrgency = (event: MachineEvent): UrgencyLevel => (event.causa ? ACCIDENT_URGENCY[event.causa] : 'alta')
 
 export interface MachineFilters {
   query?: string
   status?: MachineStatus | 'Todos'
-  /** 'Todos' or missing = any sector. */
+  /** 'Todos' ou ausente = qualquer setor. */
   setorId?: string
 }
 

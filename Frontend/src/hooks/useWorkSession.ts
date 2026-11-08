@@ -10,7 +10,7 @@ interface State {
 
 const listeners = new Set<() => void>()
 let state: State = { session: null, ready: false }
-// Token the open session was loaded for: a new login loads it again.
+// Token para o qual a sessão aberta foi carregada: um novo login a carrega novamente.
 let loadedFor: string | null | undefined
 
 function set(next: State) {

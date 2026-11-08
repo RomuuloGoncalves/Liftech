@@ -2,7 +2,7 @@ import api from './api';
 import type { Employee } from '../data/team';
 import type { EmployeeFormValues } from '../components/team/EmployeeFormModal';
 
-// Only the operator fields the backend stores; login and branch go separately.
+// Apenas os campos do operador persistidos pelo backend; login e filial vão separadamente.
 const corpo = ({ nome, telefone, cargo, horarioEntrada, horarioSaida }: EmployeeFormValues) =>
   ({ nome, telefone, cargo, horarioEntrada, horarioSaida });
 
@@ -15,7 +15,7 @@ export const operatorService = {
   },
 
   async criar(values: EmployeeFormValues, filialId?: string): Promise<Employee> {
-    // With usuario the API creates the login in the same call and undoes the operator if it fails.
+    // Com usuário a API cria o login na mesma chamada e desfaz o operador se falhar.
     const login = values.usuario !== '' && { usuario: values.usuario, senha: values.senha };
     const { data } = await api.post<Employee>('/operators', { ...corpo(values), ...(filialId && { filialId }), ...login });
     return data;

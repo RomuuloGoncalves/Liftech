@@ -990,13 +990,13 @@ describe('FrotaPage: sector filter', () => {
       await renderWithLive()
       const callsBefore = listarMaquinas.mock.calls.length
 
-      // EMP-083 is initially in Disponíveis
+      // EMP-083 está inicialmente em Disponíveis
       expect(codesIn('Disponíveis')).toContain('EMP-083(ID)')
       expect(codesIn('Ativas')).not.toContain('EMP-083(ID)')
 
       const m83 = MACHINES.find((m) => m.identificacao === 'EMP-083')!
 
-      // Emit maquina event: moving to 'ativas' with status 'em_uso'
+      // Emite evento de máquina: movendo para 'ativas' com status 'em_uso'
       await act(async () => {
         sseCallback?.({
           event: 'maquina',
@@ -1009,12 +1009,12 @@ describe('FrotaPage: sector filter', () => {
         })
       })
 
-      // Moved to Ativas without reloading
+      // Moveu para Ativas sem recarregar
       expect(codesIn('Ativas')).toContain('EMP-083(ID)')
       expect(codesIn('Disponíveis')).not.toContain('EMP-083(ID)')
       expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore)
 
-      // Card has arriving attribute
+      // Card possui atributo data-arriving
       const card = screen.getByText('EMP-083(ID)').closest('article')
       expect(card).toHaveAttribute('data-arriving', 'true')
     })
@@ -1023,7 +1023,7 @@ describe('FrotaPage: sector filter', () => {
       await renderWithLive()
       const callsBefore = listarMaquinas.mock.calls.length
 
-      // Set up EMP-083 as locked in Disponíveis
+      // Configura EMP-083 como travada em Disponíveis
       const m83 = MACHINES.find((m) => m.identificacao === 'EMP-083')!
 
       await act(async () => {
@@ -1039,7 +1039,7 @@ describe('FrotaPage: sector filter', () => {
         })
       })
 
-      // Since categoriaTravada is true, stays in Disponíveis, does NOT move to Acidentes
+      // Como categoriaTravada é true, permanece em Disponíveis, NÃO move para Acidentes
       expect(codesIn('Disponíveis')).toContain('EMP-083(ID)')
       expect(codesIn('Acidentes')).not.toContain('EMP-083(ID)')
       expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore)
@@ -1079,12 +1079,12 @@ describe('FrotaPage: sector filter', () => {
       await renderWithLive()
       const callsBefore = listarMaquinas.mock.calls.length
 
-      // Connection dropped
+      // Conexão perdida
       await act(async () => {
         triggerClose?.()
       })
 
-      // Wait for backoff timer to reconnect
+      // Aguarda o timer de backoff para reconectar
       await act(async () => {
         await new Promise((r) => setTimeout(r, 1150))
       })
@@ -1099,7 +1099,7 @@ describe('FrotaPage: sector filter', () => {
       const callsBefore = listarMaquinas.mock.calls.length
       const m83 = MACHINES.find((m) => m.identificacao === 'EMP-083')!
 
-      // Emit event for branch f2
+      // Emite evento para filial f2
       await act(async () => {
         sseCallback?.({
           event: 'maquina',
@@ -1112,7 +1112,7 @@ describe('FrotaPage: sector filter', () => {
         })
       })
 
-      // Should not have moved nor reloaded
+      // Não deve ter movido nem recarregado
       expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore)
       expect(codesIn('Disponíveis')).toContain('EMP-083(ID)')
       expect(codesIn('Ativas')).not.toContain('EMP-083(ID)')

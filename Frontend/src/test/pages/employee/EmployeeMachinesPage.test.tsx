@@ -54,7 +54,7 @@ describe('EmployeeMachinesPage', () => {
     expect(listarMaquinas).toHaveBeenCalledTimes(1)
     expect(cards()).toHaveLength(6)
     cards().forEach((card) => expect(within(card).getByText('Disponível')).toBeInTheDocument())
-    // Only EMP-083 and EMP-088 (ids 3 and 8) have sessions in the fixture.
+    // Apenas EMP-083 e EMP-088 (ids 3 e 8) possuem sessões no fixture.
     expect(screen.getAllByText('Data e Hora')).toHaveLength(2)
     expect(screen.queryByText('Manutenção')).not.toBeInTheDocument()
     expect(screen.queryByText('Em uso')).not.toBeInTheDocument()

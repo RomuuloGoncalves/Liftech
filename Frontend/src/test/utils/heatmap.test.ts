@@ -20,7 +20,7 @@ describe('heatmap utils', () => {
     });
 
     it('ignores sessions before 06:00 (e.g. 05:59)', () => {
-      // Monday 2026-10-26 at 05:59 local
+      // Segunda-feira 26/10/2026 às 05:59 local
       const d = new Date(2026, 9, 26, 5, 59);
       const grid = countSessions([d.toISOString()]);
       const total = grid.flat().reduce((a, b) => a + b, 0);
@@ -52,7 +52,7 @@ describe('heatmap utils', () => {
     });
 
     it('maps Sunday to column 6', () => {
-      // Sunday 2026-10-25 at 08:30
+      // Domingo 25/10/2026 às 08:30
       const d = new Date(2026, 9, 25, 8, 30);
       const grid = countSessions([d.toISOString()]);
       expect(grid[1][6]).toBe(1);
@@ -71,7 +71,7 @@ describe('heatmap utils', () => {
 
   describe('heatmapFrom', () => {
     it('returns today - 27 days in YYYY-MM-DD format (local date)', () => {
-      // 2026-10-28 is month 9
+      // 28/10/2026 é o mês 9 (outubro, índice base zero)
       const today = new Date(2026, 9, 28);
       expect(heatmapFrom(today)).toBe('2026-10-01');
     });

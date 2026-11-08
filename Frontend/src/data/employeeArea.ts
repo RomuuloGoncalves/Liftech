@@ -14,7 +14,7 @@ export interface UsageRecord {
   durationMinutes: number
 }
 
-// 'sv' formats as YYYY-MM-DD and HH:mm:ss in the local time zone.
+// 'sv' formata como YYYY-MM-DD e HH:mm:ss no fuso horário local.
 const localDate = (date: Date) => date.toLocaleDateString('sv')
 const localTime = (date: Date) => date.toLocaleTimeString('sv')
 

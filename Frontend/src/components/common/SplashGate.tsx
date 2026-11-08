@@ -18,7 +18,7 @@ export function shouldShowSplash(pathname: string, durationMs: number): boolean 
       return false
     }
   } catch {
-    // Tratado como sem preferência de movimento reduzido
+    // ignora
   }
 
   try {
@@ -26,7 +26,7 @@ export function shouldShowSplash(pathname: string, durationMs: number): boolean 
       return false
     }
   } catch {
-    // Erro ao ler sessionStorage => trata como "não vista"
+    // ignora
   }
 
   return true
@@ -57,7 +57,7 @@ export const SplashGate: React.FC<SplashGateProps> = ({
     try {
       sessionStorage.setItem(SEEN_KEY, '1')
     } catch {
-      // Erro ao gravar sessionStorage ignorado
+      // ignora
     }
 
     const timer = setTimeout(() => {

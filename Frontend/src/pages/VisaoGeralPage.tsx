@@ -35,8 +35,6 @@ export interface MaquinaStreamEvento {
 type StatusFilter = MachineStatus | 'Todos'
 type LoadState = 'loading' | 'ready' | 'error'
 
-// Id da máquina recém-cadastrada até a API responder com o id de verdade.
-
 const VisaoGeralPage: React.FC = () => {
   const { t } = useTranslation()
   const [allMachines, setAllMachines] = useState<Machine[]>([])
@@ -55,7 +53,7 @@ const VisaoGeralPage: React.FC = () => {
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
   const [attempt, setAttempt] = useState(0)
 
-  // A different active branch goes back to the skeleton before the effect refetches.
+  // Filial ativa diferente volta ao skeleton antes de buscar novamente.
   if (loadedFilialId !== filialId) {
     setLoadedFilialId(filialId)
     setLoadState('loading')
@@ -64,7 +62,7 @@ const VisaoGeralPage: React.FC = () => {
 
   useEffect(() => {
     let stale = false
-    // Without sectors the page still works: the select only offers "Sem setor".
+    // Sem setores a página ainda funciona: o select oferece apenas "Sem setor".
     Promise.all([machineService.listar(filialId), sectorService.listar(filialId).catch(() => [])]).then(
       ([machines, sectorList]) => {
         if (stale) return
@@ -131,7 +129,7 @@ const VisaoGeralPage: React.FC = () => {
     () => filterMachines(allMachines, { query, status, setorId: sectorFilter }),
     [allMachines, query, status, sectorFilter]
   )
-  // Names repeat across branches: with more than one branch on screen the option names the branch too.
+  // Nomes se repetem entre filiais: com mais de uma filial na tela a opção também inclui o nome da filial.
   const sectorLabel = (sector: Setor) =>
     activeBranch === 'todas' && branches.length > 1 ? `${sector.nome} · ${sector.filial.nome}` : sector.nome
 

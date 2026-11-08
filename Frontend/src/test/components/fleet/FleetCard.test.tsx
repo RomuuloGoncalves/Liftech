@@ -181,7 +181,7 @@ describe('FleetCard drag feedback', () => {
 })
 
 describe('FleetCard driven by machine status (FRT-08, FRT-09)', () => {
-  // The StatusBadge is commented out in the card (fe7ed80); the status shows only as the header tone.
+  // O StatusBadge está comentado no card (fe7ed80); o status é exibido apenas como o tom do cabeçalho.
   it.each([
     ['disponivel', 'toneDisponivel'],
     ['em_uso', 'toneEmUso'],

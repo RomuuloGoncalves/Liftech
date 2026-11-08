@@ -53,7 +53,7 @@ const EquipePage: React.FC = () => {
   const [attempt, setAttempt] = useState(0)
   const [deleting, setDeleting] = useState(false)
 
-  // A different active branch goes back to the skeleton before the effect refetches.
+  // Filial ativa diferente volta ao skeleton antes de buscar novamente.
   if (loadedFilialId !== filialId) {
     setLoadedFilialId(filialId)
     setLoadState('loading')
@@ -92,7 +92,7 @@ const EquipePage: React.FC = () => {
   const replaceEmployee = (employee: Employee) =>
     setEmployees((prev) => prev.map((e) => (e.id === employee.id ? employee : e)))
 
-  // Optimistic: shows `next`, saves, then uses the API answer; on failure puts `previous` back.
+  // Otimista: exibe `next`, grava e usa a resposta da API; em caso de falha restaura `previous`.
   const saveOptimistic = (previous: Employee, next: Employee, save: () => Promise<Employee>, errorKey = 'team.saveError') => {
     replaceEmployee(next)
     save().then(replaceEmployee, (e) => {
@@ -108,8 +108,8 @@ const EquipePage: React.FC = () => {
     )
   }
 
-  // Create waits for the API, which saves the operator and its login together; a refusal keeps the form open.
-  // ponytail: no in-flight guard, a double click on Confirmar registers twice; disable the button if it shows up.
+  // Criação aguarda a API, que salva o operador e o login juntos; uma recusa mantém o formulário aberto.
+  // ponytail: sem trava de requisição em andamento, duplo clique em Confirmar registra duas vezes; desabilitar botão se necessário.
   const createEmployee = async (values: EmployeeFormValues) => {
     try {
       const created = await operatorService.criar(values, values.filialId ?? filialId)
@@ -153,7 +153,7 @@ const EquipePage: React.FC = () => {
   const replaceSector = (id: string, sector: Sector) =>
     setSectors((prev) => prev.map((s) => (s._id === id ? sector : s)))
 
-  // The 409 with a machine count names it; any other 409 is the repeated name.
+  // O 409 com contagem de máquinas informa a quantidade; qualquer outro 409 indica nome duplicado.
   const sectorError = (e: unknown, machinesKey: string) => {
     if (!axios.isAxiosError(e) || e.response?.status !== 409) return t('team.saveError')
     const n = /Setor com (\d+)/.exec(String(e.response.data?.error ?? ''))?.[1]
@@ -166,7 +166,7 @@ const EquipePage: React.FC = () => {
     const previous = dialog.sector
     if (previous) {
       replaceSector(previous._id, { ...previous, ...values, filial })
-      // Only the company scope may move a sector; the others keep it where it is.
+      // Apenas o escopo empresa pode mover um setor; os demais mantêm onde está.
       sectorService
         .atualizar(previous._id, canManage ? values : { nome: values.nome })
         .then((saved) => replaceSector(previous._id, saved), (e) => {

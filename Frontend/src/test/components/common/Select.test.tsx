@@ -58,7 +58,7 @@ describe('Select component (UXP-04)', () => {
     );
 
     const combobox = screen.getByRole('combobox');
-    // Click opens
+    // Clique abre
     fireEvent.click(combobox);
     expect(combobox).toHaveAttribute('aria-expanded', 'true');
     const listbox = screen.getByRole('listbox');
@@ -69,21 +69,21 @@ describe('Select component (UXP-04)', () => {
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
 
-    // Close by pressing Escape
+    // Fecha pressionando Escape
     fireEvent.keyDown(combobox, { key: 'Escape' });
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
 
-    // Open via Enter
+    // Abre via Enter
     fireEvent.keyDown(combobox, { key: 'Enter' });
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     fireEvent.keyDown(combobox, { key: 'Escape' });
 
-    // Open via Space
+    // Abre via Espaço
     fireEvent.keyDown(combobox, { key: ' ' });
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     fireEvent.keyDown(combobox, { key: 'Escape' });
 
-    // Open via ArrowDown
+    // Abre via ArrowDown
     fireEvent.keyDown(combobox, { key: 'ArrowDown' });
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
@@ -101,14 +101,14 @@ describe('Select component (UXP-04)', () => {
     const combobox = screen.getByRole('combobox');
     fireEvent.click(combobox);
 
-    // ArrowDown moves from Apple (index 0) to Banana (index 1)
+    // ArrowDown move de Apple (índice 0) para Banana (índice 1)
     fireEvent.keyDown(combobox, { key: 'ArrowDown' });
-    // ArrowDown moves from Banana (index 1) to Cherry (index 2)
+    // ArrowDown move de Banana (índice 1) para Cherry (índice 2)
     fireEvent.keyDown(combobox, { key: 'ArrowDown' });
-    // ArrowDown skips Date (index 3, disabled) and moves to Elderberry (index 4)
+    // ArrowDown pula Date (índice 3, desabilitado) e move para Elderberry (índice 4)
     fireEvent.keyDown(combobox, { key: 'ArrowDown' });
 
-    // Select with Enter
+    // Seleciona com Enter
     fireEvent.keyDown(combobox, { key: 'Enter' });
     expect(onChange).toHaveBeenCalledWith('elderberry');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
@@ -210,9 +210,9 @@ describe('Select component (UXP-04)', () => {
     const combobox = screen.getByRole('combobox');
     fireEvent.click(combobox);
 
-    // Type 'c' -> should jump to Cherry
+    // Digita 'c' -> deve pular para Cherry
     fireEvent.keyDown(combobox, { key: 'c' });
-    // Press Enter to select
+    // Pressiona Enter para selecionar
     fireEvent.keyDown(combobox, { key: 'Enter' });
     expect(onChange).toHaveBeenCalledWith('cherry');
   });
@@ -242,7 +242,7 @@ describe('Select component (UXP-04)', () => {
     );
 
     const combobox = screen.getByRole('combobox');
-    // Mock getBoundingClientRect near bottom of viewport
+    // Simula getBoundingClientRect próximo ao rodapé da janela de visualização
     vi.spyOn(combobox, 'getBoundingClientRect').mockReturnValue({
       top: 600,
       bottom: 640,
@@ -254,7 +254,7 @@ describe('Select component (UXP-04)', () => {
       y: 600,
       toJSON: () => {},
     });
-    // Viewport height 700 -> space below is 60px (< 220px), space above is 600px
+    // Altura da viewport 700 -> espaço abaixo é 60px (< 220px), espaço acima é 600px
     Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 700 });
 
     fireEvent.click(combobox);

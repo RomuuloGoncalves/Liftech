@@ -200,14 +200,11 @@ describe('LiveContext and useLive (TLQ-05)', () => {
     )
 
     expect(callCount).toBe(1)
-    // First connection opens normally
     act(() => {
       triggerOnOpen?.()
     })
-    // First open is NOT a reconnect
     expect(reconnectSpy).not.toHaveBeenCalled()
 
-    // 1st drop: stream finishes
     act(() => {
       resolveStream?.()
     })
@@ -215,19 +212,16 @@ describe('LiveContext and useLive (TLQ-05)', () => {
       await Promise.resolve()
     })
 
-    // Advance 1s (initial backoff delay = 1000ms)
     act(() => {
       vi.advanceTimersByTime(1000)
     })
     expect(callCount).toBe(2)
 
-    // On reconnect success, triggers onReconnect callback
     act(() => {
       triggerOnOpen?.()
     })
     expect(reconnectSpy).toHaveBeenCalledTimes(1)
 
-    // 2nd drop: stream finishes again
     act(() => {
       resolveStream?.()
     })
@@ -235,16 +229,15 @@ describe('LiveContext and useLive (TLQ-05)', () => {
       await Promise.resolve()
     })
 
-    // Advance 2s (backoff doubled: 2000ms)
     act(() => {
       vi.advanceTimersByTime(1000)
     })
-    expect(callCount).toBe(2) // Not yet reconnected at 1s
+    expect(callCount).toBe(2)
 
     act(() => {
       vi.advanceTimersByTime(1000)
     })
-    expect(callCount).toBe(3) // Reconnected at 2s
+    expect(callCount).toBe(3)
 
     act(() => {
       triggerOnOpen?.()
@@ -270,7 +263,6 @@ describe('LiveContext and useLive (TLQ-05)', () => {
     expect(streamService.abrir).toHaveBeenCalledTimes(1)
     expect(logoutSpy).toHaveBeenCalledTimes(1)
 
-    // Advance time by 60 seconds - should NOT attempt to reconnect
     act(() => {
       vi.advanceTimersByTime(60_000)
     })

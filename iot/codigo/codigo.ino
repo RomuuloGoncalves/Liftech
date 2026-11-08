@@ -5,18 +5,10 @@
 #include <Preferences.h>
 #include <math.h>
 
-// ============================================================
-// CONFIGURAÇÃO DO SENSOR
-// ============================================================
-
 #define ENDERECO_ADXL345 0x53
 
 #define PINO_SDA 21
 #define PINO_SCL 22
-
-// ============================================================
-// WI-FI
-// ============================================================
 
 // Preencha antes de gravar na placa. Não versionar a senha real.
 const char* NOME_WIFI = "NOME_DA_REDE";
@@ -29,24 +21,12 @@ const char* URL_API_TELEMETRIA =
 const char* URL_API_EVENTO =
   "http://192.168.1.103:3000/api/incidents";
 
-// ============================================================
-// DISPOSITIVO
-// ============================================================
-
 // O identificador do dispositivo e obtido via WiFi.macAddress()
-
-// ============================================================
-// TEMPOS
-// ============================================================
 
 #define INTERVALO_LEITURA 10
 #define INTERVALO_TELEMETRIA 5000
 
 #define TEMPO_BLOQUEIO_EVENTO 3000
-
-// ============================================================
-// LIMITES DOS EVENTOS
-// ============================================================
 
 // Valores iniciais.
 // Depois vamos calibrar com dados reais da empilhadeira.
@@ -56,10 +36,6 @@ const char* URL_API_EVENTO =
 #define LIMITE_COLISAO 2.50
 #define LIMITE_CURVA_BRUSCA 1.50
 #define LIMITE_INCLINACAO 15.0
-
-// ============================================================
-// VARIÁVEIS
-// ============================================================
 
 unsigned long ultimaLeitura = 0;
 unsigned long ultimaTelemetria = 0;
@@ -72,19 +48,11 @@ unsigned long ultimoEventoInclinacao = 0;
 
 unsigned long contadorEventos = 0;
 
-// ============================================================
-// FILTRO
-// ============================================================
-
 float aceleracaoXFiltrada = 0;
 float aceleracaoYFiltrada = 0;
 float aceleracaoZFiltrada = 0;
 
 const float FATOR_FILTRO = 0.20;
-
-// ============================================================
-// CALIBRAÇÃO
-// ============================================================
 
 // Gravidade medida na posição de instalação
 float gravidadeX = 0;
@@ -95,15 +63,7 @@ float gravidadeZ = 0;
 float inclinacaoInicialX = 0;
 float inclinacaoInicialY = 0;
 
-// ============================================================
-// MEMÓRIA
-// ============================================================
-
 Preferences memoria;
-
-// ============================================================
-// REGISTRADOR
-// ============================================================
 
 void escreverRegistrador(byte registrador, byte valor) {
 
@@ -114,10 +74,6 @@ void escreverRegistrador(byte registrador, byte valor) {
 
   Wire.endTransmission();
 }
-
-// ============================================================
-// LEITURA DO SENSOR
-// ============================================================
 
 bool lerAceleracao(
   int16_t &x,
@@ -144,10 +100,6 @@ bool lerAceleracao(
   return true;
 }
 
-// ============================================================
-// FILTRO
-// ============================================================
-
 float aplicarFiltro(
   float atual,
   float anterior
@@ -158,10 +110,6 @@ float aplicarFiltro(
          (atual - anterior);
 }
 
-// ============================================================
-// VERIFICA BLOQUEIO
-// ============================================================
-
 bool podeGerarEvento(
   unsigned long ultimoEvento
 ) {
@@ -169,10 +117,6 @@ bool podeGerarEvento(
   return millis() - ultimoEvento >
          TEMPO_BLOQUEIO_EVENTO;
 }
-
-// ============================================================
-// CALCULA INCLINAÇÃO
-// ============================================================
 
 float calcularInclinacaoX(
   float x,
@@ -197,10 +141,6 @@ float calcularInclinacaoY(
     sqrt(x * x + z * z)
   ) * 180.0 / PI;
 }
-
-// ============================================================
-// CALIBRAÇÃO
-// ============================================================
 
 void calibrarSensor() {
 
@@ -321,10 +261,6 @@ void calibrarSensor() {
   Serial.println();
 }
 
-// ============================================================
-// CARREGA CALIBRAÇÃO
-// ============================================================
-
 void carregarCalibracao() {
 
   memoria.begin("calibracao", true);
@@ -370,10 +306,6 @@ void carregarCalibracao() {
   Serial.println(inclinacaoInicialY);
 }
 
-// ============================================================
-// WIFI
-// ============================================================
-
 void conectarWiFi() {
 
   if (WiFi.status() == WL_CONNECTED) {
@@ -417,10 +349,6 @@ void conectarWiFi() {
     );
   }
 }
-
-// ============================================================
-// ENVIA JSON PARA API
-// ============================================================
 
 bool enviarJSON(
   const char* endereco,
@@ -469,10 +397,6 @@ bool enviarJSON(
   return false;
 }
 
-// ============================================================
-// ENVIA TELEMETRIA
-// ============================================================
-
 void enviarTelemetria(
   float aceleracaoX,
   float aceleracaoY,
@@ -520,10 +444,6 @@ void enviarTelemetria(
     documento
   );
 }
-
-// ============================================================
-// ENVIA EVENTO
-// ============================================================
 
 void enviarEvento(
   const char* tipo,
@@ -600,10 +520,6 @@ void enviarEvento(
   }
 }
 
-// ============================================================
-// SETUP
-// ============================================================
-
 void setup() {
 
   Serial.begin(115200);
@@ -655,18 +571,10 @@ void setup() {
   );
 }
 
-// ============================================================
-// LOOP
-// ============================================================
-
 void loop() {
 
   unsigned long agora =
     millis();
-
-  // ==========================================================
-  // COMANDO DE CALIBRAÇÃO
-  // ==========================================================
 
   if (Serial.available()) {
 
@@ -682,10 +590,6 @@ void loop() {
     }
   }
 
-  // ==========================================================
-  // LEITURA 100 Hz
-  // ==========================================================
-
   if (
     agora - ultimaLeitura <
     INTERVALO_LEITURA
@@ -696,11 +600,9 @@ void loop() {
 
   ultimaLeitura = agora;
 
-
   int16_t valorX;
   int16_t valorY;
   int16_t valorZ;
-
 
   if (
     !lerAceleracao(
@@ -713,11 +615,6 @@ void loop() {
     return;
   }
 
-
-  // ==========================================================
-  // CONVERSÃO
-  // ==========================================================
-
   float aceleracaoX =
     valorX * 0.0039;
 
@@ -726,11 +623,6 @@ void loop() {
 
   float aceleracaoZ =
     valorZ * 0.0039;
-
-
-  // ==========================================================
-  // FILTRO
-  // ==========================================================
 
   aceleracaoXFiltrada =
     aplicarFiltro(
@@ -750,11 +642,6 @@ void loop() {
       aceleracaoZFiltrada
     );
 
-
-  // ==========================================================
-  // ACELERAÇÃO DINÂMICA
-  // ==========================================================
-
   float aceleracaoMovimentoX =
     aceleracaoXFiltrada -
     gravidadeX;
@@ -767,11 +654,6 @@ void loop() {
     aceleracaoZFiltrada -
     gravidadeZ;
 
-
-  // ==========================================================
-  // MAGNITUDE DO MOVIMENTO
-  // ==========================================================
-
   float magnitude =
     sqrt(
       aceleracaoMovimentoX *
@@ -783,11 +665,6 @@ void loop() {
       aceleracaoMovimentoZ *
       aceleracaoMovimentoZ
     );
-
-
-  // ==========================================================
-  // INCLINAÇÃO ATUAL
-  // ==========================================================
 
   float inclinacaoAtualX =
     calcularInclinacaoX(
@@ -803,11 +680,6 @@ void loop() {
       aceleracaoZFiltrada
     );
 
-
-  // ==========================================================
-  // INCLINAÇÃO RELATIVA À CALIBRAÇÃO
-  // ==========================================================
-
   float inclinacaoX =
     inclinacaoAtualX -
     inclinacaoInicialX;
@@ -815,11 +687,6 @@ void loop() {
   float inclinacaoY =
     inclinacaoAtualY -
     inclinacaoInicialY;
-
-
-  // ==========================================================
-  // COLISÃO
-  // ==========================================================
 
   if (
     magnitude >= LIMITE_COLISAO &&
@@ -842,11 +709,6 @@ void loop() {
       magnitude
     );
   }
-
-
-  // ==========================================================
-  // FRENAGEM
-  // ==========================================================
 
   else if (
     aceleracaoMovimentoX <=
@@ -872,11 +734,6 @@ void loop() {
     );
   }
 
-
-  // ==========================================================
-  // ACELERAÇÃO
-  // ==========================================================
-
   else if (
     aceleracaoMovimentoX >=
     LIMITE_ACELERACAO_BRUSCA &&
@@ -901,11 +758,6 @@ void loop() {
     );
   }
 
-
-  // ==========================================================
-  // CURVA
-  // ==========================================================
-
   else if (
     fabs(aceleracaoMovimentoY) >=
     LIMITE_CURVA_BRUSCA &&
@@ -929,11 +781,6 @@ void loop() {
       magnitude
     );
   }
-
-
-  // ==========================================================
-  // INCLINAÇÃO
-  // ==========================================================
 
   else if (
     (
@@ -965,11 +812,6 @@ void loop() {
       magnitude
     );
   }
-
-
-  // ==========================================================
-  // TELEMETRIA
-  // ==========================================================
 
   if (
     agora - ultimaTelemetria >=

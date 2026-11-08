@@ -132,16 +132,13 @@ describe('SolicitacoesPage', () => {
 
     renderPage();
 
-    // Skeleton loading indicator is active
     expect(screen.getByText(/Carregando/i)).toBeInTheDocument();
 
-    // Trigger failure
     rejectPromise();
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();
     expect(screen.getByText(/Não foi possível carregar as solicitações/i)).toBeInTheDocument();
 
-    // Clicking retry fetches again
     mockListar.mockResolvedValueOnce(pendingRequests);
     fireEvent.click(screen.getByRole('button', { name: /Tentar novamente/i }));
 
@@ -187,16 +184,13 @@ describe('SolicitacoesPage', () => {
     const acceptButtons = screen.getAllByRole('button', { name: /Aceitar/i });
     fireEvent.click(acceptButtons[0]);
 
-    // Confirm dialog is visible
     const dialog = screen.getByRole('dialog', { name: /Aceitar solicitação/i });
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByText(/Alpha Logistics/i)).toBeInTheDocument();
 
-    // Cancel does not call aprovar
     fireEvent.click(within(dialog).getByRole('button', { name: /Cancelar/i }));
     expect(mockAprovar).not.toHaveBeenCalled();
 
-    // Reopen and confirm
     const acceptButtonsAgain = screen.getAllByRole('button', { name: /Aceitar/i });
     fireEvent.click(acceptButtonsAgain[0]);
 
@@ -206,15 +200,12 @@ describe('SolicitacoesPage', () => {
 
     expect(mockAprovar).toHaveBeenCalledWith('p1');
 
-    // Card p1 is removed from view
     await waitFor(() => {
       expect(screen.queryByText('Alpha Logistics')).not.toBeInTheDocument();
       expect(within(screen.getByRole('tabpanel')).queryByText('admin1@alpha.com')).not.toBeInTheDocument();
     });
-    // Beta Cargo remains
     expect(screen.getByText('Beta Cargo')).toBeInTheDocument();
 
-    // Password modal opened with initial password
     expect(await screen.findByText(/Senha inicial gerada/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue('secret123456')).toBeInTheDocument();
   });
@@ -222,7 +213,6 @@ describe('SolicitacoesPage', () => {
   it('handles 409 conflict email, 409 conflict company, and 500 error on accept, keeping the card in list (ACCR-05 AC10)', async () => {
     mockListar.mockResolvedValue([pendingRequests[0]]);
 
-    // 1. Conflict email
     mockAprovar.mockRejectedValueOnce({
       response: {
         status: 409,
@@ -241,7 +231,6 @@ describe('SolicitacoesPage', () => {
     expect(await screen.findByText(/Já existe um usuário com este e-mail/i)).toBeInTheDocument();
     expect(screen.getByText('Alpha Logistics')).toBeInTheDocument();
 
-    // 2. Conflict company
     mockAprovar.mockRejectedValueOnce({
       response: {
         status: 409,
@@ -256,7 +245,6 @@ describe('SolicitacoesPage', () => {
     expect(await screen.findByText(/Já existe uma empresa com este nome/i)).toBeInTheDocument();
     expect(screen.getByText('Alpha Logistics')).toBeInTheDocument();
 
-    // 3. Generic 500
     mockAprovar.mockRejectedValueOnce(new Error('Internal server error'));
 
     fireEvent.click(screen.getByRole('button', { name: /Aceitar/i }));
@@ -283,7 +271,6 @@ describe('SolicitacoesPage', () => {
     const rejectButtons = screen.getAllByRole('button', { name: /Recusar/i });
     fireEvent.click(rejectButtons[0]);
 
-    // RejectDialog is visible
     const dialog = screen.getByRole('dialog', { name: /Recusar solicitação/i });
     expect(dialog).toBeInTheDocument();
 
@@ -295,13 +282,11 @@ describe('SolicitacoesPage', () => {
     expect(mockRecusar).toHaveBeenCalledWith('p1', 'Documentação ausente');
     expect(await screen.findByText(/Solicitação recusada com sucesso/i)).toBeInTheDocument();
 
-    // Card p1 is removed
     await waitFor(() => {
       expect(screen.queryByText('admin1@alpha.com')).not.toBeInTheDocument();
     });
     expect(screen.getByText('Beta Cargo')).toBeInTheDocument();
 
-    // Failure on reject keeps card
     mockRecusar.mockRejectedValueOnce(new Error('Server error'));
     fireEvent.click(screen.getByRole('button', { name: /Recusar/i }));
     const failDialog = screen.getByRole('dialog', { name: /Recusar solicitação/i });
@@ -329,7 +314,6 @@ describe('SolicitacoesPage', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: /Aceitar/i }));
 
     expect(await screen.findByText(/Esta solicitação já foi decidida/i)).toBeInTheDocument();
-    // list was called again
     await waitFor(() => {
       expect(mockListar).toHaveBeenCalledTimes(2);
     });
@@ -344,7 +328,6 @@ describe('SolicitacoesPage', () => {
 
     renderPage();
 
-    // Click Aprovadas
     const approvedTab = screen.getByRole('tab', { name: /Aprovadas/i });
     fireEvent.click(approvedTab);
 
@@ -352,7 +335,6 @@ describe('SolicitacoesPage', () => {
     expect(screen.queryByRole('button', { name: /Aceitar/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Recusar/i })).not.toBeInTheDocument();
 
-    // Click Recusadas
     const rejectedTab = screen.getByRole('tab', { name: /Recusadas/i });
     fireEvent.click(rejectedTab);
 

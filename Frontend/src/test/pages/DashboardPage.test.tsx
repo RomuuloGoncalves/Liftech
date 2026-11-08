@@ -173,7 +173,6 @@ describe('DashboardPage', () => {
     mockOperatorList.mockResolvedValue([]);
     mockSessionList.mockResolvedValue([]);
 
-    // With active branch f1
     const { unmount } = renderDashboard({ activeBranch: 'f1' });
     await screen.findByText('Máquinas cadastradas');
 
@@ -181,7 +180,6 @@ describe('DashboardPage', () => {
     expect(mockSessionList).toHaveBeenCalledWith({ from: expectedFrom, filialId: 'f1' });
     unmount();
 
-    // With active branch todas
     localStorage.setItem('liftech.activeBranch', 'todas');
     renderDashboard({ activeBranch: 'todas' });
     await screen.findByText('Máquinas cadastradas');
@@ -209,15 +207,12 @@ describe('DashboardPage', () => {
 
     renderDashboard();
 
-    // Table and machine card are rendered
     expect(await screen.findByText('Máquinas cadastradas')).toBeInTheDocument();
     expect(screen.getByText('Listagem de máquinas')).toBeInTheDocument();
 
-    // Employee card shows error and retry button
     const retryButtons = screen.getAllByRole('button', { name: 'Tentar novamente' });
     expect(retryButtons.length).toBeGreaterThanOrEqual(1);
 
-    // Resolve operator on retry
     mockOperatorList.mockResolvedValueOnce([makeEmployee('e1', 'Ana')]);
     fireEvent.click(retryButtons[0]!);
 
@@ -236,10 +231,8 @@ describe('DashboardPage', () => {
     const retryBtn = await screen.findByRole('button', { name: 'Tentar novamente' });
     expect(retryBtn).toBeInTheDocument();
 
-    // Table is intact
     expect(screen.getByText('Empilhadeira Titan')).toBeInTheDocument();
 
-    // Retrying sessions fetches again
     mockSessionList.mockResolvedValueOnce([makeSession('s1')]);
     fireEvent.click(retryBtn);
 
@@ -257,10 +250,8 @@ describe('DashboardPage', () => {
 
     expect(mockMachineList).toHaveBeenCalledWith('f1');
 
-    // Switch branch to f2
     fireEvent.click(screen.getByText('switch to f2'));
 
-    // Returns to skeleton
     expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
 
     await waitFor(() => expect(mockMachineList).toHaveBeenCalledWith('f2'));
@@ -279,24 +270,20 @@ describe('DashboardPage', () => {
     const machinesCard = screen.getByText('Máquinas cadastradas').closest('div')!;
     expect(within(machinesCard).getByText('1')).toBeInTheDocument();
 
-    // Open create panel
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }));
 
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Titan' } });
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } });
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } });
 
-    // Submit successful
     mockMachineCreate.mockResolvedValueOnce(makeMachine('srv-999', 'disponivel', 'Nova Titan'));
     const saveBtn = screen.getByRole('button', { name: 'Salvar' });
     fireEvent.click(saveBtn);
 
-    // Optimistic addition
     await waitFor(() => expect(screen.getByRole('button', { name: 'Nova Titan' })).toBeInTheDocument());
-    expect(within(machinesCard).getByText('2')).toBeInTheDocument(); // count increased to 2
+    expect(within(machinesCard).getByText('2')).toBeInTheDocument();
     expect(await screen.findByText(/Máquina "EMP-999" cadastrada/i)).toBeInTheDocument();
 
-    // Now test failure on another creation
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }));
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Falha Titan' } });
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-FAIL' } });
@@ -305,7 +292,6 @@ describe('DashboardPage', () => {
     mockMachineCreate.mockRejectedValueOnce(new Error('Server error'));
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
 
-    // Line is removed on failure
     await waitFor(() => expect(screen.queryByText('Falha Titan')).not.toBeInTheDocument());
     expect(await screen.findByText(/Não foi possível salvar a máquina/i)).toBeInTheDocument();
   });
@@ -321,12 +307,10 @@ describe('DashboardPage', () => {
     const nameBtn = await screen.findByRole('button', { name: 'Titan-X Click' });
     fireEvent.click(nameBtn);
 
-    // Detail modal opens
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByText('Titan-X Click')).toBeInTheDocument();
 
-    // No edit or delete buttons
     expect(within(dialog).queryByRole('button', { name: 'Editar Máquina' })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole('button', { name: 'Excluir Máquina' })).not.toBeInTheDocument();
   });

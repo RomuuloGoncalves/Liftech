@@ -19,7 +19,7 @@ describe("ForkliftService", () => {
       obterPorIdentificacao: vi.fn(),
     };
 
-    // Casting to avoid TS errors on protected properties and missing Mongoose properties
+    // Conversão de tipo para evitar erros de TS em propriedades protegidas e ausentes do Mongoose
     service = new ForkliftService(repositoryMock as ForkliftRepository);
   });
 

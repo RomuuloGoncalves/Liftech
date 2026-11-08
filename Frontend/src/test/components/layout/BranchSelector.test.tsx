@@ -514,7 +514,7 @@ describe('BranchSelector: managing branches', () => {
     expect(screen.getByRole('textbox', { name: 'Nome da filial' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
 
-    // Second click does not trigger another create
+    // Segundo clique não dispara outra criação
     fireEvent.click(confirmBtn)
     expect(criar).toHaveBeenCalledTimes(1)
 
@@ -543,7 +543,7 @@ describe('BranchSelector: managing branches', () => {
     expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
     expect(within(confirmBtn).getByTestId('spinner')).toBeInTheDocument()
 
-    // Second click ignored
+    // Segundo clique é ignorado
     fireEvent.click(confirmBtn)
     expect(renomear).toHaveBeenCalledTimes(1)
 
@@ -573,7 +573,7 @@ describe('BranchSelector: managing branches', () => {
     expect(within(confirmBtn).getByTestId('spinner')).toBeInTheDocument()
     expect(cancelBtn).toBeDisabled()
 
-    // Second click ignored
+    // Segundo clique é ignorado
     fireEvent.click(confirmBtn)
     expect(remover).toHaveBeenCalledTimes(1)
 

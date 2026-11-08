@@ -4,7 +4,7 @@ import type { Machine } from '../data/machines'
 import { machineService } from '../services/machineService'
 import { sessionService } from '../services/sessionService'
 
-/** Machines in scope and the collaborator's usage history, most recent first. */
+/** Máquinas no escopo e o histórico de uso do colaborador, mais recentes primeiro. */
 export function useEmployeeData() {
   const [machines, setMachines] = useState<Machine[]>([])
   const [records, setRecords] = useState<UsageRecord[]>([])

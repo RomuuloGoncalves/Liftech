@@ -118,7 +118,7 @@ export const LiveProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Connection dropped, schedule reconnect
+      // Conexão perdida, agenda reconexão
       hasDisconnected = true;
       const waitTime = delay;
       delay = Math.min(delay * 2, MAX_RECONNECT_DELAY_MS);

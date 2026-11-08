@@ -18,7 +18,7 @@ api.interceptors.request.use(
   }
 );
 
-// Same list as AUTH_ROUTES in App.tsx (api.ts cannot import the App).
+// Mesma lista de AUTH_ROUTES em App.tsx (api.ts não pode importar App).
 const AUTH_ROUTES = ['/login', '/login/colaborador', '/solicitar-acesso'];
 
 api.interceptors.response.use(
@@ -31,7 +31,7 @@ api.interceptors.response.use(
       !AUTH_ROUTES.includes(window.location.pathname)
     ) {
       authService.logout();
-      // api.ts lives outside the router: BrowserRouter reacts to popstate.
+      // api.ts reside fora do roteador: BrowserRouter reage ao evento popstate.
       window.history.pushState(null, '', '/login');
       window.dispatchEvent(new PopStateEvent('popstate'));
     }

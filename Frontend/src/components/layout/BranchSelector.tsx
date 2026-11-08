@@ -117,7 +117,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
   }, [saving, deleting]);
 
   useEffect(() => {
-    // The delete dialog is rendered outside the selector, so a click on it must not count as "outside".
+    // O modal de exclusão é renderizado fora do seletor, então um clique nele não deve contar como "fora".
     if (!open || pendingDelete) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();

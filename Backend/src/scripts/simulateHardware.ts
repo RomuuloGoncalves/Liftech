@@ -177,7 +177,6 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     enviarEvento(args.evento);
   }
 
-  // Inicia envio periódico
   enviarTelemetria();
   const timer = setInterval(enviarTelemetria, args.intervalo * 1000);
 
@@ -202,9 +201,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     try {
       await canal.close();
       await conexao.close();
-    } catch {
-      // Ignora erro no fechamento
-    }
+    } catch {}
     console.log("\nSimulador encerrado.");
     process.exit(0);
   };

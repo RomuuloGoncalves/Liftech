@@ -16,7 +16,7 @@ const fields = {
   horarioEntrada: '08:00',
   horarioSaida: '17:00',
 };
-// The form also carries the login and the branch; they must not reach the operator routes.
+// O formulário também contém o login e a filial; eles não devem ser enviados para as rotas do operador.
 const values = { ...fields, usuario: 'ana.souza', senha: 'segredo123', filialId: 'f9' };
 
 const employee = { id: 'o1', matricula: 'EMP-001', ...fields, filialId: 'f1', usuario: null, acesso: 'Negado' };

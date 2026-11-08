@@ -201,7 +201,7 @@ describe('EmployeeFormModal (edit, employee with login)', () => {
     expect(screen.getByLabelText('Horário Entrada')).toHaveValue('08:00')
     expect(screen.getByLabelText('Horário saída')).toHaveValue('17:00')
     expect(screen.getByLabelText('Usuário')).toHaveValue('AlexandreMattos')
-    // The API never returns the password, so the field starts empty.
+    // A API nunca retorna a senha, então o campo começa vazio.
     expect(screen.getByLabelText('Senha')).toHaveValue('')
   })
 
@@ -311,11 +311,11 @@ describe('EmployeeFormModal saving state', () => {
     expect(screen.getByLabelText('Nome funcionário')).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
 
-    // Second click does not double-submit
+    // Segundo clique não envia novamente
     fireEvent.click(confirmBtn)
     expect(onSave).toHaveBeenCalledTimes(1)
 
-    // Resolve
+    // Resolve a Promise
     resolveSave()
   })
 

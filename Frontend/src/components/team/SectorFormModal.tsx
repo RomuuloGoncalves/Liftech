@@ -32,7 +32,7 @@ const SectorFormModal: React.FC<SectorFormModalProps> = ({ sector, branches, can
   })
   const [error, setError] = useState<string>()
   const [saving, setSaving] = useState(false)
-  // Branch scope only picks the branch on create, and only with more than one to pick from.
+  // Escopo de filial só seleciona filial no cadastro, e apenas havendo mais de uma para escolher.
   const showSelect = canMove || (!sector && branches.length >= 2)
   const branchName = sector?.filial.nome ?? branches.find((b) => b._id === values.filialId)?.nome ?? ''
 
@@ -47,7 +47,7 @@ const SectorFormModal: React.FC<SectorFormModalProps> = ({ sector, branches, can
     try {
       await onSave({ nome: values.nome.trim(), filialId: values.filialId })
     } catch {
-      // Keep form open on failure
+      // ignora
     } finally {
       setSaving(false)
     }

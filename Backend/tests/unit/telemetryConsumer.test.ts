@@ -234,27 +234,21 @@ describe("telemetryConsumer (T17: Reconexão do Consumidor)", () => {
       expect(logger.error).toHaveBeenCalledWith(expect.stringContaining("Connection refused"));
       expect(_obterEstadoConsumidor().tentativa).toBe(1);
 
-      // Avança 1000ms: deve disparar tentativa 2
       await vi.advanceTimersByTimeAsync(1000);
       expect(_obterEstadoConsumidor().tentativa).toBe(2);
 
-      // Avança 2000ms: deve disparar tentativa 3
       await vi.advanceTimersByTimeAsync(2000);
       expect(_obterEstadoConsumidor().tentativa).toBe(3);
 
-      // Avança 4000ms: tentativa 4
       await vi.advanceTimersByTimeAsync(4000);
       expect(_obterEstadoConsumidor().tentativa).toBe(4);
 
-      // Avança 8000ms: tentativa 5
       await vi.advanceTimersByTimeAsync(8000);
       expect(_obterEstadoConsumidor().tentativa).toBe(5);
 
-      // Avança 16000ms: tentativa 6
       await vi.advanceTimersByTimeAsync(16000);
       expect(_obterEstadoConsumidor().tentativa).toBe(6);
 
-      // Avança 30000ms: teto de 30s
       await vi.advanceTimersByTimeAsync(30000);
       expect(_obterEstadoConsumidor().tentativa).toBe(7);
     } finally {
@@ -275,20 +269,17 @@ describe("telemetryConsumer (T17: Reconexão do Consumidor)", () => {
       expect(_obterEstadoConsumidor().tentativa).toBe(0);
       expect(closeListener).toBeDefined();
 
-      // Próxima tentativa de reconexão será bem-sucedida
       vi.mocked(amqplib.connect).mockResolvedValueOnce(mockConnection as any);
 
-      // Simula o fechamento da conexão
       closeListener!();
 
       expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("Conexão com RabbitMQ fechada"));
       expect(_obterEstadoConsumidor().tentativa).toBe(1);
 
-      // Avança 1s para o timer de reconexão rodar
       await vi.advanceTimersByTimeAsync(1000);
 
       expect(amqplib.connect).toHaveBeenCalledTimes(2);
-      expect(_obterEstadoConsumidor().tentativa).toBe(0); // Zerou a espera no sucesso!
+      expect(_obterEstadoConsumidor().tentativa).toBe(0);
     } finally {
       (env as any).rabbit_url = originalUrl;
     }
@@ -305,9 +296,7 @@ describe("telemetryConsumer (T17: Reconexão do Consumidor)", () => {
 
       await iniciarConsumidor();
 
-      // Garante que a conexão foi fechada para não vazar
       expect(mockConnection.close).toHaveBeenCalledTimes(1);
-      // Tentativa incrementou (não zerou antes da topologia completa)
       expect(_obterEstadoConsumidor().tentativa).toBe(1);
       expect(logger.error).toHaveBeenCalledWith(expect.stringContaining("PRECONDITION_FAILED"));
     } finally {
@@ -333,7 +322,6 @@ describe("telemetryConsumer (T17: Reconexão do Consumidor)", () => {
       await iniciarConsumidor();
       expect(canalCloseListener).toBeDefined();
 
-      // Simula fechamento do canal
       canalCloseListener!();
 
       expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("Canal do RabbitMQ fechado"));

@@ -137,7 +137,7 @@ describe('SectorFormModal', () => {
     expect(screen.getByLabelText('Nome setor')).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
 
-    // Second click does not double-submit
+    // Segundo clique não envia novamente
     fireEvent.click(createBtn)
     expect(onSave).toHaveBeenCalledTimes(1)
 
