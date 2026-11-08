@@ -5,7 +5,9 @@ import { Incident } from "../../src/schemas/incident.js";
 import { Category } from "../../src/schemas/category.js";
 import { Branch } from "../../src/schemas/branch.js";
 import { aplicarStatus, ehStatus, limiteImpacto, registrarImpacto } from "../../src/feature/machine/statusService.js";
+import { publicarMaquina } from "../../src/feature/stream/streamHub.js";
 
+vi.mock("../../src/feature/stream/streamHub.js", () => ({ publicarMaquina: vi.fn() }));
 vi.mock("../../src/schemas/forklift.js", () => ({ Forklift: { findById: vi.fn(), findOne: vi.fn(), updateOne: vi.fn() } }));
 vi.mock("../../src/schemas/incident.js", () => ({ Incident: { updateMany: vi.fn(), create: vi.fn() } }));
 vi.mock("../../src/schemas/category.js", () => ({ Category: { findOne: vi.fn() } }));
@@ -43,6 +45,12 @@ describe("aplicarStatus", () => {
     expect(Incident.updateMany).not.toHaveBeenCalled();
   });
 
+  test("status repetido manual em máquina com manutencaoPorOffline=true limpa a flag (Achado 7)", async () => {
+    mockar({ status: "manutencao", manutencaoPorOffline: true }, null);
+    await aplicarStatus(ID, "manutencao");
+    expect(Forklift.updateOne).toHaveBeenCalledWith({ _id: ID }, { $set: { manutencaoPorOffline: false } });
+  });
+
   test("status null conta como disponivel", async () => {
     mockar({ status: null });
     await aplicarStatus(ID, "disponivel");
@@ -53,7 +61,21 @@ describe("aplicarStatus", () => {
     mockar({ status: "disponivel" }, null);
     await aplicarStatus(ID, "manutencao");
     expect(vi.mocked(Forklift.updateOne).mock.calls[0]![0]).toEqual({ _id: ID });
-    expect(gravado()).toEqual({ $set: { status: "manutencao", statusAlteradoEm: AGORA } });
+    expect(gravado()).toEqual({ $set: { status: "manutencao", statusAlteradoEm: AGORA, manutencaoPorOffline: false } });
+    expect(publicarMaquina).toHaveBeenCalledWith(ID);
+  });
+
+  test("manutencaoPorOffline pode ser passado explicitamente como true", async () => {
+    mockar({ status: "disponivel" }, null);
+    await aplicarStatus(ID, "manutencao", true);
+    expect(gravado()).toEqual({ $set: { status: "manutencao", statusAlteradoEm: AGORA, manutencaoPorOffline: true } });
+  });
+
+  test("falha em publicarMaquina não desfaz nem lança no aplicarStatus", async () => {
+    mockar({ status: "disponivel" }, null);
+    vi.mocked(publicarMaquina).mockRejectedValueOnce(new Error("Stream indisponível"));
+    await expect(aplicarStatus(ID, "manutencao")).resolves.toBeUndefined();
+    expect(Forklift.updateOne).toHaveBeenCalled();
   });
 
   test("destravada: vai para a categoria da empresa ligada ao novo status", async () => {

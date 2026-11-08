@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import {
   ADMIN,
   COLABORADORES,
@@ -162,21 +162,43 @@ describe("seedDataset: cadastros", () => {
 });
 
 describe("seedDataset: telemetria", () => {
-  test("5 leituras por dispositivo, de hora em hora a partir de 2026-09-01T08:00:00Z", () => {
-    const leituras = gerarTelemetria("d1");
+  test("5 leituras por dispositivo nos últimos 7 dias contados de agora (com relógio falso)", () => {
+    vi.useFakeTimers();
+    const agora = new Date("2026-10-15T12:00:00.000Z");
+    vi.setSystemTime(agora);
 
-    expect(leituras.map((l) => l.dataDados.toISOString())).toEqual([
-      "2026-09-01T08:00:00.000Z",
-      "2026-09-01T09:00:00.000Z",
-      "2026-09-01T10:00:00.000Z",
-      "2026-09-01T11:00:00.000Z",
-      "2026-09-01T12:00:00.000Z",
-    ]);
-    for (const l of leituras) expect(l.dispositivoId).toBe("d1");
+    try {
+      const leituras = gerarTelemetria("d1");
+
+      expect(leituras).toHaveLength(5);
+      expect(leituras.map((l) => l.dataDados.toISOString())).toEqual([
+        "2026-10-15T08:00:00.000Z",
+        "2026-10-15T09:00:00.000Z",
+        "2026-10-15T10:00:00.000Z",
+        "2026-10-15T11:00:00.000Z",
+        "2026-10-15T12:00:00.000Z",
+      ]);
+      const limite7DiasMs = 7 * 24 * 3600 * 1000;
+      for (const l of leituras) {
+        expect(l.dispositivoId).toBe("d1");
+        expect(l.dataDados.getTime()).toBeLessThanOrEqual(agora.getTime());
+        expect(l.dataDados.getTime()).toBeGreaterThanOrEqual(agora.getTime() - limite7DiasMs);
+      }
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
-  test("duas chamadas geram as mesmas datas (chave estável para o upsert)", () => {
-    expect(gerarTelemetria("d1")).toEqual(gerarTelemetria("d1"));
+  test("duas chamadas no mesmo instante geram as mesmas datas (chave estável para o upsert)", () => {
+    vi.useFakeTimers();
+    const agora = new Date("2026-10-15T12:00:00.000Z");
+    vi.setSystemTime(agora);
+
+    try {
+      expect(gerarTelemetria("d1")).toEqual(gerarTelemetria("d1"));
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

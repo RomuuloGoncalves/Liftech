@@ -1,9 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import mongoose from 'mongoose';
 import { RepositoryBase } from '../../src/core/coreRepository.js';
-import { coreModel } from '../../src/core/coreModel.js';
+import { CoreModel } from '../../src/core/coreModel.js';
 
-class Item extends coreModel {
+class Item extends CoreModel {
     constructor(readonly dados: Record<string, unknown>) {
         super();
     }

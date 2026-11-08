@@ -151,6 +151,19 @@
   - `yarn migrate:sectors` leva os textos antigos para setores (idempotente); seed e reset criam e limpam setores.
   - Front: aba Setores pela API com otimista e rollback; seletor de filial no formulário conforme escopo; select de setor no cadastro de máquina; filtro por setor na Visão Geral e na Frota.
 
+### AD-014: Telemetria pela fila RabbitMQ e atualização por SSE (`telemetry-queue`)
+- **Date**: 2026-11-07
+- **Status**: Draft (aguardando aprovação do design)
+- **Context**: O firmware (`iot/codigo/codigo.ino`) manda telemetria a cada 5 s e eventos de movimento; o backend só tinha `POST /api/telemetry` atrás do JWT. O RabbitMQ (CloudAMQP) deve absorver o fluxo e entregar ao backend de forma controlada.
+- **Decision**:
+  - O backend consome duas filas (`telemetria`, `eventos`) ligadas a `amq.topic`, no mesmo processo da API (`server.ts`); o consumidor nunca derruba a API.
+  - O dispositivo é identificado pelo MAC (`device.enderecoMac`). O horário vale o do recebimento (`tempo` do firmware é `millis()`).
+  - Evento só vira incidente com sessão aberta; todo evento move a máquina para `alerta` por `aplicarStatus` (AD-011). A urgência é derivada no front, por tabela fixa.
+  - Placa sem mensagem por 30 s: card cinza na mesma coluna e pop-up; se a máquina está `disponivel`, vira `manutencao` e volta sozinha quando a comunicação volta.
+  - O front recebe as mudanças por Server-Sent Events (`GET /api/stream`, `fetch` com token no cabeçalho), filtradas pelo escopo de filial; o polling de segurança é de 60 s.
+  - O caminho físico ESP32 → broker (MQTT ou gateway HTTP) fica fora; o contrato da fila é o que vale.
+- **Spec**: `.specs/features/telemetry-queue/`.
+
 ## Handoff Snapshot
 - **Branch**: `feature/machines-team-crud` (local, nada enviado ao remoto, sem PR).
 - **Feature**: `sectors` concluída (T1–T15) e verificada: PASS na rodada 2 (rodada 1 FAIL por 5 mutantes vivos, corrigidos só com testes).

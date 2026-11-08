@@ -361,9 +361,11 @@
       "media": "Media"
     },
     "description": {
-      "tombamento": "Nivel de urgencia crítico asociado a un <b>vuelco</b>.",
       "colisao": "Nivel de urgencia crítico asociado a una <b>colisión</b>.",
-      "frenagem": "Nivel de urgencia crítico asociado a un <b>frenado brusco</b>."
+      "frenagem_brusca": "Nivel de urgencia crítico asociado a un <b>frenado brusco</b>.",
+      "aceleracao_brusca": "Nivel de urgencia crítico asociado a una <b>aceleración brusca</b>.",
+      "curva_brusca": "Nivel de urgencia crítico asociado a un <b>giro brusco</b>.",
+      "inclinacao_excessiva": "Nivel de urgencia crítico asociado a una <b>inclinación excesiva</b>."
     }
   },
   "feedback": {
@@ -421,6 +423,8 @@
   "alertModal": {
     "title": "¡Alerta!",
     "message": "Accidente en el sector <b>{{setor}}</b>, <b>{{funcionario}}</b> empleado responsable de la máquina {{maquina}}.",
+    "offlineTitle": "Placa sin comunicación",
+    "offlineMessage": "La máquina <b>{{maquina}}</b> no tiene comunicación con el sistema.",
     "notInformed": "no informado",
     "ok": "Ok"
   },

@@ -55,6 +55,24 @@ describe('FleetCard', () => {
     expect(field('Nível de urgência')).toBe('Urgente')
   })
 
+  it('shows Média when alertaTipos has only frenagem_brusca (TLQ-04)', () => {
+    const local = new Date(2026, 0, 23, 14, 38, 20)
+    setup(withStatus('alerta', { alertaEm: local.toISOString(), alertaTipos: ['frenagem_brusca'] }))
+    expect(field('Nível de urgência')).toBe('Média')
+  })
+
+  it('shows the highest urgency Alta when alertaTipos has frenagem_brusca and colisao (TLQ-04)', () => {
+    const local = new Date(2026, 0, 23, 14, 38, 20)
+    setup(withStatus('alerta', { alertaEm: local.toISOString(), alertaTipos: ['frenagem_brusca', 'colisao'] }))
+    expect(field('Nível de urgência')).toBe('Alta')
+  })
+
+  it('shows the highest urgency Crítica when alertaTipos has inclinacao_excessiva (TLQ-04)', () => {
+    const local = new Date(2026, 0, 23, 14, 38, 20)
+    setup(withStatus('alerta', { alertaEm: local.toISOString(), alertaTipos: ['curva_brusca', 'inclinacao_excessiva'] }))
+    expect(field('Nível de urgência')).toBe('Crítica')
+  })
+
   it('shows (Indefinido) when an alerta card has no alertaEm', () => {
     setup(withStatus('alerta', { alertaEm: null }))
     expect(field('Data e Hora')).toBe('(Indefinido)')
@@ -232,5 +250,33 @@ describe('FleetCard without icon box (RST-11)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mais ações para EMP-084' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Remover da categoria' }))
     expect(onRemove).toHaveBeenCalledWith('4')
+  })
+})
+
+describe('FleetCard gray styling for dispositivoOffline (TLQ-07)', () => {
+  it('applies offline class when dispositivoOffline is true', () => {
+    setup({ machine: { ...machine, dispositivoOffline: true } })
+    const article = screen.getByRole('article')
+    expect(article.className).toContain('offline')
+  })
+
+  it('does not apply offline class when dispositivoOffline is false or undefined', () => {
+    const { rerender } = render(
+      <FleetCard
+        machine={{ ...machine, dispositivoOffline: false }}
+        moveTargets={targets}
+        onOpen={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('article').className).not.toContain('offline')
+
+    rerender(
+      <FleetCard
+        machine={{ ...machine, dispositivoOffline: undefined }}
+        moveTargets={targets}
+        onOpen={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('article').className).not.toContain('offline')
   })
 })

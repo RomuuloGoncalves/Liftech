@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ToastProvider } from '../../components/common/Toast'
 import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext'
+import { LiveProvider } from '../../context/LiveContext'
+import { streamService, type StreamEventHandler, type StreamServiceOptions } from '../../services/streamService'
 import i18n from '../../config/i18n'
 import VisaoGeralPage from '../../pages/VisaoGeralPage'
 import styles from '../../pages/VisaoGeralPage.module.css'
@@ -11,6 +13,12 @@ import { sectorService, type Setor } from '../../services/sectorService'
 import type { NewMachineFormValues } from '../../components/machines/NewMachinePanel'
 import { type Machine } from '../../data/machines'
 import { MACHINES } from '../fixtures/machines'
+
+vi.mock('../../services/streamService', () => ({
+  streamService: {
+    abrir: vi.fn().mockImplementation(() => new Promise(() => {})),
+  },
+}))
 
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), alterarStatus: vi.fn(), travar: vi.fn(), criar: vi.fn(), atualizar: vi.fn(), remover: vi.fn() },
@@ -952,6 +960,151 @@ describe('VisaoGeralPage: sector filter', () => {
         'Doca Nova',
         'Expedição - Bloco B',
       ])
+    })
+  })
+
+  describe('real-time updates via SSE stream (TLQ-05)', () => {
+    let sseCallback: StreamEventHandler | undefined
+
+    const userWithBranch = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin',
+      empresa: { _id: 'e1', nome: 'Acme' },
+      escopo: 'empresa',
+      filiais: [
+        { _id: 'f1', nome: 'Filial 01', matriz: true },
+        { _id: 'f2', nome: 'Filial 02', matriz: false },
+      ],
+    }
+
+    beforeEach(() => {
+      localStorage.setItem('user', JSON.stringify(userWithBranch))
+      vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+        sseCallback = cb
+        return new Promise(() => {})
+      })
+    })
+
+    const SwitchTo = ({ id }: { id: string }) => {
+      const { setActiveBranch } = useActiveBranch()
+      return <button onClick={() => setActiveBranch(id)}>switch to {id}</button>
+    }
+
+    const renderWithLive = async () => {
+      let view: ReturnType<typeof render> | undefined
+      await act(async () => {
+        view = render(
+          <MemoryRouter>
+            <ActiveBranchProvider>
+              <LiveProvider>
+                <SwitchTo id="f1" />
+                <VisaoGeralPage />
+              </LiveProvider>
+            </ActiveBranchProvider>
+          </MemoryRouter>
+        )
+      })
+      await screen.findAllByRole('article')
+      return view
+    }
+
+    it('updates machine status and applies gray class without calling listar', async () => {
+      await renderWithLive()
+      const callsBefore = listar.mock.calls.length
+
+      // Machine 1 is initially available
+      const m1 = MACHINES[0]
+      const card = screen.getByText(`${m1.identificacao}(ID)`).closest('article') as HTMLElement
+      expect(card).toBeInTheDocument()
+      expect(card.className).not.toContain('offline')
+
+      // Receive maquina stream event
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: m1.id,
+            status: 'manutencao',
+            dispositivoOffline: true,
+            filialId: 'f1',
+          },
+        })
+      })
+
+      // Status changed and offline class applied without reloading
+      expect(within(card).getByText('Em manutenção')).toBeInTheDocument()
+      expect(card.className).toContain('offline')
+      expect(listar).toHaveBeenCalledTimes(callsBefore)
+    })
+
+    it('reloads list when unknown machine id is received', async () => {
+      await renderWithLive()
+      const callsBefore = listar.mock.calls.length
+
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: 'unknown-id-999',
+            status: 'alerta',
+          },
+        })
+      })
+
+      expect(listar).toHaveBeenCalledTimes(callsBefore + 1)
+    })
+
+    it('reloads list on stream reconnection', async () => {
+      let triggerClose: (() => void) | undefined
+
+      vi.mocked(streamService.abrir).mockImplementation(
+        (_cb: StreamEventHandler, opts?: AbortSignal | StreamServiceOptions) => {
+          if (opts && 'onOpen' in opts) {
+            setTimeout(() => opts.onOpen?.(), 10)
+          }
+          return new Promise((resolve) => {
+            triggerClose = resolve
+          })
+        }
+      )
+
+      await renderWithLive()
+      const callsBefore = listar.mock.calls.length
+
+      // Connection dropped
+      await act(async () => {
+        triggerClose?.()
+      })
+
+      // Wait for 1s backoff reconnect timer to trigger connect()
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 1150))
+      })
+
+      expect(listar).toHaveBeenCalledTimes(callsBefore + 1)
+    })
+
+    it('ignores maquina event for different branch when active branch is set', async () => {
+      localStorage.setItem('liftech.activeBranch', 'f1')
+      await renderWithLive()
+      const callsBefore = listar.mock.calls.length
+
+      // Emit event for branch f2
+      const m1 = MACHINES[0]
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: m1.id,
+            status: 'alerta',
+            filialId: 'f2',
+          },
+        })
+      })
+
+      // Should not have reloaded nor changed
+      expect(listar).toHaveBeenCalledTimes(callsBefore)
     })
   })
 })

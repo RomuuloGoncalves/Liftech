@@ -94,3 +94,26 @@ describe('MachineCard status classes (RST-06)', () => {
     expect(screen.getByText(label).className).toContain(cls)
   })
 })
+
+describe('MachineCard gray styling for dispositivoOffline (TLQ-07)', () => {
+  it('applies offline class when dispositivoOffline is true', () => {
+    const { container } = render(
+      <MachineCard machine={{ ...baseMachine, dispositivoOffline: true }} />
+    )
+    const article = container.querySelector('article')
+    expect(article?.className).toContain('offline')
+  })
+
+  it('does not apply offline class when dispositivoOffline is false or undefined', () => {
+    const { container, rerender } = render(
+      <MachineCard machine={{ ...baseMachine, dispositivoOffline: false }} />
+    )
+    const article = container.querySelector('article')
+    expect(article?.className).not.toContain('offline')
+
+    rerender(
+      <MachineCard machine={{ ...baseMachine, dispositivoOffline: undefined }} />
+    )
+    expect(article?.className).not.toContain('offline')
+  })
+})

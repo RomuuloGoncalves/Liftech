@@ -222,6 +222,8 @@ Sucesso `200`: array ordenado por `identificacao`, uma entrada por empilhadeira:
     "categoriaId": "<_id da categoria> ou null",
     "categoriaTravada": false,
     "alertaEm": "2026-10-14T10:00:00.000Z",
+    "alertaTipos": ["colisao"],
+    "dispositivoOffline": false,
     "dispositivoConectado": { "enderecoMac": "A2:C9:9B:1D:F7" },
     "operadorConectado": { "nome": "Carlos Silva" },
     "tempoSessaoMinutos": 34
@@ -233,6 +235,8 @@ Regras do formato:
 * `setor` é o nome do setor ligado em `setorId`, ou `""` sem setor (ou com o setor apagado). O texto antigo `forklift.setor` não é mais lido.
 * `status` é da empilhadeira: `disponivel`, `em_uso`, `manutencao`, `alerta` ou `offline`. Empilhadeira sem status gravado vem como `disponivel`.
 * `alertaEm` é a `dataIncidente` do incidente pendente mais recente; só é preenchido com `status: "alerta"` (senão `null`).
+* `alertaTipos` traz os tipos distintos dos incidentes pendentes, do mais recente ao mais antigo (ex.: `["colisao", "frenagem_brusca"]`); `[]` sem pendentes.
+* `dispositivoOffline` é `true` quando a placa está sem mensagem há mais de 30 s (`offlineDesde` preenchido).
 * `dispositivoConectado.enderecoMac` é `""` quando não há dispositivo. O `status` do dispositivo não é mais lido.
 * `operadorConectado` só aparece quando há operador ligado.
 * `tempoSessaoMinutos` é `floor((agora - sessaoIniciadaEm) / 60000)`, nunca negativo, `0` sem sessão.
@@ -312,7 +316,7 @@ Erros: `400` `machineId` ausente ou não ObjectId, data fora de `YYYY-MM-DD`; `4
 
 ### Incidentes (`/api/incidents`)
 
-Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null, "operador": { "nome" } ou null, "dataIncidente": ISO, "forcaImpacto": número ou null, "status", "origem": "sensor" ou "funcionario", "descricao": texto ou null }`. `maquina.setor` é o nome do setor ligado, ou `""`.
+Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } ou null, "operador": { "nome" } ou null, "dataIncidente": ISO, "forcaImpacto": número ou null, "status", "origem": "sensor" ou "funcionario", "tipo": string ou null, "descricao": texto ou null }`. `maquina.setor` é o nome do setor ligado, ou `""`. `tipo` é `"colisao"`, `"frenagem_brusca"`, `"aceleracao_brusca"`, `"curva_brusca"` ou `"inclinacao_excessiva"` quando o incidente vem do sensor, e `null` em relato manual ou registro antigo. O campo `movimento` é só gravado, nunca devolvido.
 
 | Método | Rota | Corpo / query | Sucesso |
 |--------|------|---------------|---------|
@@ -321,7 +325,67 @@ Formato: `{ "_id", "machineId", "maquina": { "nome", "identificacao", "setor" } 
 
 Erros: `400` `horario`, `descricao`, `machineId` ou data inválidos; `403` usuário sem operador; `409` nenhuma sessão aberta. `from` > `to` devolve `[]`.
 
-## 9. Scripts do Backend
+## 9. Streaming em tempo real (SSE - /api/stream)
+
+Canal Server-Sent Events (SSE) para atualização em tempo real do frontend sem necessidade de polling frequente.
+
+### `GET /api/stream`
+
+- **Auth:** Obrigatória (`Authorization: Bearer <token>`). Sem token válido responde `401 Unauthorized`.
+- **Protocolo e cabeçalhos:** Conexão persistente `text/event-stream`, `Cache-Control: no-cache`, `Connection: keep-alive` e `X-Accel-Buffering: no`. O middleware `compression` ignora esta rota para evitar bufferização.
+- **Heartbeat:** Comentário periódico `: ping\n\n` a cada 25 segundos para impedir que proxies intermediários ou balanceadores encerrem a conexão por inatividade.
+- **Escopo:** Cada evento é transmitido apenas para as conexões cujo escopo do usuário contenha a filial da máquina/incidente. Conexão sem filial vinculada não recebe dados.
+
+### Eventos emitidos
+
+#### 1. `event: incidente`
+
+Emitido imediatamente quando um novo incidente é registrado (seja via evento da fila de telemetria ou via `POST /api/incidents`).
+
+Exemplo do bloco transmitido:
+
+```
+event: incidente
+data: {"_id":"672e81119b456e001234abcd","machineId":"672e70009b456e0012340001","maquina":{"nome":"Empilhadeira Elétrica Titan-X","identificacao":"EMP-081","setor":"Expedição - Bloco B"},"operador":{"nome":"Carlos Silva"},"dataIncidente":"2026-11-07T23:00:00.000Z","forcaImpacto":null,"status":"pendente","origem":"sensor","tipo":"colisao","descricao":null}
+
+```
+
+#### 2. `event: maquina`
+
+Emitido sempre que há qualquer alteração de estado da empilhadeira: mudança de status, categoria, trava de categoria, ou transição no estado de comunicação da placa (online/offline).
+
+Exemplo do bloco transmitido:
+
+```
+event: maquina
+data: {"id":"672e70009b456e0012340001","filialId":"672e60009b456e001234ffaa","status":"alerta","categoriaId":"672e50009b456e001234ccbb","categoriaTravada":false,"alertaEm":"2026-11-07T23:00:00.000Z","alertaTipos":["colisao"],"dispositivoOffline":false}
+
+```
+
+Campos do payload:
+
+- `id`: identificador da empilhadeira (`_id` do MongoDB).
+- `filialId`: filial à qual a empilhadeira pertence.
+- `status`: status atual da máquina (`disponivel`, `em_uso`, `manutencao`, `alerta`, `offline`).
+- `categoriaId`: categoria atual no quadro de gestão da empresa.
+- `categoriaTravada`: booleano indicando se a máquina está travada na categoria.
+- `alertaEm`: data ISO do incidente pendente mais recente (quando em status `alerta`).
+- `alertaTipos`: lista dos tipos dos incidentes pendentes, ordenados por recência.
+- `dispositivoOffline`: booleano indicando se a máquina está sem comunicação (`offlineDesde != null`).
+
+#### 3. `event: dispositivo_offline`
+
+Emitido uma única vez pelo varredor periódio quando uma empilhadeira atinge 30 segundos sem receber nenhuma telemetria válida. Utilizado pelo frontend para abrir o pop-up de aviso de placa desconectada (não gera incidente e não entra no sino/histórico).
+
+Exemplo do bloco transmitido:
+
+```
+event: dispositivo_offline
+data: {"machineId":"672e70009b456e0012340001","identificacao":"EMP-081","filialId":"672e60009b456e001234ffaa"}
+
+```
+
+## 10. Scripts do Backend
 
 Todos rodam dentro de `Backend/` (`yarn <script>`). A conexão usa `MONGODB_URI` e `MONGODB_NAME` do `Backend/.env` (veja `Backend/.env.example` para a lista de variáveis).
 
@@ -360,6 +424,6 @@ Os acessos do seed são fixos (`SENHA_PADRAO` e `ADMIN` em `seedDataset.ts`): `a
 
 Em `tests/integration/` também está `forkliftController.test.ts`, que usa `vi.mock` e não deveria tocar no banco, mas roda junto com o `yarn test:integration`. Não rodei nenhum dos dois comandos para confirmar o comportamento; o texto vem dos scripts do `package.json`, dos imports dos arquivos de teste e do `README.md`.
 
-## 10. Em andamento: filiais e escopo de acesso
+## 11. Em andamento: filiais e escopo de acesso
 
 Há uma feature em desenvolvimento para escopo por empresa e filial (incluindo novas rotas em `/api/branches`). Nada disso está descrito acima. As rotas serão documentadas aqui quando a feature entrar.

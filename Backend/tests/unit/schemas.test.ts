@@ -186,11 +186,33 @@ describe("status e categoria na empilhadeira", () => {
   });
 });
 
-describe("forcaImpacto na telemetria", async () => {
+describe("telemetria: forcaImpacto, movimento e TTL", async () => {
   const { Telemetry } = await import("../../src/schemas/telemetry.js");
 
   test("guarda forcaImpacto numérico", () => {
     expect(new Telemetry({ dataDados: new Date(), forcaImpacto: 7 }).forcaImpacto).toBe(7);
+  });
+
+  test("schema.indexes() contém { dataDados: 1 } com expireAfterSeconds 604800 (7 dias)", () => {
+    expect(Telemetry.schema.indexes()).toContainEqual([{ dataDados: 1 }, expect.objectContaining({ expireAfterSeconds: 604800 })]);
+  });
+
+  test("incident continua sem índice TTL", () => {
+    const ttlIndexes = Incident.schema.indexes().filter(([, opts]) => opts && (opts as any).expireAfterSeconds !== undefined);
+    expect(ttlIndexes).toHaveLength(0);
+  });
+
+  test("guarda movimento na telemetria", () => {
+    const movimento = {
+      aceleracaoX: 0.1,
+      aceleracaoY: 0.2,
+      aceleracaoZ: 9.8,
+      inclinacaoX: 1.0,
+      inclinacaoY: 2.0,
+      magnitude: 0.22,
+    };
+    const t = new Telemetry({ dataDados: new Date(), movimento });
+    expect(t.movimento).toMatchObject(movimento);
   });
 });
 
@@ -350,5 +372,39 @@ describe("schema feedback", () => {
   test("criadoEm vem preenchido por padrão", () => {
     const doc = new Feedback({ mensagem: "Teste", usuarioId, role: "admin" });
     expect(doc.criadoEm).toBeInstanceOf(Date);
+  });
+});
+
+describe("schema incident: tipo e movimento", () => {
+  const filialId = new mongoose.Types.ObjectId();
+  const movimentoValido = {
+    aceleracaoX: 1.2,
+    aceleracaoY: -0.5,
+    aceleracaoZ: 9.8,
+    inclinacaoX: 2.1,
+    inclinacaoY: -1.0,
+    magnitude: 2.5,
+  };
+
+  test("tipo aceita ausência e qualquer um dos 5 tipos válidos", async () => {
+    expect(await erros(new Incident({ filialId }))).toEqual([]);
+
+    for (const tipo of ["colisao", "frenagem_brusca", "aceleracao_brusca", "curva_brusca", "inclinacao_excessiva"]) {
+      expect(await erros(new Incident({ filialId, tipo }))).toEqual([]);
+    }
+  });
+
+  test("tipo rejeita valor fora dos 5 tipos", async () => {
+    expect(await erros(new Incident({ filialId, tipo: "invalido" }))).toEqual(["tipo"]);
+    expect(await erros(new Incident({ filialId, tipo: "tombamento" }))).toEqual(["tipo"]);
+  });
+
+  test("movimento aceita os seis números do contrato e aceita ausência", async () => {
+    const semMov = new Incident({ filialId });
+    expect(await erros(semMov)).toEqual([]);
+
+    const comMov = new Incident({ filialId, movimento: movimentoValido });
+    expect(await erros(comMov)).toEqual([]);
+    expect(comMov.movimento).toMatchObject(movimentoValido);
   });
 });

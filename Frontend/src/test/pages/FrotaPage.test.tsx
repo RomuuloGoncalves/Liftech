@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ToastProvider } from '../../components/common/Toast'
 import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext'
+import { LiveProvider } from '../../context/LiveContext'
+import { streamService, type StreamEventHandler, type StreamServiceOptions } from '../../services/streamService'
 import type { Machine } from '../../data/machines'
 import { MACHINES as MOCK } from '../fixtures/machines'
 import FrotaPage from '../../pages/FrotaPage'
@@ -10,6 +12,12 @@ import styles from '../../pages/FrotaPage.module.css'
 import { categoryService, type Categoria } from '../../services/categoryService'
 import { machineService } from '../../services/machineService'
 import { sectorService, type Setor } from '../../services/sectorService'
+
+vi.mock('../../services/streamService', () => ({
+  streamService: {
+    abrir: vi.fn().mockImplementation(() => new Promise(() => {})),
+  },
+}))
 
 vi.mock('../../services/machineService', () => ({
   machineService: { listar: vi.fn(), mover: vi.fn(), travar: vi.fn(), alterarStatus: vi.fn() },
@@ -885,6 +893,184 @@ describe('FrotaPage: sector filter', () => {
       expect(sectorFilter()).toHaveValue('Todos')
       expect(optionTexts()).toEqual(['Todos os setores', 'Doca', 'Pátio'])
       expect(codesIn('Disponíveis').length).toBeGreaterThan(1)
+    })
+  })
+
+  describe('real-time updates via SSE stream (TLQ-05)', () => {
+    let sseCallback: StreamEventHandler | undefined
+
+    const userWithBranches = {
+      _id: 'u1',
+      nome: 'Ana',
+      role: 'admin',
+      escopo: 'empresa',
+      filiais: [
+        { _id: 'f1', nome: 'Filial 01', matriz: true },
+        { _id: 'f2', nome: 'Filial 02', matriz: false },
+      ],
+    }
+
+    beforeEach(() => {
+      localStorage.setItem('user', JSON.stringify(userWithBranches))
+      vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+        sseCallback = cb
+        return new Promise(() => {})
+      })
+    })
+
+    const SwitchTo = ({ id }: { id: string }) => {
+      const { setActiveBranch } = useActiveBranch()
+      return <button onClick={() => setActiveBranch(id)}>switch to {id}</button>
+    }
+
+    const renderWithLive = async () => {
+      let view: ReturnType<typeof render> | undefined
+      await act(async () => {
+        view = render(
+          <MemoryRouter>
+            <ActiveBranchProvider>
+              <LiveProvider>
+                <SwitchTo id="f1" />
+                <FrotaPage />
+              </LiveProvider>
+            </ActiveBranchProvider>
+          </MemoryRouter>
+        )
+      })
+      await screen.findByRole('searchbox', { name: 'Buscar' })
+      return view
+    }
+
+    it('moves card to target category row and marks arrival without calling listarMaquinas', async () => {
+      await renderWithLive()
+      const callsBefore = listarMaquinas.mock.calls.length
+
+      // EMP-083 is initially in Disponíveis
+      expect(codesIn('Disponíveis')).toContain('EMP-083(ID)')
+      expect(codesIn('Ativas')).not.toContain('EMP-083(ID)')
+
+      const m83 = MACHINES.find((m) => m.identificacao === 'EMP-083')!
+
+      // Emit maquina event: moving to 'ativas' with status 'em_uso'
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: m83.id,
+            status: 'em_uso',
+            categoriaId: 'ativas',
+            filialId: 'f1',
+          },
+        })
+      })
+
+      // Moved to Ativas without reloading
+      expect(codesIn('Ativas')).toContain('EMP-083(ID)')
+      expect(codesIn('Disponíveis')).not.toContain('EMP-083(ID)')
+      expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore)
+
+      // Card has arriving attribute
+      const card = screen.getByText('EMP-083(ID)').closest('article')
+      expect(card).toHaveAttribute('data-arriving', 'true')
+    })
+
+    it('locked machine updates status but stays in its row without moving', async () => {
+      await renderWithLive()
+      const callsBefore = listarMaquinas.mock.calls.length
+
+      // Set up EMP-083 as locked in Disponíveis
+      const m83 = MACHINES.find((m) => m.identificacao === 'EMP-083')!
+
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: m83.id,
+            status: 'alerta',
+            categoriaId: 'acidentes',
+            categoriaTravada: true,
+            filialId: 'f1',
+          },
+        })
+      })
+
+      // Since categoriaTravada is true, stays in Disponíveis, does NOT move to Acidentes
+      expect(codesIn('Disponíveis')).toContain('EMP-083(ID)')
+      expect(codesIn('Acidentes')).not.toContain('EMP-083(ID)')
+      expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore)
+    })
+
+    it('reloads list when unknown machine id is received', async () => {
+      await renderWithLive()
+      const callsBefore = listarMaquinas.mock.calls.length
+
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: 'unknown-machine-999',
+            status: 'alerta',
+          },
+        })
+      })
+
+      expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore + 1)
+    })
+
+    it('reloads list on stream reconnection', async () => {
+      let triggerClose: (() => void) | undefined
+
+      vi.mocked(streamService.abrir).mockImplementation(
+        (_cb: StreamEventHandler, opts?: AbortSignal | StreamServiceOptions) => {
+          if (opts && 'onOpen' in opts) {
+            setTimeout(() => opts.onOpen?.(), 10)
+          }
+          return new Promise((resolve) => {
+            triggerClose = resolve
+          })
+        }
+      )
+
+      await renderWithLive()
+      const callsBefore = listarMaquinas.mock.calls.length
+
+      // Connection dropped
+      await act(async () => {
+        triggerClose?.()
+      })
+
+      // Wait for backoff timer to reconnect
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 1150))
+      })
+
+      expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore + 1)
+    })
+
+    it('ignores maquina event for different branch when active branch is set', async () => {
+      localStorage.setItem('liftech.activeBranch', 'f1')
+      await renderWithLive()
+
+      const callsBefore = listarMaquinas.mock.calls.length
+      const m83 = MACHINES.find((m) => m.identificacao === 'EMP-083')!
+
+      // Emit event for branch f2
+      await act(async () => {
+        sseCallback?.({
+          event: 'maquina',
+          data: {
+            id: m83.id,
+            status: 'em_uso',
+            categoriaId: 'ativas',
+            filialId: 'f2',
+          },
+        })
+      })
+
+      // Should not have moved nor reloaded
+      expect(listarMaquinas).toHaveBeenCalledTimes(callsBefore)
+      expect(codesIn('Disponíveis')).toContain('EMP-083(ID)')
+      expect(codesIn('Ativas')).not.toContain('EMP-083(ID)')
     })
   })
 })

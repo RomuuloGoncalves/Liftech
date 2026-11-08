@@ -16,12 +16,14 @@
     "format": "prettier --write src tests",
     "format:check": "prettier --check src tests",
     "start": "node dist/server.js",
+    "simulate:hardware": "tsx src/scripts/simulateHardware.ts",
     "test": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "@rafaelhdsv/keep-alive": "^1.0.2",
     "@zarco/isness": "npm:@jsr/zarco__isness",
+    "amqplib": "2.2.1",
     "compression": "^1.8.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -34,6 +36,7 @@
     "request-check": "^1.6.2"
   },
   "devDependencies": {
+    "@types/amqplib": "0.10.8",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

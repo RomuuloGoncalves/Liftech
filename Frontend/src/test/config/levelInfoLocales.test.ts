@@ -29,7 +29,13 @@ const ALL_LOCALES: { code: string; data: LocaleData }[] = [
 ];
 
 const REQUIRED_LEVEL_KEYS = ['critica', 'alta', 'media'] as const;
-const REQUIRED_DESC_KEYS = ['tombamento', 'colisao', 'frenagem'] as const;
+const REQUIRED_DESC_KEYS = [
+  'colisao',
+  'frenagem_brusca',
+  'aceleracao_brusca',
+  'curva_brusca',
+  'inclinacao_excessiva',
+] as const;
 
 describe('levelInfo locales (EXP-11)', () => {
   it.each(ALL_LOCALES)('locale $code contains all levelInfo keys with non-empty strings', ({ code, data }) => {
@@ -79,9 +85,11 @@ describe('levelInfo locales (EXP-11)', () => {
       media: 'Média',
     });
     expect(levelInfo?.description).toEqual({
-      tombamento: 'Nível de urgência crítico associado a um <b>tombamento</b>.',
       colisao: 'Nível de urgência crítico associado a uma <b>colisão</b>.',
-      frenagem: 'Nível de urgência crítico associado a uma <b>frenagem brusca</b>.',
+      frenagem_brusca: 'Nível de urgência crítico associado a uma <b>frenagem brusca</b>.',
+      aceleracao_brusca: 'Nível de urgência crítico associado a uma <b>aceleração brusca</b>.',
+      curva_brusca: 'Nível de urgência crítico associado a uma <b>curva brusca</b>.',
+      inclinacao_excessiva: 'Nível de urgência crítico associado a uma <b>inclinação excessiva</b>.',
     });
   });
 });

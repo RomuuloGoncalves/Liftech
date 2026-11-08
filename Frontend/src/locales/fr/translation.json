@@ -361,9 +361,11 @@
       "media": "Moyenne"
     },
     "description": {
-      "tombamento": "Niveau d'urgence critique associé à un <b>renversement</b>.",
       "colisao": "Niveau d'urgence critique associé à une <b>collision</b>.",
-      "frenagem": "Niveau d'urgence critique associé à un <b>freinage brusque</b>."
+      "frenagem_brusca": "Niveau d'urgence critique associé à un <b>freinage brusque</b>.",
+      "aceleracao_brusca": "Niveau d'urgence critique associé à une <b>accélération brusque</b>.",
+      "curva_brusca": "Niveau d'urgence critique associé à un <b>virage brusque</b>.",
+      "inclinacao_excessiva": "Niveau d'urgence critique associé à une <b>inclinaison excessive</b>."
     }
   },
   "feedback": {
@@ -421,6 +423,8 @@
   "alertModal": {
     "title": "Alerte !",
     "message": "Accident dans le secteur <b>{{setor}}</b>, <b>{{funcionario}}</b> employé responsable de la machine {{maquina}}.",
+    "offlineTitle": "Carte hors ligne",
+    "offlineMessage": "La machine <b>{{maquina}}</b> n'a plus de communication avec le système.",
     "notInformed": "non renseigné",
     "ok": "Ok"
   },

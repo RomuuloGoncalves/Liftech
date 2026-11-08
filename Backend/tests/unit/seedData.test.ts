@@ -7,21 +7,23 @@ import { Forklift } from "../../src/schemas/forklift.js";
 import { Sector } from "../../src/schemas/sector.js";
 import { Telemetry } from "../../src/schemas/telemetry.js";
 import { Incident } from "../../src/schemas/incident.js";
+import { WorkSession } from "../../src/schemas/workSession.js";
 import { User } from "../../src/schemas/user.js";
 import { AccessRequest } from "../../src/schemas/accessRequest.js";
 import { Company } from "../../src/schemas/company.js";
 import { Branch } from "../../src/schemas/branch.js";
 import { logger } from "../../src/utils/logger.js";
 import { verificarSenha } from "../../src/utils/senha.js";
-import { gerarIncidentes } from "../../src/scripts/seedDataset.js";
+import { gerarIncidentes, EMPILHADEIRAS } from "../../src/scripts/seedDataset.js";
 import { criarQuadroInicial, posicionarSemCategoria } from "../../src/feature/category/categoryService.js";
 
 vi.mock("../../src/schemas/operator.js", () => ({ Operator: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/device.js", () => ({ Device: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/forklift.js", () => ({ Forklift: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/sector.js", () => ({ Sector: { findOneAndUpdate: vi.fn() } }));
-vi.mock("../../src/schemas/telemetry.js", () => ({ Telemetry: { findOneAndUpdate: vi.fn() } }));
+vi.mock("../../src/schemas/telemetry.js", () => ({ Telemetry: { findOneAndUpdate: vi.fn(), deleteMany: vi.fn().mockResolvedValue({}) } }));
 vi.mock("../../src/schemas/incident.js", () => ({ Incident: { findOneAndUpdate: vi.fn() } }));
+vi.mock("../../src/schemas/workSession.js", () => ({ WorkSession: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/user.js", () => ({ User: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/accessRequest.js", () => ({ AccessRequest: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/company.js", () => ({ Company: { findOneAndUpdate: vi.fn() } }));
@@ -35,7 +37,7 @@ const AGORA = new Date("2026-10-13T12:00:00Z");
 const SENHA = "asdasdasd";
 const envOriginal = { ...process.env };
 
-const MODELOS = { Company, Branch, Sector, Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
+const MODELOS = { Company, Branch, Sector, Operator, Device, Forklift, Telemetry, Incident, WorkSession, User, AccessRequest } as const;
 
 function mockarModelos() {
   for (const [nome, m] of Object.entries(MODELOS)) {
@@ -200,10 +202,27 @@ describe("seedData", () => {
     expect(chamadas(Operator)).toHaveLength(12);
     expect(chamadas(Device)).toHaveLength(16);
     expect(chamadas(Forklift)).toHaveLength(16);
+    expect(Telemetry.deleteMany).toHaveBeenCalledTimes(16);
     expect(chamadas(Telemetry)).toHaveLength(80);
     expect(chamadas(Incident)).toHaveLength(32);
     expect(chamadas(User)).toHaveLength(12);
     expect(chamadas(AccessRequest)).toHaveLength(2);
+  });
+
+  test("cada máquina em_uso do seed ganha uma sessão aberta com o operador dela", async () => {
+    await seedData();
+
+    const emUso = EMPILHADEIRAS.filter((e) => e.status === "em_uso" && e.operador);
+    expect(emUso.length).toBeGreaterThan(0);
+    expect(chamadas(WorkSession)).toHaveLength(emUso.length);
+    for (const e of emUso) {
+      const empilhadeiraId = idDe("Forklift", { identificacao: e.identificacao });
+      const [filtro, update, opcoes] = chamadaDe(WorkSession, { empilhadeiraId, fim: null })!;
+      expect(filtro).toEqual({ empilhadeiraId, fim: null });
+      expect(update.$set.operadorId).toBe(idDe("Operator", { nome: e.operador }));
+      expect(update.$set.fim).toBeNull();
+      expect(opcoes).toMatchObject({ upsert: true });
+    }
   });
 
   test("cria um setor por texto do dataset na filial da empilhadeira, com upsert por { filialId, nome }", async () => {
@@ -225,7 +244,7 @@ describe("seedData", () => {
 
     const dispositivoId = idDe("Device", { enderecoMac: "A2:C9:9B:1D:F7" });
     const empilhadeiraId = idDe("Forklift", { identificacao: "EMP-081" });
-    const dataDados = new Date("2026-09-01T08:00:00Z");
+    const dataDados = new Date("2026-10-13T08:00:00Z");
     const dataIncidente = new Date("2026-08-01T10:00:00Z");
 
     expect(chamadaDe(Operator, { nome: "Carlos Silva" })[2]).toMatchObject({ upsert: true });

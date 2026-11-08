@@ -445,9 +445,11 @@
       "media": "Medium"
     },
     "description": {
-      "tombamento": "Critical urgency level associated with a <b>rollover</b>.",
       "colisao": "Critical urgency level associated with a <b>collision</b>.",
-      "frenagem": "Critical urgency level associated with <b>sudden braking</b>."
+      "frenagem_brusca": "Critical urgency level associated with <b>sudden braking</b>.",
+      "aceleracao_brusca": "Critical urgency level associated with <b>sudden acceleration</b>.",
+      "curva_brusca": "Critical urgency level associated with a <b>sharp turn</b>.",
+      "inclinacao_excessiva": "Critical urgency level associated with <b>excessive tilt</b>."
     }
   },
   "feedback": {
@@ -505,6 +507,8 @@
   "alertModal": {
     "title": "Alert!",
     "message": "Accident in sector <b>{{setor}}</b>, <b>{{funcionario}}</b> employee responsible for machine {{maquina}}.",
+    "offlineTitle": "Device offline",
+    "offlineMessage": "Machine <b>{{maquina}}</b> has lost communication with the system.",
     "notInformed": "not informed",
     "ok": "Ok"
   },

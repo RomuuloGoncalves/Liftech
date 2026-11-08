@@ -361,9 +361,11 @@
       "media": "Mittel"
     },
     "description": {
-      "tombamento": "Kritische Dringlichkeitsstufe im Zusammenhang mit einem <b>Umkippen</b>.",
       "colisao": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Kollision</b>.",
-      "frenagem": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Vollbremsung</b>."
+      "frenagem_brusca": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Vollbremsung</b>.",
+      "aceleracao_brusca": "Kritische Dringlichkeitsstufe im Zusammenhang mit <b>starker Beschleunigung</b>.",
+      "curva_brusca": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>scharfen Kurve</b>.",
+      "inclinacao_excessiva": "Kritische Dringlichkeitsstufe im Zusammenhang mit <b>übermäßiger Neigung</b>."
     }
   },
   "feedback": {
@@ -421,6 +423,8 @@
   "alertModal": {
     "title": "Alarm!",
     "message": "Unfall im Sektor <b>{{setor}}</b>, <b>{{funcionario}}</b> verantwortlicher Mitarbeiter für Maschine {{maquina}}.",
+    "offlineTitle": "Platine ohne Verbindung",
+    "offlineMessage": "Die Maschine <b>{{maquina}}</b> hat keine Verbindung zum System.",
     "notInformed": "nicht angegeben",
     "ok": "Ok"
   },

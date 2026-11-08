@@ -361,9 +361,11 @@
       "media": "中"
     },
     "description": {
-      "tombamento": "<b>横転</b>に関連する重大な緊急度レベル。",
       "colisao": "<b>衝突</b>に関連する重大な緊急度レベル。",
-      "frenagem": "<b>急ブレーキ</b>に関連する重大な緊急度レベル。"
+      "frenagem_brusca": "<b>急ブレーキ</b>に関連する重大な緊急度レベル。",
+      "aceleracao_brusca": "<b>急加速</b>に関連する重大な緊急度レベル。",
+      "curva_brusca": "<b>急旋回</b>に関連する重大な緊急度レベル。",
+      "inclinacao_excessiva": "<b>過度な傾き</b>に関連する重大な緊急度レベル。"
     }
   },
   "feedback": {
@@ -415,6 +417,8 @@
   "alertModal": {
     "title": "警告！",
     "message": "セクター<b>{{setor}}</b>での事故、機械{{maquina}}の担当従業員<b>{{funcionario}}</b>。",
+    "offlineTitle": "基板通信途絶",
+    "offlineMessage": "機械<b>{{maquina}}</b>はシステムとの通信が途絶しています。",
     "notInformed": "未入力",
     "ok": "Ok"
   },

@@ -4,7 +4,7 @@ import { WorkSession } from "../../src/schemas/workSession.js";
 import { Forklift } from "../../src/schemas/forklift.js";
 import { Operator } from "../../src/schemas/operator.js";
 import { aplicarStatus } from "../../src/feature/machine/statusService.js";
-import { reportar, listar } from "../../src/feature/incident/incidentService.js";
+import { reportar, listar, formatar } from "../../src/feature/incident/incidentService.js";
 import { ErroHttp } from "../../src/utils/responseHandler.js";
 import type { Escopo } from "../../src/core/escopo.js";
 
@@ -80,6 +80,7 @@ describe("reportar", () => {
       operador: { nome: "Carlos Silva" },
       dataIncidente: esperada.toISOString(),
       forcaImpacto: null,
+      tipo: null,
       status: "pendente",
       origem: "funcionario",
       descricao: "Pneu furado",
@@ -123,6 +124,7 @@ describe("listar", () => {
         operador: null,
         dataIncidente: AGORA.toISOString(),
         forcaImpacto: 7,
+        tipo: null,
         status: "pendente",
         origem: "sensor",
         descricao: null,
@@ -180,5 +182,39 @@ describe("listar", () => {
   test("filialId inválido (123): rejeita com 400 sem chamar find", async () => {
     expect(await erro(listar(escopo, { filialId: 123 as any }))).toBe(400);
     expect(Incident.find).not.toHaveBeenCalled();
+  });
+});
+
+describe("formatar", () => {
+  test("incidente com tipo devolve o tipo, sem tipo devolve null; não inclui movimento", async () => {
+    const { IncidentModel } = await import("../../src/models/incidentModel.js");
+    const comTipo = new IncidentModel(
+      {
+        empilhadeiraId: MAQUINA,
+        operadorId: OPERADOR,
+        dataIncidente: AGORA,
+        status: "pendente",
+        tipo: "colisao",
+        movimento: { aceleracaoX: 1, aceleracaoY: 2, aceleracaoZ: 3, inclinacaoX: 0, inclinacaoY: 0, magnitude: 1 },
+      },
+      INCIDENTE
+    );
+    const semTipo = new IncidentModel(
+      {
+        empilhadeiraId: MAQUINA,
+        operadorId: OPERADOR,
+        dataIncidente: AGORA,
+        status: "pendente",
+      },
+      "665f1c2b9a1e4b00123456f2"
+    );
+
+    const [fComTipo, fSemTipo] = await formatar([comTipo, semTipo]);
+
+    expect(fComTipo!.tipo).toBe("colisao");
+    expect((fComTipo as any).movimento).toBeUndefined();
+
+    expect(fSemTipo!.tipo).toBeNull();
+    expect((fSemTipo as any).movimento).toBeUndefined();
   });
 });
