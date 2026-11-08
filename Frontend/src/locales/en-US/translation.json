@@ -202,6 +202,7 @@
     "tabAdmin": "Administrator sign in",
     "tabCollaborator": "Collaborator",
     "invalidCredentials": "Invalid username or password.",
+    "accessDenied": "Access denied. Talk to your supervisor.",
     "networkError": "Unable to connect to the server.",
     "loginError": "Error signing in.",
     "requestDuplicate": "There is already a pending request for this email.",

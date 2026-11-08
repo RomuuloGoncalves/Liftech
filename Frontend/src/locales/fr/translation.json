@@ -202,6 +202,7 @@
     "tabAdmin": "Connexion Administrateur",
     "tabCollaborator": "Collaborateur",
     "invalidCredentials": "Identifiant ou mot de passe invalide.",
+    "accessDenied": "Accès refusé. Contactez votre superviseur.",
     "networkError": "Impossible de se connecter au serveur.",
     "loginError": "Erreur lors de la connexion.",
     "requestDuplicate": "Une demande est déjà en attente pour cet e-mail.",

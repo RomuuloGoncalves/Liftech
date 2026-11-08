@@ -52,8 +52,9 @@ export async function login(role: RoleLogin, login: string, senha: string) {
       nome: usuario.getNome(),
       role: usuario.getRole(),
       email: usuario.getEmail(),
-      telefone: usuario.getTelefone(),
-      cargo: usuario.getCargo(),
+      // O colaborador não tem telefone nem cargo no login: vêm da ficha do operador.
+      telefone: usuario.getTelefone() ?? operador?.getDados().telefone,
+      cargo: usuario.getCargo() ?? operador?.getDados().cargo,
       empresa: empresa && { _id: String(empresa.getID()), nome: empresa.getNome() },
       escopo: escopo.tipo,
       filiais: escopo.filiais,

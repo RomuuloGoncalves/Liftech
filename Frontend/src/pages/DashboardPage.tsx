@@ -23,7 +23,7 @@ let nextTempId = 0;
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
-  const { activeBranch } = useActiveBranch();
+  const { activeBranch, branches } = useActiveBranch();
   const filialId = activeBranch === 'todas' ? undefined : activeBranch;
   const [loadedFilialId, setLoadedFilialId] = useState(filialId);
 
@@ -367,6 +367,7 @@ export const DashboardPage: React.FC = () => {
       {/* Painel de Nova Máquina */}
       {isNewMachineOpen && (
         <NewMachinePanel
+          branches={activeBranch === 'todas' ? branches : undefined}
           sectors={sectors}
           defaultFilialId={filialId}
           onClose={() => setIsNewMachineOpen(false)}

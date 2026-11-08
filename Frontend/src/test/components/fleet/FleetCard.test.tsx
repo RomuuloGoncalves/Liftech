@@ -78,12 +78,12 @@ describe('FleetCard', () => {
   })
 
   it('shows the weekly hours on disponivel cards', () => {
-    setup()
+    setup(withStatus('disponivel', { tempoUsoSemanaHoras: 24 }))
     expect(field('Horas Totais(Semanal)')).toBe('24 horas')
   })
 
   it('shows (Indefinido) when disponivel cards have no hours', () => {
-    setup(withStatus('disponivel', { tempoUsoTotalHoras: undefined }))
+    setup(withStatus('disponivel', { tempoUsoSemanaHoras: undefined }))
     expect(field('Horas Totais(Semanal)')).toBe('(Indefinido)')
   })
 

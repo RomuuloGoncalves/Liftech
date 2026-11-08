@@ -93,9 +93,9 @@ const FleetCard: React.FC<FleetCardProps> = ({
     disponivel: {
       label: t('fleet.cardWeeklyHours'),
       value:
-        machine.tempoUsoTotalHoras === undefined
+        machine.tempoUsoSemanaHoras === undefined
           ? undefinedText
-          : t('fleet.cardHours', { count: machine.tempoUsoTotalHoras }),
+          : t('fleet.cardHours', { count: machine.tempoUsoSemanaHoras }),
       tone: styles.success,
     },
   }

@@ -1,13 +1,14 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
-import type { Machine } from '../../data/machines'
+import type { Machine, MachineStatus } from '../../data/machines'
 import StatusBadge from '../machines/StatusBadge'
 import { InfoField } from '../common/InfoField'
 import styles from './MachineListCard.module.css'
 
 interface MachineListCardProps {
-  machine: Machine
+  /** No histórico os dados vêm da sessão; o status só existe quando a máquina está na lista atual. */
+  machine: Pick<Machine, 'nome' | 'identificacao' | 'setor'> & { status?: MachineStatus }
   extra?: { date: string; time: string }
   actionLabel: string
   onAction: () => void
@@ -31,7 +32,7 @@ const MachineListCard: React.FC<MachineListCardProps> = ({
           <h3 className={styles.nome}>{nome}</h3>
           <p className={styles.identificacao}>{identificacao}</p>
         </div>
-        <StatusBadge status={machine.status} className={styles.chip} />
+        {machine.status && <StatusBadge status={machine.status} className={styles.chip} />}
       </div>
       <hr className={styles.divider} />
       <div className={styles.bottom}>

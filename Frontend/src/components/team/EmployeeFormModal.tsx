@@ -48,7 +48,8 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
     horarioSaida: employee?.horarioSaida ?? '',
     usuario: employee?.usuario ?? '',
     senha: '',
-    ...(showBranch && { filialId: branches[0]._id }),
+    // With one branch there is no picker: the employee goes to it without asking.
+    ...(!employee && branches.length > 0 && { filialId: branches[0]._id }),
   })
   const [errors, setErrors] = useState<Errors>({})
   const [showPassword, setShowPassword] = useState(false)

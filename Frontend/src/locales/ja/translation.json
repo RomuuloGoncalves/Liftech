@@ -202,6 +202,7 @@
     "tabAdmin": "管理者ログイン",
     "tabCollaborator": "コラボレーター",
     "invalidCredentials": "ユーザー名またはパスワードが無効です。",
+    "accessDenied": "アクセスが拒否されました。上司に連絡してください。",
     "networkError": "サーバーに接続できませんでした。",
     "loginError": "ログイン中にエラーが発生しました。",
     "requestDuplicate": "このメールアドレスには保留中のリクエストがすでにあります。",

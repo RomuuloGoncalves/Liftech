@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
+import { ActiveBranchProvider } from '../../context/ActiveBranchContext'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AlertasPage from '../../pages/AlertasPage'
 import styles from '../../pages/AlertasPage.module.css'
-import { DEFAULT_PERIOD, defaultPeriodTo } from '../../data/machines'
+import { defaultPeriod } from '../../data/machines'
 import { MACHINES } from '../fixtures/machines'
 import { incidentService, type FiltroIncidentes, type Incidente } from '../../services/incidentService'
 import { machineService } from '../../services/machineService'
@@ -61,7 +63,7 @@ const listIncidents = async ({ machineId, from, to }: FiltroIncidentes = {}) =>
     .filter(({ event }) => !machineId || event.machineId === machineId)
     .map(({ incident }) => incident)
 
-const DEFAULT = () => accidentsIn(DEFAULT_PERIOD.from, defaultPeriodTo()).map(({ event }) => event)
+const DEFAULT = () => accidentsIn(defaultPeriod().from, defaultPeriod().to).map(({ event }) => event)
 
 const cards = () => screen.queryAllByRole('article')
 const field = (card: HTMLElement, label: string) => within(card).getByText(label).nextElementSibling?.textContent
@@ -77,16 +79,40 @@ const renderPage = async () => {
   await loaded()
 }
 
+// "Hoje" dentro dos acidentes de exemplo: os últimos 30 dias têm incidentes de sensor e de colaborador.
+const HOJE = new Date(2025, 0, 12, 12, 0, 0)
+
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(HOJE)
   listarIncidentes.mockReset().mockImplementation(listIncidents)
   vi.mocked(machineService.listar).mockReset().mockResolvedValue(MACHINES)
 })
 
+afterEach(() => vi.useRealTimers())
+
 describe('AlertasPage', () => {
-  it('renders one card per API incident of the default period, which ends today', async () => {
+  it('lists only the machines and incidents of the active branch', async () => {
+    const filiais = [{ _id: 'f1', nome: 'Matriz', matriz: true }, { _id: 'f2', nome: 'Unidade Norte', matriz: false }]
+    localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Ana', role: 'admin', escopo: 'empresa', filiais }))
+    localStorage.setItem('liftech.activeBranch', 'f2')
+    render(
+      <MemoryRouter>
+        <ActiveBranchProvider>
+          <AlertasPage />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+    await loaded()
+    expect(machineService.listar).toHaveBeenCalledWith('f2')
+    expect(listarIncidentes).toHaveBeenCalledWith({ from: '2024-12-13', to: '2025-01-12', filialId: 'f2' })
+    localStorage.clear()
+  })
+
+  it('renders one card per API incident of the default period, the last 30 days', async () => {
     await renderPage()
-    expect(listarIncidentes).toHaveBeenCalledWith({ from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
-    expect(defaultPeriodTo()).toBe([DEFAULT_PERIOD.to, new Date().toLocaleDateString('sv')].sort()[1])
+    expect(defaultPeriod()).toEqual({ from: '2024-12-13', to: '2025-01-12' })
+    expect(listarIncidentes).toHaveBeenCalledWith({ from: '2024-12-13', to: '2025-01-12' })
     expect(DEFAULT().length).toBeGreaterThan(0)
     expect(cards()).toHaveLength(DEFAULT().length)
   })
@@ -117,7 +143,7 @@ describe('AlertasPage', () => {
 
   it('shows urgency Alta for sensor collisions and for collaborator reports', async () => {
     await renderPage()
-    const origins = new Set(accidentsIn(DEFAULT_PERIOD.from, defaultPeriodTo()).map(({ incident }) => incident.origem))
+    const origins = new Set(accidentsIn(defaultPeriod().from, defaultPeriod().to).map(({ incident }) => incident.origem))
     expect(origins).toEqual(new Set(['sensor', 'funcionario']))
     expect(new Set(cards().map((card) => field(card, 'Nível de urgência')))).toEqual(new Set(['Alta']))
   })
@@ -212,7 +238,7 @@ describe('AlertasPage', () => {
     const tabs = within(dialog).getAllByRole('tab')
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Acidentes', 'Manutenção'])
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
-    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
+    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: defaultPeriod().from, to: defaultPeriod().to })
     expect(within(within(dialog).getByRole('tabpanel')).getAllByRole('listitem')).toHaveLength(visible)
     expect(within(dialog).queryByText('Em manutenção')).not.toBeInTheDocument()
     expect(within(dialog).queryByRole('button', { name: /Editar|Excluir/ })).not.toBeInTheDocument()
