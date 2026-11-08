@@ -5,6 +5,7 @@ import { Forklift } from "../schemas/forklift.js";
 import { Sector } from "../schemas/sector.js";
 import { Telemetry } from "../schemas/telemetry.js";
 import { Incident } from "../schemas/incident.js";
+import { WorkSession } from "../schemas/workSession.js";
 import { User } from "../schemas/user.js";
 import { AccessRequest } from "../schemas/accessRequest.js";
 import { gerarHashSenha } from "../utils/senha.js";
@@ -78,12 +79,30 @@ export async function seedData() {
     );
   }
 
+  // Máquina em uso tem sessão aberta de verdade: sem ela o evento do sensor é descartado.
+  for (const [i, e] of EMPILHADEIRAS.entries()) {
+    if (e.status !== "em_uso" || !e.operador) continue;
+    const empilhadeiraId = empilhadeiraIds[i];
+    await upsert(
+      WorkSession,
+      { empilhadeiraId, fim: null },
+      {
+        empilhadeiraId,
+        operadorId: operadorIds.get(e.operador),
+        filialId: filialIds.get(filialDaEmpilhadeira(e)),
+        inicio: new Date(agora - e.tempoSessaoMinutos * 60_000),
+        fim: null,
+      }
+    );
+  }
+
   // Só na criação do quadro as máquinas entram pela regra; depois a posição é de quem usa o kanban.
   const quadro = await criarQuadroInicial(empresaId);
   if (quadro) await posicionarSemCategoria([...filialIds.values()], quadro);
 
   let telemetria = 0;
   for (const dispositivoId of dispositivoIds.values()) {
+    await (Telemetry as any).deleteMany({ dispositivoId });
     for (const leitura of gerarTelemetria(String(dispositivoId))) {
       await upsert(Telemetry, { dispositivoId: leitura.dispositivoId, dataDados: leitura.dataDados }, leitura);
       telemetria++;

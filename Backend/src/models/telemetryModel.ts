@@ -5,8 +5,9 @@ export class TelemetryModel extends CoreModel {
   private dispositivoId: string;
   private _id?: string;
   private forcaImpacto?: number;
+  private movimento?: unknown;
 
-  constructor(dataDados: Date, dispositivoId: string, id?: string, forcaImpacto?: number) {
+  constructor(dataDados: Date, dispositivoId: string, id?: string, forcaImpacto?: number, movimento?: unknown) {
     super();
     this.dataDados = dataDados;
     this.dispositivoId = dispositivoId;
@@ -15,6 +16,9 @@ export class TelemetryModel extends CoreModel {
     }
     if (forcaImpacto !== undefined) {
       this.forcaImpacto = forcaImpacto;
+    }
+    if (movimento !== undefined) {
+      this.movimento = movimento;
     }
   }
 
@@ -29,6 +33,7 @@ export class TelemetryModel extends CoreModel {
       dataDados: this.dataDados,
       dispositivoId: this.dispositivoId,
       ...(this.forcaImpacto !== undefined && { forcaImpacto: this.forcaImpacto }),
+      ...(this.movimento !== undefined && { movimento: this.movimento }),
     };
   }
 }

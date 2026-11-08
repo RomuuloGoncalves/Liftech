@@ -40,6 +40,10 @@
   margin: 0;
 }
 
+.text + .text {
+  margin-top: 8px;
+}
+
 .text strong {
   font-weight: 600;
 }

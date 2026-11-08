@@ -34,7 +34,6 @@ const MachineListCard: React.FC<MachineListCardProps> = ({
         </div>
         {machine.status && <StatusBadge status={machine.status} className={styles.chip} />}
       </div>
-      <hr className={styles.divider} />
       <div className={styles.bottom}>
         <dl className={styles.fields}>
         <InfoField label={t('employee.common.sector')} title={setor}>

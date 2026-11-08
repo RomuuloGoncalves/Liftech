@@ -10,11 +10,18 @@ import React, {
   useState,
 } from 'react';
 import { useActiveBranch } from './ActiveBranchContext';
+import { useLive } from './LiveContext';
 import { incidentService, type Incidente, type FiltroIncidentes } from '../services/incidentService';
 
 const AlertModal = lazy(() => import('../components/alerts/AlertModal'));
 
-export const POLL_INTERVAL_MS = 15_000;
+export const POLL_INTERVAL_MS = 60_000;
+
+export interface DispositivoOfflineEvento {
+  machineId: string;
+  identificacao: string;
+  filialId?: string;
+}
 
 export const SAMPLE_INCIDENT: Incidente = {
   _id: 'simulado',
@@ -90,8 +97,10 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [error, setError] = useState(false);
   const [seen, setSeen] = useState<string[]>(() => (userId ? readSeen(userId) : []));
   const [queue, setQueue] = useState<Incidente[]>([]);
+  const [offlineQueue, setOfflineQueue] = useState<DispositivoOfflineEvento[]>([]);
 
   const known = useRef<Set<string> | null>(null);
+  const pendingLiveIds = useRef<Set<string>>(new Set());
   const pollRef = useRef<((force?: boolean) => Promise<void>) | null>(null);
 
   // Ajusta estado durante o render ao mudar de usuário ou filial
@@ -107,8 +116,12 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(false);
       setError(false);
       setQueue([]);
+      setOfflineQueue([]);
     } else {
       setLoading(true);
+      setRecent([]);
+      setQueue([]);
+      setOfflineQueue([]);
     }
   }
 
@@ -120,6 +133,7 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     let stale = false;
     known.current = null;
+    pendingLiveIds.current.clear();
 
     const doPoll = async (force = false) => {
       if (!force && document.visibilityState !== 'visible') {
@@ -130,14 +144,23 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const list = await incidentService.listar(params);
         if (stale) return;
 
-        setRecent(list.slice(0, 5));
+        setRecent((prev) => {
+          const idsInList = new Set(list.map((i) => i._id));
+          const unconfirmed = prev.filter((i) => !idsInList.has(i._id));
+          return [...unconfirmed, ...list].slice(0, 5);
+        });
         setError(false);
         setLoading(false);
 
         if (known.current === null) {
-          known.current = new Set(list.map((i) => i._id));
+          const set = new Set(list.map((i) => i._id));
+          for (const pendingId of pendingLiveIds.current) {
+            set.add(pendingId);
+          }
+          pendingLiveIds.current.clear();
+          known.current = set;
         } else {
-          const novos = list.filter((i) => !known.current!.has(i._id));
+          const novos = list.filter((i) => !known.current!.has(i._id) && !pendingLiveIds.current.has(i._id));
           for (const item of novos) {
             known.current.add(item._id);
           }
@@ -186,6 +209,43 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, []);
 
+  const handleLiveIncidente = useCallback(
+    (incidente: Incidente) => {
+      const incFilial = incidente.filialId;
+      if (filialId && incFilial && incFilial !== filialId) {
+        return;
+      }
+
+      if (known.current?.has(incidente._id) || pendingLiveIds.current.has(incidente._id)) {
+        return;
+      }
+
+      if (known.current === null) {
+        pendingLiveIds.current.add(incidente._id);
+      } else {
+        known.current.add(incidente._id);
+      }
+
+      setRecent((prev) => [incidente, ...prev.filter((i) => i._id !== incidente._id)].slice(0, 5));
+      setQueue((q) => [...q, incidente]);
+    },
+    [filialId]
+  );
+
+  useLive<Incidente>('incidente', handleLiveIncidente, reload);
+
+  const handleLiveOffline = useCallback(
+    (payload: DispositivoOfflineEvento) => {
+      if (filialId && payload.filialId && payload.filialId !== filialId) {
+        return;
+      }
+      setOfflineQueue((q) => [...q, payload]);
+    },
+    [filialId]
+  );
+
+  useLive<DispositivoOfflineEvento>('dispositivo_offline', handleLiveOffline);
+
   const markSeen = useCallback(() => {
     const ids = recent.map((i) => i._id);
     setSeen(ids);
@@ -196,6 +256,10 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const dismiss = useCallback(() => {
     setQueue((q) => q.slice(1));
+  }, []);
+
+  const dismissOffline = useCallback(() => {
+    setOfflineQueue((q) => q.slice(1));
   }, []);
 
   const simulate = useCallback(() => {
@@ -217,11 +281,19 @@ export const AlertsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   return (
     <AlertsContext.Provider value={value}>
       {children}
-      {queue[0] && (
+      {queue[0] ? (
         <Suspense fallback={null}>
           <AlertModal incident={queue[0]} onClose={dismiss} />
         </Suspense>
-      )}
+      ) : offlineQueue[0] ? (
+        <Suspense fallback={null}>
+          <AlertModal
+            variant="offline"
+            offline={offlineQueue[0]}
+            onClose={dismissOffline}
+          />
+        </Suspense>
+      ) : null}
     </AlertsContext.Provider>
   );
 };

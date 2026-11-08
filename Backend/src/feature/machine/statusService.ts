@@ -8,6 +8,7 @@ import { IncidentRepository } from "../incident/incidentRepository.js";
 import { CategoryRepository } from "../category/categoryRepository.js";
 import { BranchRepository } from "../branch/branchRepository.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
+import { publicarMaquina } from "../stream/streamHub.js";
 
 const STATUS = ["disponivel", "em_uso", "manutencao", "alerta", "offline"] as const;
 export type Status = (typeof STATUS)[number];
@@ -37,15 +38,25 @@ export async function categoriaDoStatus(filialId: unknown, status: Status) {
 
 // Único caminho de mudança de status (manual ou leitura do dispositivo).
 // ponytail: grava o status e depois resolve os incidentes, sem transação; uma falha no meio deixa incidentes pendentes.
-export async function aplicarStatus(forkliftId: string, novo: Status): Promise<void> {
+export async function aplicarStatus(forkliftId: string, novo: Status, manutencaoPorOffline = false): Promise<void> {
   const empilhadeira = (await empilhadeiras.buscarPorId(forkliftId))?.getDocumento();
   if (!empilhadeira) throw new ErroHttp(StatusCode.NOT_FOUND, "Empilhadeira não encontrada.");
 
   const atual = empilhadeira.status ?? "disponivel";
   // Status repetido não mexe em nada: uma leitura repetida não desfaz um ajuste manual.
-  if (atual === novo) return;
+  // Achado 7: se status repetido manual em máquina com manutencaoPorOffline=true, limpa a flag (TLQ-07.8)
+  if (atual === novo) {
+    if (!manutencaoPorOffline && empilhadeira.manutencaoPorOffline) {
+      await empilhadeiras.atualizarUm({ _id: forkliftId }, { $set: { manutencaoPorOffline: false } });
+    }
+    return;
+  }
 
-  const alteracoes: Record<string, unknown> = { status: novo, statusAlteradoEm: new Date() };
+  const alteracoes: Record<string, unknown> = {
+    status: novo,
+    statusAlteradoEm: new Date(),
+    manutencaoPorOffline,
+  };
   if (!empilhadeira.categoriaTravada) {
     const destino = await categoriaDoStatus(empilhadeira.filialId, novo);
     if (destino) alteracoes.categoriaId = destino;
@@ -55,6 +66,12 @@ export async function aplicarStatus(forkliftId: string, novo: Status): Promise<v
 
   if (atual === "alerta") {
     await incidentes.atualizarVarios({ empilhadeiraId: forkliftId, status: "pendente" }, { $set: { status: "resolvido" } });
+  }
+
+  try {
+    await publicarMaquina(forkliftId);
+  } catch {
+    // Falha em publicarMaquina não desfaz nem lança no aplicarStatus
   }
 }
 

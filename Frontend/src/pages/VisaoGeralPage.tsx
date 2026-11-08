@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import { Plus, Search, Copy, MapPin } from 'lucide-react'
@@ -9,6 +9,7 @@ import { useToast } from '../components/common/Toast'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import NewMachinePanel, { type NewMachineFormValues } from '../components/machines/NewMachinePanel'
 import { useActiveBranch } from '../context/ActiveBranchContext'
+import { useLive } from '../context/LiveContext'
 import { machineService } from '../services/machineService'
 import { sectorService, type Setor } from '../services/sectorService'
 import {
@@ -18,6 +19,17 @@ import {
   type MachineStatus,
 } from '../data/machines'
 import styles from './VisaoGeralPage.module.css'
+
+export interface MaquinaStreamEvento {
+  id: string
+  filialId?: string
+  status?: MachineStatus
+  categoriaId?: string | null
+  categoriaTravada?: boolean
+  alertaEm?: string | null
+  alertaTipos?: string[]
+  dispositivoOffline?: boolean
+}
 
 type StatusFilter = MachineStatus | 'Todos'
 type LoadState = 'loading' | 'ready' | 'error'
@@ -68,10 +80,49 @@ const VisaoGeralPage: React.FC = () => {
     }
   }, [filialId, attempt])
 
-  const retry = () => {
-    setLoadState('loading')
+  const retry = useCallback(() => {
     setAttempt((value) => value + 1)
-  }
+  }, [])
+
+  const handleLiveMaquina = useCallback(
+    (evento: MaquinaStreamEvento) => {
+      if (filialId && evento.filialId && evento.filialId !== filialId) {
+        return
+      }
+
+      const exists = allMachines.some((m) => m.id === evento.id)
+      if (!exists) {
+        retry()
+        return
+      }
+
+      setAllMachines((prev) =>
+        prev.map((m) => {
+          if (m.id !== evento.id) return m
+          return {
+            ...m,
+            status: evento.status ?? m.status,
+            categoriaId:
+              evento.categoriaId !== undefined ? evento.categoriaId : m.categoriaId,
+            categoriaTravada:
+              evento.categoriaTravada !== undefined
+                ? evento.categoriaTravada
+                : m.categoriaTravada,
+            alertaEm: evento.alertaEm !== undefined ? evento.alertaEm : m.alertaEm,
+            alertaTipos:
+              evento.alertaTipos !== undefined ? evento.alertaTipos : m.alertaTipos,
+            dispositivoOffline:
+              evento.dispositivoOffline !== undefined
+                ? evento.dispositivoOffline
+                : m.dispositivoOffline,
+          }
+        })
+      )
+    },
+    [filialId, allMachines, retry]
+  )
+
+  useLive<MaquinaStreamEvento>('maquina', handleLiveMaquina, retry)
 
   const detailMachine = allMachines.find((machine) => machine.id === detailId)
 
@@ -186,7 +237,14 @@ const VisaoGeralPage: React.FC = () => {
       <div className={styles.page}>
         <div role="alert" className={styles.errorState}>
           <p>{t('machines.loadError')}</p>
-          <button type="button" className={styles.registerButton} onClick={retry}>
+          <button
+            type="button"
+            className={styles.registerButton}
+            onClick={() => {
+              setLoadState('loading')
+              retry()
+            }}
+          >
             {t('common.retry')}
           </button>
         </div>

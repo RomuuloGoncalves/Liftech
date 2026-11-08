@@ -1,7 +1,18 @@
 import { RepositoryBase, type ModeloMongoose } from "../../core/coreRepository.js";
 import { IncidentModel } from "../../models/incidentModel.js";
 
-const CAMPOS = ["dataIncidente", "forcaImpacto", "status", "origem", "descricao", "filialId", "empilhadeiraId", "operadorId"] as const;
+const CAMPOS = [
+  "dataIncidente",
+  "forcaImpacto",
+  "status",
+  "origem",
+  "descricao",
+  "filialId",
+  "empilhadeiraId",
+  "operadorId",
+  "tipo",
+  "movimento",
+] as const;
 
 export class IncidentRepository extends RepositoryBase<IncidentModel> {
   constructor(bd: ModeloMongoose) {

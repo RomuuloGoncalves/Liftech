@@ -14,6 +14,9 @@ export interface DocumentoEmpilhadeira {
   dispositivoConectadoId?: any;
   operadorConectadoId?: any;
   sessaoIniciadaEm?: Date | null;
+  ultimaLeituraEm?: Date;
+  offlineDesde?: Date | null;
+  manutencaoPorOffline?: boolean;
 }
 
 export class ForkliftModel extends CoreModel {

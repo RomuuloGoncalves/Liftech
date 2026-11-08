@@ -159,6 +159,13 @@ O script `simulateHardware.ts` permite testar todo o ecossistema sem a necessida
 
 Dentro do diretório `Backend/`:
 
+### Modo demo (`yarn dev:sim` na raiz, ou `yarn simulate:hardware --demo`)
+
+Para ver as máquinas mudando sem nenhum passo manual (depois de `yarn seed:data`, que cria uma sessão aberta para cada máquina em uso):
+
+- **EMP-082** (`A2:C9:9B:1D:F8`, em uso, com sessão aberta) recebe um evento de tipo sorteado a cada 45 a 90 s. O card vai para "Acidentes" e o pop-up abre. A saída de `alerta` continua manual.
+- **EMP-083** (`A2:C9:9B:1D:F9`, disponível) para de enviar por 45 s a cada 2 min. Depois de 30 s o card fica cinza, vai para manutenção e o pop-up de offline abre. Quando a telemetria volta, a máquina volta a disponível.
+
 ```bash
 # Simular uma empilhadeira com envio a cada 5 segundos
 yarn simulate:hardware --mac A2:C9:9B:1D:F7

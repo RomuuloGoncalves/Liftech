@@ -14,6 +14,7 @@ import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { categoriaDoStatus } from "./statusService.js";
 import { exigirSetorDaFilial, nomesDosSetores } from "../sector/sectorService.js";
+import { publicarMaquina } from "../stream/streamHub.js";
 
 const MINUTO_MS = 60_000;
 const HORA_MS = 60 * MINUTO_MS;
@@ -87,19 +88,32 @@ async function consultar(filtro: Record<string, unknown>) {
 
   const emAlerta = maquinas.filter((f) => f.status === "alerta").map((f) => f._id);
   const alertaEm = new Map<string, string>();
+  const alertaTiposMap = new Map<string, string[]>();
   if (emAlerta.length > 0) {
     const pendentes: any[] = (
       await incidentes.obterTodos({ empilhadeiraId: { $in: emAlerta }, status: "pendente" }, { ordenacao: { dataIncidente: -1 } })
     ).map((i) => i.obterDados());
     for (const incidente of pendentes) {
       const chave = String(incidente.empilhadeiraId);
-      if (!alertaEm.has(chave)) alertaEm.set(chave, new Date(incidente.dataIncidente).toISOString());
+      if (!alertaEm.has(chave) && incidente.dataIncidente) {
+        alertaEm.set(chave, new Date(incidente.dataIncidente).toISOString());
+      }
+      if (incidente.tipo && typeof incidente.tipo === "string") {
+        const tipos = alertaTiposMap.get(chave) ?? [];
+        if (!tipos.includes(incidente.tipo)) {
+          tipos.push(incidente.tipo);
+          alertaTiposMap.set(chave, tipos);
+        }
+      }
     }
   }
 
   const setores = await nomesDosSetores(maquinas.map((f) => f.setorId));
   const agora = Date.now();
-  const usos = await usoDasMaquinas(maquinas.map((f) => f._id), new Date(agora));
+  const usos = await usoDasMaquinas(
+    maquinas.map((f) => f._id),
+    new Date(agora)
+  );
 
   return maquinas.map((f) => {
     const dispositivo = f.dispositivoConectadoId;
@@ -120,6 +134,8 @@ async function consultar(filtro: Record<string, unknown>) {
       categoriaId: f.categoriaId ? String(f.categoriaId) : null,
       categoriaTravada: f.categoriaTravada === true,
       alertaEm: status === "alerta" ? (alertaEm.get(String(f._id)) ?? null) : null,
+      alertaTipos: alertaTiposMap.get(String(f._id)) ?? [],
+      dispositivoOffline: f.offlineDesde != null,
       dispositivoConectado: { enderecoMac: dispositivo?.enderecoMac ?? "", nomeDispositivo: dispositivo?.nome },
       ...(operador && { operadorConectado: { nome: operador.nome } }),
       tempoSessaoMinutos: Math.max(0, Math.floor((agora - inicio) / MINUTO_MS)),
@@ -146,6 +162,11 @@ export async function obterMaquina(escopo: Escopo, id: string) {
 export async function definirTrava(escopo: Escopo, id: string, categoriaTravada: boolean) {
   await obterMaquina(escopo, id);
   await empilhadeiras.atualizarUm({ _id: id }, { $set: { categoriaTravada } });
+  try {
+    await publicarMaquina(id);
+  } catch {
+    // Falha na publicação não muda a resposta da operação
+  }
   return obterMaquina(escopo, id);
 }
 
@@ -160,6 +181,13 @@ export async function moverParaCategoria(escopo: Escopo, machineIds: string[], c
     throw new ErroHttp(StatusCode.NOT_FOUND, "Categoria não encontrada.");
   }
   await empilhadeiras.atualizarVarios({ _id: { $in: ids } }, { $set: { categoriaId } });
+  for (const id of ids) {
+    try {
+      await publicarMaquina(id);
+    } catch {
+      // Falha na publicação não muda a resposta da operação
+    }
+  }
   return consultar(doEscopo);
 }
 

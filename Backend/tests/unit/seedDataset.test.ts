@@ -29,29 +29,27 @@ describe("seedDataset: empresa e filiais", () => {
   test.each([
     ["EMP-081", "Matriz"],
     ["EMP-083", "Unidade Centro"],
-    ["EMP-085", "Unidade Norte"],
   ])("a empilhadeira %s cai na filial do seu setor: %s", (identificacao, filial) => {
     const e = EMPILHADEIRAS.find((x) => x.identificacao === identificacao)!;
 
     expect(filialDaEmpilhadeira(e)).toBe(filial);
   });
 
-  test("o dispositivo herda a filial da sua empilhadeira, para os 16", () => {
+  test("o dispositivo herda a filial da sua empilhadeira, para todas as do seed reduzido", () => {
     for (const e of EMPILHADEIRAS) expect(filialDoDispositivo(e.enderecoMac)).toBe(filialDaEmpilhadeira(e));
   });
 
   test("o operador herda a filial da primeira empilhadeira que o cita; sem empilhadeira, a matriz", () => {
     expect(filialDoOperador("Carlos Silva")).toBe("Matriz");
-    expect(filialDoOperador("Marina Costa")).toBe("Unidade Centro");
-    expect(filialDoOperador("João Pereira")).toBe("Unidade Norte");
+    expect(filialDoOperador("Ana Souza")).toBe("Matriz");
     expect(filialDoOperador("Alexandre Gomes")).toBe("Matriz");
   });
 
-  test("os 3 setores do mock estão distribuídos pelas 3 filiais", () => {
-    expect(new Set(EMPILHADEIRAS.map(filialDaEmpilhadeira))).toEqual(new Set(["Matriz", ...FILIAIS_EXTRAS]));
+  test("as máquinas do seed reduzido estão na Matriz e na Unidade Centro", () => {
+    expect(new Set(EMPILHADEIRAS.map(filialDaEmpilhadeira))).toEqual(new Set(["Matriz", "Unidade Centro"]));
   });
 
-  test("os 11 colaboradores têm filiais existentes e ao menos um tem duas", () => {
+  test("os colaboradores têm filiais existentes", () => {
     const nomes = new Set(["Matriz", ...FILIAIS_EXTRAS]);
 
     expect(Object.keys(FILIAIS_DOS_COLABORADORES).sort()).toEqual(COLABORADORES.map((c) => c.usuario).sort());
@@ -60,15 +58,14 @@ describe("seedDataset: empresa e filiais", () => {
       expect(filiais.length).toBeLessThanOrEqual(2);
       for (const f of filiais) expect(nomes.has(f)).toBe(true);
     }
-    expect(Object.values(FILIAIS_DOS_COLABORADORES).some((f) => f.length === 2)).toBe(true);
   });
 });
 
 describe("seedDataset: cadastros", () => {
-  test("12 operadores com nomes e matrículas únicos, cada um com a ficha da Equipe", () => {
-    expect(OPERADORES).toHaveLength(12);
-    expect(new Set(OPERADORES).size).toBe(12);
-    expect(new Set(FICHAS.map((f) => f.matricula)).size).toBe(12);
+  test("3 operadores (seed reduzido) com nomes e matrículas únicos, cada um com a ficha da Equipe", () => {
+    expect(OPERADORES).toHaveLength(3);
+    expect(new Set(OPERADORES).size).toBe(3);
+    expect(new Set(FICHAS.map((f) => f.matricula)).size).toBe(3);
     for (const f of FICHAS) {
       expect(f.matricula).toMatch(/^EMP-\d{3}$/);
       expect(f.horarioEntrada).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/);
@@ -77,37 +74,28 @@ describe("seedDataset: cadastros", () => {
     }
   });
 
-  test("a ordem dos 8 primeiros operadores não muda (alimenta o operador de reserva dos incidentes)", () => {
-    expect(OPERADORES.slice(0, 8)).toEqual([
-      "Carlos Silva",
-      "Ana Souza",
-      "João Pereira",
-      "Marina Costa",
-      "Rafael Lima",
-      "Beatriz Alves",
-      "Fernanda Dias",
-      "Alexandre Gomes",
-    ]);
+  test("a ordem dos operadores não muda (alimenta o operador de reserva dos incidentes)", () => {
+    expect(OPERADORES).toEqual(["Carlos Silva", "Ana Souza", "Alexandre Gomes"]);
   });
 
   test("o operador sem empilhadeira fica na primeira filial do seu login", () => {
-    expect(filialDoOperador("Diego Martins")).toBe("Unidade Norte");
-    expect(filialDoOperador("Paulo Nunes")).toBe("Unidade Centro");
+    expect(filialDoOperador("Alexandre Gomes")).toBe("Matriz");
   });
 
   test("cada dispositivo tem nome Mpa-<n> único", () => {
     expect(DISPOSITIVOS[0]!.nome).toBe("Mpa-5300");
-    expect(new Set(DISPOSITIVOS.map((d) => d.nome)).size).toBe(16);
+    expect(new Set(DISPOSITIVOS.map((d) => d.nome)).size).toBe(4);
   });
 
-  test("16 dispositivos com MAC único", () => {
-    expect(DISPOSITIVOS).toHaveLength(16);
-    expect(new Set(DISPOSITIVOS.map((d) => d.enderecoMac)).size).toBe(16);
+  test("4 dispositivos com MAC único", () => {
+    expect(DISPOSITIVOS).toHaveLength(4);
+    expect(new Set(DISPOSITIVOS.map((d) => d.enderecoMac)).size).toBe(4);
   });
 
-  test("16 empilhadeiras, de EMP-081 a EMP-096, sem repetir identificação", () => {
+  test("4 empilhadeiras (uma por coluna do kanban), de EMP-081 a EMP-084, sem repetir identificação", () => {
     const ids = EMPILHADEIRAS.map((e) => e.identificacao);
-    expect(ids).toEqual(Array.from({ length: 16 }, (_, i) => `EMP-${String(81 + i).padStart(3, "0")}`));
+    expect(ids).toEqual(["EMP-081", "EMP-082", "EMP-083", "EMP-084"]);
+    expect(EMPILHADEIRAS.map((e) => e.status)).toEqual(["alerta", "em_uso", "disponivel", "manutencao"]);
   });
 
   test("todo MAC e todo operador citado por uma empilhadeira existe nas listas", () => {
@@ -124,13 +112,13 @@ describe("seedDataset: cadastros", () => {
     }
   });
 
-  test("EMP-081, EMP-085 e EMP-089 são as únicas em alerta", () => {
-    expect(EMPILHADEIRAS.filter((e) => e.status === "alerta").map((e) => e.identificacao)).toEqual(["EMP-081", "EMP-085", "EMP-089"]);
+  test("EMP-081 é a única em alerta", () => {
+    expect(EMPILHADEIRAS.filter((e) => e.status === "alerta").map((e) => e.identificacao)).toEqual(["EMP-081"]);
   });
 
-  test("12 colaboradores com usuário único, sem campo de senha, cada um com um operador", () => {
-    expect(COLABORADORES).toHaveLength(12);
-    expect(new Set(COLABORADORES.map((c) => c.usuario)).size).toBe(12);
+  test("3 colaboradores com usuário único, sem campo de senha, cada um com um operador", () => {
+    expect(COLABORADORES).toHaveLength(3);
+    expect(new Set(COLABORADORES.map((c) => c.usuario)).size).toBe(3);
     for (const c of COLABORADORES) {
       expect(c).not.toHaveProperty("senha");
       expect(OPERADORES).toContain(c.nome);
@@ -146,7 +134,7 @@ describe("seedDataset: cadastros", () => {
 
   test("acesso negado só para quem está Negado na Equipe do Figma", () => {
     const negados = COLABORADORES.filter((c) => c.acessoNegado).map((c) => c.usuario);
-    expect(negados).toEqual(["RafaelLima", "BeatrizAlves", "FernandaDias", "PauloNunes", "LarissaRocha", "DiegoMartins"]);
+    expect(negados).toEqual([]);
   });
 
   test("credenciais fixas: admin@admin.com e senha asdasdasd", () => {
@@ -222,7 +210,7 @@ describe("seedDataset: incidentes", () => {
   test("forcaImpacto de 3 a 9 e status pendente ou resolvido, em todas as empilhadeiras", () => {
     const todos = EMPILHADEIRAS.flatMap((_, i) => gerarIncidentes("f", "o", i));
 
-    expect(todos).toHaveLength(32);
+    expect(todos).toHaveLength(8);
     for (const i of todos) {
       expect(i.forcaImpacto).toBeGreaterThanOrEqual(3);
       expect(i.forcaImpacto).toBeLessThanOrEqual(9);
@@ -233,7 +221,7 @@ describe("seedDataset: incidentes", () => {
   test("nenhum incidente fica depois de 2026-10-13 (a data em que o seed foi escrito)", () => {
     const ultimo = Math.max(...EMPILHADEIRAS.flatMap((_, i) => gerarIncidentes("f", "o", i).map((x) => x.dataIncidente.getTime())));
 
-    expect(new Date(ultimo).toISOString()).toBe("2026-10-02T10:00:00.000Z");
+    expect(new Date(ultimo).toISOString()).toBe("2026-08-15T10:00:00.000Z");
     expect(ultimo).toBeLessThanOrEqual(Date.UTC(2026, 9, 13));
   });
 
@@ -241,6 +229,6 @@ describe("seedDataset: incidentes", () => {
     expect(gerarIncidentes("f1", "o1", 3)).toEqual(gerarIncidentes("f1", "o1", 3));
 
     const datas = EMPILHADEIRAS.flatMap((_, i) => gerarIncidentes("f", "o", i).map((x) => x.dataIncidente.toISOString()));
-    expect(new Set(datas).size).toBe(32);
+    expect(new Set(datas).size).toBe(8);
   });
 });

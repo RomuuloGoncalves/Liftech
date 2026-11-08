@@ -61,25 +61,24 @@ describe('EmployeeSkeleton home styles', () => {
   // Conta da altura real do MachineListCard sem data/hora:
   // - Topo (.cardTop): 37px
   //   (.nome com --fs-md 13px * 1.45 = 18.85px + gap 2px + .identificacao com --fs-xs 11px * 1.45 = 15.95px ≈ 37px)
-  // - Divisor (.cardDivider): 1px (hr border-top: 1px solid var(--line))
   // - Rodapé (.cardBottom): 43px
   //   (InfoField Setor: rótulo line-height 17px + valor line-height 17px = 34px;
   //    padding-top: 8px; border-top: 1px solid var(--line) -> 34 + 8 + 1 = 43px)
   // - Casca (.card de Card.module.css):
-  //   2 gaps de 8px entre os 3 blocos filhos = 16px
+  //   1 gap de 8px entre os 2 blocos filhos = 8px
   //   padding superior e inferior de 12px = 24px
   //   bordas superior e inferior de 1px = 2px
-  // Total: 37 + 1 + 43 + 16 + 24 + 2 = 123px
-  it('card without date and time is 123px: 37 top + 1 divider + 43 bottom + 2 gaps of 8 + 24 padding + 2 borders', () => {
+  // Total: 37 + 43 + 8 + 24 + 2 = 114px (a única linha é o border-top do rodapé)
+  it('card without date and time is 114px: 37 top + 43 bottom + 1 gap of 8 + 24 padding + 2 borders', () => {
     const top = num(block(skeleton, '.cardTop'), 'height')
     const bottom = num(block(skeleton, '.cardBottom'), 'height')
-    const total = top + 1 + bottom + 2 * cardGap + 2 * cardPad + 2 * cardBorder
+    const total = top + bottom + cardGap + 2 * cardPad + 2 * cardBorder
     expect(top).toBe(37)
     expect(bottom).toBe(43)
     expect(cardGap).toBe(8)
     expect(cardPad).toBe(12)
     expect(cardBorder).toBe(1)
-    expect(total).toBe(123)
+    expect(total).toBe(114)
   })
 
   it('card parts keep the MachineListCard paddings: 12px card, 8px above the bottom, 16px between fields, 28px action', () => {
@@ -118,22 +117,21 @@ describe('EmployeeSkeleton home styles', () => {
 describe('EmployeeSkeleton list and history styles', () => {
   // Conta da altura real do MachineListCard com data/hora (histórico):
   // - Topo (.cardTop): 37px
-  // - Divisor (.cardDivider): 1px
   // - Rodapé (.cardExtra .cardBottom): 60px
   //   (InfoField Setor: 34px; InfoField DateTime: rótulo 17px + 2 linhas de valor de 17px = 51px;
   //    padding-top: 8px; border-top: 1px solid var(--line) -> 51 + 8 + 1 = 60px)
   // - Casca (.card de Card.module.css):
-  //   2 gaps de 8px = 16px
+  //   1 gap de 8px = 8px
   //   padding = 24px
   //   bordas = 2px
-  // Total: 37 + 1 + 60 + 16 + 24 + 2 = 140px
-  it('card with date and time is 140px: 37 top + 1 divider + 60 bottom + 2 gaps of 8 + 24 padding + 2 borders', () => {
+  // Total: 37 + 60 + 8 + 24 + 2 = 131px
+  it('card with date and time is 131px: 37 top + 60 bottom + 1 gap of 8 + 24 padding + 2 borders', () => {
     const top = num(block(skeleton, '.cardTop'), 'height')
     const bottom = num(block(skeleton, '.cardExtra .cardBottom'), 'height')
-    const total = top + 1 + bottom + 2 * cardGap + 2 * cardPad + 2 * cardBorder
+    const total = top + bottom + cardGap + 2 * cardPad + 2 * cardBorder
     expect(top).toBe(37)
     expect(bottom).toBe(60)
-    expect(total).toBe(140)
+    expect(total).toBe(131)
   })
 
   it('history column keeps the 12px page gap and the filters 8px apart, with 36px fields like the page', () => {

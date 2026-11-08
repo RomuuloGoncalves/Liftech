@@ -1,4 +1,6 @@
 // Dados de exemplo do seed, os mesmos do mock do front (Frontend/src/data/machines.ts e team.ts).
+// Seed REDUZIDO para a simulação: 4 máquinas (uma por coluna do kanban: Acidentes, Ativas, Manutenção, Disponíveis), os operadores delas e poucos logins.
+// Os itens removidos estão comentados, não apagados.
 
 const TITAN = "Empilhadeira Elétrica Titan-X";
 const ATLAS = "Empilhadeira a Combustão Atlas-S";
@@ -25,6 +27,7 @@ export const FICHAS = [
     horarioEntrada: "08:00",
     horarioSaida: "17:00",
   },
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "João Pereira",
     matricula: "EMP-087",
@@ -33,6 +36,8 @@ export const FICHAS = [
     horarioEntrada: "14:00",
     horarioSaida: "22:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Marina Costa",
     matricula: "EMP-088",
@@ -41,6 +46,8 @@ export const FICHAS = [
     horarioEntrada: "08:00",
     horarioSaida: "17:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Rafael Lima",
     matricula: "EMP-089",
@@ -49,6 +56,8 @@ export const FICHAS = [
     horarioEntrada: "22:00",
     horarioSaida: "06:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Beatriz Alves",
     matricula: "EMP-090",
@@ -57,6 +66,8 @@ export const FICHAS = [
     horarioEntrada: "08:00",
     horarioSaida: "17:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Fernanda Dias",
     matricula: "EMP-091",
@@ -65,6 +76,7 @@ export const FICHAS = [
     horarioEntrada: "09:00",
     horarioSaida: "18:00",
   },
+  */
   {
     nome: "Alexandre Gomes",
     matricula: "EMP-095",
@@ -73,6 +85,7 @@ export const FICHAS = [
     horarioEntrada: "08:00",
     horarioSaida: "17:00",
   },
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Alexandre Mattos",
     matricula: "EMP-084",
@@ -81,6 +94,8 @@ export const FICHAS = [
     horarioEntrada: "08:00",
     horarioSaida: "17:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Paulo Nunes",
     matricula: "EMP-092",
@@ -89,6 +104,8 @@ export const FICHAS = [
     horarioEntrada: "07:00",
     horarioSaida: "16:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Larissa Rocha",
     matricula: "EMP-093",
@@ -97,6 +114,8 @@ export const FICHAS = [
     horarioEntrada: "08:00",
     horarioSaida: "17:00",
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     nome: "Diego Martins",
     matricula: "EMP-094",
@@ -105,6 +124,7 @@ export const FICHAS = [
     horarioEntrada: "14:00",
     horarioSaida: "22:00",
   },
+  */
 ];
 
 export const OPERADORES = FICHAS.map((f) => f.nome);
@@ -154,6 +174,7 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "manutencao",
     tempoSessaoMinutos: 5,
   },
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-085",
     nome: ATLAS,
@@ -163,6 +184,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     operador: "João Pereira",
     tempoSessaoMinutos: 34,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-086",
     nome: TITAN,
@@ -171,6 +194,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "offline",
     tempoSessaoMinutos: 0,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-087",
     nome: ATLAS,
@@ -180,6 +205,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     operador: "Marina Costa",
     tempoSessaoMinutos: 47,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-088",
     nome: TITAN,
@@ -188,6 +215,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "disponivel",
     tempoSessaoMinutos: 34,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-089",
     nome: TITAN,
@@ -196,6 +225,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "alerta",
     tempoSessaoMinutos: 34,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-090",
     nome: ATLAS,
@@ -204,6 +235,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "manutencao",
     tempoSessaoMinutos: 2,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-091",
     nome: TITAN,
@@ -213,6 +246,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     operador: "Rafael Lima",
     tempoSessaoMinutos: 34,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-092",
     nome: TITAN,
@@ -222,6 +257,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     operador: "Beatriz Alves",
     tempoSessaoMinutos: 21,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-093",
     nome: ATLAS,
@@ -230,6 +267,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "disponivel",
     tempoSessaoMinutos: 34,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-094",
     nome: TITAN,
@@ -238,6 +277,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "offline",
     tempoSessaoMinutos: 0,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-095",
     nome: TITAN,
@@ -246,6 +287,8 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     status: "disponivel",
     tempoSessaoMinutos: 34,
   },
+  */
+  /* Fora do seed reduzido (descomente para voltar ao dataset completo):
   {
     identificacao: "EMP-096",
     nome: ATLAS,
@@ -255,6 +298,7 @@ export const EMPILHADEIRAS: EmpilhadeiraSeed[] = [
     operador: "Fernanda Dias",
     tempoSessaoMinutos: 34,
   },
+  */
 ];
 
 // O dispositivo guarda só a conectividade; o status da máquina fica na empilhadeira.
@@ -265,18 +309,18 @@ export const DISPOSITIVOS = EMPILHADEIRAS.map(({ enderecoMac, status }, i) => ({
 }));
 
 // Todos com SENHA_PADRAO. O acesso negado segue a Equipe do Figma; colaborador@colaborador.com é o login fixo de teste.
-export const COLABORADORES = [
-  { nome: "Alexandre Mattos", usuario: "AlexandreMattos" },
+export const COLABORADORES: { nome: string; usuario: string; acessoNegado?: boolean }[] = [
+  // { nome: "Alexandre Mattos", usuario: "AlexandreMattos" },
   { nome: "Carlos Silva", usuario: "CarlosSilva" },
   { nome: "Ana Souza", usuario: "AnaSouza" },
-  { nome: "João Pereira", usuario: "JoaoPereira" },
-  { nome: "Marina Costa", usuario: "MarinaCosta" },
-  { nome: "Rafael Lima", usuario: "RafaelLima", acessoNegado: true },
-  { nome: "Beatriz Alves", usuario: "BeatrizAlves", acessoNegado: true },
-  { nome: "Fernanda Dias", usuario: "FernandaDias", acessoNegado: true },
-  { nome: "Paulo Nunes", usuario: "PauloNunes", acessoNegado: true },
-  { nome: "Larissa Rocha", usuario: "LarissaRocha", acessoNegado: true },
-  { nome: "Diego Martins", usuario: "DiegoMartins", acessoNegado: true },
+  // { nome: "João Pereira", usuario: "JoaoPereira" },
+  // { nome: "Marina Costa", usuario: "MarinaCosta" },
+  // { nome: "Rafael Lima", usuario: "RafaelLima", acessoNegado: true },
+  // { nome: "Beatriz Alves", usuario: "BeatrizAlves", acessoNegado: true },
+  // { nome: "Fernanda Dias", usuario: "FernandaDias", acessoNegado: true },
+  // { nome: "Paulo Nunes", usuario: "PauloNunes", acessoNegado: true },
+  // { nome: "Larissa Rocha", usuario: "LarissaRocha", acessoNegado: true },
+  // { nome: "Diego Martins", usuario: "DiegoMartins", acessoNegado: true },
   { nome: "Alexandre Gomes", usuario: "colaborador@colaborador.com" },
 ];
 
@@ -307,19 +351,19 @@ export const filialDoOperador = (nome: string) => {
   return (usuario && FILIAIS_DOS_COLABORADORES[usuario]?.[0]) ?? MATRIZ_NOME;
 };
 
-// Filiais de cada colaborador (chave: usuario). PauloNunes tem duas, para testar o seletor.
+// Filiais de cada colaborador (chave: usuario). No seed completo, PauloNunes tem duas, para testar o seletor.
 export const FILIAIS_DOS_COLABORADORES: Record<string, string[]> = {
-  AlexandreMattos: [MATRIZ_NOME],
+  // AlexandreMattos: [MATRIZ_NOME],
   CarlosSilva: [MATRIZ_NOME],
   AnaSouza: [MATRIZ_NOME],
-  JoaoPereira: ["Unidade Norte"],
-  MarinaCosta: ["Unidade Centro"],
-  RafaelLima: ["Unidade Norte"],
-  BeatrizAlves: [MATRIZ_NOME],
-  FernandaDias: ["Unidade Centro"],
-  PauloNunes: ["Unidade Centro", "Unidade Norte"],
-  LarissaRocha: ["Unidade Centro"],
-  DiegoMartins: ["Unidade Norte"],
+  // JoaoPereira: ["Unidade Norte"],
+  // MarinaCosta: ["Unidade Centro"],
+  // RafaelLima: ["Unidade Norte"],
+  // BeatrizAlves: [MATRIZ_NOME],
+  // FernandaDias: ["Unidade Centro"],
+  // PauloNunes: ["Unidade Centro", "Unidade Norte"],
+  // LarissaRocha: ["Unidade Centro"],
+  // DiegoMartins: ["Unidade Norte"],
   "colaborador@colaborador.com": [MATRIZ_NOME],
 };
 
@@ -335,12 +379,15 @@ export const SOLICITACOES = [
 
 const HORA_MS = 3_600_000;
 const DIA_MS = 24 * HORA_MS;
-const PRIMEIRA_LEITURA = Date.UTC(2026, 8, 1, 8);
 const PRIMEIRO_INCIDENTE = Date.UTC(2026, 7, 1, 10);
 
-// Datas fixas (não relativas a "agora"): são a chave do upsert, então não mudam entre execuções.
-export function gerarTelemetria(dispositivoId: string) {
-  return Array.from({ length: 5 }, (_, i) => ({ dispositivoId, dataDados: new Date(PRIMEIRA_LEITURA + i * HORA_MS) }));
+// Gera 5 leituras dentro dos últimos 7 dias contados de agora (de hora em hora até agora).
+export function gerarTelemetria(dispositivoId: string, agora = new Date()) {
+  const agoraMs = agora instanceof Date ? agora.getTime() : new Date(agora).getTime();
+  return Array.from({ length: 5 }, (_, i) => ({
+    dispositivoId,
+    dataDados: new Date(agoraMs - (4 - i) * HORA_MS),
+  }));
 }
 
 // Só a máquina em alerta tem incidente pendente (1 pendente + 1 resolvido); as outras, 2 resolvidos.

@@ -11,6 +11,8 @@ export interface Incidente {
   status: string;
   origem: 'sensor' | 'funcionario';
   descricao: string | null;
+  tipo?: string | null;
+  filialId?: string;
 }
 
 export interface Ocorrencia {

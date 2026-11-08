@@ -3,6 +3,11 @@
   position: relative;
 }
 
+.offline {
+  background: var(--gray-bg);
+  border-color: var(--gray-border);
+}
+
 .topRow {
   display: flex;
   align-items: flex-start;

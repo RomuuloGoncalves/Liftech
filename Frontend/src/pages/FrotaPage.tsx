@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { CirclePlus, Plus, Search, Copy, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
@@ -10,6 +10,7 @@ import FleetRow from '../components/fleet/FleetRow'
 import MachinePickerModal from '../components/fleet/MachinePickerModal'
 import MachineDetailModal from '../components/machines/MachineDetailModal'
 import { useActiveBranch } from '../context/ActiveBranchContext'
+import { useLive } from '../context/LiveContext'
 import {
   addMachines,
   deleteCategory,
@@ -26,6 +27,7 @@ import { authService } from '../services/authService'
 import { categoryService, type Categoria } from '../services/categoryService'
 import { machineService } from '../services/machineService'
 import { sectorService, type Setor } from '../services/sectorService'
+import type { MaquinaStreamEvento } from './VisaoGeralPage'
 import styles from './FrotaPage.module.css'
 
 type Dialog =
@@ -98,10 +100,9 @@ const FrotaPage: React.FC = () => {
     }
   }, [filialId, attempt])
 
-  const retry = () => {
-    setLoadState('loading')
+  const retry = useCallback(() => {
     setAttempt((value) => value + 1)
-  }
+  }, [])
 
   // Só o escopo empresa cria, edita e exclui categorias (o backend responde 403 para filiais).
   const canManage = authService.getSession()?.escopo === 'empresa'
@@ -129,6 +130,68 @@ const FrotaPage: React.FC = () => {
       setTimeout(() => setArrivedIds((prev) => new Set([...prev].filter((id) => !ids.includes(id)))), ARRIVE_MS)
     )
   }
+
+  const handleLiveMaquina = useCallback(
+    (evento: MaquinaStreamEvento) => {
+      if (filialId && evento.filialId && evento.filialId !== filialId) {
+        return
+      }
+
+      const currentMachine = machines.find((m) => m.id === evento.id)
+      if (!currentMachine) {
+        retry()
+        return
+      }
+
+      const isLocked =
+        evento.categoriaTravada !== undefined
+          ? evento.categoriaTravada
+          : currentMachine.categoriaTravada
+
+      setMachines((prev) =>
+        prev.map((m) => {
+          if (m.id !== evento.id) return m
+          return {
+            ...m,
+            status: evento.status ?? m.status,
+            categoriaId: isLocked
+              ? m.categoriaId
+              : evento.categoriaId !== undefined
+                ? evento.categoriaId
+                : m.categoriaId,
+            categoriaTravada: isLocked,
+            alertaEm: evento.alertaEm !== undefined ? evento.alertaEm : m.alertaEm,
+            alertaTipos:
+              evento.alertaTipos !== undefined ? evento.alertaTipos : m.alertaTipos,
+            dispositivoOffline:
+              evento.dispositivoOffline !== undefined
+                ? evento.dispositivoOffline
+                : m.dispositivoOffline,
+          }
+        })
+      )
+
+      if (!isLocked && evento.categoriaId !== undefined) {
+        if (evento.categoriaId) {
+          const exists = board.some((c) => c.id === evento.categoriaId)
+          if (exists) {
+            const currentCat = board.find((c) => c.machineIds.includes(evento.id))
+            if (currentCat?.id !== evento.categoriaId) {
+              setBoard((prev) => moveMachine(prev, evento.id, evento.categoriaId!))
+              markArrived([evento.id])
+            }
+          } else {
+            setBoard((prev) => removeMachine(prev, evento.id))
+          }
+        } else {
+          setBoard((prev) => removeMachine(prev, evento.id))
+        }
+      }
+    },
+    [filialId, machines, board, retry]
+  )
+
+  useLive<MaquinaStreamEvento>('maquina', handleLiveMaquina, retry)
 
   /** Aplica na hora, chama a API e volta ao estado anterior com aviso se falhar (MOV-07, MOV-08). */
   const persist = (apply: () => void, call: () => Promise<unknown>) => {
@@ -232,7 +295,14 @@ const FrotaPage: React.FC = () => {
       <div className={styles.page}>
         <div role="alert" className={styles.errorState}>
           <p>{t('machines.loadError')}</p>
-          <button type="button" className={styles.createButton} onClick={retry}>
+          <button
+            type="button"
+            className={styles.createButton}
+            onClick={() => {
+              setLoadState('loading')
+              retry()
+            }}
+          >
             {t('common.retry')}
           </button>
         </div>

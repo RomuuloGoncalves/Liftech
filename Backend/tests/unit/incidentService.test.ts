@@ -4,6 +4,7 @@ import { WorkSession } from "../../src/schemas/workSession.js";
 import { Forklift } from "../../src/schemas/forklift.js";
 import { Operator } from "../../src/schemas/operator.js";
 import { aplicarStatus } from "../../src/feature/machine/statusService.js";
+import { publicar } from "../../src/feature/stream/streamHub.js";
 import { reportar, listar, formatar } from "../../src/feature/incident/incidentService.js";
 import { ErroHttp } from "../../src/utils/responseHandler.js";
 import type { Escopo } from "../../src/core/escopo.js";
@@ -17,6 +18,7 @@ import { Sector } from "../../src/schemas/sector.js";
 const SETOR = "665f1c2b9a1e4b00123456c1";
 vi.mock("../../src/feature/machine/machineService.js", () => ({ obterMaquina: vi.fn() }));
 vi.mock("../../src/feature/machine/statusService.js", () => ({ aplicarStatus: vi.fn() }));
+vi.mock("../../src/feature/stream/streamHub.js", () => ({ publicar: vi.fn() }));
 
 const lean = (valor: unknown) => ({ lean: vi.fn().mockResolvedValue(valor) }) as any;
 
@@ -85,6 +87,23 @@ describe("reportar", () => {
       origem: "funcionario",
       descricao: "Pneu furado",
     });
+  });
+
+  test("publica o incidente no stream da filial da sessão, com filialId, para o pop-up abrir na hora", async () => {
+    const incidente = await reportar(usuario, { descricao: "Pneu furado" });
+
+    expect(publicar).toHaveBeenCalledTimes(1);
+    expect(publicar).toHaveBeenCalledWith("incidente", FILIAL, { ...incidente, filialId: FILIAL });
+  });
+
+  test("falha ao publicar no stream não desfaz a ocorrência", async () => {
+    vi.mocked(publicar).mockImplementationOnce(() => {
+      throw new Error("stream fora");
+    });
+
+    const incidente = await reportar(usuario, {});
+
+    expect(incidente._id).toBe(INCIDENTE);
   });
 
   test("sem horario: agora; sem descricao: null", async () => {
