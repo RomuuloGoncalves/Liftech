@@ -115,3 +115,14 @@ Plano em `PLANO-V2.md`. O que mudou em relação à v1:
 - Bandeiras (flag-icons, MIT) nos 7 idiomas: Brasil, EUA, Espanha, Alemanha, França, Japão, Rússia.
 - 51 efeitos sonoros da biblioteca Pixabay incluída nas skills (`public/sfx/`), 18–22 dB abaixo da voz, no máximo 1 a cada 0,7 s.
 - Gerador da v1 preservado em `work/build-v1.mjs` / `work/style-v1.css`. Prévia: `PREVIEW=56 node work/build.mjs`.
+
+## 13. Versão 3 (gravação de 29/10)
+
+Plano em `PLANO-V3.md`. Bruto guardado em `source/pitch-v3-bruto.mp4` (o take 1 antigo e o backup não estão mais em Downloads; a v1/v2 e `work/cut-raw.mov` continuam aqui).
+- Um take, duas câmeras já intercaladas (aberta/fechada). Os 4 cortes de câmera caem dentro de pausas e viram as próprias emendas do EDL (`work/edl.mjs`, que marca `cam` em cada trecho). Câmera fechada com +brilho e leve aquecimento para casar com a aberta.
+- Corte: 13,8–217,0 s, pausas ≥0,9 s encurtadas → 3:11 de fala + 2 s de cartela = **3:13**. Áudio: -16,1 LUFS, pico -1,1 dB, sem clipping.
+- Legendas: `work/caps.mjs` → `captions-v3.*` (89), a partir de `work/words-v3.json`, sem as repetições entre blocos do Whisper.
+- `work/build.mjs`: enquadramentos por câmera (fechada no máximo 1,15×), cenas reancoradas, checklist removido (a fala saiu), lower-third "Victor" no "Muito obrigado", layouts `.narrow` para a câmera fechada. Gerador da v2 preservado em `build-v2.mjs` / `style-v2.css`.
+- Prévia: `PREVIEW=45 node work/build.mjs` → `output/previa-v3-0-45.mp4`. Completo: `node work/build.mjs` e `npx hyperframes render public -o output/liftech-pitch-editado-v3.mp4 --fps 30`.
+- Equipe: nesta gravação ele abre a mão para o lado **esquerdo** da tela (fonte 45,2–47,2 s). A câmera vai para médio-direita e as fotos saem da mão dele para o canto superior esquerdo.
+- Render completo: `output/liftech-pitch-editado-v3.mp4` (3:13, 1080p30, 137 MB, -16,1 LUFS, pico -1,0 dB).
