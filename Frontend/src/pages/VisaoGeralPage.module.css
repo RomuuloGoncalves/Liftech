@@ -84,6 +84,12 @@
   left: 12px;
   color: var(--text);
   pointer-events: none;
+  z-index: 2;
+}
+
+.selectContainer {
+  width: auto;
+  min-width: 160px;
 }
 
 .statusSelect {

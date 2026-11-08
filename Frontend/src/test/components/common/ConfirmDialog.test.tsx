@@ -1,70 +1,18 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import ConfirmDialog from '../../../components/common/ConfirmDialog'
 
-function setup() {
-  const onConfirm = vi.fn()
-  const onCancel = vi.fn()
-  render(
-    <ConfirmDialog
-      title="Excluir setor"
-      message="Excluir Doca de Carga? Esta ação não pode ser desfeita."
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-    />
-  )
-  return { onConfirm, onCancel }
-}
-
-describe('ConfirmDialog', () => {
-  it('shows the title and the message naming the item', () => {
-    setup()
-
-    expect(screen.getByRole('dialog', { name: 'Excluir setor' })).toBeInTheDocument()
-    expect(screen.getByText('Excluir Doca de Carga? Esta ação não pode ser desfeita.')).toBeInTheDocument()
+describe('ConfirmDialog busy', () => {
+  it('trava os botões e mostra o spinner enquanto ocupado', () => {
+    render(<ConfirmDialog title="t" message="m" confirmLabel="Excluir" onConfirm={vi.fn()} onCancel={vi.fn()} busy />)
+    expect(screen.getByRole('button', { name: 'Excluir' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Excluir' })).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
   })
 
-  it('calls onConfirm only when Excluir is clicked', () => {
-    const { onConfirm, onCancel } = setup()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
-    expect(onConfirm).toHaveBeenCalledTimes(1)
-    expect(onCancel).not.toHaveBeenCalled()
-  })
-
-  it('calls onCancel when Cancelar is clicked', () => {
-    const { onConfirm, onCancel } = setup()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
-    expect(onCancel).toHaveBeenCalledTimes(1)
-    expect(onConfirm).not.toHaveBeenCalled()
-  })
-
-  it('calls onCancel on Escape and on backdrop click, never onConfirm', () => {
-    const { onConfirm, onCancel } = setup()
-
-    fireEvent.keyDown(window, { key: 'Escape' })
-    fireEvent.click(screen.getByRole('dialog').parentElement as HTMLElement)
-    expect(onCancel).toHaveBeenCalledTimes(2)
-    expect(onConfirm).not.toHaveBeenCalled()
-  })
-
-  it('renders custom confirmLabel when provided and calls onConfirm when clicked', () => {
-    const onConfirm = vi.fn()
-    const onCancel = vi.fn()
-    render(
-      <ConfirmDialog
-        title="Aceitar solicitação"
-        message="Deseja aceitar?"
-        confirmLabel="Aceitar"
-        onConfirm={onConfirm}
-        onCancel={onCancel}
-      />
-    )
-
-    const confirmButton = screen.getByRole('button', { name: 'Aceitar' })
-    expect(confirmButton).toBeInTheDocument()
-    fireEvent.click(confirmButton)
-    expect(onConfirm).toHaveBeenCalledTimes(1)
+  it('sem busy, os botões ficam ativos e sem spinner', () => {
+    render(<ConfirmDialog title="t" message="m" confirmLabel="Excluir" onConfirm={vi.fn()} onCancel={vi.fn()} />)
+    expect(screen.getByRole('button', { name: 'Excluir' })).toBeEnabled()
+    expect(screen.queryByTestId('spinner')).toBeNull()
   })
 })

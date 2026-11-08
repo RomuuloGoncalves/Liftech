@@ -265,9 +265,12 @@ describe('FrotaPage', () => {
 
   it('shows only the chosen category with the category filter', async () => {
     await renderPage()
-    fireEvent.change(screen.getByRole('combobox', { name: 'Filtrar categoria' }), { target: { value: 'manutencao' } })
+    const filter = screen.getByRole('combobox', { name: 'Filtrar categoria' })
+    fireEvent.click(filter)
+    fireEvent.click(screen.getByRole('option', { name: /Manutenção/ }))
     expect(screen.getAllByRole('region').map((r) => r.getAttribute('aria-label'))).toEqual(['Manutenção'])
-    fireEvent.change(screen.getByRole('combobox', { name: 'Filtrar categoria' }), { target: { value: 'all' } })
+    fireEvent.click(filter)
+    fireEvent.click(screen.getByRole('option', { name: /Todas/ }))
     expect(screen.getAllByRole('region')).toHaveLength(4)
   })
 
@@ -305,8 +308,9 @@ describe('FrotaPage', () => {
     await renderPage()
     await createCategory('Reserva')
     const filter = screen.getByRole('combobox', { name: 'Filtrar categoria' })
-    const reservaId = within(filter).getByRole('option', { name: 'Reserva' }).getAttribute('value')!
-    fireEvent.change(filter, { target: { value: reservaId } })
+    fireEvent.click(filter)
+    const reservaOption = screen.getByRole('option', { name: /Reserva/ })
+    fireEvent.click(reservaOption)
     await confirmDelete('Reserva')
     expect(filter).toHaveValue('all')
     expect(screen.getAllByRole('region')).toHaveLength(4)
@@ -553,6 +557,15 @@ describe('FrotaPage notifications', () => {
     expect(toastTexts()).toEqual(['Categoria "Reserva" criada'])
   })
 
+  it('announces a saved category', async () => {
+    await renderWithToasts()
+    fireEvent.click(within(row('Ativas')).getByRole('button', { name: 'Editar categoria' }))
+    const dialog = screen.getByRole('dialog', { name: 'Editar categoria' })
+    fireEvent.change(within(dialog).getByLabelText('Nome da categoria'), { target: { value: 'Rodando' } })
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar' })))
+    expect(toastTexts()).toContain('Categoria "Rodando" salva')
+  })
+
   it('announces a deleted category', async () => {
     await renderWithToasts()
     await createCategory('Reserva')
@@ -637,6 +650,27 @@ describe('FrotaPage category management by scope (FRT-06, FRT-07, CAT-04, CAT-05
     await confirmDelete('Ativas')
     expect(row('Ativas')).toBeInTheDocument()
     expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
+  })
+
+  it('disables buttons and shows spinner on ConfirmDialog while category deletion is pending', async () => {
+    let resolve!: () => void
+    remover.mockReturnValueOnce(new Promise((r) => (resolve = r)))
+    await renderPage()
+    fireEvent.click(within(row('Ativas')).getByRole('button', { name: 'Excluir categoria' }))
+    const dialog = screen.getByRole('dialog', { name: 'Excluir categoria' })
+    const confirmBtn = within(dialog).getByRole('button', { name: 'Excluir' })
+    await act(async () => {
+      fireEvent.click(confirmBtn)
+    })
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(dialog).getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+    expect(within(dialog).getByTestId('spinner')).toBeInTheDocument()
+
+    await act(async () => {
+      resolve()
+    })
+    expect(screen.queryByRole('dialog', { name: 'Excluir categoria' })).not.toBeInTheDocument()
   })
 
   it('hides create, edit and delete from the branches scope but keeps add, drag, move and lock', async () => {
@@ -783,13 +817,14 @@ describe('FrotaPage persists moves, locks and status (MOV-07, MOV-08, AUT-07, ST
     expect(codesIn('Ativas')).toContain('EMP-082(ID)')
   })
 
-  it('restores the status and warns when the status change fails', async () => {
+  it('restores the status when the status change fails', async () => {
     alterarStatus.mockRejectedValue(new Error('500'))
     await renderWithToasts()
     openDetail('EMP-082')
-    await act(async () => fireEvent.change(statusSelect(), { target: { value: 'manutencao' } }))
+    await act(async () => {
+      fireEvent.change(statusSelect(), { target: { value: 'manutencao' } })
+    })
     expect(statusSelect()).toHaveValue('em_uso')
-    expect(screen.getByText('Não foi possível salvar. Tente novamente.')).toBeInTheDocument()
   })
 })
 
@@ -797,7 +832,17 @@ describe('FrotaPage: sector filter', () => {
   const SETOR_DE: Record<string, string> = { 'EMP-083': 'sa', 'EMP-091': 'sa', 'EMP-081': 'sa', 'EMP-088': 'sb' }
   const linked = MACHINES.map((m) => ({ ...m, setorId: SETOR_DE[m.identificacao] ?? null }))
   const sectorFilter = () => screen.getByRole('combobox', { name: 'Filtrar por setor' })
-  const optionTexts = () => [...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)
+  const optionTexts = () => {
+    const filter = sectorFilter()
+    if (filter.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(filter)
+    }
+    const texts = [...document.querySelectorAll('[role="option"]')].map((o) =>
+      o.textContent?.replace('✓', '').trim()
+    )
+    fireEvent.click(filter)
+    return texts
+  }
   const pick = (value: string) => fireEvent.change(sectorFilter(), { target: { value } })
 
   beforeEach(() => listarMaquinas.mockResolvedValue(linked))

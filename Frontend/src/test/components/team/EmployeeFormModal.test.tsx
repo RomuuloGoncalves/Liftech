@@ -292,3 +292,45 @@ describe('EmployeeFormModal (edit, employee without login)', () => {
     expect(screen.getByText('Este usuário já está em uso')).toBeInTheDocument()
   })
 })
+
+describe('EmployeeFormModal saving state', () => {
+  it('disables fields and button, shows spinner and aria-busy while onSave is pending', async () => {
+    let resolveSave!: () => void
+    const onSave = vi.fn().mockImplementation(() => new Promise<void>((res) => { resolveSave = res }))
+    renderForm({ onSave })
+
+    fillRequired()
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmar' })
+    fireEvent.click(confirmBtn)
+
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(screen.getByText('Salvando...')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome funcionário')).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+
+    // Second click does not double-submit
+    fireEvent.click(confirmBtn)
+    expect(onSave).toHaveBeenCalledTimes(1)
+
+    // Resolve
+    resolveSave()
+  })
+
+  it('frees controls and preserves data when onSave rejects', async () => {
+    const onSave = vi.fn().mockRejectedValue(new Error('Network error'))
+    renderForm({ onSave })
+
+    fillRequired()
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmar' })
+    fireEvent.click(confirmBtn)
+
+    await screen.findByRole('button', { name: 'Confirmar' })
+    expect(screen.getByRole('button', { name: 'Confirmar' })).toBeEnabled()
+    expect(screen.queryByTestId('spinner')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Nome funcionário')).toHaveValue('Maria Lima')
+    expect(screen.getByLabelText('Nome funcionário')).toBeEnabled()
+  })
+})

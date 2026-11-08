@@ -3,6 +3,7 @@ import { CirclePlus, Plus, Search, Copy, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import PageSkeleton, { SkeletonBlock } from '../components/common/PageSkeleton'
+import Select from '../components/common/Select'
 import { useToast } from '../components/common/Toast'
 import CategoryFormModal from '../components/fleet/CategoryFormModal'
 import FleetCard from '../components/fleet/FleetCard'
@@ -22,7 +23,7 @@ import {
   type CategoryKey,
   type FleetCategory,
 } from '../data/fleet'
-import { type Machine } from '../data/machines'
+import { type Machine, type MachineStatus } from '../data/machines'
 import { authService } from '../services/authService'
 import { categoryService, type Categoria } from '../services/categoryService'
 import { machineService } from '../services/machineService'
@@ -63,6 +64,7 @@ const FrotaPage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [sectorFilter, setSectorFilter] = useState('Todos')
   const [dialog, setDialog] = useState<Dialog>(null)
+  const [deletingCategory, setDeletingCategory] = useState(false)
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [overRowId, setOverRowId] = useState<string | null>(null)
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(() => new Set())
@@ -275,6 +277,49 @@ const FrotaPage: React.FC = () => {
   const deleting = dialog?.type === 'delete' ? board.find((c) => c.id === dialog.categoryId) : undefined
   const detail = dialog?.type === 'detail' ? machinesById.get(dialog.machineId) : undefined
 
+  const handleModalChangeStatus = (status: MachineStatus): Promise<Machine | undefined> => {
+    if (!detail) return Promise.resolve(undefined)
+    const before = { board, machines }
+    replaceMachine({ ...detail, status })
+    const promise = (async () => {
+      try {
+        const saved = await machineService.alterarStatus(detail.id, status)
+        replaceMachine(saved)
+        if (saved.categoriaId !== detail.categoriaId) {
+          const exists = board.some((c) => c.id === saved.categoriaId)
+          setBoard((prev) => (exists ? moveMachine(prev, saved.id, saved.categoriaId!) : removeMachine(prev, saved.id)))
+          if (exists) markArrived([saved.id])
+        }
+        return saved
+      } catch (err) {
+        setBoard(before.board)
+        setMachines(before.machines)
+        throw err
+      }
+    })()
+    promise.catch(() => {})
+    return promise
+  }
+
+  const handleModalToggleLock = (valor: boolean): Promise<Machine | undefined> => {
+    if (!detail) return Promise.resolve(undefined)
+    const before = { board, machines }
+    replaceMachine({ ...detail, categoriaTravada: valor })
+    const promise = (async () => {
+      try {
+        const saved = await machineService.travar(detail.id, valor)
+        replaceMachine(saved)
+        return saved
+      } catch (err) {
+        setBoard(before.board)
+        setMachines(before.machines)
+        throw err
+      }
+    })()
+    promise.catch(() => {})
+    return promise
+  }
+
   if (loadState === 'loading') {
     return (
       <div className={styles.page}>
@@ -325,35 +370,37 @@ const FrotaPage: React.FC = () => {
         </label>
         <div className={styles.selectWrapper}>
           <Copy size={16} className={styles.selectLeftIcon} aria-hidden="true" />
-          <select
-            className={styles.filter}
-            aria-label={t('fleet.filterLabel')}
+          <Select
+            className={styles.selectContainer}
+            buttonClassName={styles.filter}
+            ariaLabel={t('fleet.filterLabel')}
             value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-          >
-            <option value="all">{t('fleet.filterAll')}</option>
-            {board.map((category) => (
-              <option key={category.id} value={category.id}>
-                {labelOf(category)}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setCategoryFilter(val)}
+            options={[
+              { value: 'all', label: t('fleet.filterAll') },
+              ...board.map((category) => ({
+                value: category.id,
+                label: labelOf(category),
+              })),
+            ]}
+          />
         </div>
         <div className={styles.selectWrapper}>
           <MapPin size={16} className={styles.selectLeftIcon} aria-hidden="true" />
-          <select
-            className={styles.filter}
-            aria-label={t('machines.filterSectorLabel')}
+          <Select
+            className={styles.selectContainer}
+            buttonClassName={styles.filter}
+            ariaLabel={t('machines.filterSectorLabel')}
             value={sectorFilter}
-            onChange={(event) => setSectorFilter(event.target.value)}
-          >
-            <option value="Todos">{t('machines.filterSectorAll')}</option>
-            {sectors.map((sector) => (
-              <option key={sector._id} value={sector._id}>
-                {sectorLabel(sector)}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setSectorFilter(val)}
+            options={[
+              { value: 'Todos', label: t('machines.filterSectorAll') },
+              ...sectors.map((sector) => ({
+                value: sector._id,
+                label: sectorLabel(sector),
+              })),
+            ]}
+          />
         </div>
         {canManage && (
           <button type="button" className={styles.createButton} onClick={() => openForm()}>
@@ -414,6 +461,7 @@ const FrotaPage: React.FC = () => {
               const { nome, ...rest } = values
               const saved = await categoryService.atualizar(editing.id, nome === labelOf(editing) ? rest : values)
               setBoard((prev) => prev.map((c) => (c.id === saved._id ? { ...rowOf(saved), machineIds: c.machineIds } : c)))
+              show(t('fleet.toastCategorySaved', { name: values.nome }))
             } else {
               const saved = await categoryService.criar(values)
               setBoard((prev) => [...prev, rowOf(saved)])
@@ -448,21 +496,25 @@ const FrotaPage: React.FC = () => {
         <ConfirmDialog
           title={t('fleet.deleteCategory')}
           message={t('fleet.deleteCategoryMessage', { name: labelOf(deleting) })}
+          busy={deletingCategory}
           onConfirm={async () => {
-            close()
+            if (deletingCategory) return
+            setDeletingCategory(true)
             try {
               await categoryService.remover(deleting.id)
+              // O backend tira as máquinas da categoria e destrava (CAT-04).
+              setMachines((prev) =>
+                prev.map((m) => (m.categoriaId === deleting.id ? { ...m, categoriaId: null, categoriaTravada: false } : m))
+              )
+              setBoard((prev) => deleteCategory(prev, deleting.id))
+              show(t('fleet.toastCategoryDeleted', { name: labelOf(deleting) }))
+              setCategoryFilter((prev) => (prev === deleting.id ? 'all' : prev))
+              close()
             } catch {
               showError(t('fleet.saveError'))
-              return
+            } finally {
+              setDeletingCategory(false)
             }
-            // O backend tira as máquinas da categoria e destrava (CAT-04).
-            setMachines((prev) =>
-              prev.map((m) => (m.categoriaId === deleting.id ? { ...m, categoriaId: null, categoriaTravada: false } : m))
-            )
-            setBoard((prev) => deleteCategory(prev, deleting.id))
-            show(t('fleet.toastCategoryDeleted', { name: labelOf(deleting) }))
-            setCategoryFilter((prev) => (prev === deleting.id ? 'all' : prev))
           }}
           onCancel={close}
         />
@@ -472,10 +524,8 @@ const FrotaPage: React.FC = () => {
           machine={detail}
           onClose={close}
           variant="fleet"
-          onChangeStatus={(status) => updateMachine(detail, { status }, () => machineService.alterarStatus(detail.id, status))}
-          onToggleLock={(valor) =>
-            updateMachine(detail, { categoriaTravada: valor }, () => machineService.travar(detail.id, valor))
-          }
+          onChangeStatus={handleModalChangeStatus}
+          onToggleLock={handleModalToggleLock}
         />
       )}
     </div>

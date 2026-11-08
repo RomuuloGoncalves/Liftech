@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import type { Machine } from '../../data/machines'
 import type { Filial } from '../../services/authService'
 import type { Setor } from '../../services/sectorService'
+import Select from '../common/Select'
+import Spinner from '../common/Spinner'
 import styles from './NewMachinePanel.module.css'
 
 export interface NewMachineFormValues {
@@ -27,7 +29,7 @@ interface NewMachinePanelProps {
   /** Branch of a new machine when the form has no branch picker. */
   defaultFilialId?: string
   onClose: () => void
-  onCreate: (values: NewMachineFormValues) => void
+  onCreate: (values: NewMachineFormValues) => void | Promise<void>
 }
 
 const EMPTY_FORM: NewMachineFormValues = {
@@ -42,6 +44,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
   const { t } = useTranslation()
   const isEdit = machine !== undefined
   const showBranch = !isEdit && branches.length >= 2
+  const [saving, setSaving] = useState(false)
   const [values, setValues] = useState<NewMachineFormValues>(
     machine
       ? {
@@ -63,11 +66,11 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape' && !saving) onClose()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+  }, [onClose, saving])
 
   const updateField = (field: keyof NewMachineFormValues) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -75,17 +78,22 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
     setValues((prev) => ({ ...prev, [field]: event.target.value }))
   }
 
-  // A sector belongs to one branch: a new branch drops the picked sector.
-  const changeBranch = (event: React.ChangeEvent<HTMLSelectElement>) =>
-    setValues((prev) => ({ ...prev, filialId: event.target.value, setorId: '' }))
-
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) onClose()
+    if (!saving && event.target === event.currentTarget) onClose()
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    onCreate(values)
+    if (saving) return
+    setSaving(true)
+    try {
+      await onCreate(values)
+      onClose()
+    } catch {
+      // Falha mantém o formulário aberto com os dados preenchidos
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -103,7 +111,13 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
               <h2 className={styles.title}>{title}</h2>
               <p className={styles.subtitle}>{subtitle}</p>
             </div>
-            <button type="button" className={styles.closeButton} aria-label={t('common.close')} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.closeButton}
+              aria-label={t('common.close')}
+              onClick={onClose}
+              disabled={saving}
+            >
               <X size={18} />
             </button>
           </div>
@@ -117,6 +131,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
                 placeholder="Ex: Empilhadeira Elétrica Titan-X"
                 value={values.nome}
                 onChange={updateField('nome')}
+                disabled={saving}
                 required
               />
             </label>
@@ -129,32 +144,43 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
                 placeholder="EMP-084"
                 value={values.identificacao}
                 onChange={updateField('identificacao')}
+                disabled={saving}
                 required
               />
             </label>
 
             <label className={styles.field}>
               <span className={styles.label}>{t('machines.labelSector')}</span>
-              <select className={styles.input} value={values.setorId} onChange={updateField('setorId')}>
-                <option value="">{t('machines.sectorNone')}</option>
-                {branchSectors.map((sector) => (
-                  <option key={sector._id} value={sector._id}>
-                    {sector.nome}
-                  </option>
-                ))}
-              </select>
+              <Select
+                value={values.setorId}
+                onChange={(val) => setValues((prev) => ({ ...prev, setorId: val }))}
+                ariaLabel={t('machines.labelSector')}
+                disabled={saving}
+                options={[
+                  { value: '', label: t('machines.sectorNone') },
+                  ...branchSectors.map((sector) => ({
+                    value: sector._id,
+                    label: sector.nome,
+                  })),
+                ]}
+              />
             </label>
 
             {showBranch && (
               <label className={styles.field}>
                 <span className={styles.label}>{t('machines.labelBranch')}</span>
-                <select className={styles.input} value={values.filialId} onChange={changeBranch}>
-                  {branches.map((branch) => (
-                    <option key={branch._id} value={branch._id}>
-                      {branch.nome}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  value={values.filialId ?? ''}
+                  onChange={(val) =>
+                    setValues((prev) => ({ ...prev, filialId: val, setorId: '' }))
+                  }
+                  ariaLabel={t('machines.labelBranch')}
+                  disabled={saving}
+                  options={branches.map((branch) => ({
+                    value: branch._id,
+                    label: branch.nome,
+                  }))}
+                />
               </label>
             )}
 
@@ -168,6 +194,7 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
                 placeholder="AA:BB:CC:DD:EE:FF"
                 value={values.nomeDispositivo}
                 onChange={updateField('nomeDispositivo')}
+                disabled={saving}
               />
             </label>
 
@@ -179,16 +206,28 @@ const NewMachinePanel: React.FC<NewMachinePanelProps> = ({ machine, branches = [
                 placeholder="AA:BB:CC:DD:EE:FF"
                 value={values.enderecoMac}
                 onChange={updateField('enderecoMac')}
+                disabled={saving}
                 required
               />
             </label>
           </div>
 
           <div className={styles.footer}>
-            <button type="submit" className={styles.submitButton}>
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={saving}
+              aria-busy={saving}
+            >
+              {saving && <Spinner />}
               {isEdit ? t('machines.editMachineSubmit') : t('common.save')}
             </button>
-            <button type="button" className={styles.cancelButton} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={onClose}
+              disabled={saving}
+            >
               {t('common.cancel')}
             </button>
           </div>

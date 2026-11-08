@@ -89,4 +89,15 @@ describe('SolicitarAcessoPage', () => {
     expect(screen.queryByText('ou')).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Entrar Agora!' })).not.toBeInTheDocument()
   })
+
+  it('disables submit button and shows spinner with aria-busy while pending', async () => {
+    vi.mocked(authService.solicitarAcesso).mockReturnValue(new Promise(() => {}))
+    renderPage()
+    fillAndSubmit('contato@empresa.com', 'Empresa LTDA', 'Maria Souza')
+
+    const button = await screen.findByRole('button', { name: 'Solicitar acesso' })
+    expect(button).toBeDisabled()
+    expect(button).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+  })
 })

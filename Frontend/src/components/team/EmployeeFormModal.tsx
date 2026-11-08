@@ -2,6 +2,8 @@ import React, { useId, useState } from 'react'
 import { Clock, Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
+import Select from '../common/Select'
+import Spinner from '../common/Spinner'
 import buttons from '../common/DialogButtons.module.css'
 import { isUsernameTaken, type Employee } from '../../data/team'
 import type { Filial } from '../../services/authService'
@@ -25,7 +27,7 @@ interface EmployeeFormModalProps {
   existing: Employee[]
   /** With 2+ branches the create form asks which branch the employee belongs to. */
   branches?: Filial[]
-  onSave: (values: EmployeeFormValues) => void
+  onSave: (values: EmployeeFormValues) => Promise<void> | void
   onClose: () => void
 }
 
@@ -53,12 +55,14 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
   })
   const [errors, setErrors] = useState<Errors>({})
   const [showPassword, setShowPassword] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const update = (field: keyof EmployeeFormValues) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setValues((prev) => ({ ...prev, [field]: event.target.value }))
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (saving) return
     const next: Errors = {}
     const usuario = values.usuario.trim()
     // Create needs the login; an edit without login may add one, usuario and senha together.
@@ -83,14 +87,21 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
     setErrors(next)
     if (Object.keys(next).length > 0) return
 
-    onSave({
-      ...values,
-      nome: values.nome.trim(),
-      cargo: values.cargo.trim(),
-      usuario: values.usuario.trim(),
-      telefone: values.telefone.trim(),
-      senha: values.senha.trim() === '' ? '' : values.senha,
-    })
+    setSaving(true)
+    try {
+      await onSave({
+        ...values,
+        nome: values.nome.trim(),
+        cargo: values.cargo.trim(),
+        usuario: values.usuario.trim(),
+        telefone: values.telefone.trim(),
+        senha: values.senha.trim() === '' ? '' : values.senha,
+      })
+    } catch {
+      // Keeps form open with entered data on error
+    } finally {
+      setSaving(false)
+    }
   }
 
   const field = (
@@ -127,7 +138,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${id}-error` : undefined}
             autoComplete="off"
-            disabled={options.disabled}
+            disabled={saving || options.disabled}
           />
           {isPassword && (
             <button
@@ -135,6 +146,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
               className={styles.rightButton}
               aria-label={showPassword ? t('team.hidePassword') : t('team.showPassword')}
               onClick={() => setShowPassword((prev) => !prev)}
+              disabled={saving}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -150,7 +162,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
   }
 
   return (
-    <Modal title={employee ? t('team.editEmployeeTitle') : t('team.newEmployeeTitle')} onClose={onClose}>
+    <Modal title={employee ? t('team.editEmployeeTitle') : t('team.newEmployeeTitle')} onClose={saving ? () => {} : onClose}>
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {field('nome', t('team.labelEmployeeName'), t('team.phEmployeeName'))}
         {field('telefone', t('team.labelPhone'), t('team.phPhone'), { type: 'tel' })}
@@ -164,13 +176,16 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
             <label htmlFor={`${uid}-filialId`} className={styles.label}>
               {t('machines.labelBranch')}
             </label>
-            <select id={`${uid}-filialId`} className={styles.input} value={values.filialId} onChange={update('filialId')}>
-              {branches.map((branch) => (
-                <option key={branch._id} value={branch._id}>
-                  {branch.nome}
-                </option>
-              ))}
-            </select>
+            <Select
+              id={`${uid}-filialId`}
+              value={values.filialId ?? ''}
+              disabled={saving}
+              onChange={(val) => setValues((prev) => ({ ...prev, filialId: val }))}
+              options={branches.map((branch) => ({
+                value: branch._id,
+                label: branch.nome,
+              }))}
+            />
           </div>
         )}
         <div className={styles.divider} />
@@ -178,11 +193,12 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ employee, existin
         {field('usuario', t('team.labelUsername'), t('team.phUsername'), { disabled: hasLogin })}
         {field('senha', t('team.labelPassword'), hasLogin ? t('team.phPasswordKeep') : t('team.phPassword'), { icon: 'password' })}
         <div className={buttons.actions}>
-          <button type="button" className={buttons.cancel} onClick={onClose}>
+          <button type="button" className={buttons.cancel} onClick={onClose} disabled={saving}>
             {t('common.cancel')}
           </button>
-          <button type="submit" className={buttons.confirm}>
-            {t('team.confirm')}
+          <button type="submit" className={buttons.confirm} disabled={saving} aria-busy={saving}>
+            {saving && <Spinner />}
+            {saving ? t('common.saving') : t('team.confirm')}
           </button>
         </div>
       </form>

@@ -49,7 +49,7 @@ export function formatElapsed(seconds: number): string {
 
 export function useWorkSession() {
   const { t } = useTranslation()
-  const { showError } = useToast()
+  const { show, showError } = useToast()
   const { session, ready } = useSyncExternalStore(subscribe, () => state)
   const [now, setNow] = useState(() => Date.now())
 
@@ -65,25 +65,27 @@ export function useWorkSession() {
     async (machineId: string) => {
       try {
         set({ session: await sessionService.iniciar(machineId), ready: true })
+        show(t('employee.session.started'))
         return true
       } catch {
         showError(t('employee.session.startError'))
         return false
       }
     },
-    [showError, t]
+    [show, showError, t]
   )
 
   const end = useCallback(async () => {
     try {
       await sessionService.encerrar()
       set({ session: null, ready: true })
+      show(t('employee.session.ended'))
       return true
     } catch {
       showError(t('employee.session.endError'))
       return false
     }
-  }, [showError, t])
+  }, [show, showError, t])
 
   const elapsedSeconds = session ? Math.max(0, Math.floor((now - Date.parse(session.inicio)) / 1000)) : 0
 

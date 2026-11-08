@@ -5,6 +5,7 @@ import { Info } from 'lucide-react'
 import { authService, type UsuarioLogado } from '../../services/authService'
 import { feedbackService } from '../../services/feedbackService'
 import { useToast } from '../../components/common/Toast'
+import Spinner from '../../components/common/Spinner'
 import dialogButtons from '../../components/common/DialogButtons.module.css'
 import styles from './EmployeeSettingsPage.module.css'
 
@@ -99,14 +100,17 @@ const EmployeeSettingsPage: React.FC = () => {
           maxLength={1000}
           value={feedbackTexto}
           onChange={(e) => setFeedbackTexto(e.target.value)}
+          disabled={enviandoFeedback}
         />
         <button
           type="button"
           className={`${dialogButtons.confirm} ${styles.send}`}
           disabled={!feedbackValido || enviandoFeedback}
           onClick={handleEnviarFeedback}
+          aria-busy={enviandoFeedback}
         >
-          {t('feedback.send')}
+          {enviandoFeedback && <Spinner size={14} />}
+          {enviandoFeedback ? t('feedback.sending') : t('feedback.send')}
         </button>
       </section>
 

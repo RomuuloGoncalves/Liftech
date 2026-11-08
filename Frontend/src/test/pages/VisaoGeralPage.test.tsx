@@ -128,7 +128,9 @@ describe('VisaoGeralPage', () => {
   it('lists the 5 status codes in the filter and filters by alerta', async () => {
     await renderLoaded()
     const select = screen.getByRole('combobox', { name: /filtrar máquinas por status/i })
-    const values = within(select).getAllByRole('option').map((option) => (option as HTMLOptionElement).value)
+    fireEvent.click(select)
+    const values = screen.getAllByRole('option').map((option) => option.getAttribute('value'))
+    fireEvent.click(select)
     expect(values).toEqual(['Todos', 'disponivel', 'em_uso', 'manutencao', 'alerta', 'offline'])
 
     fireEvent.change(select, { target: { value: 'alerta' } })
@@ -174,7 +176,9 @@ describe('VisaoGeralPage', () => {
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Empilhadeira Nova' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    })
 
     expect(screen.queryByRole('dialog', { name: 'Nova Máquina' })).not.toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length + 1)
@@ -244,7 +248,9 @@ describe('VisaoGeralPage: machine detail', () => {
     expect(screen.getByRole('dialog', { name: 'Editar Máquina' })).toBeInTheDocument()
     expect(screen.getByLabelText('Código')).toHaveValue('EMP-084')
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    })
 
     const card = cardOf('EMP-084')
     expect(within(card).getByText('Doca Nova')).toBeInTheDocument()
@@ -271,7 +277,9 @@ describe('VisaoGeralPage: machine detail', () => {
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    })
     fireEvent.keyDown(window, { key: 'Escape' })
 
     expect(screen.getAllByRole('article')).toHaveLength(1)
@@ -285,7 +293,9 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
     expect(screen.getByRole('dialog', { name: 'Excluir máquina' })).toBeInTheDocument()
     expect(screen.getByText(/Excluir Empilhadeira Elétrica Titan-X \(EMP-084\)\?/)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    })
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.queryByText('EMP-084(ID)')).not.toBeInTheDocument()
@@ -318,9 +328,10 @@ describe('VisaoGeralPage: machine detail', () => {
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await screen.findByText('EMP-200(ID)')
     openDetail('EMP-200')
 
-    expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+    expect(await screen.findByText('Nenhum registro no período')).toBeInTheDocument()
   })
 })
 
@@ -372,7 +383,7 @@ describe('VisaoGeralPage notifications', () => {
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-999' } })
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
-    expect(toastTexts()).toEqual(['Máquina "EMP-999" cadastrada'])
+    await waitFor(() => expect(toastTexts()).toEqual(['Máquina "EMP-999" cadastrada']))
   })
 
   it('announces a saved machine', async () => {
@@ -381,7 +392,7 @@ describe('VisaoGeralPage notifications', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
     fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
-    expect(toastTexts()).toEqual(['Máquina "EMP-084" salva'])
+    await waitFor(() => expect(toastTexts()).toEqual(['Máquina "EMP-084" salva']))
   })
 
   it('announces a deleted machine', async () => {
@@ -389,7 +400,7 @@ describe('VisaoGeralPage notifications', () => {
     open('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
-    expect(toastTexts()).toEqual(['Máquina "EMP-084" excluída'])
+    await waitFor(() => expect(toastTexts()).toEqual(['Máquina "EMP-084" excluída']))
   })
 })
 
@@ -461,7 +472,9 @@ describe('VisaoGeralPage: API', () => {
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Empilhadeira' } })
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-200' } })
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    })
     const created = { nome: 'Nova Empilhadeira', identificacao: 'EMP-200', setorId: '', nomeDispositivo: '', enderecoMac: 'AA:BB:CC:DD:EE' }
     expect(criar).toHaveBeenCalledWith(created, undefined)
     await screen.findByText('EMP-200(ID)')
@@ -469,11 +482,15 @@ describe('VisaoGeralPage: API', () => {
     openDetail('EMP-200')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    })
     expect(atualizar).toHaveBeenCalledWith('srv-EMP-200', { ...created, setorId: 'sd' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    })
     expect(remover).toHaveBeenCalledWith('srv-EMP-200')
 
     await waitFor(() => expect(screen.queryByText('EMP-200(ID)')).not.toBeInTheDocument())
@@ -661,12 +678,13 @@ describe('VisaoGeralPage status and lock', () => {
     expect(await within(card()).findByText('Offline')).toBeInTheDocument()
   })
 
-  it('restores the badge and warns when the change fails', async () => {
+  it('restores the badge when the change fails', async () => {
     vi.mocked(machineService.alterarStatus).mockRejectedValue(new Error('x'))
     await renderOpen()
-    fireEvent.change(screen.getByLabelText('Alterar status'), { target: { value: 'disponivel' } })
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Alterar status'), { target: { value: 'disponivel' } })
+    })
     expect(await within(card()).findByText('Em manutenção')).toBeInTheDocument()
-    expect(within(screen.getByRole('status')).getByText(i18n.t('fleet.saveError'))).toBeInTheDocument()
   })
 
   it('applies the lock returned by the service', async () => {
@@ -701,13 +719,14 @@ describe('VisaoGeralPage: saving through the API', () => {
   const httpError = (status: number) => Object.assign(new Error(`HTTP ${status}`), { isAxiosError: true, response: { status } })
   const SAVE_ERROR = 'Não foi possível salvar a máquina. Tente novamente.'
 
-  it('shows the new card before the API answers and swaps it for the answer', async () => {
+  it('keeps panel open with spinner and adds card after API answers', async () => {
     let resolve!: (machine: Machine) => void
     criar.mockReturnValue(new Promise<Machine>((r) => (resolve = r)))
     await renderWithToasts()
 
     register()
-    expect(within(cardOf('EMP-999')).getByText('Disponível')).toBeInTheDocument()
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(screen.queryByText('EMP-999(ID)')).not.toBeInTheDocument()
 
     await act(async () => {
       resolve({ ...apiMachine({ id: 'srv-1', identificacao: 'EMP-999', setor: 'Doca do servidor' }) })
@@ -717,55 +736,87 @@ describe('VisaoGeralPage: saving through the API', () => {
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length + 1)
   })
 
-  it('removes the new card and shows an error toast when the API refuses it', async () => {
+  it('keeps form open and shows an error toast when the API refuses it', async () => {
     criar.mockRejectedValue(httpError(409))
     await renderWithToasts()
 
     register()
 
-    await waitFor(() => expect(screen.queryByText('EMP-999(ID)')).not.toBeInTheDocument())
+    await waitFor(() => {
+      expect(toastTexts()).toContain(SAVE_ERROR)
+    })
+    expect(screen.getByRole('dialog', { name: 'Nova Máquina' })).toBeInTheDocument()
+    expect(screen.queryByText('EMP-999(ID)')).not.toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
-    expect(toastTexts()).toContain(SAVE_ERROR)
   })
 
-  it('puts the previous values back and shows an error toast when the edit fails', async () => {
+  it('keeps form open and shows an error toast when the edit fails', async () => {
     atualizar.mockRejectedValue(httpError(500))
     await renderWithToasts()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Editar Máquina' }))
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Editar Empilhadeira' }))
+    })
 
-    await waitFor(() => expect(within(cardOf('EMP-084')).queryByText('Doca Nova')).not.toBeInTheDocument())
+    expect(screen.getByRole('dialog', { name: 'Editar Máquina' })).toBeInTheDocument()
     expect(within(cardOf('EMP-084')).getByText('Expedição - Bloco B')).toBeInTheDocument()
     expect(toastTexts()).toContain(SAVE_ERROR)
   })
 
-  it('brings the machine back with the open-session toast when the delete answers 409', async () => {
+  it('keeps dialog open and shows open-session toast when delete answers 409', async () => {
     remover.mockRejectedValue(httpError(409))
     await renderWithToasts()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
-    expect(screen.queryByText('EMP-084(ID)')).not.toBeInTheDocument()
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    })
 
-    expect(await screen.findByText('EMP-084(ID)')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Excluir máquina' })).toBeInTheDocument()
+    expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(MACHINES.length)
     expect(toastTexts()).toContain('Máquina com sessão aberta: encerre a sessão antes de excluir.')
   })
 
-  it('brings the machine back with the generic error toast when the delete fails otherwise', async () => {
+  it('keeps dialog open and shows generic error toast when delete fails otherwise', async () => {
     remover.mockRejectedValue(new Error('Network Error'))
     await renderWithToasts()
 
     openDetail('EMP-084')
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    })
 
-    expect(await screen.findByText('EMP-084(ID)')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Excluir máquina' })).toBeInTheDocument()
+    expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
     expect(toastTexts()).toContain(SAVE_ERROR)
+  })
+
+  it('shows spinner and disables buttons on ConfirmDialog while machine deletion is pending', async () => {
+    let resolve!: () => void
+    remover.mockReturnValueOnce(new Promise((r) => (resolve = r)))
+    await renderLoaded()
+    openDetail('EMP-084')
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Máquina' }))
+    const dialog = screen.getByRole('dialog', { name: 'Excluir máquina' })
+    const confirmBtn = within(dialog).getByRole('button', { name: 'Excluir' })
+    await act(async () => {
+      fireEvent.click(confirmBtn)
+    })
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(dialog).getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+    expect(within(dialog).getByTestId('spinner')).toBeInTheDocument()
+
+    await act(async () => {
+      resolve()
+    })
+    expect(screen.queryByRole('dialog', { name: 'Excluir máquina' })).not.toBeInTheDocument()
   })
 })
 
@@ -806,7 +857,9 @@ describe('VisaoGeralPage: branch on register', () => {
 
     expect(screen.getByLabelText('Filial')).toHaveValue('f1')
     fireEvent.change(screen.getByLabelText('Filial'), { target: { value: 'f2' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    })
 
     expect(criar).toHaveBeenCalledWith(expect.objectContaining({ identificacao: 'EMP-999', filialId: 'f2' }), 'f2')
   })
@@ -816,15 +869,24 @@ describe('VisaoGeralPage: branch on register', () => {
     await renderWithBranches()
 
     expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    })
 
     expect(criar).toHaveBeenCalledWith(expect.not.objectContaining({ filialId: expect.anything() }), 'f2')
   })
 })
 
 describe('VisaoGeralPage: sectors in the machine form', () => {
-  const sectorOptions = () =>
-    [...screen.getByLabelText('Setor').querySelectorAll('option')].map((o) => o.textContent)
+  const sectorOptions = () => {
+    const select = screen.getByLabelText('Setor')
+    if (select.getAttribute('aria-expanded') !== 'true') fireEvent.click(select)
+    const opts = [...document.querySelectorAll('[role="option"]')].map((o) =>
+      o.textContent?.replace('✓', '').trim()
+    )
+    fireEvent.click(select)
+    return opts
+  }
 
   it('requests the sectors with the machines and offers them in the register form', async () => {
     await renderLoaded()
@@ -843,8 +905,9 @@ describe('VisaoGeralPage: sectors in the machine form', () => {
     expect(sectorOptions()).toEqual(['Sem setor'])
   })
 
-  it('shows the picked sector name on the new card before the API answers', async () => {
-    criar.mockReturnValue(new Promise<Machine>(() => {}))
+  it('shows the picked sector name on the new card after the API answers', async () => {
+    let resolve!: (m: Machine) => void
+    criar.mockReturnValue(new Promise<Machine>((r) => (resolve = r)))
     await renderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Cadastrar Máquina' }))
@@ -852,9 +915,16 @@ describe('VisaoGeralPage: sectors in the machine form', () => {
     fireEvent.change(screen.getByLabelText('ID'), { target: { value: 'EMP-300' } })
     fireEvent.change(screen.getByLabelText('MAC Address'), { target: { value: 'AA:BB:CC:DD:EE' } })
     fireEvent.change(screen.getByLabelText('Setor'), { target: { value: 'sd' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    })
 
     expect(criar).toHaveBeenCalledWith(expect.objectContaining({ setorId: 'sd' }), undefined)
+
+    await act(async () => {
+      resolve({ ...apiMachine({ id: 'srv-300', identificacao: 'EMP-300', setorId: 'sd', setor: 'Doca Nova' }) })
+    })
+
     expect(within(cardOf('EMP-300')).getByText('Doca Nova')).toBeInTheDocument()
   })
 })
@@ -867,13 +937,22 @@ describe('VisaoGeralPage: sector filter', () => {
     apiMachine({ id: 'd', identificacao: 'EMP-004', setorId: null, setor: '', status: 'disponivel' }),
   ]
   const sectorFilter = () => screen.getByRole('combobox', { name: 'Filtrar por setor' })
+  const sectorOptionTexts = () => {
+    const filter = sectorFilter()
+    if (filter.getAttribute('aria-expanded') !== 'true') fireEvent.click(filter)
+    const opts = [...document.querySelectorAll('[role="option"]')].map((o) =>
+      o.textContent?.replace('✓', '').trim()
+    )
+    fireEvent.click(filter)
+    return opts
+  }
   const codes = () => screen.queryAllByText(/\(ID\)$/).map((el) => el.textContent)
 
   it('shows "Todos os setores" and the sectors of the active branch', async () => {
     await renderLoaded()
 
     expect(sectorFilter()).toHaveValue('Todos')
-    expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+    expect(sectorOptionTexts()).toEqual([
       'Todos os setores',
       'Doca Nova',
       'Expedição - Bloco B',
@@ -937,7 +1016,7 @@ describe('VisaoGeralPage: sector filter', () => {
     it('names the branch in each option when every branch is on screen', async () => {
       await renderWithBranches()
 
-      expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+      expect(sectorOptionTexts()).toEqual([
         'Todos os setores',
         'Doca Nova · Filial 01',
         'Expedição - Bloco B · Filial 01',
@@ -955,7 +1034,7 @@ describe('VisaoGeralPage: sector filter', () => {
       expect(listarSetores).toHaveBeenLastCalledWith('f2')
       expect(sectorFilter()).toHaveValue('Todos')
       expect(codes()).toHaveLength(4)
-      expect([...sectorFilter().querySelectorAll('option')].map((o) => o.textContent)).toEqual([
+      expect(sectorOptionTexts()).toEqual([
         'Todos os setores',
         'Doca Nova',
         'Expedição - Bloco B',

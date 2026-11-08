@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import axios from 'axios'
 import AuthLayout from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
+import Spinner from '../components/common/Spinner'
 import authStyles from '../components/auth/AuthForm.module.css'
 import formStyles from '../components/team/TeamForm.module.css'
 import { authService, type RoleLogin } from '../services/authService'
@@ -28,6 +29,7 @@ const LoginPage: React.FC<{ role: RoleLogin }> = ({ role }) => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (isLoading) return
     setApiError(null)
     const next: Errors = {}
     const value = login.trim()
@@ -81,10 +83,16 @@ const LoginPage: React.FC<{ role: RoleLogin }> = ({ role }) => {
           onChange={setSenha}
           accentLabel
         />
-        <button type="button" className={authStyles.forgotLink}>
+        <button type="button" disabled={isLoading} className={authStyles.forgotLink}>
           <Trans i18nKey="auth.forgotPassword" components={{ b: <strong /> }} />
         </button>
-        <button type="submit" disabled={isLoading} className={`${authStyles.submitButton} ${authStyles.loginSubmit}`}>
+        <button
+          type="submit"
+          disabled={isLoading}
+          aria-busy={isLoading}
+          className={`${authStyles.submitButton} ${authStyles.loginSubmit}`}
+        >
+          {isLoading && <Spinner />}
           {t('auth.enterButton')}
         </button>
       </form>

@@ -82,6 +82,7 @@ describe('EmployeeHomePage', () => {
     setup()
     await loaded()
     expect(screen.queryByRole('article')).not.toBeInTheDocument()
+    expect(screen.getByText('Nenhuma empilhadeira disponível encontrada')).toBeInTheDocument()
   })
 
   it('shows the two workday cards', async () => {

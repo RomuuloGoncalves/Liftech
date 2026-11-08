@@ -160,6 +160,9 @@ describe('SolicitacoesPage', () => {
     const confirm = within(dialog).getByRole('button', { name: /Aceitar/i });
 
     fireEvent.click(confirm);
+    expect(confirm).toBeDisabled();
+    expect(confirm).toHaveAttribute('aria-busy', 'true');
+    expect(within(dialog).getByTestId('spinner')).toBeInTheDocument();
     fireEvent.click(confirm);
     expect(mockAprovar).toHaveBeenCalledTimes(1);
 

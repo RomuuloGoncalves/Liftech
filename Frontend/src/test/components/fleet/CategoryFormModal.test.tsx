@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import CategoryFormModal from '../../../components/fleet/CategoryFormModal'
 
@@ -150,5 +150,27 @@ describe('CategoryFormModal linked status and edit mode (CAT-02, CAT-03, CAT-09)
     expect(nameInput()).toHaveValue('Pátio')
     expect(onClose).not.toHaveBeenCalled()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Criar Categoria' })).toBeEnabled())
+  })
+
+  it('disables controls and shows spinner during saving promise', async () => {
+    let resolve!: () => void
+    const onSubmit = vi.fn().mockImplementation(() => new Promise<void>((r) => (resolve = r)))
+    render(<CategoryFormModal existingNames={[]} onSubmit={onSubmit} onClose={vi.fn()} />)
+    fireEvent.change(nameInput(), { target: { value: 'Pátio' } })
+    const submitBtn = screen.getByRole('button', { name: 'Criar Categoria' })
+    await act(async () => {
+      fireEvent.click(submitBtn)
+    })
+
+    expect(submitBtn).toBeDisabled()
+    expect(submitBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(nameInput()).toBeDisabled()
+    expect(colorButton()).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+
+    await act(async () => {
+      resolve()
+    })
   })
 })

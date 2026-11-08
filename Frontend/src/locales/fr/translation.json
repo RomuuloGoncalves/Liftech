@@ -9,7 +9,8 @@
     "close": "Fermer",
     "loading": "Chargement...",
     "closeNotification": "Fermer la notification",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "saving": "Enregistrement..."
   },
   "navigation": {
     "overview": "Aperçu",
@@ -78,7 +79,14 @@
     "changeStatus": "Changer le statut",
     "sectorNone": "Aucun secteur",
     "filterSectorAll": "Tous les secteurs",
-    "filterSectorLabel": "Filtrer par secteur"
+    "filterSectorLabel": "Filtrer par secteur",
+    "historyDate": "Date :",
+    "idSuffix": "(ID)",
+    "historyError": "Impossible de charger l'historique.",
+    "historyRetry": "Réessayer",
+    "statusUpdated": "Statut mis à jour",
+    "lockLocked": "Catégorie verrouillée",
+    "lockUnlocked": "Catégorie déverrouillée"
   },
   "alerts": {
     "accidents": "Accidents",
@@ -207,7 +215,9 @@
     "loginError": "Erreur lors de la connexion.",
     "requestDuplicate": "Une demande est déjà en attente pour cet e-mail.",
     "requestError": "Impossible d'envoyer la demande.",
-    "tabsLabel": "Type d'accès"
+    "tabsLabel": "Type d'accès",
+    "entering": "Connexion...",
+    "requesting": "Envoi..."
   },
   "fleet": {
     "pageTitle": "Gestion des machines",
@@ -269,7 +279,8 @@
     "linkedStatus": "Statuts associés",
     "statusTaken": "Déjà associé à une autre catégorie",
     "saveError": "Impossible d'enregistrer. Veuillez réessayer.",
-    "noCategories": "Aucune catégorie enregistrée"
+    "noCategories": "Aucune catégorie enregistrée",
+    "toastCategorySaved": "Catégorie « {{name}} » enregistrée"
   },
   "employee": {
     "settings": {
@@ -290,10 +301,15 @@
     },
     "session": {
       "startError": "Impossible de démarrer la session. Réessayez.",
-      "endError": "Impossible de terminer la session. Réessayez."
+      "endError": "Impossible de terminer la session. Réessayez.",
+      "ending": "Fin en cours…",
+      "ended": "Session terminée",
+      "starting": "Démarrage…",
+      "started": "Session démarrée"
     },
     "incident": {
-      "sendError": "Impossible d'envoyer l'incident. Réessayez."
+      "sendError": "Impossible d'envoyer l'incident. Réessayez.",
+      "submitting": "Envoi en cours…"
     }
   },
   "branches": {
@@ -310,7 +326,10 @@
     "deleteMessage": "Supprimer la filiale {{name}} ?",
     "saveError": "Impossible d'enregistrer la filiale.",
     "deleteError": "Impossible de supprimer la filiale.",
-    "deleteBlocked": "Suppression impossible : la filiale est le siège ou possède encore des ressources."
+    "deleteBlocked": "Suppression impossible : la filiale est le siège ou possède encore des ressources.",
+    "toastCreated": "Filiale « {{name}} » créée",
+    "toastRenamed": "Filiale « {{name}} » renommée",
+    "toastDeleted": "Filiale « {{name}} » supprimée"
   },
   "notFound": {
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
@@ -374,7 +393,8 @@
     "placeholder": "Saisissez une suggestion d'amélioration ou un commentaire !",
     "send": "Envoyer",
     "sent": "Commentaires envoyés. Merci !",
-    "error": "Impossible d'envoyer les commentaires. Veuillez réessayer."
+    "error": "Impossible d'envoyer les commentaires. Veuillez réessayer.",
+    "sending": "Envoi en cours…"
   },
   "dashboard": {
     "navLabel": "Tableau de bord",

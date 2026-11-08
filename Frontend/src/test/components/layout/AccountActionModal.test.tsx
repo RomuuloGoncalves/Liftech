@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AxiosError, type InternalAxiosRequestConfig, type AxiosResponseHeaders } from 'axios';
 import { MemoryRouter } from 'react-router-dom';
@@ -277,6 +277,8 @@ describe('AccountActionModal', () => {
 
       fireEvent.click(saveBtn);
       expect(saveBtn).toBeDisabled();
+      expect(saveBtn).toHaveAttribute('aria-busy', 'true');
+      expect(within(saveBtn).getByTestId('spinner')).toBeInTheDocument();
       expect(cancelBtn).toBeDisabled();
 
       // Tentativa de segundo clique

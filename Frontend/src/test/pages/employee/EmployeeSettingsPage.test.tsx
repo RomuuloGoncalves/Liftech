@@ -212,6 +212,12 @@ describe('EmployeeSettingsPage', () => {
 
     expect(feedbackService.enviar).toHaveBeenCalledTimes(1)
 
+    const botaoEnviando = screen.getByRole('button', { name: /Enviando…/ })
+    expect(botaoEnviando).toBeDisabled()
+    expect(botaoEnviando).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(box).toBeDisabled()
+
     resolver()
     await waitFor(() => {
       expect(box).toHaveValue('')

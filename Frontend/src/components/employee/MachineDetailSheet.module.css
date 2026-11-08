@@ -184,8 +184,18 @@
   cursor: pointer;
 }
 
+.footerButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
 .cancel {
   background: var(--danger-solid);
+}
+
+.cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .activate {
@@ -195,4 +205,72 @@
 .activate:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.historyContainer {
+  position: relative;
+  min-height: 80px;
+}
+
+.historySkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.skeletonLine {
+  height: 20px;
+  border-radius: 4px;
+  background: var(--line);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLine:nth-child(2) {
+  width: 75%;
+}
+
+.skeletonLine:nth-child(3) {
+  width: 50%;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.historyError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.errorText {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--danger-solid);
+}
+
+.retryButton {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--blue);
+  color: var(--white);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retryButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }

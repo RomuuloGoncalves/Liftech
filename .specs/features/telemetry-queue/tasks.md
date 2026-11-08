@@ -17,7 +17,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 ## Test Coverage Matrix
 
-> Generated from codebase, project guidelines, and spec - confirm before Execute. Guidelines found: `docs/arquitetura.md` (`yarn test` roda `vitest run` nos dois projetos; `tests/integration` do Backend conecta ao banco e não entra) e `/home/romulo/Projetos/Liftech/CLAUDE.md` (sem commit). Sem `AGENTS.md` nem limite de cobertura configurado: defaults fortes aplicados.
+> Generated from codebase, project guidelines, and spec - confirm before Execute. Guidelines found: `docs/arquitetura.md` (`yarn test` roda `vitest run` nos dois projetos; `tests/integration` do Backend conecta ao banco e não entra) e as regras do projeto (sem commit). Sem `AGENTS.md` nem limite de cobertura configurado: defaults fortes aplicados.
 
 | Code Layer | Required Test Type | Coverage Expectation | Location Pattern | Run Command |
 | ---------- | ------------------ | -------------------- | ---------------- | ----------- |

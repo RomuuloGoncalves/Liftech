@@ -533,14 +533,14 @@ describe('accessRequests module translations', () => {
 });
 
 describe('feedback module translations', () => {
-  const FEEDBACK_KEYS = ['title', 'question', 'placeholder', 'send', 'sent', 'error'] as const;
+  const FEEDBACK_KEYS = ['title', 'question', 'placeholder', 'send', 'sent', 'error', 'sending'] as const;
 
-  it('pt-BR defines all 6 feedback keys', () => {
+  it('pt-BR defines all 7 feedback keys', () => {
     const ptBRFeedback = (ptBR as { feedback: Record<string, string> }).feedback;
     expect(Object.keys(ptBRFeedback).sort()).toEqual([...FEEDBACK_KEYS].sort());
   });
 
-  it.each(ALL_LOCALES)('locale $code has the same 6 feedback keys as pt-BR, all non-empty', ({ code, data }) => {
+  it.each(ALL_LOCALES)('locale $code has the same 7 feedback keys as pt-BR, all non-empty', ({ code, data }) => {
     const feedback = (data as { feedback?: Record<string, string> }).feedback;
     expect(feedback, `Locale "${code}" is missing feedback block`).toBeDefined();
     expect(Object.keys(feedback ?? {}).sort(), `Locale "${code}" feedback keys differ from pt-BR`).toEqual([...FEEDBACK_KEYS].sort());

@@ -243,3 +243,86 @@
   align-items: center;
   gap: 6px;
 }
+
+.historySkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0 10px 30px;
+  position: relative;
+}
+
+.skeletonRow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 270px;
+  padding: 8px 12px;
+  background: var(--gray-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.skeletonDot {
+  position: absolute;
+  left: -31px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.skeletonContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonLineShort {
+  width: 90px;
+  height: 12px;
+}
+
+.skeletonLineLong {
+  width: 180px;
+  height: 10px;
+}
+
+.historyError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.historyErrorMessage {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--danger-solid);
+}
+
+.historyRetryButton {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.historyRetryButton:hover {
+  border-color: var(--blue);
+}
+
+.historyRetryButton:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 1px;
+}

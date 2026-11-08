@@ -88,6 +88,16 @@
   cursor: pointer;
 }
 
+.button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .cancel {
   background: var(--danger-solid);
   color: var(--white);

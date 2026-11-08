@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import NewMachinePanel from '../../../components/machines/NewMachinePanel'
 import type { Machine } from '../../../data/machines'
@@ -8,7 +8,16 @@ const SECTORS = [
   { _id: 's2', nome: 'Recebimento - Bloco A', filialId: 'f1', filial: { nome: 'Matriz' } },
   { _id: 's3', nome: 'Doca Norte', filialId: 'f2', filial: { nome: 'Unidade Norte' } },
 ]
-const optionTexts = (select: HTMLElement) => [...select.querySelectorAll('option')].map((o) => o.textContent)
+const optionTexts = (select: HTMLElement) => {
+  if (select.getAttribute('aria-expanded') !== 'true') {
+    fireEvent.click(select)
+  }
+  const opts = [...document.querySelectorAll('[role="option"]')].map((o) => {
+    return o.textContent?.replace('✓', '').trim()
+  })
+  fireEvent.click(select)
+  return opts
+}
 
 function fillRequiredFields() {
   fireEvent.change(screen.getByLabelText('Nome'), {
@@ -112,6 +121,67 @@ describe('NewMachinePanel', () => {
     const backdrop = container.firstChild as HTMLElement
     fireEvent.click(backdrop)
     expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('disables fields, buttons and shows spinner while saving promise is pending', async () => {
+    let resolve!: () => void
+    const onCreate = vi.fn().mockImplementation(() => new Promise<void>((r) => (resolve = r)))
+    const onClose = vi.fn()
+    render(<NewMachinePanel sectors={SECTORS} onClose={onClose} onCreate={onCreate} />)
+
+    fillRequiredFields()
+    const submitBtn = screen.getByRole('button', { name: 'Salvar' })
+    await act(async () => {
+      fireEvent.click(submitBtn)
+    })
+
+    expect(onCreate).toHaveBeenCalledTimes(1)
+    expect(submitBtn).toBeDisabled()
+    expect(submitBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome')).toBeDisabled()
+    expect(screen.getByLabelText('ID')).toBeDisabled()
+    expect(screen.getByLabelText('MAC Address')).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Fechar' })).toBeDisabled()
+
+    // Does not double submit while saving
+    fireEvent.click(submitBtn)
+    expect(onCreate).toHaveBeenCalledTimes(1)
+
+    // Closes on success
+    await act(async () => {
+      resolve()
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the form open with typed values and reenables fields when saving fails', async () => {
+    let reject!: (err: Error) => void
+    const onCreate = vi.fn().mockImplementation(() => new Promise<void>((_, r) => (reject = r)))
+    const onClose = vi.fn()
+    render(<NewMachinePanel sectors={SECTORS} onClose={onClose} onCreate={onCreate} />)
+
+    fillRequiredFields()
+    const submitBtn = screen.getByRole('button', { name: 'Salvar' })
+    await act(async () => {
+      fireEvent.click(submitBtn)
+    })
+
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+
+    // Reject promise
+    await act(async () => {
+      reject(new Error('fail'))
+    })
+
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog', { name: 'Nova Máquina' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome')).toHaveValue('Empilhadeira Elétrica Titan-X')
+    expect(screen.getByLabelText('ID')).toHaveValue('EMP-100')
+    expect(screen.getByLabelText('Nome')).toBeEnabled()
+    expect(submitBtn).toBeEnabled()
+    expect(screen.queryByTestId('spinner')).not.toBeInTheDocument()
   })
 })
 
