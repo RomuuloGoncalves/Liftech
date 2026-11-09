@@ -71,7 +71,16 @@
   background: transparent;
   color: var(--text-h);
   cursor: pointer;
-  
+}
+
+.closeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .fields {
@@ -111,6 +120,11 @@
   outline-offset: 1px;
 }
 
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .divider {
   height: 1px;
   margin: 4px 0;
@@ -127,6 +141,10 @@
 }
 
 .submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   padding: 12px;
   border: none;
@@ -139,12 +157,22 @@
   transition: transform 120ms ease, opacity 120ms ease;
 }
 
-.submitButton:hover {
+.submitButton:hover:not(:disabled) {
   opacity: 0.92;
 }
 
-.submitButton:active {
+.submitButton:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .cancelButton {
@@ -157,8 +185,18 @@
   cursor: pointer;
 }
 
-.cancelButton:hover {
+.cancelButton:hover:not(:disabled) {
   text-decoration: underline;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 @media (max-width: 767px) {

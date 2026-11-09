@@ -22,6 +22,9 @@ const forkliftSchema = new Schema({
     type: conn.mongoose.Schema.Types.ObjectId,
     ref: "operator",
   },
+  ultimaLeituraEm: Date,
+  offlineDesde: { type: Date, default: null },
+  manutencaoPorOffline: { type: Boolean, default: false },
 });
 
 forkliftSchema.index({ dispositivoConectadoId: 1 }, { partialFilterExpression: { dispositivoConectadoId: { $type: "objectId" } } });

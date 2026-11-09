@@ -99,12 +99,27 @@ describe('MachineDetailSheet', () => {
     expect(within(dialog()).getByText('Nenhum registro no período')).toBeInTheDocument()
   })
 
-  it('shows the empty message, not invented records, when the API fails', async () => {
-    listar.mockRejectedValue(new Error('500'))
+  it('shows skeleton while loading history', () => {
+    setup('1')
+    expect(screen.getByTestId('history-skeleton')).toBeInTheDocument()
+    expect(screen.getByTestId('history-skeleton').parentElement).toHaveAttribute('aria-busy', 'true')
+  })
+
+  it('shows error state with retry button when history API fails, and retries on click', async () => {
+    listar.mockRejectedValueOnce(new Error('500'))
     setup('1')
     await loaded()
     expect(within(dialog()).queryByRole('listitem')).not.toBeInTheDocument()
-    expect(within(dialog()).getByText('Nenhum registro no período')).toBeInTheDocument()
+    expect(within(dialog()).queryByText('Nenhum registro no período')).not.toBeInTheDocument()
+    expect(within(dialog()).getByText('Não foi possível carregar o histórico.')).toBeInTheDocument()
+
+    const retry = within(dialog()).getByRole('button', { name: 'Tentar de novo' })
+    listar.mockImplementation(listSessions)
+    await act(async () => {
+      fireEvent.click(retry)
+    })
+    await loaded()
+    expect(within(dialog()).getAllByRole('listitem')).toHaveLength(4)
   })
 
   it('calls onClose from Cancelar', () => {
@@ -115,7 +130,7 @@ describe('MachineDetailSheet', () => {
     expect(closed).toBe(1)
   })
 
-  it('starts the session through the API and goes to /funcionario/sessao on Ativar máquina', async () => {
+  it('starts the session through the API and goes to /funcionario/sessao with toast', async () => {
     iniciar.mockResolvedValue(sessao('3'))
     setup('3')
     expect(activate()).toBeEnabled()
@@ -123,6 +138,31 @@ describe('MachineDetailSheet', () => {
       fireEvent.click(activate())
     })
     expect(iniciar).toHaveBeenCalledWith('3')
+    expect(screen.getByText('pagina da sessao')).toBeInTheDocument()
+    expect(screen.getByText('Sessão iniciada')).toBeInTheDocument()
+  })
+
+  it('shows spinner and disabled state while activating and prevents double click', async () => {
+    let resolveStart: () => void = () => {}
+    iniciar.mockReturnValue(new Promise((resolve) => { resolveStart = () => resolve(sessao('3')) }))
+    setup('3')
+    await act(async () => {
+      fireEvent.click(activate())
+    })
+
+    const activatingBtn = within(dialog()).getByRole('button', { name: /Ativando…/ })
+    expect(activatingBtn).toBeDisabled()
+    expect(activatingBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    const cancelBtn = within(dialog()).getAllByRole('button', { name: 'Cancelar' }).at(-1)!
+    expect(cancelBtn).toBeDisabled()
+
+    fireEvent.click(activatingBtn)
+    expect(iniciar).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      resolveStart()
+    })
     expect(screen.getByText('pagina da sessao')).toBeInTheDocument()
   })
 

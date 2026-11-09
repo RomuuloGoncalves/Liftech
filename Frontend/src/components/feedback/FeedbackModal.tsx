@@ -2,6 +2,7 @@ import React, { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
 import { useToast } from '../common/Toast'
+import Spinner from '../common/Spinner'
 import dialogButtons from '../common/DialogButtons.module.css'
 import { feedbackService } from '../../services/feedbackService'
 import styles from './FeedbackModal.module.css'
@@ -49,14 +50,17 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
           placeholder={t('feedback.placeholder')}
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
+          disabled={enviando}
         />
         <div className={styles.actions}>
           <button
             type="submit"
             className={`${dialogButtons.confirm} ${styles.submit}`}
             disabled={!valida || enviando}
+            aria-busy={enviando}
           >
-            {t('feedback.send')}
+            {enviando && <Spinner size={14} />}
+            {enviando ? t('feedback.sending') : t('feedback.send')}
           </button>
         </div>
       </form>

@@ -50,9 +50,9 @@ describe('Header component', () => {
 
     fireEvent.click(screen.getByText('Inglês'))
 
-    // After click, the language is English, so texts translate to English!
-    // And since we didn't close the dialog in the test (wait, click changes language AND closes the popover now!)
-    // So we need to re-open the popover to see the radios.
+    // Após o clique, o idioma é inglês, então os textos são traduzidos para o inglês!
+    // E como o clique altera o idioma E fecha o popover,
+    // precisamos reabrir o popover para ver os seletores de opção (radios).
     fireEvent.click(screen.getByRole('button', { name: /selecionar idioma/i }))
 
     expect(screen.getByRole('radio', { name: 'English' })).toHaveAttribute('aria-checked', 'true')

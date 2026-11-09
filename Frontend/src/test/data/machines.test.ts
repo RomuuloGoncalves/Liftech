@@ -5,6 +5,7 @@ import {
   eventUrgency,
   filterMachines,
   incidentToEvent,
+  urgenciaDaMaquina,
 } from '../../data/machines'
 import { MACHINES } from '../fixtures/machines'
 import type { Incidente } from '../../services/incidentService'
@@ -45,7 +46,13 @@ describe('incidentToEvent', () => {
   })
 
   it('keeps the cause urgency for mock events', () => {
-    expect(eventUrgency({ ...incidentToEvent(incident), causa: 'tombamento' })).toBe('critica')
+    expect(eventUrgency({ ...incidentToEvent(incident), causa: 'inclinacao_excessiva' })).toBe('critica')
+  })
+
+  it('uses incident.tipo when present on a sensor incident', () => {
+    const event = incidentToEvent({ ...incident, tipo: 'frenagem_brusca' })
+    expect(event.causa).toBe('frenagem_brusca')
+    expect(eventUrgency(event)).toBe('media')
   })
 })
 
@@ -135,7 +142,37 @@ describe('filterMachines', () => {
 })
 
 describe('accident cause and urgency', () => {
-  it('maps frenagem to media, colisao to alta and tombamento to critica', () => {
-    expect(ACCIDENT_URGENCY).toEqual({ frenagem: 'media', colisao: 'alta', tombamento: 'critica' })
+  it('maps the 5 causes to their fixed urgency levels (TLQ-04)', () => {
+    expect(ACCIDENT_URGENCY).toEqual({
+      colisao: 'alta',
+      frenagem_brusca: 'media',
+      aceleracao_brusca: 'media',
+      curva_brusca: 'media',
+      inclinacao_excessiva: 'critica',
+    })
+  })
+})
+
+describe('urgenciaDaMaquina', () => {
+  it('returns undefined for empty or missing alertaTipos', () => {
+    expect(urgenciaDaMaquina({ alertaTipos: [] })).toBeUndefined()
+    expect(urgenciaDaMaquina({})).toBeUndefined()
+    expect(urgenciaDaMaquina({ alertaTipos: undefined })).toBeUndefined()
+  })
+
+  it('returns the urgency for a single alert type', () => {
+    expect(urgenciaDaMaquina({ alertaTipos: ['colisao'] })).toBe('alta')
+    expect(urgenciaDaMaquina({ alertaTipos: ['frenagem_brusca'] })).toBe('media')
+    expect(urgenciaDaMaquina({ alertaTipos: ['inclinacao_excessiva'] })).toBe('critica')
+  })
+
+  it('returns the highest urgency when multiple alert types are present', () => {
+    expect(urgenciaDaMaquina({ alertaTipos: ['frenagem_brusca', 'colisao'] })).toBe('alta')
+    expect(urgenciaDaMaquina({ alertaTipos: ['colisao', 'inclinacao_excessiva'] })).toBe('critica')
+    expect(urgenciaDaMaquina({ alertaTipos: ['curva_brusca', 'inclinacao_excessiva', 'colisao'] })).toBe('critica')
+  })
+
+  it('breaks ties using the most recent alert type (first in alertaTipos)', () => {
+    expect(urgenciaDaMaquina({ alertaTipos: ['frenagem_brusca', 'aceleracao_brusca'] })).toBe('media')
   })
 })

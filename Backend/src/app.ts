@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
@@ -22,12 +22,20 @@ import resetRouter from "./feature/reset/resetRouter.js";
 import deviceRouter from "./feature/device/deviceRouter.js";
 import feedbackRouter from "./feature/feedback/feedbackRouter.js";
 import meRouter from "./feature/me/meRouter.js";
+import streamRouter from "./feature/stream/streamRouter.js";
 
 export const app = express();
 
+export function filtroCompressao(req: Request, res: Response): boolean {
+  if (req.originalUrl?.startsWith("/api/stream")) {
+    return false;
+  }
+  return compression.filter(req, res);
+}
+
 app.disable("x-powered-by");
 app.use(helmet());
-app.use(compression());
+app.use(compression({ filter: filtroCompressao }));
 
 app.use(cors());
 app.use(express.json());
@@ -85,3 +93,4 @@ app.use("/api/operators", operatorRouter);
 app.use("/api/sectors", sectorRouter);
 app.use("/api/devices", deviceRouter);
 app.use("/api/me", meRouter);
+app.use("/api/stream", streamRouter);

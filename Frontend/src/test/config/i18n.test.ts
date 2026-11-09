@@ -43,22 +43,22 @@ describe('i18n config', () => {
   });
 
   it('falls back to pt-BR value when a key is missing in the active locale', async () => {
-    // This test kills the fallbackLng mutation: if fallbackLng were changed away
-    // from 'pt-BR', this behavioral assertion would fail.
+    // Este teste valida a mutação de fallbackLng: se fallbackLng fosse alterado
+    // diferente de 'pt-BR', esta asserção comportamental falharia.
     const i18n = (await import('../../config/i18n')).default;
 
-    // Confirm en-US resource is loaded: t() returns English value
+    // Confirma que o recurso en-US está carregado: t() retorna valor em inglês
     await i18n.changeLanguage('en-US');
     expect(i18n.t('navigation.overview')).toBe('Overview');
 
-    // Confirm fallbackLng is set to 'pt-BR' (i18next normalises string → array internally)
+    // Confirma que fallbackLng está definido como 'pt-BR' (i18next normaliza string → array internamente)
     const fallback = i18n.options.fallbackLng;
     const fallbackIncludes = Array.isArray(fallback)
       ? fallback.includes('pt-BR')
       : fallback === 'pt-BR';
     expect(fallbackIncludes, 'fallbackLng must include pt-BR').toBe(true);
 
-    // Restore
+    // Restaura
     await i18n.changeLanguage('pt-BR');
   });
 });
@@ -135,7 +135,7 @@ describe('machines and team CRUD translations', () => {
     for (const path of NEW_KEYS) expect(valueOf(ptBR, path), `pt-BR ${path}`).toBeTruthy();
   });
 
-  // Translated means present, non-empty and not the Portuguese text copied over.
+  // Traduzido significa presente, não vazio e diferente do texto em português copiado.
   it.each(ALL_LOCALES.filter(({ code }) => code !== 'pt-BR'))('locale $code translates every new key', ({ code, data }) => {
     for (const path of NEW_KEYS) {
       const value = valueOf(data, path);
@@ -533,14 +533,14 @@ describe('accessRequests module translations', () => {
 });
 
 describe('feedback module translations', () => {
-  const FEEDBACK_KEYS = ['title', 'question', 'placeholder', 'send', 'sent', 'error'] as const;
+  const FEEDBACK_KEYS = ['title', 'question', 'placeholder', 'send', 'sent', 'error', 'sending'] as const;
 
-  it('pt-BR defines all 6 feedback keys', () => {
+  it('pt-BR defines all 7 feedback keys', () => {
     const ptBRFeedback = (ptBR as { feedback: Record<string, string> }).feedback;
     expect(Object.keys(ptBRFeedback).sort()).toEqual([...FEEDBACK_KEYS].sort());
   });
 
-  it.each(ALL_LOCALES)('locale $code has the same 6 feedback keys as pt-BR, all non-empty', ({ code, data }) => {
+  it.each(ALL_LOCALES)('locale $code has the same 7 feedback keys as pt-BR, all non-empty', ({ code, data }) => {
     const feedback = (data as { feedback?: Record<string, string> }).feedback;
     expect(feedback, `Locale "${code}" is missing feedback block`).toBeDefined();
     expect(Object.keys(feedback ?? {}).sort(), `Locale "${code}" feedback keys differ from pt-BR`).toEqual([...FEEDBACK_KEYS].sort());

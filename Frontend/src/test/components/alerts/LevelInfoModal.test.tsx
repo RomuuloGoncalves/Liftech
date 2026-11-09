@@ -25,13 +25,19 @@ describe('LevelInfoModal', () => {
     expect(headings).toEqual(['Crítico', 'Alta', 'Média'])
   })
 
-  it('displays the mapped cause in strong tag for each card (EXP-03)', () => {
+  it('displays the mapped causes in strong tag for each level card (EXP-03, TLQ-04)', () => {
     render(<LevelInfoModal onClose={vi.fn()} />)
     const cards = screen.getAllByRole('listitem')
     expect(cards).toHaveLength(3)
 
-    const causes = cards.map((card) => card.querySelector('strong')?.textContent)
-    expect(causes).toEqual(['tombamento', 'colisão', 'frenagem brusca'])
+    const causesByCard = cards.map((card) =>
+      Array.from(card.querySelectorAll('strong')).map((el) => el.textContent)
+    )
+    expect(causesByCard).toEqual([
+      ['inclinação excessiva'],
+      ['colisão'],
+      ['frenagem brusca', 'aceleração brusca', 'curva brusca'],
+    ])
   })
 
   it('defines --tone in .critical, .high, .medium and uses var(--tone) on card border and level title (EXP-04)', () => {
@@ -46,16 +52,16 @@ describe('LevelInfoModal', () => {
     expect(block(css, '.level')).toMatch(/color:\s*var\(--tone\)/)
   })
 
-  it('omits level without cause in ACCIDENT_URGENCY and picks first match (EXP-05)', async () => {
+  it('omits level without cause in ACCIDENT_URGENCY and renders all mapped causes (EXP-05)', async () => {
     vi.resetModules()
     vi.doMock('../../../data/machines', async () => {
       const actual = await vi.importActual<typeof import('../../../data/machines')>('../../../data/machines')
       return {
         ...actual,
         ACCIDENT_URGENCY: {
-          frenagem: 'media',
-          colisao: 'media',
-          tombamento: 'critica',
+          frenagem_brusca: 'media',
+          aceleracao_brusca: 'media',
+          inclinacao_excessiva: 'critica',
         },
       }
     })
@@ -68,7 +74,8 @@ describe('LevelInfoModal', () => {
     const mediaHeading = screen.getByRole('heading', { level: 3, name: 'Média' })
     expect(mediaHeading).toBeInTheDocument()
     const mediaCard = mediaHeading.closest('li')
-    expect(mediaCard?.querySelector('strong')?.textContent).toBe('frenagem brusca')
+    const mediaCauses = Array.from(mediaCard?.querySelectorAll('strong') ?? []).map((el) => el.textContent)
+    expect(mediaCauses).toEqual(['frenagem brusca', 'aceleração brusca'])
 
     const criticoHeading = screen.getByRole('heading', { level: 3, name: 'Crítico' })
     expect(criticoHeading).toBeInTheDocument()

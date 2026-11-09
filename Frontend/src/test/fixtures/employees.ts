@@ -1,6 +1,6 @@
 import type { Employee } from '../../data/team'
 
-/** Builds an employee as GET /operators returns it. */
+/** Constrói um funcionário como GET /operators retorna. */
 export const employee = (overrides: Partial<Employee> = {}): Employee => ({
   id: 'x',
   matricula: 'EMP-001',
@@ -18,7 +18,7 @@ export const employee = (overrides: Partial<Employee> = {}): Employee => ({
 const row = (id: string, matricula: string, nome: string, telefone: string, cargo: string, horarioEntrada: string, horarioSaida: string, usuario: string | null, acesso: Employee['acesso']) =>
   employee({ id, matricula, nome, telefone, cargo, horarioEntrada, horarioSaida, usuario, acesso })
 
-/** Stand-in for the API list: 5 allowed, 5 denied with login, 1 without login. */
+/** Substituto para a lista da API: 5 permitidos, 5 negados com login, 1 sem login. */
 export const EMPLOYEES: Employee[] = [
   row('1', 'EMP-084', 'Alexandre Mattos', '(55) 15 999999999', 'Ajudante', '08:00', '17:00', 'AlexandreMattos', 'Permitido'),
   row('2', 'EMP-085', 'Carlos Silva', '(55) 15 988887777', 'Operador', '07:00', '16:00', 'CarlosSilva', 'Permitido'),

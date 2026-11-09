@@ -9,7 +9,8 @@
     "close": "Schließen",
     "loading": "Wird geladen...",
     "closeNotification": "Hinweis schließen",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "saving": "Speichern..."
   },
   "navigation": {
     "overview": "Übersicht",
@@ -78,7 +79,14 @@
     "changeStatus": "Status ändern",
     "sectorNone": "Kein Sektor",
     "filterSectorAll": "Alle Sektoren",
-    "filterSectorLabel": "Nach Sektor filtern"
+    "filterSectorLabel": "Nach Sektor filtern",
+    "historyDate": "Datum:",
+    "idSuffix": "(ID)",
+    "historyError": "Verlauf konnte nicht geladen werden.",
+    "historyRetry": "Erneut versuchen",
+    "statusUpdated": "Status aktualisiert",
+    "lockLocked": "Kategorie gesperrt",
+    "lockUnlocked": "Kategorie entsperrt"
   },
   "alerts": {
     "accidents": "Unfälle",
@@ -207,7 +215,9 @@
     "loginError": "Fehler bei der Anmeldung.",
     "requestDuplicate": "Für diese E-Mail liegt bereits eine ausstehende Anfrage vor.",
     "requestError": "Die Anfrage konnte nicht gesendet werden.",
-    "tabsLabel": "Zugangsart"
+    "tabsLabel": "Zugangsart",
+    "entering": "Anmelden...",
+    "requesting": "Senden..."
   },
   "fleet": {
     "pageTitle": "Maschinenverwaltung",
@@ -269,7 +279,8 @@
     "linkedStatus": "Verknüpfte Status",
     "statusTaken": "Bereits mit einer anderen Kategorie verknüpft",
     "saveError": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
-    "noCategories": "Keine Kategorien vorhanden"
+    "noCategories": "Keine Kategorien vorhanden",
+    "toastCategorySaved": "Kategorie „{{name}}“ gespeichert"
   },
   "employee": {
     "settings": {
@@ -290,10 +301,15 @@
     },
     "session": {
       "startError": "Die Sitzung konnte nicht gestartet werden. Bitte erneut versuchen.",
-      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen."
+      "endError": "Die Sitzung konnte nicht beendet werden. Bitte erneut versuchen.",
+      "ending": "Wird beendet…",
+      "ended": "Sitzung beendet",
+      "starting": "Starten…",
+      "started": "Sitzung gestartet"
     },
     "incident": {
-      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen."
+      "sendError": "Der Vorfall konnte nicht gesendet werden. Bitte erneut versuchen.",
+      "submitting": "Wird gesendet…"
     }
   },
   "branches": {
@@ -310,7 +326,10 @@
     "deleteMessage": "Filiale {{name}} löschen?",
     "saveError": "Die Filiale konnte nicht gespeichert werden.",
     "deleteError": "Die Filiale konnte nicht gelöscht werden.",
-    "deleteBlocked": "Löschen nicht möglich: Die Filiale ist die Zentrale oder hat noch Ressourcen."
+    "deleteBlocked": "Löschen nicht möglich: Die Filiale ist die Zentrale oder hat noch Ressourcen.",
+    "toastCreated": "Filiale \"{{name}}\" erstellt",
+    "toastRenamed": "Filiale \"{{name}}\" umbenannt",
+    "toastDeleted": "Filiale \"{{name}}\" gelöscht"
   },
   "notFound": {
     "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
@@ -361,9 +380,11 @@
       "media": "Mittel"
     },
     "description": {
-      "tombamento": "Kritische Dringlichkeitsstufe im Zusammenhang mit einem <b>Umkippen</b>.",
       "colisao": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Kollision</b>.",
-      "frenagem": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Vollbremsung</b>."
+      "frenagem_brusca": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>Vollbremsung</b>.",
+      "aceleracao_brusca": "Kritische Dringlichkeitsstufe im Zusammenhang mit <b>starker Beschleunigung</b>.",
+      "curva_brusca": "Kritische Dringlichkeitsstufe im Zusammenhang mit einer <b>scharfen Kurve</b>.",
+      "inclinacao_excessiva": "Kritische Dringlichkeitsstufe im Zusammenhang mit <b>übermäßiger Neigung</b>."
     }
   },
   "feedback": {
@@ -372,7 +393,8 @@
     "placeholder": "Geben Sie einen Verbesserungsvorschlag oder Feedback ein!",
     "send": "Senden",
     "sent": "Feedback gesendet. Danke!",
-    "error": "Feedback konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+    "error": "Feedback konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "sending": "Wird gesendet…"
   },
   "dashboard": {
     "navLabel": "Dashboard",
@@ -421,6 +443,8 @@
   "alertModal": {
     "title": "Alarm!",
     "message": "Unfall im Sektor <b>{{setor}}</b>, <b>{{funcionario}}</b> verantwortlicher Mitarbeiter für Maschine {{maquina}}.",
+    "offlineTitle": "Platine ohne Verbindung",
+    "offlineMessage": "Die Maschine <b>{{maquina}}</b> hat keine Verbindung zum System.",
     "notInformed": "nicht angegeben",
     "ok": "Ok"
   },

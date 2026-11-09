@@ -13,7 +13,7 @@ export interface Employee {
   horarioEntrada: string
   horarioSaida: string
   filialId: string
-  // null while the employee has no login; the API never sends the password.
+  // null enquanto o funcionário não possuir login; a API nunca envia a senha.
   usuario: string | null
   acesso: Access
 }

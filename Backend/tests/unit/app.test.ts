@@ -2,7 +2,8 @@ import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import type { AddressInfo } from "node:net";
 import type { Server } from "node:http";
 import jwt from "jsonwebtoken";
-import { app } from "../../src/app.js";
+import { app, filtroCompressao } from "../../src/app.js";
+import { publicar, _resetarHub } from "../../src/feature/stream/streamHub.js";
 import { env } from "../../src/config/env.js";
 import { User } from "../../src/schemas/user.js";
 import { Branch } from "../../src/schemas/branch.js";
@@ -95,6 +96,7 @@ describe("app: rotas protegidas", () => {
     ["PUT", "/api/me"],
     ["DELETE", "/api/me"],
     ["GET", "/api/auth/login"],
+    ["GET", "/api/stream"],
     ["GET", "/api/qualquer-coisa"],
   ])("%s %s sem token: 401", async (metodo, caminho) => {
     const resposta = await chamar(metodo, caminho);
@@ -269,5 +271,45 @@ describe("segurança e compressão HTTP", () => {
 
     expect(resposta.status).toBe(200);
     expect(resposta.headers.get("content-encoding")).toBe("gzip");
+  });
+
+  test("filtro de compressão pula /api/stream e aceita as demais rotas", () => {
+    const reqStream = { originalUrl: "/api/stream", path: "/api/stream", url: "/api/stream", get: () => undefined } as any;
+    const resStream = { getHeader: () => undefined } as any;
+    expect(filtroCompressao(reqStream, resStream)).toBe(false);
+
+    const reqOutro = { originalUrl: "/api/machines", path: "/api/machines", url: "/api/machines", get: () => "gzip" } as any;
+    const resOutro = { getHeader: () => "application/json" } as any;
+    expect(filtroCompressao(reqOutro, resOutro)).toBe(true);
+  });
+});
+
+describe("app: GET /api/stream", () => {
+  test("com token válido abre text/event-stream e recebe evento publicado", async () => {
+    const controller = new AbortController();
+    const resposta = await fetch(`${base}/api/stream`, {
+      headers: {
+        Authorization: `Bearer ${token()}`,
+      },
+      signal: controller.signal,
+    });
+
+    expect(resposta.status).toBe(200);
+    expect(resposta.headers.get("content-type")).toContain("text/event-stream");
+    expect(resposta.headers.get("cache-control")).toBe("no-cache");
+    expect(resposta.headers.get("x-accel-buffering")).toBe("no");
+
+    const reader = resposta.body?.getReader();
+    expect(reader).toBeDefined();
+
+    publicar("maquina", MATRIZ, { id: "m1", status: "alerta" });
+
+    const chunk = await reader!.read();
+    const texto = new TextDecoder().decode(chunk.value);
+    expect(texto).toContain("event: maquina\n");
+    expect(texto).toContain('"id":"m1"');
+
+    controller.abort();
+    _resetarHub();
   });
 });

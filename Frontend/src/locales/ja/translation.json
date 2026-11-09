@@ -9,7 +9,8 @@
     "close": "閉じる",
     "loading": "読み込み中...",
     "closeNotification": "通知を閉じる",
-    "retry": "もう一度試す"
+    "retry": "もう一度試す",
+    "saving": "保存中..."
   },
   "navigation": {
     "overview": "概要",
@@ -78,7 +79,14 @@
     "changeStatus": "ステータスを変更",
     "sectorNone": "セクターなし",
     "filterSectorAll": "すべてのセクター",
-    "filterSectorLabel": "セクターで絞り込む"
+    "filterSectorLabel": "セクターで絞り込む",
+    "historyDate": "日付:",
+    "idSuffix": "(ID)",
+    "historyError": "履歴を読み込めませんでした。",
+    "historyRetry": "もう一度試す",
+    "statusUpdated": "ステータスを更新しました",
+    "lockLocked": "カテゴリーをロックしました",
+    "lockUnlocked": "カテゴリーのロックを解除しました"
   },
   "alerts": {
     "accidents": "事故",
@@ -207,7 +215,9 @@
     "loginError": "ログイン中にエラーが発生しました。",
     "requestDuplicate": "このメールアドレスには保留中のリクエストがすでにあります。",
     "requestError": "リクエストを送信できませんでした。",
-    "tabsLabel": "アクセスの種類"
+    "tabsLabel": "アクセスの種類",
+    "entering": "ログイン中...",
+    "requesting": "送信中..."
   },
   "fleet": {
     "pageTitle": "機械管理",
@@ -269,7 +279,8 @@
     "linkedStatus": "連動するステータス",
     "statusTaken": "すでに別のカテゴリに連動しています",
     "saveError": "保存できませんでした。もう一度お試しください。",
-    "noCategories": "カテゴリが登録されていません"
+    "noCategories": "カテゴリが登録されていません",
+    "toastCategorySaved": "カテゴリー「{{name}}」を保存しました"
   },
   "employee": {
     "settings": {
@@ -290,10 +301,15 @@
     },
     "session": {
       "startError": "セッションを開始できませんでした。もう一度お試しください。",
-      "endError": "セッションを終了できませんでした。もう一度お試しください。"
+      "endError": "セッションを終了できませんでした。もう一度お試しください。",
+      "ending": "終了中…",
+      "ended": "セッションが終了しました",
+      "starting": "開始中…",
+      "started": "セッションが開始されました"
     },
     "incident": {
-      "sendError": "インシデントを送信できませんでした。もう一度お試しください。"
+      "sendError": "インシデントを送信できませんでした。もう一度お試しください。",
+      "submitting": "送信中…"
     }
   },
   "branches": {
@@ -310,7 +326,10 @@
     "deleteMessage": "拠点「{{name}}」を削除しますか?",
     "saveError": "拠点を保存できませんでした。",
     "deleteError": "拠点を削除できませんでした。",
-    "deleteBlocked": "削除できません: 本社であるか、まだリソースがあります。"
+    "deleteBlocked": "削除できません: 本社であるか、まだリソースがあります。",
+    "toastCreated": "支店「{{name}}」を作成しました",
+    "toastRenamed": "支店「{{name}}」の名前を変更しました",
+    "toastDeleted": "支店「{{name}}」を削除しました"
   },
   "notFound": {
     "description": "お探しのページは存在しないか、移動しました。",
@@ -361,9 +380,11 @@
       "media": "中"
     },
     "description": {
-      "tombamento": "<b>横転</b>に関連する重大な緊急度レベル。",
       "colisao": "<b>衝突</b>に関連する重大な緊急度レベル。",
-      "frenagem": "<b>急ブレーキ</b>に関連する重大な緊急度レベル。"
+      "frenagem_brusca": "<b>急ブレーキ</b>に関連する重大な緊急度レベル。",
+      "aceleracao_brusca": "<b>急加速</b>に関連する重大な緊急度レベル。",
+      "curva_brusca": "<b>急旋回</b>に関連する重大な緊急度レベル。",
+      "inclinacao_excessiva": "<b>過度な傾き</b>に関連する重大な緊急度レベル。"
     }
   },
   "feedback": {
@@ -372,7 +393,8 @@
     "placeholder": "改善のご提案やフィードバックをご入力ください！",
     "send": "送信",
     "sent": "フィードバックを送信しました。ありがとうございます！",
-    "error": "フィードバックを送信できませんでした。もう一度お試しください。"
+    "error": "フィードバックを送信できませんでした。もう一度お試しください。",
+    "sending": "送信中…"
   },
   "dashboard": {
     "navLabel": "ダッシュボード",
@@ -415,6 +437,8 @@
   "alertModal": {
     "title": "警告！",
     "message": "セクター<b>{{setor}}</b>での事故、機械{{maquina}}の担当従業員<b>{{funcionario}}</b>。",
+    "offlineTitle": "基板通信途絶",
+    "offlineMessage": "機械<b>{{maquina}}</b>はシステムとの通信が途絶しています。",
     "notInformed": "未入力",
     "ok": "Ok"
   },

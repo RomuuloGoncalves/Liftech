@@ -175,7 +175,7 @@ describe('FleetRow drop target', () => {
     const onDragLeaveRow = vi.fn()
     setup(pick('EMP-082'), { onDragLeaveRow })
     const region = screen.getByRole('region', { name: 'Ativas' })
-    // jsdom's fireEvent.dragLeave drops relatedTarget; a MouseEvent of type dragleave keeps it, like browsers.
+    // O fireEvent.dragLeave do jsdom descarta o relatedTarget; um MouseEvent com tipo dragleave o preserva, como os navegadores.
     const leave = (relatedTarget: Element) =>
       region.dispatchEvent(new MouseEvent('dragleave', { bubbles: true, relatedTarget }))
     leave(within(region).getByRole('article'))

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import MachineListCard from '../../../components/employee/MachineListCard'
@@ -30,6 +32,17 @@ const setup = (props: Partial<React.ComponentProps<typeof MachineListCard>> = {}
 }
 
 describe('MachineListCard', () => {
+  it('has a single divider between top and bottom: no hr, the bottom draws the only line', () => {
+    setup()
+    expect(document.querySelector('hr')).toBeNull()
+  })
+
+  it('the bottom block carries the border-top that separates it from the top', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/employee/MachineListCard.module.css'), 'utf8')
+    expect(css).toMatch(/\.bottom\s*\{[^}]*border-top:\s*1px solid/)
+    expect(css).not.toMatch(/\.divider/)
+  })
+
   it('shows name, identification and sector', () => {
     setup()
     expect(screen.getByText('Empilhadeira 01')).toBeInTheDocument()

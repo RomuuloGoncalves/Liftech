@@ -2,6 +2,7 @@ import React, { useId, useState } from 'react'
 import { ArrowRight, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../common/Toast'
+import Spinner from '../common/Spinner'
 import { authService } from '../../services/authService'
 import { incidentService } from '../../services/incidentService'
 import { useWorkSession } from '../../hooks/useWorkSession'
@@ -99,12 +100,16 @@ const IncidentSheet: React.FC<IncidentSheetProps> = ({ open, onClose, onSubmitte
   const { t } = useTranslation()
   const { show, showError } = useToast()
   const formId = useId()
+  const [submitting, setSubmitting] = useState(false)
 
   const handleSubmitted = async (horario: string) => {
+    if (submitting) return
+    setSubmitting(true)
     try {
       await incidentService.reportar({ horario })
     } catch {
       showError(t('employee.incident.sendError'))
+      setSubmitting(false)
       return
     }
     show(t('employee.incident.toastSent'))
@@ -119,12 +124,24 @@ const IncidentSheet: React.FC<IncidentSheetProps> = ({ open, onClose, onSubmitte
       onClose={onClose}
       footer={
         <>
-          <button type="button" className={`${styles.button} ${styles.cancel}`} onClick={onClose}>
+          <button
+            type="button"
+            className={`${styles.button} ${styles.cancel}`}
+            onClick={onClose}
+            disabled={submitting}
+          >
             {t('employee.incident.cancel')}
           </button>
-          <button type="submit" form={formId} className={`${styles.button} ${styles.submit}`}>
-            {t('employee.incident.submit')}
-            <ArrowRight size={16} aria-hidden="true" />
+          <button
+            type="submit"
+            form={formId}
+            className={`${styles.button} ${styles.submit}`}
+            disabled={submitting}
+            aria-busy={submitting}
+          >
+            {submitting && <Spinner size={16} />}
+            {submitting ? t('employee.incident.submitting') : t('employee.incident.submit')}
+            {!submitting && <ArrowRight size={16} aria-hidden="true" />}
           </button>
         </>
       }

@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { CoreModel } from "./coreModel.js";
 
-// Os repositories recebem o model do Mongoose de qualquer schema.
 export type ModeloMongoose = mongoose.Model<any>;
 
 export interface OpcoesConsulta {
@@ -54,7 +53,6 @@ export abstract class RepositoryBase<T extends CoreModel> {
     await this.bd.updateMany(filtro, dados);
   }
 
-  // Atualiza o primeiro documento que casa com o filtro; devolve se algum casou.
   async atualizarUm(filtro: Record<string, unknown>, dados: Record<string, unknown>): Promise<boolean> {
     const resultado = await this.bd.updateOne(filtro, dados);
     return (resultado?.matchedCount ?? 0) > 0;
@@ -68,7 +66,6 @@ export abstract class RepositoryBase<T extends CoreModel> {
     return this.bd.countDocuments(filtro);
   }
 
-  // Apaga o primeiro documento que casa com o filtro, sem devolvê-lo; devolve se apagou algum.
   async deletarUm(filtro: Record<string, unknown>): Promise<boolean> {
     const resultado = await this.bd.deleteOne(filtro);
     return (resultado?.deletedCount ?? 0) > 0;
@@ -78,17 +75,14 @@ export abstract class RepositoryBase<T extends CoreModel> {
     await this.bd.deleteMany(filtro);
   }
 
-  // _id dos documentos que casam com o filtro.
   async obterIds(filtro: Record<string, unknown>): Promise<unknown[]> {
     return this.bd.find(filtro).distinct("_id");
   }
 
-  // Agregação do Mongo: devolve os documentos como o pipeline montou, sem converter para modelo.
   async agregar(pipeline: Record<string, unknown>[]): Promise<Record<string, any>[]> {
     return this.bd.aggregate(pipeline as unknown as mongoose.PipelineStage[]);
   }
 
-  // Valores distintos de um campo entre os documentos do filtro.
   async distinto(campo: string, filtro: Record<string, unknown>): Promise<unknown[]> {
     return this.bd.distinct(campo, filtro);
   }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import Modal from '../common/Modal';
+import Spinner from '../common/Spinner';
 import { useToast } from '../common/Toast';
 import { authService } from '../../services/authService';
 import buttons from '../common/DialogButtons.module.css';
@@ -98,7 +99,7 @@ const AccountActionModal: React.FC<AccountActionModalProps> = ({ mode, onDone, o
   const disabled = saving || !isFormValid();
 
   return (
-    <Modal title={getTitle()} onClose={onCancel}>
+    <Modal title={getTitle()} onClose={saving ? () => {} : onCancel}>
       <form onSubmit={handleSubmit} className={formStyles.form}>
         {mode === 'excluir' && (
           <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--danger-solid)', margin: 0 }}>
@@ -184,11 +185,13 @@ const AccountActionModal: React.FC<AccountActionModalProps> = ({ mode, onDone, o
             type="submit"
             className={buttons.confirm}
             disabled={disabled}
+            aria-busy={saving}
             style={{
               ...(mode === 'excluir' ? { background: 'var(--danger-solid)' } : {}),
               ...(disabled ? { opacity: 0.6, cursor: 'not-allowed' } : {}),
             }}
           >
+            {saving && <Spinner />}
             {mode === 'excluir' ? t('profile.delete') : t('profile.save')}
           </button>
         </div>

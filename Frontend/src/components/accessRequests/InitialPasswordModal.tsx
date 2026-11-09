@@ -42,6 +42,7 @@ const InitialPasswordModal: React.FC<InitialPasswordModalProps> = ({ email, senh
               type="text"
               readOnly
               value={senha}
+              aria-label={t('accessRequests.passwordLabel')}
               className={formStyles.input}
               style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}
             />

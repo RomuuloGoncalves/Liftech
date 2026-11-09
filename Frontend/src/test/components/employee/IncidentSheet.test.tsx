@@ -142,6 +142,32 @@ describe('IncidentSheet', () => {
     expect(screen.getByText('Ocorrência enviada com sucesso')).toBeInTheDocument()
   })
 
+  it('shows spinner, disables both buttons, has aria-busy and prevents double click while submitting', async () => {
+    let resolveReport: () => void = () => {}
+    reportar.mockReturnValue(new Promise((resolve) => { resolveReport = () => resolve({} as never) }))
+    const { onClose } = await renderSheet()
+    fillAll()
+
+    await act(async () => {
+      fireEvent.click(footerButton('Enviar ocorrência'))
+    })
+
+    const submitBtn = within(screen.getByRole('dialog')).getByRole('button', { name: /Enviando…/ })
+    expect(submitBtn).toBeDisabled()
+    expect(submitBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(footerButton('Cancelar')).toBeDisabled()
+
+    // Segundo clique não faz nada
+    fireEvent.click(submitBtn)
+    expect(reportar).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      resolveReport()
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps the sheet open and shows the error toast when the API fails', async () => {
     reportar.mockRejectedValue(new Error('409'))
     const { onClose, onSubmitted } = await renderSheet()

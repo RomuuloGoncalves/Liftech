@@ -234,3 +234,10 @@
   font-size: calc(12 * var(--px, 1px));
   color: var(--text);
 }
+
+.editButton:focus-visible,
+.deleteButton:focus-visible,
+.addButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}

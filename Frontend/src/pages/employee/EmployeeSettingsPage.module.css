@@ -159,9 +159,15 @@
 }
 
 .logout:focus-visible,
-.privacy:focus-visible {
+.privacy:focus-visible,
+.send:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .send {

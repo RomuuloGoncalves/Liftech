@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { isAxiosError } from 'axios'
 import AuthLayout from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
+import Spinner from '../components/common/Spinner'
 import authStyles from '../components/auth/AuthForm.module.css'
 import formStyles from '../components/team/TeamForm.module.css'
 import { authService } from '../services/authService'
@@ -32,6 +33,7 @@ const SolicitarAcessoPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (loading) return
     const next: Errors = {}
     if (values.email.trim() === '') {
       next.email = t('auth.required')
@@ -106,7 +108,13 @@ const SolicitarAcessoPage: React.FC = () => {
               {submitError}
             </span>
           )}
-          <button type="submit" className={authStyles.submitButton} disabled={loading}>
+          <button
+            type="submit"
+            className={authStyles.submitButton}
+            disabled={loading}
+            aria-busy={loading}
+          >
+            {loading && <Spinner />}
             {t('auth.requestAccessButton')}
           </button>
         </form>

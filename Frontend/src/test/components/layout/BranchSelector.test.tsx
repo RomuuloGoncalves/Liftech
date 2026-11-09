@@ -462,7 +462,7 @@ describe('BranchSelector: managing branches', () => {
     )
   })
 
-  it('closes the dialog and warns about the matriz or resources on a 409', async () => {
+  it('keeps the dialog open and warns about the matriz or resources on a 409', async () => {
     login('empresa', [F1, F2])
     remover.mockRejectedValue(failWith(409))
     renderSelector()
@@ -475,10 +475,10 @@ describe('BranchSelector: managing branches', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Não foi possível excluir: a filial é a matriz ou ainda tem recursos.'
     )
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
-  it('shows the generic delete alert on any other delete error', async () => {
+  it('shows the generic delete alert on any other delete error and keeps dialog', async () => {
     login('empresa', [F1, F2])
     remover.mockRejectedValue(failWith(500))
     renderSelector()
@@ -489,5 +489,95 @@ describe('BranchSelector: managing branches', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível excluir a filial.')
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('shows spinner and aria-busy on the submit button while creating', async () => {
+    login('empresa', [F1])
+    let resolveCreate!: () => void
+    criar.mockReturnValue(new Promise<{ _id: string; nome: string; matriz: boolean }>((res) => {
+      resolveCreate = () => res({ _id: 'f3', nome: 'Filial 03', matriz: false })
+    }))
+    listar.mockResolvedValue([F1, { _id: 'f3', nome: 'Filial 03', matriz: false }])
+    renderSelector()
+    open()
+    fireEvent.click(screen.getByRole('button', { name: 'Criar Filial' }))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Nome da filial' }), { target: { value: 'Filial 03' } })
+
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmar' })
+    fireEvent.click(confirmBtn)
+
+    expect(criar).toHaveBeenCalledTimes(1)
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(confirmBtn).getByTestId('spinner')).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Nome da filial' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+
+    // Segundo clique não dispara outra criação
+    fireEvent.click(confirmBtn)
+    expect(criar).toHaveBeenCalledTimes(1)
+
+    resolveCreate()
+    await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Nome da filial' })).not.toBeInTheDocument())
+  })
+
+  it('shows spinner and aria-busy on the submit button while renaming', async () => {
+    login('empresa', [F1, F2])
+    let resolveRename!: () => void
+    renomear.mockReturnValue(new Promise<{ _id: string; nome: string; matriz: boolean }>((res) => {
+      resolveRename = () => res({ ...F2, nome: 'Galpão Sul' })
+    }))
+    listar.mockResolvedValue([F1, { ...F2, nome: 'Galpão Sul' }])
+    renderSelector()
+    open()
+    fireEvent.click(screen.getByRole('button', { name: 'Gerenciar Filiais' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Renomear Filial 02' }))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Nome da filial' }), { target: { value: 'Galpão Sul' } })
+
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmar' })
+    fireEvent.click(confirmBtn)
+
+    expect(renomear).toHaveBeenCalledTimes(1)
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(confirmBtn).getByTestId('spinner')).toBeInTheDocument()
+
+    // Segundo clique é ignorado
+    fireEvent.click(confirmBtn)
+    expect(renomear).toHaveBeenCalledTimes(1)
+
+    resolveRename()
+    await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Nome da filial' })).not.toBeInTheDocument())
+  })
+
+  it('shows ConfirmDialog busy with spinner and disabled buttons while deleting', async () => {
+    login('empresa', [F1, F2])
+    let resolveDelete!: () => void
+    remover.mockReturnValue(new Promise<undefined>((res) => { resolveDelete = () => { res(undefined) } }))
+    listar.mockResolvedValue([F1])
+    renderSelector()
+    open()
+    fireEvent.click(screen.getByRole('button', { name: 'Gerenciar Filiais' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Filial 02' }))
+
+    const dialog = screen.getByRole('dialog')
+    const confirmBtn = within(dialog).getByRole('button', { name: 'Excluir' })
+    const cancelBtn = within(dialog).getByRole('button', { name: 'Cancelar' })
+
+    fireEvent.click(confirmBtn)
+
+    expect(remover).toHaveBeenCalledTimes(1)
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(confirmBtn).getByTestId('spinner')).toBeInTheDocument()
+    expect(cancelBtn).toBeDisabled()
+
+    // Segundo clique é ignorado
+    fireEvent.click(confirmBtn)
+    expect(remover).toHaveBeenCalledTimes(1)
+
+    resolveDelete()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 })

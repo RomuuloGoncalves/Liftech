@@ -24,6 +24,16 @@
   animation: arrive 1s ease-out;
 }
 
+.offline {
+  background: var(--gray-bg);
+  border-color: var(--gray-border);
+}
+
+.offline .topRow {
+  background: var(--black-text);
+  color: var(--white);
+}
+
 @keyframes arrive {
   0%,
   40% {
@@ -238,4 +248,9 @@
 
 .badge {
   align-self: flex-start;
+}
+
+.menuButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }

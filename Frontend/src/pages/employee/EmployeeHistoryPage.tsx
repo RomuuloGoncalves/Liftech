@@ -42,9 +42,9 @@ const EmployeeHistoryPage: React.FC = () => {
 
       <h2 className={styles.filtersTitle}>{t('employee.history.filters')}</h2>
       <div className={styles.filters}>
-<div className={`${styles.field} ${styles.period}`}>
+        <div className={`${styles.field} ${styles.period}`}>
           <CalendarDays size={16} aria-hidden="true" />
-          <span className={styles.dateLabel}>Data:</span>
+          <span className={styles.dateLabel}>{t('employee.history.date')}:</span>
           <input
             type="date"
             className={styles.dateInput}

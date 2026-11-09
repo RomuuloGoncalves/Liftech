@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom'
 import { ActiveBranchProvider } from './context/ActiveBranchContext'
 import SplashGate, { SPLASH_MS } from './components/common/SplashGate'
+import { LiveProvider } from './context/LiveContext'
 import { AlertsProvider } from './context/AlertsContext'
 import Header from './components/layout/Header'
 import Sidebar from './components/layout/Sidebar'
@@ -21,17 +22,19 @@ function AppShell() {
   }
 
   return (
-    <AlertsProvider>
-      <div className="app-shell">
-        <Sidebar />
-        <div className="app-content">
-          <Header />
-          <main className="app-main">
-            <AppRoutes />
-          </main>
+    <LiveProvider>
+      <AlertsProvider>
+        <div className="app-shell">
+          <Sidebar />
+          <div className="app-content">
+            <Header />
+            <main className="app-main">
+              <AppRoutes />
+            </main>
+          </div>
         </div>
-      </div>
-    </AlertsProvider>
+      </AlertsProvider>
+    </LiveProvider>
   )
 }
 

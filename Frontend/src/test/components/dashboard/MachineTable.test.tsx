@@ -32,26 +32,26 @@ describe('MachineTable', () => {
 
     render(<MachineTable machines={machines} onOpen={onOpen} onCreate={onCreate} />);
 
-    // Page 1: 10 rows
+    // Página 1: 10 linhas
     expect(screen.getByText('Exibindo 23 máquinas - Página 1 de 3')).toBeInTheDocument();
     const prevButton = screen.getByRole('button', { name: 'Página anterior' });
     const nextButton = screen.getByRole('button', { name: 'Próxima página' });
     expect(prevButton).toBeDisabled();
     expect(nextButton).toBeEnabled();
 
-    // Navigate to page 2
+    // Navega para página 2
     fireEvent.click(nextButton);
     expect(screen.getByText('Exibindo 23 máquinas - Página 2 de 3')).toBeInTheDocument();
     expect(prevButton).toBeEnabled();
     expect(nextButton).toBeEnabled();
 
-    // Navigate to page 3
+    // Navega para página 3
     fireEvent.click(nextButton);
     expect(screen.getByText('Exibindo 23 máquinas - Página 3 de 3')).toBeInTheDocument();
     expect(prevButton).toBeEnabled();
     expect(nextButton).toBeDisabled();
 
-    // On page 3, exactly 3 machine rows (21, 22, 23)
+    // Na página 3, exatamente 3 linhas de máquinas (21, 22, 23)
     expect(screen.getByText('Empilhadeira 21')).toBeInTheDocument();
     expect(screen.getByText('Empilhadeira 22')).toBeInTheDocument();
     expect(screen.getByText('Empilhadeira 23')).toBeInTheDocument();
@@ -81,12 +81,12 @@ describe('MachineTable', () => {
 
     const searchInput = screen.getByRole('searchbox', { name: 'Buscar máquinas' });
 
-    // Filter by name
+    // Filtra por nome
     fireEvent.change(searchInput, { target: { value: 'Titan' } });
     expect(screen.getByText('Exibindo 1 máquina - Página 1 de 1')).toBeInTheDocument();
     expect(screen.getByText('Titan Special')).toBeInTheDocument();
 
-    // Filter by identification
+    // Filtra por identificação
     fireEvent.change(searchInput, { target: { value: 'CUSTOM-999' } });
     expect(screen.getByText('Exibindo 1 máquina - Página 1 de 1')).toBeInTheDocument();
     expect(screen.getByText('Empilhadeira 24')).toBeInTheDocument();

@@ -19,7 +19,6 @@ import styles from './DashboardPage.module.css';
 
 type SourceState<T> = { state: 'loading' | 'ready' | 'error'; data: T[] };
 
-let nextTempId = 0;
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -125,46 +124,18 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleCreateMachine = (values: NewMachineFormValues) => {
-    const tempId = `temp-${nextTempId++}`;
-    const sectorName = sectors.find((s) => s._id === values.setorId)?.nome ?? '';
-    const tempMachine: Machine = {
-      id: tempId,
-      identificacao: values.identificacao,
-      nome: values.nome,
-      setor: sectorName,
-      setorId: values.setorId || null,
-      status: 'disponivel',
-      categoriaId: null,
-      categoriaTravada: false,
-      alertaEm: null,
-      dispositivoConectado: {
-        enderecoMac: values.enderecoMac,
-        nomeDispositivo: values.nomeDispositivo,
-      },
-      tempoSessaoMinutos: 0,
-      tempoUsoTotalHoras: 0,
-    };
-
-    setMachinesSource((prev) => ({ ...prev, data: [tempMachine, ...prev.data] }));
-    setIsNewMachineOpen(false);
-    show(t('machines.toastCreated', { name: values.identificacao }));
-
-    machineService.criar(values, values.filialId ?? filialId).then(
-      (saved) => {
-        setMachinesSource((prev) => ({
-          ...prev,
-          data: prev.data.map((m) => (m.id === tempId ? saved : m)),
-        }));
-      },
-      () => {
-        setMachinesSource((prev) => ({
-          ...prev,
-          data: prev.data.filter((m) => m.id !== tempId),
-        }));
-        showError(t('machines.saveError'));
-      }
-    );
+  const handleCreateMachine = async (values: NewMachineFormValues) => {
+    try {
+      const saved = await machineService.criar(values, values.filialId ?? filialId);
+      setMachinesSource((prev) => ({
+        ...prev,
+        data: [saved, ...prev.data],
+      }));
+      show(t('machines.toastCreated', { name: values.identificacao }));
+    } catch (e) {
+      showError(t('machines.saveError'));
+      throw e;
+    }
   };
 
   const detailMachine = machinesSource.data.find((m) => m.id === detailId);

@@ -2,10 +2,18 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { ActiveBranchProvider, useActiveBranch } from '../../context/ActiveBranchContext';
+import { LiveProvider } from '../../context/LiveContext';
 import { AlertsProvider, useAlerts, POLL_INTERVAL_MS } from '../../context/AlertsContext';
 import { incidentService, type Incidente } from '../../services/incidentService';
+import { streamService, type StreamEventHandler, type StreamServiceOptions } from '../../services/streamService';
 import { authService, type UsuarioLogado } from '../../services/authService';
 import '../../components/alerts/AlertModal';
+
+vi.mock('../../services/streamService', () => ({
+  streamService: {
+    abrir: vi.fn().mockImplementation(() => new Promise(() => {})),
+  },
+}));
 
 vi.mock('../../services/incidentService', () => ({
   incidentService: {
@@ -76,9 +84,11 @@ const renderWithProviders = async () => {
     result = render(
       <MemoryRouter>
         <ActiveBranchProvider>
-          <AlertsProvider>
-            <Consumer />
-          </AlertsProvider>
+          <LiveProvider>
+            <AlertsProvider>
+              <Consumer />
+            </AlertsProvider>
+          </LiveProvider>
         </ActiveBranchProvider>
       </MemoryRouter>
     );
@@ -105,7 +115,7 @@ describe('AlertsContext', () => {
     vi.restoreAllMocks();
   });
 
-  it('1 chamada na montagem e +1 após 15 000 ms, nenhuma a 14 999 ms', async () => {
+  it('1 chamada na montagem e +1 após 60 000 ms, nenhuma a 59 999 ms (TLQ-05)', async () => {
     await renderWithProviders();
 
     expect(listar).toHaveBeenCalledTimes(1);
@@ -171,6 +181,20 @@ describe('AlertsContext', () => {
     });
 
     expect(listar).toHaveBeenCalledWith({ filialId: 'f2' });
+  });
+
+  it('troca de filial não mantém no sino os incidentes da filial anterior', async () => {
+    localStorage.setItem('liftech.activeBranch', 'f1');
+    listar.mockResolvedValueOnce([makeIncident('f1-inc')]);
+    await renderWithProviders();
+    expect(screen.getByTestId('recent-ids')).toHaveTextContent('f1-inc');
+
+    listar.mockResolvedValueOnce([makeIncident('f2-inc')]);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'branch-f2' }));
+    });
+
+    expect(screen.getByTestId('recent-ids').textContent).toBe('f2-inc');
   });
 
   it('sem sessão de usuário: 0 chamadas', async () => {
@@ -510,5 +534,257 @@ describe('AlertsContext', () => {
     });
 
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+  });
+
+  it('recebe incidente pelo stream, entra no sino com hasUnseen e abre pop-up (TLQ-05)', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    await renderWithProviders();
+    expect(screen.getByTestId('recent-count').textContent).toBe('0');
+    expect(screen.getByTestId('hasUnseen').textContent).toBe('false');
+
+    const incidente = makeIncident('inc-stream-1');
+    await act(async () => {
+      sseCallback?.({ event: 'incidente', data: incidente });
+    });
+
+    expect(screen.getByTestId('recent-count').textContent).toBe('1');
+    expect(screen.getByTestId('recent-ids').textContent).toBe('inc-stream-1');
+    expect(screen.getByTestId('hasUnseen').textContent).toBe('true');
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+  });
+
+  it('não duplica incidente que chegou pelo stream quando o polling roda depois (TLQ-05)', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    await renderWithProviders();
+
+    const incidente = makeIncident('inc-stream-dup');
+    await act(async () => {
+      sseCallback?.({ event: 'incidente', data: incidente });
+    });
+
+    expect(screen.getByTestId('recent-ids').textContent).toBe('inc-stream-dup');
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+    listar.mockResolvedValue([incidente]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS);
+    });
+
+    expect(screen.getByTestId('recent-ids').textContent).toBe('inc-stream-dup');
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('recarrega incidentes ao reconectar o stream (TLQ-05)', async () => {
+    let capturedOpts: StreamServiceOptions | undefined;
+    vi.mocked(streamService.abrir).mockImplementation(
+      (_cb: StreamEventHandler, opts?: AbortSignal | StreamServiceOptions) => {
+        if (opts && 'onOpen' in opts) {
+          capturedOpts = opts;
+        }
+        return new Promise(() => {});
+      }
+    );
+
+    await renderWithProviders();
+    expect(listar).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      capturedOpts?.onOpen?.();
+    });
+
+    await act(async () => {
+      screen.getByText('reload').click();
+    });
+
+    expect(listar).toHaveBeenCalledTimes(2);
+  });
+
+  it('recebe dispositivo_offline por stream e abre pop-up sem entrar no sino nem histórico (TLQ-07)', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    await renderWithProviders();
+
+    expect(screen.getByTestId('recent-count').textContent).toBe('0');
+    expect(screen.getByTestId('hasUnseen').textContent).toBe('false');
+
+    await act(async () => {
+      sseCallback?.({
+        event: 'dispositivo_offline',
+        data: {
+          machineId: 'm-offline-1',
+          identificacao: 'EMP-OFFLINE-99',
+          filialId: 'f1',
+        },
+      });
+    });
+
+    const dialog = screen.getByRole('alertdialog');
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveTextContent('EMP-OFFLINE-99');
+
+    expect(screen.getByTestId('recent-count').textContent).toBe('0');
+    expect(screen.getByTestId('recent-ids').textContent).toBe('');
+    expect(screen.getByTestId('hasUnseen').textContent).toBe('false');
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('ignora dispositivo_offline de outra filial quando filial ativa é específica (TLQ-07)', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    await renderWithProviders();
+
+    await act(async () => {
+      screen.getByText('branch-f1').click();
+    });
+
+    await act(async () => {
+      sseCallback?.({
+        event: 'dispositivo_offline',
+        data: {
+          machineId: 'm-other',
+          identificacao: 'EMP-OTHER',
+          filialId: 'f2',
+        },
+      });
+    });
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('filtra incidentes live por filialId: descarta de outra filial, aceita da mesma filial e aceita sem filialId', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    await renderWithProviders();
+
+    await act(async () => {
+      screen.getByText('branch-f1').click();
+    });
+
+    await act(async () => {
+      sseCallback?.({
+        event: 'incidente',
+        data: { ...makeIncident('inc-branch-f2'), filialId: 'f2' },
+      });
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByTestId('recent-ids')).not.toHaveTextContent('inc-branch-f2');
+
+    await act(async () => {
+      sseCallback?.({
+        event: 'incidente',
+        data: { ...makeIncident('inc-branch-f1'), filialId: 'f1' },
+      });
+    });
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByTestId('recent-ids')).toHaveTextContent('inc-branch-f1');
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+    await act(async () => {
+      sseCallback?.({
+        event: 'incidente',
+        data: makeIncident('inc-no-branch'),
+      });
+    });
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByTestId('recent-ids')).toHaveTextContent('inc-no-branch');
+  });
+
+  it('com filial ativa "todas", aceita incidente live de qualquer filial', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    await renderWithProviders();
+
+    await act(async () => {
+      sseCallback?.({
+        event: 'incidente',
+        data: { ...makeIncident('inc-all-f2'), filialId: 'f2' },
+      });
+    });
+
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByTestId('recent-ids')).toHaveTextContent('inc-all-f2');
+  });
+
+  it('incidente live recebido antes do primeiro poll terminar não trata histórico como novos pop-ups em massa', async () => {
+    let sseCallback: StreamEventHandler | undefined;
+    vi.mocked(streamService.abrir).mockImplementation((cb: StreamEventHandler) => {
+      sseCallback = cb;
+      return new Promise(() => {});
+    });
+
+    let resolveFirstPoll!: (value: Incidente[]) => void;
+    listar.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveFirstPoll = resolve;
+        })
+    );
+
+    await renderWithProviders();
+
+    const liveInc = makeIncident('inc-live-early');
+    await act(async () => {
+      sseCallback?.({ event: 'incidente', data: liveInc });
+    });
+
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByTestId('recent-ids')).toHaveTextContent('inc-live-early');
+
+    const historicalIncidents = [
+      makeIncident('h1'),
+      makeIncident('h2'),
+      makeIncident('h3'),
+      makeIncident('h4'),
+      makeIncident('h5'),
+    ];
+    await act(async () => {
+      resolveFirstPoll(historicalIncidents);
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Ok' }));
+    });
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });

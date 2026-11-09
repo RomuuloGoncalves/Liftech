@@ -28,6 +28,16 @@
   cursor: pointer;
 }
 
+.colorButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.colorButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
 .dot {
   display: inline-block;
   width: 10px;
@@ -129,6 +139,16 @@
   font: inherit;
   font-size: var(--fs-xs);
   color: var(--text-h);
+}
+
+.nameInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nameInput:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
 }
 
 .nameInput::placeholder {

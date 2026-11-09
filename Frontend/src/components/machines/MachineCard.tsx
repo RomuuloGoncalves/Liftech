@@ -20,7 +20,10 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onOpen }) => {
   const { identificacao, nome, setor, dispositivoConectado, tempoSessaoMinutos } = machine
 
   return (
-    <article className={styles.card}>
+    <article
+      className={`${styles.card} ${machine.dispositivoOffline ? styles.offline : ''}`.trim()}
+      data-offline={machine.dispositivoOffline || undefined}
+    >
       <div className={styles.topRow}>
         <div className={styles.identity}>
           <div className={styles.names}>

@@ -66,6 +66,12 @@
   transform: translateY(-50%);
 }
 
+.close:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .body {
   flex: 1;
   min-height: 0;

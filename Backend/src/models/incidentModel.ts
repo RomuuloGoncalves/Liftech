@@ -6,6 +6,8 @@ export interface DadosIncidente {
   status?: string;
   origem?: string;
   descricao?: string | null;
+  tipo?: string | null;
+  movimento?: unknown;
   // Referências guardadas como vieram (ObjectId ou texto), para a gravação não mudar o tipo.
   filialId?: unknown;
   empilhadeiraId?: unknown;

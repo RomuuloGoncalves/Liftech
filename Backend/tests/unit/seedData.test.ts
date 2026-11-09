@@ -7,21 +7,23 @@ import { Forklift } from "../../src/schemas/forklift.js";
 import { Sector } from "../../src/schemas/sector.js";
 import { Telemetry } from "../../src/schemas/telemetry.js";
 import { Incident } from "../../src/schemas/incident.js";
+import { WorkSession } from "../../src/schemas/workSession.js";
 import { User } from "../../src/schemas/user.js";
 import { AccessRequest } from "../../src/schemas/accessRequest.js";
 import { Company } from "../../src/schemas/company.js";
 import { Branch } from "../../src/schemas/branch.js";
 import { logger } from "../../src/utils/logger.js";
 import { verificarSenha } from "../../src/utils/senha.js";
-import { gerarIncidentes } from "../../src/scripts/seedDataset.js";
+import { gerarIncidentes, EMPILHADEIRAS } from "../../src/scripts/seedDataset.js";
 import { criarQuadroInicial, posicionarSemCategoria } from "../../src/feature/category/categoryService.js";
 
 vi.mock("../../src/schemas/operator.js", () => ({ Operator: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/device.js", () => ({ Device: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/forklift.js", () => ({ Forklift: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/sector.js", () => ({ Sector: { findOneAndUpdate: vi.fn() } }));
-vi.mock("../../src/schemas/telemetry.js", () => ({ Telemetry: { findOneAndUpdate: vi.fn() } }));
+vi.mock("../../src/schemas/telemetry.js", () => ({ Telemetry: { findOneAndUpdate: vi.fn(), deleteMany: vi.fn().mockResolvedValue({}) } }));
 vi.mock("../../src/schemas/incident.js", () => ({ Incident: { findOneAndUpdate: vi.fn() } }));
+vi.mock("../../src/schemas/workSession.js", () => ({ WorkSession: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/user.js", () => ({ User: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/accessRequest.js", () => ({ AccessRequest: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/schemas/company.js", () => ({ Company: { findOneAndUpdate: vi.fn() } }));
@@ -35,7 +37,7 @@ const AGORA = new Date("2026-10-13T12:00:00Z");
 const SENHA = "asdasdasd";
 const envOriginal = { ...process.env };
 
-const MODELOS = { Company, Branch, Sector, Operator, Device, Forklift, Telemetry, Incident, User, AccessRequest } as const;
+const MODELOS = { Company, Branch, Sector, Operator, Device, Forklift, Telemetry, Incident, WorkSession, User, AccessRequest } as const;
 
 function mockarModelos() {
   for (const [nome, m] of Object.entries(MODELOS)) {
@@ -87,7 +89,6 @@ describe("seedData", () => {
   test.each([
     ["EMP-081", "Matriz"],
     ["EMP-083", "Unidade Centro"],
-    ["EMP-085", "Unidade Norte"],
   ])("a empilhadeira %s leva o filialId da filial do seu setor (%s)", async (identificacao, filial) => {
     await seedData();
 
@@ -99,15 +100,13 @@ describe("seedData", () => {
 
     expect(chamadaDe(Device, { enderecoMac: "A2:C9:9B:1D:F7" })[1].$set.filialId).toBe(filialId("Matriz"));
     expect(chamadaDe(Device, { enderecoMac: "A2:C9:9B:1D:F9" })[1].$set.filialId).toBe(filialId("Unidade Centro"));
-    expect(chamadaDe(Device, { enderecoMac: "A2:C9:9B:1D:FB" })[1].$set.filialId).toBe(filialId("Unidade Norte"));
   });
 
   test("o operador leva o filialId da primeira empilhadeira que o cita, ou da matriz", async () => {
     await seedData();
 
     expect(chamadaDe(Operator, { nome: "Carlos Silva" })[1].$set.filialId).toBe(filialId("Matriz"));
-    expect(chamadaDe(Operator, { nome: "Marina Costa" })[1].$set.filialId).toBe(filialId("Unidade Centro"));
-    expect(chamadaDe(Operator, { nome: "João Pereira" })[1].$set.filialId).toBe(filialId("Unidade Norte"));
+    expect(chamadaDe(Operator, { nome: "Ana Souza" })[1].$set.filialId).toBe(filialId("Matriz"));
     expect(chamadaDe(Operator, { nome: "Alexandre Gomes" })[1].$set.filialId).toBe(filialId("Matriz"));
   });
 
@@ -120,24 +119,21 @@ describe("seedData", () => {
 
     expect(filialDoIncidente("EMP-081", 0)).toBe(filialId("Matriz"));
     expect(filialDoIncidente("EMP-083", 2)).toBe(filialId("Unidade Centro"));
-    expect(filialDoIncidente("EMP-085", 4)).toBe(filialId("Unidade Norte"));
   });
 
-  test("o colaborador leva empresaId, escopo filiais e as filiaisIds da tabela; PauloNunes tem duas", async () => {
+  test("o colaborador leva empresaId, escopo filiais e as filiaisIds da tabela", async () => {
     await seedData();
 
     const carlos = chamadaDe(User, { usuario: "CarlosSilva" })[1].$set;
-    const paulo = chamadaDe(User, { usuario: "PauloNunes" })[1].$set;
 
     expect(carlos).toMatchObject({ empresaId: EMPRESA_ID, escopo: "filiais", filiaisIds: [filialId("Matriz")] });
-    expect(paulo.filiaisIds).toEqual([filialId("Unidade Centro"), filialId("Unidade Norte")]);
   });
 
   test("todo colaborador ganha o operadorId do operator de mesmo nome", async () => {
     await seedData();
 
     expect(chamadaDe(User, { usuario: "CarlosSilva" })[1].$set.operadorId).toBe(idDe("Operator", { nome: "Carlos Silva" }));
-    expect(chamadaDe(User, { usuario: "AlexandreMattos" })[1].$set.operadorId).toBe(idDe("Operator", { nome: "Alexandre Mattos" }));
+    expect(chamadaDe(User, { usuario: "AnaSouza" })[1].$set.operadorId).toBe(idDe("Operator", { nome: "Ana Souza" }));
     for (const [, atualizacao] of chamadas(User)) expect(atualizacao.$set.operadorId).toBeDefined();
   });
 
@@ -155,11 +151,10 @@ describe("seedData", () => {
     expect(verificarSenha("asdasdasd", dados.senhaHash)).toBe(true);
   });
 
-  test("grava acessoNegado true só para quem está Negado na Equipe", async () => {
+  test("grava acessoNegado false nos colaboradores do seed reduzido", async () => {
     await seedData();
 
-    expect(chamadaDe(User, { usuario: "RafaelLima" })[1].$set.acessoNegado).toBe(true);
-    expect(chamadaDe(User, { usuario: "DiegoMartins" })[1].$set.acessoNegado).toBe(true);
+    expect(chamadaDe(User, { usuario: "AnaSouza" })[1].$set.acessoNegado).toBe(false);
     expect(chamadaDe(User, { usuario: "CarlosSilva" })[1].$set.acessoNegado).toBe(false);
   });
 
@@ -182,28 +177,45 @@ describe("seedData", () => {
     expect(chamadaDe(Device, { enderecoMac: "A2:C9:9B:1D:F7" })[1].$set.nome).toBe("Mpa-5300");
   });
 
-  test("cria 12 operadores, 16 dispositivos, 16 empilhadeiras, 80 leituras, 32 incidentes, 12 colaboradores e 2 solicitações", async () => {
+  test("cria 3 operadores, 4 dispositivos, 4 empilhadeiras, 20 leituras, 8 incidentes, 3 colaboradores e 2 solicitações", async () => {
     const contagem = await seedData();
 
     expect(contagem).toEqual({
       empresas: 1,
       filiais: 3,
-      setores: 3,
-      operadores: 12,
-      dispositivos: 16,
-      empilhadeiras: 16,
-      telemetria: 80,
-      incidentes: 32,
-      colaboradores: 12,
+      setores: 2,
+      operadores: 3,
+      dispositivos: 4,
+      empilhadeiras: 4,
+      telemetria: 20,
+      incidentes: 8,
+      colaboradores: 3,
       solicitacoes: 2,
     });
-    expect(chamadas(Operator)).toHaveLength(12);
-    expect(chamadas(Device)).toHaveLength(16);
-    expect(chamadas(Forklift)).toHaveLength(16);
-    expect(chamadas(Telemetry)).toHaveLength(80);
-    expect(chamadas(Incident)).toHaveLength(32);
-    expect(chamadas(User)).toHaveLength(12);
+    expect(chamadas(Operator)).toHaveLength(3);
+    expect(chamadas(Device)).toHaveLength(4);
+    expect(chamadas(Forklift)).toHaveLength(4);
+    expect(Telemetry.deleteMany).toHaveBeenCalledTimes(4);
+    expect(chamadas(Telemetry)).toHaveLength(20);
+    expect(chamadas(Incident)).toHaveLength(8);
+    expect(chamadas(User)).toHaveLength(3);
     expect(chamadas(AccessRequest)).toHaveLength(2);
+  });
+
+  test("cada máquina em_uso do seed ganha uma sessão aberta com o operador dela", async () => {
+    await seedData();
+
+    const emUso = EMPILHADEIRAS.filter((e) => e.status === "em_uso" && e.operador);
+    expect(emUso.length).toBeGreaterThan(0);
+    expect(chamadas(WorkSession)).toHaveLength(emUso.length);
+    for (const e of emUso) {
+      const empilhadeiraId = idDe("Forklift", { identificacao: e.identificacao });
+      const [filtro, update, opcoes] = chamadaDe(WorkSession, { empilhadeiraId, fim: null })!;
+      expect(filtro).toEqual({ empilhadeiraId, fim: null });
+      expect(update.$set.operadorId).toBe(idDe("Operator", { nome: e.operador }));
+      expect(update.$set.fim).toBeNull();
+      expect(opcoes).toMatchObject({ upsert: true });
+    }
   });
 
   test("cria um setor por texto do dataset na filial da empilhadeira, com upsert por { filialId, nome }", async () => {
@@ -212,7 +224,6 @@ describe("seedData", () => {
     expect(chamadas(Sector).map((c) => c[0])).toEqual([
       { filialId: filialId("Matriz"), nome: "Expedição - Bloco B" },
       { filialId: filialId("Unidade Centro"), nome: "Recebimento - Bloco A" },
-      { filialId: filialId("Unidade Norte"), nome: "Armazenagem - Bloco C" },
     ]);
     expect(chamadas(Sector)[0]![2]).toMatchObject({ upsert: true });
     expect(chamadaDe(Forklift, { identificacao: "EMP-083" })[1].$set.setorId).toBe(
@@ -225,7 +236,7 @@ describe("seedData", () => {
 
     const dispositivoId = idDe("Device", { enderecoMac: "A2:C9:9B:1D:F7" });
     const empilhadeiraId = idDe("Forklift", { identificacao: "EMP-081" });
-    const dataDados = new Date("2026-09-01T08:00:00Z");
+    const dataDados = new Date("2026-10-13T08:00:00Z");
     const dataIncidente = new Date("2026-08-01T10:00:00Z");
 
     expect(chamadaDe(Operator, { nome: "Carlos Silva" })[2]).toMatchObject({ upsert: true });
@@ -271,16 +282,17 @@ describe("seedData", () => {
 
     expect(chamadaDe(Forklift, { identificacao: "EMP-081" })[1].$set.status).toBe("alerta");
     expect(chamadaDe(Forklift, { identificacao: "EMP-084" })[1].$set.status).toBe("manutencao");
-    expect(chamadaDe(Forklift, { identificacao: "EMP-086" })[1].$set.status).toBe("offline");
+    expect(chamadaDe(Forklift, { identificacao: "EMP-082" })[1].$set.status).toBe("em_uso");
+    expect(chamadaDe(Forklift, { identificacao: "EMP-083" })[1].$set.status).toBe("disponivel");
   });
 
-  test("só as 3 máquinas em alerta têm incidente pendente", async () => {
+  test("só a máquina em alerta tem incidente pendente", async () => {
     await seedData();
 
     const pendentes = chamadas(Incident)
       .filter((c) => c[1].$set.status === "pendente")
       .map((c) => c[0].empilhadeiraId);
-    expect(pendentes).toEqual(["EMP-081", "EMP-085", "EMP-089"].map((identificacao) => idDe("Forklift", { identificacao })));
+    expect(pendentes).toEqual(["EMP-081"].map((identificacao) => idDe("Forklift", { identificacao })));
   });
 
   test("cria o quadro inicial da empresa e posiciona as máquinas das 3 filiais", async () => {
@@ -313,7 +325,7 @@ describe("seedData", () => {
       idDe("Operator", { nome: "Carlos Silva" })
     );
     expect(chamadaDe(Incident, { empilhadeiraId: empilhadeiraSemOperador, dataIncidente: dataDoTerceiro })[1].$set.operadorId).toBe(
-      idDe("Operator", { nome: "João Pereira" })
+      idDe("Operator", { nome: "Alexandre Gomes" })
     );
   });
 
@@ -328,12 +340,12 @@ describe("seedData", () => {
     expect(JSON.stringify(dados)).not.toContain(SENHA);
   });
 
-  test("os 12 colaboradores têm senhaHash que valida asdasdasd", async () => {
+  test("os 3 colaboradores têm senhaHash que valida asdasdasd", async () => {
     await seedData();
 
     const hashes = chamadas(User).map((c) => c[1].$set.senhaHash as string);
 
-    expect(hashes).toHaveLength(12);
+    expect(hashes).toHaveLength(3);
     for (const hash of hashes) expect(verificarSenha(SENHA, hash)).toBe(true);
   });
 
@@ -354,13 +366,13 @@ describe("seedData", () => {
     }
   });
 
-  test("sem SEED_COLABORADOR_SENHA: cria os 12 colaboradores mesmo assim, com a senha fixa", async () => {
+  test("sem SEED_COLABORADOR_SENHA: cria os 3 colaboradores mesmo assim, com a senha fixa", async () => {
     delete process.env.SEED_COLABORADOR_SENHA;
 
     const contagem = await seedData();
 
-    expect(chamadas(User)).toHaveLength(12);
-    expect(contagem.colaboradores).toBe(12);
+    expect(chamadas(User)).toHaveLength(3);
+    expect(contagem.colaboradores).toBe(3);
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
@@ -374,12 +386,12 @@ describe("seedData", () => {
     for (const trecho of [
       "1 empresa",
       "3 filiais",
-      "12 operadores",
-      "16 dispositivos",
-      "16 empilhadeiras",
-      "80 leituras",
-      "32 incidentes",
-      "12 colaboradores",
+      "3 operadores",
+      "4 dispositivos",
+      "4 empilhadeiras",
+      "20 leituras",
+      "8 incidentes",
+      "3 colaboradores",
       "2 solicitações",
     ]) {
       expect(mensagem).toContain(trecho);
@@ -400,7 +412,7 @@ describe("seedEDesconectar", () => {
     const contagem = await seedEDesconectar(desconectar);
 
     expect(desconectar).toHaveBeenCalledTimes(1);
-    expect(contagem.empilhadeiras).toBe(16);
+    expect(contagem.empilhadeiras).toBe(4);
   });
 
   test("fecha a conexão também quando o seed falha, e o erro continua subindo", async () => {

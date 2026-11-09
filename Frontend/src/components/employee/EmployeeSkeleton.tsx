@@ -37,7 +37,6 @@ const Cards: React.FC<{ count: number; extra?: boolean }> = ({ count, extra = fa
           </div>
           <Block className={styles.cardChip} />
         </div>
-        <div className={styles.cardDivider} data-skeleton-part="divider" />
         <div className={styles.cardBottom} data-skeleton-part="bottom">
           <div className={styles.cardField} data-skeleton-part="field">
             <Block className={styles.cardLabel} />

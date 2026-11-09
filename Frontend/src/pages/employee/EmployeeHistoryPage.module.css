@@ -48,6 +48,11 @@
   color: var(--text);
 }
 
+.field:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
 .period {
   width: 100%;
   background: var(--gray-bg);

@@ -117,6 +117,13 @@ describe('FeedbackModal', () => {
 
     expect(feedbackService.enviar).toHaveBeenCalledTimes(1)
 
+    // Verifica o estado ocupado (busy)
+    const sendingButton = screen.getByRole('button', { name: /Enviando…/ })
+    expect(sendingButton).toBeDisabled()
+    expect(sendingButton).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(textarea).toBeDisabled()
+
     resolver()
     await waitFor(() => {
       expect(onClose).toHaveBeenCalledTimes(1)

@@ -13,13 +13,13 @@ function dateParts(isoDate: string, language: string, options: Intl.DateTimeForm
   return (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? ''
 }
 
-/** "2025-09-14" -> "Dom, 14 setembro 2025" (weekday short, month long, no "de"). */
+/** "2025-09-14" -> "Dom, 14 setembro 2025" (dia da semana curto, mês por extenso, sem "de"). */
 export function formatEventDate(isoDate: string, language: string): string {
   const get = dateParts(isoDate, language, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
   return `${capitalize(get('weekday').replace(/\.$/, ''))}, ${get('day')} ${get('month')} ${get('year')}`
 }
 
-/** "2026-01-23" -> "23 Janeiro 2026" (alert cards: month long and capitalized, no weekday). */
+/** "2026-01-23" -> "23 Janeiro 2026" (cards de alerta: mês por extenso em maiúscula, sem dia da semana). */
 export function formatAlertDate(isoDate: string, language: string): string {
   const get = dateParts(isoDate, language, { day: 'numeric', month: 'long', year: 'numeric' })
   return `${get('day')} ${capitalize(get('month'))} ${get('year')}`
@@ -28,7 +28,7 @@ export function formatAlertDate(isoDate: string, language: string): string {
 const unit = (language: string, name: 'hour' | 'minute', display: 'long' | 'short') =>
   new Intl.NumberFormat(language, { style: 'unit', unit: name, unitDisplay: display })
 
-/** Rounds to the nearest minute: 14:35:25 ~ 16:35:20 -> "2 horas". */
+/** Arredonda para o minuto mais próximo: 14:35:25 ~ 16:35:20 -> "2 horas". */
 export function formatDuration(start: string, end: string, language: string): string {
   const totalMinutes = Math.max(0, Math.round((toSeconds(end) - toSeconds(start)) / 60))
   const hours = Math.floor(totalMinutes / 60)

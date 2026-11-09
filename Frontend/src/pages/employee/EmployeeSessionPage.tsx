@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import forkliftWebm from '../../assets/forklift.webm'
 import forkliftMp4 from '../../assets/forklift.mp4'
+import Spinner from '../../components/common/Spinner'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
 import { loopFade } from '../../utils/loopFade'
@@ -32,6 +33,7 @@ const EmployeeSessionPage: React.FC = () => {
   if (!session) return ending ? null : <Navigate to="/funcionario/maquinas" replace />
 
   const endSession = async () => {
+    if (ending) return
     setEnding(true)
     if (await end()) navigate('/funcionario')
     else setEnding(false)
@@ -50,14 +52,22 @@ const EmployeeSessionPage: React.FC = () => {
         {formatElapsed(elapsedSeconds)}
       </div>
       <div className={styles.actions}>
-        <button type="button" className={`${styles.button} ${styles.end}`} onClick={endSession} disabled={ending}>
-          {t('employee.session.end')}
-          <ArrowRight size={16} aria-hidden="true" />
+        <button
+          type="button"
+          className={`${styles.button} ${styles.end}`}
+          onClick={endSession}
+          disabled={ending}
+          aria-busy={ending}
+        >
+          {ending && <Spinner size={16} />}
+          {ending ? t('employee.session.ending') : t('employee.session.end')}
+          {!ending && <ArrowRight size={16} aria-hidden="true" />}
         </button>
         <button
           type="button"
           className={`${styles.button} ${styles.report}`}
           onClick={() => navigate('/funcionario/ocorrencia')}
+          disabled={ending}
         >
           {t('employee.session.reportIncident')}
           <ArrowRight size={16} aria-hidden="true" />

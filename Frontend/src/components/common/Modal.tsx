@@ -9,21 +9,24 @@ interface ModalProps {
   badge?: React.ReactNode
   footer?: React.ReactNode
   children: React.ReactNode
+  disableClose?: boolean
 }
 
-const Modal: React.FC<ModalProps> = ({ title, onClose, badge, footer, children }) => {
+const Modal: React.FC<ModalProps> = ({ title, onClose, badge, footer, children, disableClose = false }) => {
   const { t } = useTranslation()
   const titleId = useId()
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (disableClose) return
       if (event.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+  }, [onClose, disableClose])
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (disableClose) return
     if (event.target === event.currentTarget) onClose()
   }
 
@@ -38,7 +41,13 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, badge, footer, children }
               </h2>
               {badge}
             </div>
-            <button type="button" className={styles.closeButton} aria-label={t('common.close')} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.closeButton}
+              aria-label={t('common.close')}
+              onClick={onClose}
+              disabled={disableClose}
+            >
               <X size={18} />
             </button>
           </div>

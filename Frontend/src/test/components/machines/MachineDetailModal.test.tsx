@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MachineDetailModal from '../../../components/machines/MachineDetailModal'
+import { ToastProvider } from '../../../components/common/Toast'
 import { defaultPeriod, type Machine, type MachineEvent } from '../../../data/machines'
-import { incidentService, type FiltroIncidentes } from '../../../services/incidentService'
+import { incidentService, type FiltroIncidentes, type Incidente } from '../../../services/incidentService'
 
 vi.mock('../../../services/incidentService', () => ({ incidentService: { listar: vi.fn(), reportar: vi.fn() } }))
 const listarIncidentes = vi.mocked(incidentService.listar)
@@ -35,7 +36,7 @@ const events = [
   ev({ id: 'm1', tipo: 'manutencao', operador: 'Ana Souza', data: '2025-05-20', inicio: '09:00:00', fim: '10:30:00' }),
 ]
 
-// Stand-in for GET /incidents: the accidents of `events` by local day, inclusive, most recent first.
+// Substituto para GET /incidents: os acidentes de `events` por dia local, inclusivo, mais recentes primeiro.
 const listIncidents = async ({ from, to }: FiltroIncidentes = {}) =>
   events
     .filter((e) => e.tipo === 'acidente' && (!from || e.data >= from) && (!to || e.data <= to))
@@ -123,8 +124,9 @@ describe('MachineDetailModal: history', () => {
     expect(listarIncidentes).toHaveBeenCalledWith({ machineId: '4', from: defaultPeriod().from, to: defaultPeriod().to })
   })
 
-  it('switches to maintenance and marks that tab selected', () => {
+  it('switches to maintenance and marks that tab selected', async () => {
     setup()
+    await loaded()
 
     fireEvent.click(screen.getByRole('tab', { name: 'Manutenção' }))
     expect(screen.getByRole('tab', { name: 'Manutenção' })).toHaveAttribute('aria-selected', 'true')
@@ -169,6 +171,69 @@ describe('MachineDetailModal: history', () => {
     await loaded()
 
     expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+  })
+
+  it('shows skeleton with aria-busy="true" while pending, then renders list upon success (UXP-01 AC 1, 2, 5)', async () => {
+    let resolveIncidents: (val: Incidente[]) => void = () => {}
+    listarIncidentes.mockReturnValue(new Promise((resolve) => { resolveIncidents = resolve }))
+    setup()
+
+    const panel = screen.getByRole('tabpanel')
+    expect(panel).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('history-skeleton')).toBeInTheDocument()
+
+    await act(async () => {
+      resolveIncidents(await listIncidents({ from: defaultPeriod().from, to: defaultPeriod().to }))
+    })
+
+    expect(panel).not.toHaveAttribute('aria-busy')
+    expect(screen.queryByTestId('history-skeleton')).not.toBeInTheDocument()
+    expect(within(panel).getAllByRole('listitem')).toHaveLength(2)
+  })
+
+  it('shows error state and retry button on failure without showing empty message (UXP-01 AC 3, 4)', async () => {
+    listarIncidentes.mockRejectedValue(new Error('Network failure'))
+    setup()
+    await loaded()
+
+    const panel = screen.getByRole('tabpanel')
+    expect(panel).not.toHaveAttribute('aria-busy')
+    expect(screen.queryByText('Nenhum registro no período')).not.toBeInTheDocument()
+    expect(screen.getByText('Não foi possível carregar o histórico.')).toBeInTheDocument()
+
+    const retryBtn = screen.getByRole('button', { name: 'Tentar de novo' })
+    expect(retryBtn).toBeInTheDocument()
+
+    listarIncidentes.mockImplementation(listIncidents)
+    fireEvent.click(retryBtn)
+
+    expect(screen.getByTestId('history-skeleton')).toBeInTheDocument()
+    await loaded()
+
+    expect(screen.queryByText('Não foi possível carregar o histórico.')).not.toBeInTheDocument()
+    expect(within(panel).getAllByRole('listitem')).toHaveLength(2)
+  })
+
+  it('discards stale response when period changes before request completes', async () => {
+    let resolveFirst: (val: Incidente[]) => void = () => {}
+    listarIncidentes.mockReturnValueOnce(new Promise((resolve) => { resolveFirst = resolve }))
+
+    setup()
+    setDate('Data inicial', '2026-01-01')
+    setDate('Data final', '2026-01-02')
+
+    await act(async () => {
+      resolveFirst(await listIncidents())
+    })
+    await loaded()
+
+    expect(screen.getByText('Nenhum registro no período')).toBeInTheDocument()
+  })
+
+  it('translates Date: label and (ID) suffix via i18n (UXP-05 AC 1, 2)', () => {
+    setup()
+    expect(screen.getByText('Data:')).toBeInTheDocument()
+    expect(screen.getByText('EMP-084(ID)')).toBeInTheDocument()
   })
 })
 
@@ -304,9 +369,10 @@ describe('MachineDetailModal status and lock', () => {
   it('calls onChangeStatus with the chosen code', () => {
     const onChangeStatus = vi.fn()
     setup({ onChangeStatus })
-    const select = screen.getByLabelText('Alterar status') as HTMLSelectElement
-    expect(select.value).toBe('disponivel')
-    expect(select.options).toHaveLength(5)
+    const select = screen.getByLabelText('Alterar status')
+    expect(select).toHaveValue('disponivel')
+    fireEvent.click(select)
+    expect(screen.getAllByRole('option')).toHaveLength(5)
     fireEvent.change(select, { target: { value: 'manutencao' } })
     expect(onChangeStatus).toHaveBeenCalledWith('manutencao')
   })
@@ -323,5 +389,80 @@ describe('MachineDetailModal status and lock', () => {
     setup({ onToggleLock, machine: { ...machine, categoriaTravada: true } })
     fireEvent.click(screen.getByRole('button', { name: 'Destravar' }))
     expect(onToggleLock).toHaveBeenCalledWith(false)
+  })
+
+  it('disables select, shows spinner, and shows toast on status change success', async () => {
+    let resolveStatus!: () => void
+    const onChangeStatus = vi.fn().mockImplementation(() => new Promise<void>((res) => { resolveStatus = res }))
+    render(
+      <ToastProvider>
+        <MachineDetailModal machine={machine} onClose={vi.fn()} onChangeStatus={onChangeStatus} />
+      </ToastProvider>
+    )
+    const select = screen.getByLabelText('Alterar status')
+    fireEvent.change(select, { target: { value: 'manutencao' } })
+
+    expect(onChangeStatus).toHaveBeenCalledWith('manutencao')
+    expect(select).toBeDisabled()
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+
+    await act(async () => resolveStatus())
+    expect(select).toBeEnabled()
+    expect(screen.getByText('Status atualizado')).toBeInTheDocument()
+  })
+
+  it('rolls back to previous status when onChangeStatus fails', async () => {
+    let rejectStatus!: (err: Error) => void
+    const onChangeStatus = vi.fn().mockImplementation(() => new Promise<void>((_, rej) => { rejectStatus = rej }))
+    render(
+      <ToastProvider>
+        <MachineDetailModal machine={machine} onClose={vi.fn()} onChangeStatus={onChangeStatus} />
+      </ToastProvider>
+    )
+    const select = screen.getByLabelText('Alterar status')
+    expect(select).toHaveValue('disponivel')
+    fireEvent.change(select, { target: { value: 'manutencao' } })
+    expect(select).toBeDisabled()
+
+    await act(async () => rejectStatus(new Error('fail')))
+    expect(select).toBeEnabled()
+    expect(select).toHaveValue('disponivel')
+  })
+
+  it('disables lock button, shows spinner, and shows toast on lock success', async () => {
+    let resolveLock!: () => void
+    const onToggleLock = vi.fn().mockImplementation(() => new Promise<void>((res) => { resolveLock = res }))
+    render(
+      <ToastProvider>
+        <MachineDetailModal machine={machine} onClose={vi.fn()} onToggleLock={onToggleLock} />
+      </ToastProvider>
+    )
+    const lockBtn = screen.getByRole('button', { name: 'Travar' })
+    fireEvent.click(lockBtn)
+
+    expect(onToggleLock).toHaveBeenCalledWith(true)
+    expect(lockBtn).toBeDisabled()
+    expect(lockBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+
+    await act(async () => resolveLock())
+    expect(screen.getByRole('button', { name: 'Destravar' })).toBeEnabled()
+    expect(screen.getByText('Categoria travada')).toBeInTheDocument()
+  })
+
+  it('rolls back lock state when onToggleLock fails', async () => {
+    let rejectLock!: (err: Error) => void
+    const onToggleLock = vi.fn().mockImplementation(() => new Promise<void>((_, rej) => { rejectLock = rej }))
+    render(
+      <ToastProvider>
+        <MachineDetailModal machine={machine} onClose={vi.fn()} onToggleLock={onToggleLock} />
+      </ToastProvider>
+    )
+    const lockBtn = screen.getByRole('button', { name: 'Travar' })
+    fireEvent.click(lockBtn)
+    expect(lockBtn).toBeDisabled()
+
+    await act(async () => rejectLock(new Error('fail')))
+    expect(screen.getByRole('button', { name: 'Travar' })).toBeEnabled()
   })
 })

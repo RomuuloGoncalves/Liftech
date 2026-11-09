@@ -125,8 +125,8 @@
 }
 
 .card {
-  /* Mesma caixa do MachineListCard: 123px = 37 (.top) + 1 (.divider) + 43 (.bottom) + 16 (2 gaps de 8) + 24 (padding) + 2 (bordas).
-     .bottom tem 43px = 34px InfoField (rótulo 17px + valor 17px) + 8px padding-top + 1px borda. */
+  /* Mesma caixa do MachineListCard: 114px = 37 (.top) + 43 (.bottom) + 8 (1 gap) + 24 (padding) + 2 (bordas).
+     .bottom tem 43px = 34px InfoField (rótulo 17px + valor 17px) + 8px padding-top + 1px borda (a única linha do card). */
   composes: card from '../common/Card.module.css';
 }
 
@@ -164,9 +164,6 @@
   height: 20px;
 }
 
-.cardDivider {
-  border-top: 1px solid var(--line);
-}
 
 .cardBottom {
   display: flex;

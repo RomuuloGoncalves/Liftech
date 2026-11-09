@@ -12,6 +12,7 @@ import { filtroPorFilial, type Escopo } from "../../core/escopo.js";
 import type { UsuarioRequisicao } from "../../core/autenticar.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { aplicarStatus } from "../machine/statusService.js";
+import { publicar } from "../stream/streamHub.js";
 import { exigirOperador, lerMachineId, lerPeriodo, LIMITE_HISTORICO, type FiltroLista } from "../session/sessionService.js";
 import { nomesDosSetores } from "../sector/sectorService.js";
 
@@ -25,7 +26,7 @@ export interface DadosOcorrencia {
   descricao?: string | null;
 }
 
-async function formatar(lista: IncidentModel[]) {
+export async function formatar(lista: IncidentModel[]) {
   const registros: any[] = lista.map((i) => i.obterDados());
   const [maquinas, ops] = await Promise.all([
     empilhadeiras.obterTodos({ _id: { $in: registros.map((i) => i.empilhadeiraId) } }).then((l) => l.map((m) => m.getDocumento())),
@@ -47,6 +48,7 @@ async function formatar(lista: IncidentModel[]) {
       operador: operador ? { nome: operador.nome } : null,
       dataIncidente: new Date(i.dataIncidente).toISOString(),
       forcaImpacto: i.forcaImpacto ?? null,
+      tipo: i.tipo ?? null,
       status: i.status,
       origem: i.origem ?? "sensor",
       descricao: i.descricao ?? null,
@@ -79,7 +81,14 @@ export async function reportar(usuario: UsuarioRequisicao, dados: DadosOcorrenci
     })
   );
   await aplicarStatus(String(sessao.empilhadeiraId), "alerta");
-  return (await formatar([incidente!]))[0]!;
+  const formatado = (await formatar([incidente!]))[0]!;
+  // Avisa o front na hora (pop-up e sino); falha na publicação não desfaz a ocorrência.
+  try {
+    publicar("incidente", String(sessao.filialId), { ...formatado, filialId: String(sessao.filialId) });
+  } catch {
+    // o polling de segurança do front cobre
+  }
+  return formatado;
 }
 
 export async function listar(escopo: Escopo, filtro: FiltroLista & { filialId?: unknown }) {

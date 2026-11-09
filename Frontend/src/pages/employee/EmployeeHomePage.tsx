@@ -91,14 +91,18 @@ const EmployeeHomePage: React.FC = () => {
           </Link>
         </div>
         <div className={styles.list}>
-          {available.map((machine) => (
-            <MachineListCard
-              key={machine.id}
-              machine={machine}
-              actionLabel={t('employee.machines.select')}
-              onAction={() => navigate(`/funcionario/maquinas/${machine.id}`)}
-            />
-          ))}
+          {available.length === 0 ? (
+            <p className={styles.empty}>{t('employee.home.availableEmpty')}</p>
+          ) : (
+            available.map((machine) => (
+              <MachineListCard
+                key={machine.id}
+                machine={machine}
+                actionLabel={t('employee.machines.select')}
+                onAction={() => navigate(`/funcionario/maquinas/${machine.id}`)}
+              />
+            ))
+          )}
         </div>
       </section>
     </div>
