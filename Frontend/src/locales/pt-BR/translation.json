@@ -424,7 +424,8 @@
     "toastDeleted": "Filial \"{{name}}\" excluída"
   },
   "notFound": {
-    "description": "A página que você está procurando não existe ou foi movida.",
+    "title": "Esta rota saiu do mapa do galpão",
+    "description": "A página que você procura não existe ou mudou de lugar. Volte para o início e siga por outro corredor.",
     "backHome": "Voltar para o início"
   },
   "accessRequests": {

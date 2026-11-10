@@ -10,8 +10,10 @@
   box-sizing: border-box;
 }
 
-.icon {
-  color: var(--accent);
+.illustration {
+  width: 220px;
+  max-width: 100%;
+  height: auto;
 }
 
 .code {
@@ -28,6 +30,7 @@
   font-size: var(--fs-xl);
   font-weight: 500;
   color: var(--text-h);
+  text-wrap: balance;
 }
 
 .description {
@@ -35,6 +38,7 @@
   max-width: 420px;
   color: var(--text);
   font-size: var(--fs-base);
+  text-wrap: pretty;
 }
 
 .cta {

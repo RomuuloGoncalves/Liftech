@@ -422,7 +422,8 @@
     "toastDeleted": "Branch \"{{name}}\" deleted"
   },
   "notFound": {
-    "description": "The page you are looking for does not exist or was moved.",
+    "title": "This route drove off the warehouse map",
+    "description": "The page you're looking for doesn't exist or has moved. Head back to the start and take another aisle.",
     "backHome": "Back to home"
   },
   "accessRequests": {

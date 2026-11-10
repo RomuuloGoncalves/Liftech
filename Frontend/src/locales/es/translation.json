@@ -332,7 +332,8 @@
     "toastDeleted": "Sucursal \"{{name}}\" eliminada"
   },
   "notFound": {
-    "description": "La página que buscas no existe o fue movida.",
+    "title": "Esta ruta salió del mapa del almacén",
+    "description": "La página que buscas no existe o cambió de lugar. Vuelve al inicio y toma otro pasillo.",
     "backHome": "Volver al inicio"
   },
   "accessRequests": {

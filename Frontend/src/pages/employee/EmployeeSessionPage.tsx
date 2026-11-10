@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
-import forkliftWebm from '../../assets/forklift.webm'
-import forkliftMp4 from '../../assets/forklift.mp4'
+import ForkliftLoop from '../../components/common/ForkliftLoop'
 import Spinner from '../../components/common/Spinner'
 import EmployeeSkeleton from '../../components/employee/EmployeeSkeleton'
 import { formatElapsed, useWorkSession } from '../../hooks/useWorkSession'
-import { loopFade } from '../../utils/loopFade'
 import styles from './EmployeeSessionPage.module.css'
 
 const EmployeeSessionPage: React.FC = () => {
@@ -16,21 +14,6 @@ const EmployeeSessionPage: React.FC = () => {
   const { session, ready, end, elapsedSeconds } = useWorkSession()
 
   const [ending, setEnding] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      video.style.opacity = '1'
-      return
-    }
-    let frame = requestAnimationFrame(function tick() {
-      video.style.opacity = String(loopFade(video.currentTime, video.duration))
-      frame = requestAnimationFrame(tick)
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [session])
 
   if (!ready) return <EmployeeSkeleton variant="session" />
 
@@ -45,10 +28,7 @@ const EmployeeSessionPage: React.FC = () => {
 
   return (
     <section className={styles.page}>
-      <video ref={videoRef} className={styles.illustration} autoPlay loop muted playsInline aria-hidden="true">
-        <source src={forkliftWebm} type="video/webm" />
-        <source src={forkliftMp4} type="video/mp4" />
-      </video>
+      <ForkliftLoop className={styles.illustration} />
       <p className={styles.description}>
         <Trans i18nKey="employee.session.description" components={{ b: <b /> }} />
       </p>

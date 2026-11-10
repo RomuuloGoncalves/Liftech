@@ -153,3 +153,19 @@ describe('NotFoundPage.module.css harmony (HARM-06, HARM-19, HARM-20)', () => {
     expect(css).not.toContain('cubic-bezier')
   })
 })
+
+describe('NotFoundPage.module.css forklift layout (NF2-01, NF2-10)', () => {
+  const css = read('pages/NotFoundPage.module.css')
+
+  it('.illustration is 220px wide and never wider than the screen', () => {
+    const art = declarations(css, '.illustration')
+    expect(art).toContain('width: 220px;')
+    expect(art).toContain('max-width: 100%;')
+    expect(css).not.toMatch(/\.icon\s*\{/)
+  })
+
+  it('.title balances long translations and .description wraps pretty', () => {
+    expect(declarations(css, '.title')).toContain('text-wrap: balance;')
+    expect(declarations(css, '.description')).toContain('text-wrap: pretty;')
+  })
+})
