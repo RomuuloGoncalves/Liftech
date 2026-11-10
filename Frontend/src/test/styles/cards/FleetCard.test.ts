@@ -82,12 +82,12 @@ describe('FleetCard Figma layout (POL-02, CARD-05)', () => {
     expect(rule(card, '.highlight')).toContain('text-align: right')
   })
 
-  it('colours the urgency by tone and the session time in --black-text at 600', () => {
+  it('colours the urgency by tone and the session time in --text at 600', () => {
     expect(rule(card, '.danger')).toContain('color: var(--urgency-critical)')
     expect(rule(card, '.warning')).toContain('color: var(--urgency-high)')
     expect(rule(card, '.caution')).toContain('color: var(--urgency-medium)')
     const session = rule(card, '.session') ?? ''
-    expect(session).toContain('color: var(--black-text)')
+    expect(session).toContain('color: var(--text)')
     expect(session).toContain('font-weight: 600')
   })
 })
@@ -103,9 +103,13 @@ describe('FleetCard accident urgency (RST-10, RST-11, CARD-05)', () => {
     expect(rule(card, `.${tone}`)).toContain(`color: var(--${token})`)
   })
 
-  it('paints the filled header text white', () => {
-    expect(rule(card, '.topRow.danger, .topRow.warning, .topRow.caution')).toContain('color: var(--white)')
+  it('paints the filled header text white for danger and warning', () => {
+    expect(rule(card, '.topRow.danger, .topRow.warning')).toContain('color: var(--white)')
     expect(rule(card, '.topRow :is(.nome, .code, .menuButton)')).toContain('color: inherit')
+  })
+
+  it('paints the filled caution header text in --text-h', () => {
+    expect(rule(card, '.topRow.caution')).toContain('color: var(--text-h)')
   })
 
   it('has no icon box rule', () => {

@@ -13,8 +13,6 @@
 
 .title {
   font-size: var(--fs-2xl);
-  font-weight: 700;
-  color: var(--black-title);
   margin: 0 0 24px;
 }
 
@@ -25,7 +23,7 @@
 .sectionTitle {
   font-size: var(--fs-lg);
   font-weight: 600;
-  color: var(--black-title);
+  color: var(--text-h);
   margin: 0 0 16px;
 }
 
@@ -74,6 +72,7 @@
   font-weight: 700;
   color: var(--text-h);
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 .cardLabel {
@@ -91,19 +90,20 @@
 
 .errorMessage {
   font-size: var(--fs-xs);
-  color: var(--danger-solid);
+  color: var(--danger-text);
   margin: 0;
 }
 
 .retryButton {
   padding: 6px 12px;
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  color: var(--blue);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--blue-text);
   background: color-mix(in srgb, var(--blue) 10%, var(--white));
   border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--white));
   border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
 }
 
 .retryButton:hover {

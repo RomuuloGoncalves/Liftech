@@ -23,11 +23,11 @@ describe('Card.module.css shared shell (CARD-03)', () => {
     expect(cardBlock).toMatch(/min-width:\s*0;/)
   })
 
-  it('defines .cardLg with composes card, padding 16px and gap 12px', () => {
+  it('defines .cardLg with composes card, padding var(--card-pad-lg) and gap var(--card-gap-lg)', () => {
     const cardLgBlock = block('.cardLg')
     expect(cardLgBlock).toMatch(/composes:\s*card;/)
-    expect(cardLgBlock).toMatch(/padding:\s*16px;/)
-    expect(cardLgBlock).toMatch(/gap:\s*12px;/)
+    expect(cardLgBlock).toMatch(/padding:\s*var\(--card-pad-lg\);/)
+    expect(cardLgBlock).toMatch(/gap:\s*var\(--card-gap-lg\);/)
   })
 })
 

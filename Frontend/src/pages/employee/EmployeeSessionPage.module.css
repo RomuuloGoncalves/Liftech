@@ -23,12 +23,12 @@
   font-size: var(--fs-md);
   line-height: 1.45;
   text-align: center;
-  color: var(--black-text);
+  color: var(--text);
 }
 
 .description b {
   font-weight: 500;
-  color: var(--blue);
+  color: var(--blue-text);
 }
 
 .timer {
@@ -36,7 +36,7 @@
   font-weight: 700;
   line-height: 1.1;
   text-align: center;
-  color: var(--black-title);
+  color: var(--text-h);
   font-variant-numeric: tabular-nums;
 }
 
@@ -59,8 +59,8 @@
   border: 0;
   border-radius: 8px;
   font: inherit;
-  font-size: var(--fs-md);
-  font-weight: 500;
+  font-size: var(--fs-base);
+  font-weight: 600;
   color: var(--white);
   cursor: pointer;
 }
@@ -77,10 +77,10 @@
 
 .end {
   background: var(--blue);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--blue) 70%, var(--black-title));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--blue) 70%, var(--text-h));
 }
 
 .report {
   background: var(--danger-solid);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--danger-solid) 70%, var(--black-title));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--danger-solid) 70%, var(--text-h));
 }

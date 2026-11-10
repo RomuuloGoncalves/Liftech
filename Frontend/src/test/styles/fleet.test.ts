@@ -16,16 +16,16 @@ describe('FleetRow category chips (RST-07)', () => {
   const css = read('FleetRow.module.css')
 
   it.each([
-    ['acidentes', 'red'],
-    ['ativas', 'blue'],
-    ['manutencao', 'yellow'],
-    ['disponiveis', 'green'],
-  ])('chip of kind %s uses --%s-bg with the solid --%s text and border', (kind, color) => {
+    ['acidentes', 'red', 'red'],
+    ['ativas', 'blue', 'blue'],
+    ['manutencao', 'yellow', 'yellow-text'],
+    ['disponiveis', 'green', 'green'],
+  ])('chip of kind %s uses --%s-bg with the solid border and --%s text', (kind, color, textCol) => {
     const body = rule(css, `.${kind}`)
     expect(body).toBeDefined()
     expect(body).toContain(`--chip-bg: var(--${color}-bg)`)
     expect(body).toContain(`--chip: var(--${color})`)
-    expect(body).toContain(`--chip-text: var(--${color})`)
+    expect(body).toContain(`--chip-text: var(--${textCol})`)
   })
 
   it('custom chips keep deriving the colour from --category-color', () => {
@@ -52,9 +52,9 @@ describe('Status header (RST-12, FRT-09)', () => {
   it.each([
     ['toneDisponivel', '--green', '--white'],
     ['toneEmUso', '--blue', '--white'],
-    ['toneManutencao', '--yellow', '--black-title'],
+    ['toneManutencao', '--yellow', '--text-h'],
     ['toneAlerta', '--danger-solid', '--white'],
-    ['toneOffline', '--black-text', '--white'],
+    ['toneOffline', '--text', '--white'],
   ])('STATUS_TONE .%s fills the header with var(%s) and writes in var(%s)', (cls, bg, fg) => {
     expect(rule(badge, `.${cls}`)).toContain(`background: var(${bg})`)
     expect(rule(badge, `.${cls}`)).toContain(`color: var(${fg})`)

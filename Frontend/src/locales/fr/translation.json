@@ -332,7 +332,8 @@
     "toastDeleted": "Filiale « {{name}} » supprimée"
   },
   "notFound": {
-    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "title": "Cet itinéraire a quitté le plan de l'entrepôt",
+    "description": "La page que vous cherchez n'existe pas ou a changé de place. Revenez à l'accueil et prenez une autre allée.",
     "backHome": "Retour à l'accueil"
   },
   "accessRequests": {

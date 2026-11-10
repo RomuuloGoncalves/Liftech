@@ -332,7 +332,8 @@
     "toastDeleted": "Filiale \"{{name}}\" gelöscht"
   },
   "notFound": {
-    "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "title": "Diese Route ist vom Lagerplan abgekommen",
+    "description": "Die gesuchte Seite existiert nicht oder wurde verschoben. Kehren Sie zum Start zurück und nehmen Sie einen anderen Gang.",
     "backHome": "Zurück zur Startseite"
   },
   "accessRequests": {

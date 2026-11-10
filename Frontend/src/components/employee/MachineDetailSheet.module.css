@@ -62,6 +62,7 @@
   font-weight: 600;
   color: var(--text-h);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .historyHeader {
@@ -77,7 +78,7 @@
   border-radius: 8px;
   background: var(--blue);
   color: var(--white);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   font-weight: 500;
 }
 
@@ -103,7 +104,8 @@
   background: transparent;
   color: var(--text-h);
   font-family: inherit;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-base);
+  font-variant-numeric: tabular-nums;
 }
 
 .timeline {
@@ -157,6 +159,7 @@
 .itemMeta {
   font-size: var(--fs-xs);
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .empty,
@@ -181,6 +184,7 @@
   color: var(--white);
   font-family: inherit;
   font-size: var(--fs-base);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -191,6 +195,7 @@
 
 .cancel {
   background: var(--danger-solid);
+  font-weight: 600;
 }
 
 .cancel:disabled {
@@ -223,7 +228,7 @@
   height: 20px;
   border-radius: 4px;
   background: var(--line);
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: pulse 1.2s ease-in-out infinite;
 }
 
 .skeletonLine:nth-child(2) {
@@ -255,7 +260,8 @@
 .errorText {
   margin: 0;
   font-size: var(--fs-sm);
-  color: var(--danger-solid);
+  font-weight: 500;
+  color: var(--danger-text);
 }
 
 .retryButton {
@@ -265,7 +271,7 @@
   background: var(--blue);
   color: var(--white);
   font-family: inherit;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
 }

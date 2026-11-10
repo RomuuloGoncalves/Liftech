@@ -70,8 +70,9 @@
 }
 
 .infoValue {
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
@@ -104,7 +105,8 @@
 .tab {
   width: 100px;
   height: 32px;
-  font-weight: bold;
+  font-size: var(--fs-sm);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -174,6 +176,7 @@
   gap: 2px;
   font-size: var(--fs-xs);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: var(--text);
   background: var(--accent);
   border: 1px solid var(--accent);
@@ -198,7 +201,7 @@
 }
 
 .operator {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
 }
 
@@ -206,7 +209,7 @@
   margin: 0;
   padding: 24px 0;
   text-align: center;
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   color: var(--text);
 }
 
@@ -218,8 +221,8 @@
   border: 0.5px solid var(--border);
   border-radius: 5px;
   color: var(--white);
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -303,7 +306,7 @@
 .historyErrorMessage {
   margin: 0;
   font-size: var(--fs-sm);
-  color: var(--danger-solid);
+  color: var(--danger-text);
 }
 
 .historyRetryButton {
@@ -312,10 +315,10 @@
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-h);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
 .historyRetryButton:hover {

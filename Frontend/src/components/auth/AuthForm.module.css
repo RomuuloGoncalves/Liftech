@@ -5,30 +5,23 @@
 }
 
 .labelAccent {
-  font-size: var(--fs-xs);
-  color: #3a9cff;
+  font-size: var(--fs-sm);
+  color: var(--blue-text);
 }
 
 .input {
   height: 40px;
   padding: 0 10px;
-  border: 1px solid #dedede;
-  background: #fff;
+  border: 1px solid var(--line);
+  background: var(--white);
   font-size: var(--fs-md);
-}
-
-.input::placeholder {
-  font-family: var(--sans);
-  font-size: var(--fs-xs);
-  font-weight: 300;
-  color: #b3b3b3;
 }
 
 .sectionTitle {
   margin: 11px 0 6px;
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: #333;
+  color: var(--text-h);
 }
 
 .submitButton {
@@ -38,12 +31,12 @@
   border: none;
   border-radius: 8px;
   background: linear-gradient(90deg, #40b2ff 30%, #4550ee 100%);
-  color: #fff;
+  color: var(--white);
   font: inherit;
   font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 
 /* Nos logins o botão fica 45px abaixo da senha, com ou sem "Esqueceu a senha?". */
@@ -68,7 +61,8 @@
   background: none;
   font: inherit;
   font-size: var(--fs-xs);
-  color: #3a9cff;
+  font-weight: 500;
+  color: var(--blue-text);
   cursor: default;
 }
 
@@ -85,7 +79,7 @@
 .successTitle {
   margin: 0;
   font-size: var(--fs-base);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-h);
 }
 

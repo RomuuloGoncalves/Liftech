@@ -42,10 +42,6 @@
   color: var(--text-h);
 }
 
-.input::placeholder {
-  color: var(--black-text);
-}
-
 .input:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
@@ -62,7 +58,7 @@
 .leftIcon {
   position: absolute;
   left: 10px;
-  color: var(--black-text);
+  color: var(--text);
   pointer-events: none;
 }
 
@@ -73,7 +69,7 @@
   padding: 4px;
   border: none;
   background: transparent;
-  color: var(--black-text);
+  color: var(--text);
   cursor: pointer;
 }
 
@@ -82,8 +78,9 @@
 }
 
 .error {
-  font-size: var(--fs-xs);
-  color: var(--red);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--danger-text);
 }
 
 .divider {

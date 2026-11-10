@@ -201,7 +201,7 @@ const Sidebar: React.FC = () => {
                 to={to}
                 className={styles.navLink}
                 onClick={isMobile ? closeMobileDrawer : undefined}
-                style={{ fontSize: 12 }}
+                style={{ fontSize: 'var(--fs-sm)' }}
               >
                 <span className={styles.navIcon}>
                   <LogIn size={16} />
@@ -216,7 +216,7 @@ const Sidebar: React.FC = () => {
                 if (isMobile) closeMobileDrawer()
                 simulate()
               }}
-              style={{ fontSize: 12, border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+              style={{ fontSize: 'var(--fs-sm)', border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }}
             >
               <span className={styles.navIcon}>
                 <AlertTriangle size={16} />

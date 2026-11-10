@@ -51,6 +51,16 @@ describe('EmployeeSessionPage', () => {
     resetWorkSession()
     atual.mockReset().mockResolvedValue(null)
     encerrar.mockReset()
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
   })
 
   afterEach(() => vi.useRealTimers())
@@ -141,5 +151,46 @@ describe('EmployeeSessionPage', () => {
   it('redirects to /funcionario/maquinas without an open session', async () => {
     await setup()
     expect(screen.getByText('maquinas')).toBeInTheDocument()
+  })
+
+  it('with reduced-motion: reduce, requestAnimationFrame is not called and video opacity is 1', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion: reduce'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame')
+    seed()
+    const { container } = await setup()
+    const video = container.querySelector('video')
+    expect(video).toBeInTheDocument()
+    expect(video?.style.opacity).toBe('1')
+    expect(rafSpy).not.toHaveBeenCalled()
+    rafSpy.mockRestore()
+  })
+
+  it('without reduced-motion, loop runs requestAnimationFrame', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame')
+    seed()
+    const { container } = await setup()
+    const video = container.querySelector('video')
+    expect(video).toBeInTheDocument()
+    expect(rafSpy).toHaveBeenCalled()
+    rafSpy.mockRestore()
   })
 })

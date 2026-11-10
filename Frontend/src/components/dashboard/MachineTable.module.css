@@ -27,14 +27,14 @@
 }
 
 .icon {
-  color: var(--black-title);
+  color: var(--text-h);
   flex-shrink: 0;
 }
 
 .title {
   font-size: var(--fs-lg);
   font-weight: 600;
-  color: var(--black-title);
+  color: var(--text-h);
   margin: 0;
 }
 
@@ -62,13 +62,13 @@
   height: 38px;
   padding: 0 12px 0 36px;
   font-size: var(--fs-sm);
-  color: var(--black-text);
+  color: var(--text);
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   outline: none;
   width: 200px;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
 .searchInput:focus {
@@ -82,13 +82,13 @@
   color: var(--white);
   border: none;
   border-radius: var(--radius-md);
-  font-size: var(--fs-sm);
-  font-weight: 500;
+  font-size: var(--fs-md);
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--dur-fast) var(--ease-out);
   white-space: nowrap;
 }
 
@@ -122,9 +122,10 @@
 
 .td {
   font-size: var(--fs-sm);
-  color: var(--black-text);
+  color: var(--text);
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
 }
 
 .nameButton {
@@ -134,11 +135,12 @@
   font: inherit;
   font-size: var(--fs-sm);
   font-weight: 500;
-  color: var(--blue);
+  color: var(--blue-text);
   text-align: left;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .nameButton:hover {
@@ -168,6 +170,7 @@
   font-size: var(--fs-xs);
   color: var(--text-muted);
   margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .pagination {
@@ -187,7 +190,7 @@
   border: 1px solid color-mix(in srgb, var(--blue) 30%, var(--white));
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition: opacity var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
   padding: 0;
 }
 
@@ -207,11 +210,12 @@
   justify-content: center;
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--black-title);
+  color: var(--text-h);
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 0 6px;
+  font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 1100px) {

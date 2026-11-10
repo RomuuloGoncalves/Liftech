@@ -15,25 +15,25 @@
 }
 
 .em_uso {
-  color: var(--blue);
+  color: var(--blue-text);
   background: var(--blue-bg);
   border-color: var(--blue-bg);
 }
 
 .manutencao {
-  color: var(--yellow);
+  color: var(--yellow-text);
   background: var(--yellow-bg);
   border-color: var(--yellow-bg);
 }
 
 .alerta {
-  color: var(--danger-solid);
+  color: var(--danger-text);
   background: var(--red-bg);
   border-color: var(--red-bg);
 }
 
 .offline {
-  color: var(--black-text);
+  color: var(--text);
   border-color: var(--gray-border);
   background: var(--gray-bg);
 }
@@ -50,7 +50,7 @@
 
 .toneManutencao {
   background: var(--yellow);
-  color: var(--black-title);
+  color: var(--text-h);
 }
 
 .toneAlerta {
@@ -59,6 +59,6 @@
 }
 
 .toneOffline {
-  background: var(--black-text);
+  background: var(--text);
   color: var(--white);
 }

@@ -32,7 +32,7 @@
   border-radius: 3px;
   background: var(--white);
   font-size: var(--fs-xs);
-  color: var(--black-text);
+  color: var(--text);
 }
 
 .chipRemove {
@@ -40,7 +40,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--black-text);
+  color: var(--text);
   cursor: pointer;
 }
 
@@ -63,7 +63,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text-h);
 }
 
@@ -88,7 +88,7 @@
   height: 28px;
   padding: 0 12px;
   border-bottom: 1px solid var(--gray-border);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text-h);
   cursor: pointer;
 }

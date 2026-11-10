@@ -61,6 +61,7 @@
 .dateTime {
   display: flex;
   flex-direction: column;
+  font-variant-numeric: tabular-nums;
 }
 
 .action {
@@ -79,6 +80,7 @@
   color: var(--white);
   font-family: inherit;
   font-size: var(--fs-sm);
+  font-weight: 600;
   cursor: pointer;
 }
 

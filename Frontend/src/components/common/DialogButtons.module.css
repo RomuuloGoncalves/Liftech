@@ -8,7 +8,7 @@
 .cancel,
 .confirm {
   min-width: 72px;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border: none;
   border-radius: 5px;
   color: var(--white);

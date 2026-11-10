@@ -17,8 +17,8 @@
 }
 
 .label {
-  font-size: var(--fs-md);
-  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-weight: 600;
   color: var(--text-h);
 }
 
@@ -37,13 +37,8 @@
   border-radius: 8px;
   background: var(--gray-bg);
   font: inherit;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
   color: var(--text-h);
-}
-
-.input::placeholder {
-  color: var(--black-text);
-  opacity: 0.55;
 }
 
 .input:focus-visible {
@@ -62,13 +57,14 @@
 .icon {
   position: absolute;
   left: 10px;
-  color: var(--black-text);
+  color: var(--text);
   pointer-events: none;
 }
 
 .error {
-  font-size: var(--fs-xs);
-  color: var(--danger-solid);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--danger-text);
 }
 
 .button {
@@ -84,7 +80,7 @@
   border-radius: 8px;
   font: inherit;
   font-size: var(--fs-base);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -101,14 +97,10 @@
 .cancel {
   background: var(--danger-solid);
   color: var(--white);
+  font-weight: 600;
 }
 
 .submit {
   background: var(--blue);
   color: var(--white);
-}
-
-.button:focus-visible {
-  outline: 2px solid var(--text-h);
-  outline-offset: 2px;
 }

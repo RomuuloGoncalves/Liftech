@@ -332,7 +332,8 @@
     "toastDeleted": "支店「{{name}}」を削除しました"
   },
   "notFound": {
-    "description": "お探しのページは存在しないか、移動しました。",
+    "title": "このルートは倉庫マップの外に出ました",
+    "description": "お探しのページは存在しないか、場所が変わりました。ホームに戻って別の通路を進んでください。",
     "backHome": "ホームに戻る"
   },
   "accessRequests": {

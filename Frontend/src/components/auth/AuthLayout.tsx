@@ -40,9 +40,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ title, subtitle, children }) =>
           <p className={styles.subtitle}>{subtitle}</p>
         </header>
         <nav className={styles.tabs} aria-label={t('auth.tabsLabel')}>
-          <NavLink to="/solicitar-acesso" end className={tabClass}>{t('auth.tabRequest')}</NavLink>
-          <NavLink to="/login" end className={tabClass}>{t('auth.tabAdmin')}</NavLink>
-          <NavLink to="/login/colaborador" end className={tabClass}>{t('auth.tabCollaborator')}</NavLink>
+          <NavLink to="/solicitar-acesso" end className={tabClass} title={t('auth.tabRequest')}>{t('auth.tabRequest')}</NavLink>
+          <NavLink to="/login" end className={tabClass} title={t('auth.tabAdmin')}>{t('auth.tabAdmin')}</NavLink>
+          <NavLink to="/login/colaborador" end className={tabClass} title={t('auth.tabCollaborator')}>{t('auth.tabCollaborator')}</NavLink>
         </nav>
         {children}
       </div>
