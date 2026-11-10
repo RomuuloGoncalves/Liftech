@@ -21,7 +21,7 @@
 
 .filtersTitle {
   margin: 4px 0 0;
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--text-h);
 }
@@ -74,7 +74,8 @@
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
+  font-variant-numeric: tabular-nums;
   color: var(--text-h);
 }
 
@@ -100,14 +101,14 @@
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   color: var(--text-h);
 }
 
 .empty {
   margin: 16px 0;
   text-align: center;
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   color: var(--text);
 }
 

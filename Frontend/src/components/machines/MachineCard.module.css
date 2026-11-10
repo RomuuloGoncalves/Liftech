@@ -33,7 +33,7 @@
   margin: 0;
   font-size: var(--fs-md);
   font-weight: 600;
-  line-height: 130%;
+  line-height: 1.3;
   color: var(--accent);
   white-space: nowrap;
   overflow: hidden;

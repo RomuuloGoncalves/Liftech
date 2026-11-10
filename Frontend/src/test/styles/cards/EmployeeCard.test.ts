@@ -44,8 +44,8 @@ describe('EmployeeCard controls and tokens (RST-08, RST-11, CARD-07)', () => {
   it('icons, access text and toggle use the tokens', () => {
     expect(block('.delete')).toMatch(/color:\s*var\(--danger-solid\)/)
     expect(block('.edit')).toMatch(/color:\s*var\(--blue\)/)
-    expect(block('.allowed')).toMatch(/color:\s*var\(--blue\)/)
-    expect(block('.denied')).toMatch(/color:\s*var\(--red\)/)
+    expect(block('.allowed')).toMatch(/color:\s*var\(--blue-text\)/)
+    expect(block('.denied')).toMatch(/color:\s*var\(--danger-text\)/)
     expect(block('.switchOn')).toMatch(/background:\s*var\(--blue\)/)
   })
 

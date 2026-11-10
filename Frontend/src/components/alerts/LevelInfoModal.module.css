@@ -28,7 +28,7 @@
 }
 
 .level {
-  font-size: 16px;
+  font-size: var(--fs-lg);
   font-weight: 500;
   color: var(--tone);
   margin: 0 0 8px;

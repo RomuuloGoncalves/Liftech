@@ -21,6 +21,10 @@ const EmployeeSessionPage: React.FC = () => {
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      video.style.opacity = '1'
+      return
+    }
     let frame = requestAnimationFrame(function tick() {
       video.style.opacity = String(loopFade(video.currentTime, video.duration))
       frame = requestAnimationFrame(tick)

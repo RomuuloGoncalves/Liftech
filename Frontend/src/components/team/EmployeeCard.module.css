@@ -51,11 +51,11 @@
 }
 
 .allowed {
-  color: var(--blue);
+  color: var(--blue-text);
 }
 
 .denied {
-  color: var(--red);
+  color: var(--danger-text);
 }
 
 .actions {
@@ -115,7 +115,7 @@
   height: 14px;
   border-radius: 50%;
   background: var(--white);
-  transition: transform 150ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .switchOn .knob {

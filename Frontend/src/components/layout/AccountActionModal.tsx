@@ -102,7 +102,7 @@ const AccountActionModal: React.FC<AccountActionModalProps> = ({ mode, onDone, o
     <Modal title={getTitle()} onClose={saving ? () => {} : onCancel}>
       <form onSubmit={handleSubmit} className={formStyles.form}>
         {mode === 'excluir' && (
-          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--danger-solid)', margin: 0 }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--danger-text)', fontWeight: 500, margin: 0 }}>
             {t('profile.deleteWarning')}
           </p>
         )}
@@ -166,7 +166,7 @@ const AccountActionModal: React.FC<AccountActionModalProps> = ({ mode, onDone, o
         </div>
 
         {errorMessage && (
-          <p role="alert" style={{ color: 'var(--danger-solid)', fontSize: 'var(--fs-sm)', margin: 0 }}>
+          <p role="alert" style={{ color: 'var(--danger-text)', fontSize: 'var(--fs-sm)', fontWeight: 500, margin: 0 }}>
             {errorMessage}
           </p>
         )}

@@ -16,14 +16,14 @@
 }
 
 .icon {
-  color: var(--black-title);
+  color: var(--text-h);
   flex-shrink: 0;
 }
 
 .title {
   font-size: var(--fs-lg);
   font-weight: 600;
-  color: var(--black-title);
+  color: var(--text-h);
   margin: 0;
 }
 
@@ -41,25 +41,25 @@
 .dayHeader {
   font-size: var(--fs-xs);
   font-weight: 500;
-  color: var(--black-text);
+  color: var(--text);
   text-align: center;
   padding-bottom: 4px;
 }
 
 .hourHeader {
   font-size: var(--fs-xs);
-  font-weight: normal;
-  color: var(--black-text);
+  font-weight: 400;
+  color: var(--text);
   text-align: right;
   padding-right: 8px;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .cell {
   width: 28px;
   height: 22px;
   border-radius: var(--radius-sm);
-  transition: opacity 0.15s ease;
 }
 
 /* 3 tons de azul baseados no token --blue / --primary */
@@ -91,7 +91,7 @@
 
 .legendText {
   font-size: var(--fs-xs);
-  color: var(--black-text);
+  color: var(--text);
 }
 
 .legendBox {

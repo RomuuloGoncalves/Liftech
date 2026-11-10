@@ -44,7 +44,7 @@ const InitialPasswordModal: React.FC<InitialPasswordModalProps> = ({ email, senh
               value={senha}
               aria-label={t('accessRequests.passwordLabel')}
               className={formStyles.input}
-              style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}
+              style={{ fontFamily: 'var(--mono)', letterSpacing: '0.05em' }}
             />
             <button
               type="button"
@@ -64,9 +64,9 @@ const InitialPasswordModal: React.FC<InitialPasswordModalProps> = ({ email, senh
             borderRadius: '5px',
             backgroundColor: 'var(--bg-page)',
             border: '0.5px solid var(--border)',
-            fontSize: 'var(--fs-xs)',
+            fontSize: 'var(--fs-sm)',
             color: 'var(--text-h)',
-            lineHeight: 1.4,
+            lineHeight: 1.45,
           }}
         >
           {t('accessRequests.passwordWarning')}

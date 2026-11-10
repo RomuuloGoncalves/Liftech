@@ -16,8 +16,8 @@ const modal = read('MachineDetailModal.module.css')
 describe('Machine status badges (RST-06)', () => {
   it.each([
     ['disponivel', 'green-bg', 'green'],
-    ['em_uso', 'blue-bg', 'blue'],
-    ['manutencao', 'yellow-bg', 'yellow'],
+    ['em_uso', 'blue-bg', 'blue-text'],
+    ['manutencao', 'yellow-bg', 'yellow-text'],
   ])('StatusBadge .%s uses --%s with --%s text', (cls, bg, fg) => {
     const b = block(badge, cls)
     expect(b).toContain(`background: var(--${bg})`)
@@ -27,7 +27,7 @@ describe('Machine status badges (RST-06)', () => {
   it('StatusBadge .offline stays neutral grey', () => {
     const b = block(badge, 'offline')
     expect(b).toContain('background: var(--gray-bg)')
-    expect(b).toContain('color: var(--black-text)')
+    expect(b).toContain('color: var(--text)')
     expect(b).toContain('border-color: var(--gray-border)')
   })
 
@@ -43,7 +43,7 @@ describe('Machine status badges (RST-06)', () => {
 
   it('StatusBadge .alerta is red, distinct from offline', () => {
     const b = block(badge, 'alerta')
-    expect(b).toContain('color: var(--danger-solid)')
+    expect(b).toContain('color: var(--danger-text)')
     expect(b).toContain('background: var(--red-bg)')
   })
 })

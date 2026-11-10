@@ -58,8 +58,8 @@
   border-radius: 4px;
   background: var(--white);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  animation: menu-in 120ms ease-out;
-  transform: translateX(-40%);
+  animation: menu-in var(--dur-base) var(--ease-out);
+  translate: -40% 0;
 }
 
 .popoverClose {
@@ -103,7 +103,7 @@
   border: 1px solid var(--gray-border);
   border-radius: 7px;
   font-size: var(--fs-xs);
-  color: var(--black-text);
+  color: var(--text);
 }
 
 .hex .dot {
@@ -118,7 +118,8 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--text-h);
 }
 
@@ -137,7 +138,7 @@
   border-radius: 3px;
   background: var(--bg-page);
   font: inherit;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-md);
   color: var(--text-h);
 }
 
@@ -151,17 +152,13 @@
   outline-offset: 1px;
 }
 
-.nameInput::placeholder {
-  color: var(--black-text);
-}
-
 .nameInput[aria-invalid='true'] {
   border-color: var(--danger-solid);
 }
 
 .error {
   font-size: var(--fs-xs);
-  color: var(--danger-solid);
+  color: var(--danger-text);
 }
 
 @keyframes menu-in {
@@ -199,7 +196,7 @@
 
 .taken {
   font-size: var(--fs-xs);
-  color: var(--black-text);
+  color: var(--text);
 }
 
 p.error {

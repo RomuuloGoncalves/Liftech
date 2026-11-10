@@ -43,7 +43,7 @@
   box-shadow: var(--shadow);
   color: var(--text);
   cursor: pointer;
-  transition: transform 120ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .iconButton:active,
@@ -82,7 +82,7 @@
   background: var(--bg);
   box-shadow: var(--shadow);
   transform-origin: top right;
-  animation: popover-in 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  animation: popover-in var(--dur-base) var(--ease-out);
 }
 
 @keyframes popover-in {
@@ -137,12 +137,12 @@
   gap: 10px;
   width: 100%;
   box-sizing: border-box;
-  padding: 8px;
+  padding: 8px 10px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   text-align: left;
   cursor: pointer;
 }

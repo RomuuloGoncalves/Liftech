@@ -33,6 +33,14 @@ describe('AuthLayout', () => {
     expect(links[1]).not.toHaveAttribute('aria-current')
   })
 
+  it('exposes the full text in title attribute for each tab (HARM-10)', () => {
+    renderLayout()
+    const links = within(screen.getByRole('navigation', { name: 'Tipo de acesso' })).getAllByRole('link')
+    for (const link of links) {
+      expect(link).toHaveAttribute('title', link.textContent)
+    }
+  })
+
   it('renders the hero with the three info cards', () => {
     renderLayout()
     expect(screen.getByRole('heading', { level: 2, name: 'Comece conosco' })).toBeInTheDocument()

@@ -43,11 +43,11 @@
   background: var(--accent);
   color: var(--white);
   font-weight: 600;
-  font-size: var(--fs-base);
+  font-size: var(--fs-md);
   text-decoration: none;
   box-shadow: var(--shadow);
-  transition: opacity 120ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
-    transform 120ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  transition: opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .cta:hover {

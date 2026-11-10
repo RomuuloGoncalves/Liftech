@@ -17,12 +17,11 @@
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-h);
-  font-family: inherit;
   font-size: var(--fs-md);
   text-align: left;
   cursor: pointer;
   user-select: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
 .button:hover:not(:disabled) {
@@ -67,7 +66,7 @@
 .chevron {
   flex-shrink: 0;
   color: var(--text);
-  transition: transform 0.15s ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .chevronOpen {
@@ -113,7 +112,7 @@
   font-size: var(--fs-md);
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.1s ease;
+  transition: background-color var(--dur-fast) var(--ease-out);
 }
 
 .optionHighlighted {
@@ -122,7 +121,7 @@
 }
 
 .optionSelected {
-  color: var(--blue);
+  color: var(--blue-text);
   font-weight: 600;
 }
 
@@ -134,14 +133,6 @@
 .checkmark {
   flex-shrink: 0;
   font-size: var(--fs-sm);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--blue);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .chevron,
-  .button,
-  .option {
-    transition: none !important;
-  }
 }
