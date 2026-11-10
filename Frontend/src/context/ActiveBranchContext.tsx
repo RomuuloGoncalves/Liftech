@@ -52,7 +52,7 @@ function writeStored(value: string): void {
 }
 
 export const ActiveBranchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Re-render on navigation so a login or logout is picked up; the session in localStorage is the source of truth.
+  // Re-renderiza na navegação para detectar login ou logout; a sessão no localStorage é a fonte da verdade.
   useLocation()
   const [stored, setStored] = useState(readStored)
   const [, refresh] = useReducer((n: number) => n + 1, 0)

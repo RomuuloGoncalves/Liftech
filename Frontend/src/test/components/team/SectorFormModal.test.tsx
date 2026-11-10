@@ -50,8 +50,9 @@ describe('SectorFormModal', () => {
   it('company scope: shows a select with the scope branches, also when editing', () => {
     render(<SectorFormModal sector={sector} branches={branches} canMove onSave={vi.fn()} onClose={vi.fn()} />)
 
-    expect(branchField().tagName).toBe('SELECT')
-    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Unidade Votorantin', 'Unidade Centro'])
+    expect(branchField()).toHaveAttribute('role', 'combobox')
+    fireEvent.click(branchField())
+    expect(screen.getAllByRole('option').map((o) => o.textContent?.replace('✓', '').trim())).toEqual(['Unidade Votorantin', 'Unidade Centro'])
     expect(branchField()).toHaveValue('f1')
   })
 
@@ -80,7 +81,7 @@ describe('SectorFormModal', () => {
   it('branches scope with 2+ branches: creating shows the select', () => {
     render(<SectorFormModal branches={branches} canMove={false} onSave={vi.fn()} onClose={vi.fn()} />)
 
-    expect(branchField().tagName).toBe('SELECT')
+    expect(branchField()).toHaveAttribute('role', 'combobox')
   })
 
   it('branches scope with one branch: creating shows its name read-only and saves it', () => {
@@ -117,5 +118,44 @@ describe('SectorFormModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(onSave).not.toHaveBeenCalled()
+  })
+
+  it('disables input and submit button, shows spinner and aria-busy while onSave is pending', async () => {
+    let resolveSave!: () => void
+    const onSave = vi.fn().mockImplementation(() => new Promise<void>((res) => { resolveSave = res }))
+    render(<SectorFormModal branches={branches} canMove onSave={onSave} onClose={vi.fn()} />)
+
+    fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Pátio' } })
+    const createBtn = screen.getByRole('button', { name: 'Criar setor' })
+    fireEvent.click(createBtn)
+
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(createBtn).toBeDisabled()
+    expect(createBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(screen.getByText('Salvando...')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome setor')).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+
+    // Segundo clique não envia novamente
+    fireEvent.click(createBtn)
+    expect(onSave).toHaveBeenCalledTimes(1)
+
+    resolveSave()
+  })
+
+  it('frees controls and preserves data when onSave rejects', async () => {
+    const onSave = vi.fn().mockRejectedValue(new Error('500'))
+    render(<SectorFormModal branches={branches} canMove onSave={onSave} onClose={vi.fn()} />)
+
+    fireEvent.change(screen.getByLabelText('Nome setor'), { target: { value: 'Pátio' } })
+    const createBtn = screen.getByRole('button', { name: 'Criar setor' })
+    fireEvent.click(createBtn)
+
+    await screen.findByRole('button', { name: 'Criar setor' })
+    expect(screen.getByRole('button', { name: 'Criar setor' })).toBeEnabled()
+    expect(screen.queryByTestId('spinner')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Nome setor')).toHaveValue('Pátio')
+    expect(screen.getByLabelText('Nome setor')).toBeEnabled()
   })
 })

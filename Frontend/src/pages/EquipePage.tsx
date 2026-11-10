@@ -18,6 +18,7 @@ import {
   type Sector,
 } from '../data/team'
 import PageSkeleton, { SkeletonBlock, SkeletonCards } from '../components/common/PageSkeleton'
+import Select from '../components/common/Select'
 import { useToast } from '../components/common/Toast'
 import { useActiveBranch } from '../context/ActiveBranchContext'
 import { operatorService } from '../services/operatorService'
@@ -50,8 +51,9 @@ const EquipePage: React.FC = () => {
   const filialId = activeBranch === 'todas' ? undefined : activeBranch
   const [loadedFilialId, setLoadedFilialId] = useState(filialId)
   const [attempt, setAttempt] = useState(0)
+  const [deleting, setDeleting] = useState(false)
 
-  // A different active branch goes back to the skeleton before the effect refetches.
+  // Filial ativa diferente volta ao skeleton antes de buscar novamente.
   if (loadedFilialId !== filialId) {
     setLoadedFilialId(filialId)
     setLoadState('loading')
@@ -90,7 +92,7 @@ const EquipePage: React.FC = () => {
   const replaceEmployee = (employee: Employee) =>
     setEmployees((prev) => prev.map((e) => (e.id === employee.id ? employee : e)))
 
-  // Optimistic: shows `next`, saves, then uses the API answer; on failure puts `previous` back.
+  // Otimista: exibe `next`, grava e usa a resposta da API; em caso de falha restaura `previous`.
   const saveOptimistic = (previous: Employee, next: Employee, save: () => Promise<Employee>, errorKey = 'team.saveError') => {
     replaceEmployee(next)
     save().then(replaceEmployee, (e) => {
@@ -106,8 +108,8 @@ const EquipePage: React.FC = () => {
     )
   }
 
-  // Create waits for the API, which saves the operator and its login together; a refusal keeps the form open.
-  // ponytail: no in-flight guard, a double click on Confirmar registers twice; disable the button if it shows up.
+  // Criação aguarda a API, que salva o operador e o login juntos; uma recusa mantém o formulário aberto.
+  // ponytail: sem trava de requisição em andamento, duplo clique em Confirmar registra duas vezes; desabilitar botão se necessário.
   const createEmployee = async (values: EmployeeFormValues) => {
     try {
       const created = await operatorService.criar(values, values.filialId ?? filialId)
@@ -116,6 +118,7 @@ const EquipePage: React.FC = () => {
       setDialog(null)
     } catch (e) {
       showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? 'team.usernameTaken' : 'team.saveError'))
+      throw e
     }
   }
 
@@ -143,14 +146,14 @@ const EquipePage: React.FC = () => {
 
   const saveEmployee = (values: EmployeeFormValues) => {
     if (dialog?.kind !== 'employeeForm') return
-    if (dialog.employee) editEmployee(dialog.employee, values)
-    else void createEmployee(values)
+    if (dialog.employee) return editEmployee(dialog.employee, values)
+    return createEmployee(values)
   }
 
   const replaceSector = (id: string, sector: Sector) =>
     setSectors((prev) => prev.map((s) => (s._id === id ? sector : s)))
 
-  // The 409 with a machine count names it; any other 409 is the repeated name.
+  // O 409 com contagem de máquinas informa a quantidade; qualquer outro 409 indica nome duplicado.
   const sectorError = (e: unknown, machinesKey: string) => {
     if (!axios.isAxiosError(e) || e.response?.status !== 409) return t('team.saveError')
     const n = /Setor com (\d+)/.exec(String(e.response.data?.error ?? ''))?.[1]
@@ -163,7 +166,7 @@ const EquipePage: React.FC = () => {
     const previous = dialog.sector
     if (previous) {
       replaceSector(previous._id, { ...previous, ...values, filial })
-      // Only the company scope may move a sector; the others keep it where it is.
+      // Apenas o escopo empresa pode mover um setor; os demais mantêm onde está.
       sectorService
         .atualizar(previous._id, canManage ? values : { nome: values.nome })
         .then((saved) => replaceSector(previous._id, saved), (e) => {
@@ -185,30 +188,35 @@ const EquipePage: React.FC = () => {
     setDialog(null)
   }
 
-  const deleteConfirmed = () => {
-    if (dialog?.kind !== 'confirmDelete') return
+  const deleteConfirmed = async () => {
+    if (dialog?.kind !== 'confirmDelete' || deleting) return
     const { type, item } = dialog.target
-    if (type === 'employee') {
-      const index = employees.indexOf(item)
-      setEmployees((prev) => prev.filter((e) => e.id !== item.id))
-      show(t('team.toastEmployeeDeleted', { name: item.nome }))
-      operatorService.remover(item.id).catch((e) => {
-        setEmployees((prev) => [...prev.slice(0, index), item, ...prev.slice(index)])
+    setDeleting(true)
+    try {
+      if (type === 'employee') {
+        await operatorService.remover(item.id)
+        setEmployees((prev) => prev.filter((e) => e.id !== item.id))
+        show(t('team.toastEmployeeDeleted', { name: item.nome }))
+      } else {
+        await sectorService.remover(item._id)
+        setSectors((prev) => prev.filter((sector) => sector._id !== item._id))
+        show(t('team.toastSectorDeleted', { name: item.nome }))
+      }
+      setDialog(null)
+    } catch (e) {
+      if (type === 'employee') {
         showError(t(axios.isAxiosError(e) && e.response?.status === 409 ? 'team.deleteInSession' : 'team.saveError'))
-      })
-    } else {
-      const index = sectors.indexOf(item)
-      setSectors((prev) => prev.filter((sector) => sector._id !== item._id))
-      show(t('team.toastSectorDeleted', { name: item.nome }))
-      sectorService.remover(item._id).catch((e) => {
-        setSectors((prev) => [...prev.slice(0, index), item, ...prev.slice(index)])
+      } else {
         showError(sectorError(e, 'team.sectorHasMachines'))
-      })
+      }
+    } finally {
+      setDeleting(false)
     }
-    setDialog(null)
   }
 
-  const closeDialog = () => setDialog(null)
+  const closeDialog = () => {
+    if (!deleting) setDialog(null)
+  }
 
   if (loadState === 'loading') {
     return (
@@ -276,19 +284,20 @@ const EquipePage: React.FC = () => {
                 onChange={(event) => setEmployeeQuery(event.target.value)}
               />
             </div>
-            <select
-              className={styles.select}
-              aria-label={t('team.accessFilterLabel')}
+            <Select
+              className={styles.selectContainer}
+              buttonClassName={styles.selectButton}
+              ariaLabel={t('team.accessFilterLabel')}
               value={accessFilter}
-              onChange={(event) => setAccessFilter(event.target.value as AccessFilter)}
-            >
-              <option value="Todos">{t('team.accessAll')}</option>
-              {ACCESS_VALUES.map((value) => (
-                <option key={value} value={value}>
-                  {value === 'Permitido' ? t('team.accessAllowed') : t('team.accessDenied')}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setAccessFilter(val as AccessFilter)}
+              options={[
+                { value: 'Todos', label: t('team.accessAll') },
+                ...ACCESS_VALUES.map((value) => ({
+                  value,
+                  label: value === 'Permitido' ? t('team.accessAllowed') : t('team.accessDenied'),
+                })),
+              ]}
+            />
           </div>
         </div>
 
@@ -378,6 +387,7 @@ const EquipePage: React.FC = () => {
           message={t('team.deleteMessage', { name: dialog.target.item.nome })}
           onConfirm={deleteConfirmed}
           onCancel={closeDialog}
+          busy={deleting}
         />
       )}
     </div>

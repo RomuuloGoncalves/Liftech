@@ -46,7 +46,7 @@ describe('Centralized AppRoutes', () => {
         <AppRoutes />
       </MemoryRouter>
     )
-    expect(await screen.findByText(/Página Não Encontrada/i)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: '404' })).toBeInTheDocument()
   })
 
   it('renders SolicitacoesPage on /solicitacoes with Pendentes tab, not 404', async () => {

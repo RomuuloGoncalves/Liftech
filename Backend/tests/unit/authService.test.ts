@@ -175,6 +175,18 @@ describe('authService.login', () => {
         expect(user.operador).toEqual({ _id: OPERADOR, nome: 'Carlos Silva' });
     });
 
+    test('colaborador sem telefone e cargo no login: vêm da ficha do operador', async () => {
+        const OPERADOR = '665f1c2b9a1e4b00123456c1';
+        mockarBusca({ _id: ID, nome: 'Bruno', role: 'colaborador', operadorId: OPERADOR, senhaHash: gerarHashSenha('segredo2') });
+        vi.mocked(Operator.findById).mockReturnValue({
+            lean: vi.fn().mockResolvedValue({ _id: OPERADOR, nome: 'Carlos Silva', telefone: '+55 15 99999-0000', cargo: 'Operador' }),
+        } as any);
+
+        const { user } = await login('colaborador', 'bruno.op', 'segredo2');
+
+        expect(user).toMatchObject({ telefone: '+55 15 99999-0000', cargo: 'Operador' });
+    });
+
     test('colaborador com operadorId de operator apagado: operador null', async () => {
         mockarBusca({ _id: ID, nome: 'Bruno', role: 'colaborador', operadorId: '665f1c2b9a1e4b00123456c1', senhaHash: gerarHashSenha('segredo2') });
         vi.mocked(Operator.findById).mockReturnValue({ lean: vi.fn().mockResolvedValue(null) } as any);

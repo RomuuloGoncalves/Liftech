@@ -30,7 +30,7 @@
   font-size: var(--fs-md);
   color: var(--text-h);
   pointer-events: auto;
-  animation: toast-in 180ms ease-out;
+  animation: toast-in var(--dur-base) var(--ease-out);
 }
 
 .icon {

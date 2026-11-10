@@ -62,6 +62,7 @@
   font-weight: 600;
   color: var(--text-h);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .historyHeader {
@@ -77,7 +78,7 @@
   border-radius: 8px;
   background: var(--blue);
   color: var(--white);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   font-weight: 500;
 }
 
@@ -103,7 +104,8 @@
   background: transparent;
   color: var(--text-h);
   font-family: inherit;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-base);
+  font-variant-numeric: tabular-nums;
 }
 
 .timeline {
@@ -157,6 +159,7 @@
 .itemMeta {
   font-size: var(--fs-xs);
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .empty,
@@ -181,11 +184,23 @@
   color: var(--white);
   font-family: inherit;
   font-size: var(--fs-base);
+  font-weight: 600;
   cursor: pointer;
+}
+
+.footerButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .cancel {
   background: var(--danger-solid);
+  font-weight: 600;
+}
+
+.cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .activate {
@@ -195,4 +210,73 @@
 .activate:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.historyContainer {
+  position: relative;
+  min-height: 80px;
+}
+
+.historySkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.skeletonLine {
+  height: 20px;
+  border-radius: 4px;
+  background: var(--line);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.skeletonLine:nth-child(2) {
+  width: 75%;
+}
+
+.skeletonLine:nth-child(3) {
+  width: 50%;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.historyError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.errorText {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--danger-text);
+}
+
+.retryButton {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--blue);
+  color: var(--white);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retryButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }

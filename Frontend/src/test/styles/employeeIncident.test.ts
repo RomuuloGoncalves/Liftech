@@ -8,25 +8,24 @@ const block = (source: string, selector: string) =>
   [...source.matchAll(/([^{}]+)\{([^}]*)\}/g)].find((m) => m[1].trim() === selector)?.[2] ?? ''
 
 describe('IncidentSheet styles', () => {
-  it('inputs are 40px high, light gray with a line border, 8px radius and 12px text', () => {
+  it('inputs are 40px high, light gray with a line border, 8px radius and 14px text', () => {
     const input = block(css, '.input')
     expect(input).toMatch(/height:\s*40px/)
     expect(input).toMatch(/background:\s*var\(--gray-bg\)/)
     expect(input).toMatch(/border:\s*1px solid var\(--line\)/)
     expect(input).toMatch(/border-radius:\s*8px/)
-    expect(input).toMatch(/font-size:\s*var\(--fs-sm\)/)
+    expect(input).toMatch(/font-size:\s*var\(--fs-base\)/)
   })
 
-  it('placeholder uses the body text color at 55%', () => {
-    const placeholder = block(css, '.input::placeholder')
-    expect(placeholder).toMatch(/color:\s*var\(--black-text\)/)
-    expect(placeholder).toMatch(/opacity:\s*0\.55/)
+  it('icon uses the body text color', () => {
+    const icon = block(css, '.icon')
+    expect(icon).toMatch(/color:\s*var\(--text\)/)
   })
 
-  it('labels are 13px with weight 500', () => {
+  it('labels are 12px with weight 600', () => {
     const label = block(css, '.label')
-    expect(label).toMatch(/font-size:\s*var\(--fs-md\)/)
-    expect(label).toMatch(/font-weight:\s*500/)
+    expect(label).toMatch(/font-size:\s*var\(--fs-sm\)/)
+    expect(label).toMatch(/font-weight:\s*600/)
   })
 
   it('time field is about 120px wide', () => {

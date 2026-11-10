@@ -1,3 +1,3 @@
-export abstract class coreModel {
-    abstract obterDados(): Record <string, unknown>
+export abstract class CoreModel {
+  abstract obterDados(): Record<string, unknown>;
 }

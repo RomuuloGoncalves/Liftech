@@ -1,0 +1,355 @@
+1
+00:00:14,140 --> 00:00:15,560
+Imagina uma operação industrial
+
+2
+00:00:15,700 --> 00:00:17,100
+em que dezenas de empilhadeiras
+
+3
+00:00:17,100 --> 00:00:18,840
+movimentam cargas diariamente.
+
+4
+00:00:19,280 --> 00:00:20,960
+Agora, imagine que uma dessas máquinas
+
+5
+00:00:20,960 --> 00:00:23,780
+sofre uma colisão ou uma frenagem brusca.
+
+6
+00:00:24,120 --> 00:00:25,020
+Como responsável pela
+
+7
+00:00:25,020 --> 00:00:26,500
+operação, ficaria sabendo?
+
+8
+00:00:26,760 --> 00:00:28,940
+E como identificaria o equipamento envolvido
+
+9
+00:00:28,940 --> 00:00:32,620
+e o momento em que ocorreu o incidente?
+
+10
+00:00:34,800 --> 00:00:36,460
+Foi pensando nesse desafio
+
+11
+00:00:36,460 --> 00:00:37,960
+que nós desenvolvemos a Liftech.
+
+12
+00:00:38,300 --> 00:00:40,200
+É um projeto da Engenharia da Computação
+
+13
+00:00:40,200 --> 00:00:42,600
+da Universidade de Sorocaba, orientado pelo
+
+14
+00:00:42,600 --> 00:00:44,660
+professor Denicezar Angelo Baldo.
+
+15
+00:00:44,860 --> 00:00:46,060
+E esse é o quadro de membros
+
+16
+00:00:46,060 --> 00:00:47,340
+da nossa equipe Liftech.
+
+17
+00:00:51,080 --> 00:00:53,160
+Em muitas operações, o acompanhamento
+
+18
+00:00:53,160 --> 00:00:54,440
+das empilhadeiras depende de
+
+19
+00:00:54,440 --> 00:00:57,300
+verificações manuais e registros descentralizados,
+
+20
+00:00:57,840 --> 00:00:58,700
+dificultando o controle
+
+21
+00:00:58,700 --> 00:01:00,940
+da frota, a identificação dos operadores
+
+22
+00:01:01,120 --> 00:01:02,740
+e o registro das ocorrências.
+
+23
+00:01:03,160 --> 00:01:05,780
+A Liftech propõe integrar essas operações
+
+24
+00:01:05,780 --> 00:01:07,920
+em uma única plataforma, permitindo
+
+25
+00:01:07,920 --> 00:01:09,520
+acompanhar o estado das máquinas,
+
+26
+00:01:09,740 --> 00:01:12,360
+consultar históricos, registrar incidentes
+
+27
+00:01:12,360 --> 00:01:15,000
+e facilitar a gestão operacional.
+
+28
+00:01:15,420 --> 00:01:17,660
+O nosso objetivo é transformar dados da
+
+29
+00:01:17,660 --> 00:01:20,080
+nossa operação em informações úteis para poder
+
+30
+00:01:20,080 --> 00:01:22,340
+apoiar decisões mais rápidas, melhorar
+
+31
+00:01:22,340 --> 00:01:24,840
+a rastreabilidade dos eventos e contribuir
+
+32
+00:01:24,840 --> 00:01:27,000
+para um ambiente industrial mais seguro.
+
+33
+00:01:30,020 --> 00:01:31,300
+Para desenvolver essa solução,
+
+34
+00:01:31,460 --> 00:01:33,880
+nós integramos o hardware e o software.
+
+35
+00:01:34,040 --> 00:01:35,800
+Na parte do hardware, nós utilizamos o
+
+36
+00:01:35,800 --> 00:01:38,400
+microcontrolador ESP32, que é programado
+
+37
+00:01:38,400 --> 00:01:40,800
+com C++, conectados a sensores de três
+
+38
+00:01:40,800 --> 00:01:43,320
+eixos que coletam dados relacionados aos
+
+39
+00:01:43,320 --> 00:01:45,300
+movimentos e à orientação e aceleração
+
+40
+00:01:45,300 --> 00:01:47,520
+das empilhadeiras, permitindo identificar
+
+41
+00:01:47,520 --> 00:01:49,480
+possíveis ocorrências operacionais.
+
+42
+00:01:49,760 --> 00:01:51,800
+Já na parte do software, nós utilizamos
+
+43
+00:01:51,800 --> 00:01:54,100
+o React com TypeScript no Front-End,
+
+44
+00:01:54,320 --> 00:01:57,780
+Node.js com Express e TypeScript no Back-End.
+
+45
+00:01:57,960 --> 00:01:59,380
+Para armazenar os nossos dados,
+
+46
+00:01:59,460 --> 00:02:03,340
+nós utilizamos o MongoDB com Mongoose utilizando
+
+47
+00:02:03,340 --> 00:02:05,280
+RabbitMQ, que é utilizado na
+
+48
+00:02:05,280 --> 00:02:07,160
+comunicação entre componentes do sistema.
+
+49
+00:02:07,480 --> 00:02:09,380
+Também utilizamos o Figma para desenvolver
+
+50
+00:02:09,380 --> 00:02:11,520
+os protótipos das nossas interfaces e o
+
+51
+00:02:11,520 --> 00:02:14,100
+GitHub para controlar as versões do código.
+
+52
+00:02:14,360 --> 00:02:15,920
+O funcionamento começa com a coleta de
+
+53
+00:02:15,920 --> 00:02:17,980
+dados pelos sensores, que são encaminhados
+
+54
+00:02:17,980 --> 00:02:20,400
+para processamento e armazenamento.
+
+55
+00:02:20,660 --> 00:02:22,680
+Essas informações, elas alimentam a
+
+56
+00:02:22,680 --> 00:02:24,860
+plataforma digital, onde poderão ser consultadas
+
+57
+00:02:24,860 --> 00:02:26,660
+pelos responsáveis da nossa operação.
+
+58
+00:02:27,480 --> 00:02:29,260
+Toda tecnologia que converge para a
+
+59
+00:02:29,260 --> 00:02:31,580
+central operacional da Liftech, nela o
+
+60
+00:02:31,580 --> 00:02:33,300
+administrador vai poder visualizar
+
+61
+00:02:33,300 --> 00:02:35,160
+empilhadeiras por estado operacional,
+
+62
+00:02:35,300 --> 00:02:37,140
+gerenciar funcionários, setores,
+
+63
+00:02:37,580 --> 00:02:39,320
+consultar informações do equipamento e
+
+64
+00:02:39,320 --> 00:02:40,680
+acompanhar o histórico de ocorrências.
+
+65
+00:02:41,340 --> 00:02:43,000
+Já os funcionários contarão com a
+
+66
+00:02:43,000 --> 00:02:44,600
+interface móvel simplificada,
+
+67
+00:02:45,000 --> 00:02:46,460
+para poder acompanhar a sua sessão de
+
+68
+00:02:46,460 --> 00:02:48,620
+utilização e reportar incidentes.
+
+69
+00:02:48,880 --> 00:02:50,900
+A plataforma também foi projetada para
+
+70
+00:02:50,900 --> 00:02:52,620
+oferecer suporte a 7 idiomas,
+
+71
+00:02:52,920 --> 00:02:54,680
+ampliando as possibilidades de utilização.
+
+72
+00:02:57,240 --> 00:02:59,480
+O nosso diferencial é integrar o
+
+73
+00:02:59,480 --> 00:03:01,620
+monitoramento físico das empilhadeiras
+
+74
+00:03:01,620 --> 00:03:03,060
+com a gestão operacional em um único
+
+75
+00:03:03,060 --> 00:03:04,980
+ambiente, reunindo informações que
+
+76
+00:03:04,980 --> 00:03:06,660
+normalmente podem estar dispersas.
+
+77
+00:03:07,540 --> 00:03:09,580
+Nós esperamos oferecer uma plataforma
+
+78
+00:03:09,580 --> 00:03:11,620
+que seja capaz de facilitar o acompanhamento
+
+79
+00:03:11,620 --> 00:03:13,300
+da frota, organizar o registro
+
+80
+00:03:13,300 --> 00:03:15,740
+de ocorrências e apoiar decisões
+
+81
+00:03:15,740 --> 00:03:17,660
+relacionadas à segurança e à manutenção.
+
+82
+00:03:18,020 --> 00:03:19,460
+Nós acreditamos que a tecnologia
+
+83
+00:03:19,460 --> 00:03:21,080
+pode ir além de coletar dados,
+
+84
+00:03:21,340 --> 00:03:23,540
+ela pode transformar as informações em
+
+85
+00:03:23,540 --> 00:03:25,580
+decisões e ajudar a tornar as
+
+86
+00:03:25,560 --> 00:03:28,600
+operações mais eficientes e seguras.
+
+87
+00:03:29,120 --> 00:03:31,660
+E essa é a Liftech, otimizando a inteligência
+
+88
+00:03:31,660 --> 00:03:33,760
+operacional para movimentar o futuro.
+
+89
+00:03:34,160 --> 00:03:37,120
+Muito obrigado pela sua atenção.

@@ -71,11 +71,11 @@ describe('EmployeeSkeleton', () => {
     expect(box.compareDocumentPosition(firstCard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
-  it('home cards mirror MachineListCard without date and time: top, divider and a bottom with one field and the action', () => {
+  it('home cards mirror MachineListCard without date and time: top and a bottom with one field and the action', () => {
     const { container } = render(<EmployeeSkeleton variant="home" />)
     for (const card of container.querySelectorAll('[data-skeleton-card]')) {
       expect(card.querySelector('[data-skeleton-part="top"]')!.children).toHaveLength(2)
-      expect(card.querySelectorAll('[data-skeleton-part="divider"]')).toHaveLength(1)
+      expect(card.querySelectorAll('[data-skeleton-part="divider"]')).toHaveLength(0)
       const bottom = card.querySelector('[data-skeleton-part="bottom"]')!
       expect(bottom.querySelectorAll('[data-skeleton-part="field"]')).toHaveLength(1)
       expect(bottom.querySelectorAll('[data-skeleton-part="action"]')).toHaveLength(1)

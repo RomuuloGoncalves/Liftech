@@ -84,8 +84,9 @@
 
 .lastName {
   margin: 0;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-weight: 600;
+  line-height: 1.35;
   color: var(--text-h);
   overflow-wrap: anywhere;
 }
@@ -104,8 +105,13 @@
   color: var(--text);
 }
 
+.lastTime {
+  font-variant-numeric: tabular-nums;
+}
+
 .lastDuration {
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .stats {
@@ -125,6 +131,7 @@
   margin: 0;
   font-size: var(--fs-xs);
   font-weight: 500;
+  line-height: 1.35;
   color: var(--text-label);
 }
 
@@ -132,6 +139,7 @@
   margin: 0;
   font-size: var(--fs-base);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--text-h);
 }
 
@@ -160,12 +168,13 @@
   background: var(--bg);
   font-size: var(--fs-xl);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--text-h);
 }
 
 .digitColon {
   font-size: var(--fs-xl);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-h);
   padding: 0 1px;
 }
@@ -205,8 +214,20 @@
   gap: 4px;
   font-size: var(--fs-sm);
   font-weight: 500;
-  color: var(--blue);
+  color: var(--blue-text);
   text-decoration: none;
+}
+
+.more:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.empty {
+  margin: 0;
+  font-size: var(--fs-base);
+  color: var(--text);
 }
 
 .list {

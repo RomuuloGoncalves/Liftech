@@ -4,27 +4,33 @@ import { Types } from "mongoose";
 
 const requestCheck = (requestCheckPkg as unknown as { default: typeof requestCheckPkg }).default ?? requestCheckPkg;
 
-// @ts-ignore
-const regras: any = requestCheck();
+// @ts-ignore: o pacote request-check exporta CJS sem assinatura de chamada
+const regras = requestCheck();
 
-regras.addRules("id", [{
-  validator: (id: string) => isness.string(id) && id.trim().length > 0,
-  message: "O campo 'id' (identificação) é obrigatório e deve ser texto válido.",
-}]);
+regras.addRules("id", [
+  {
+    validator: (id: string) => isness.string(id) && id.trim().length > 0,
+    message: "O campo 'id' (identificação) é obrigatório e deve ser texto válido.",
+  },
+]);
 
 const isValidObjectId = (value: string | undefined): boolean => {
   if (!value) return true;
   return Types.ObjectId.isValid(value);
 };
 
-regras.addRules("dispositivoConectadoId", [{
-  validator: isValidObjectId,
-  message: "O campo 'dispositivoConectadoId' deve ser um ObjectId válido do MongoDB.",
-}]);
+regras.addRules("dispositivoConectadoId", [
+  {
+    validator: isValidObjectId,
+    message: "O campo 'dispositivoConectadoId' deve ser um ObjectId válido do MongoDB.",
+  },
+]);
 
-regras.addRules("operadorConectadoId", [{
-  validator: isValidObjectId,
-  message: "O campo 'operadorConectadoId' deve ser um ObjectId válido do MongoDB.",
-}]);
+regras.addRules("operadorConectadoId", [
+  {
+    validator: isValidObjectId,
+    message: "O campo 'operadorConectadoId' deve ser um ObjectId válido do MongoDB.",
+  },
+]);
 
 export default regras;

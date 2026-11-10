@@ -1,53 +1,39 @@
-export class telemetryModel {
-    private dataDados: Date;
-    private dispositivoId: string;
-    private _id?: string;
-    private forcaImpacto?: number;
+import { CoreModel } from "../core/coreModel.js";
 
-    constructor(dataDados: Date, dispositivoId: string, id?: string, forcaImpacto?: number) {
-        this.dataDados = dataDados;
-        this.dispositivoId = dispositivoId;
-        if (id) {
-            this._id = id;
-        }
-        if (forcaImpacto !== undefined) {
-            this.forcaImpacto = forcaImpacto;
-        }
-    }
+export class TelemetryModel extends CoreModel {
+  private dataDados: Date;
+  private dispositivoId: string;
+  private _id?: string;
+  private forcaImpacto?: number;
+  private movimento?: unknown;
 
-    public getID(): string | undefined {
-        return this._id;
+  constructor(dataDados: Date, dispositivoId: string, id?: string, forcaImpacto?: number, movimento?: unknown) {
+    super();
+    this.dataDados = dataDados;
+    this.dispositivoId = dispositivoId;
+    if (id) {
+      this._id = id;
     }
+    if (forcaImpacto !== undefined) {
+      this.forcaImpacto = forcaImpacto;
+    }
+    if (movimento !== undefined) {
+      this.movimento = movimento;
+    }
+  }
 
-    public setID(value: string): void {
-        this._id = value;
-    }
+  public getID(): string | undefined {
+    return this._id;
+  }
 
-    public setDataDados(value: Date): void {
-        if (!value) return;
-        this.dataDados = value;
-    }
-
-    public getDataDados(): Date {
-        return this.dataDados;
-    }
-
-    public setDispositivoId(value: string): void {
-        if (!value) return;
-        this.dispositivoId = value;
-    }
-
-    public getDispositivoId(): string {
-        return this.dispositivoId;
-    }
-
-    // Método essencial para padronizar o retorno no Controller sem vazar atributos privados
-    public obterDados(): Record<string, unknown> {
-        return {
-            id: this._id,
-            dataDados: this.dataDados,
-            dispositivoId: this.dispositivoId,
-            ...(this.forcaImpacto !== undefined && { forcaImpacto: this.forcaImpacto })
-        };
-    }
+  // Padroniza o retorno no Controller sem vazar atributos privados.
+  public obterDados(): Record<string, unknown> {
+    return {
+      id: this._id,
+      dataDados: this.dataDados,
+      dispositivoId: this.dispositivoId,
+      ...(this.forcaImpacto !== undefined && { forcaImpacto: this.forcaImpacto }),
+      ...(this.movimento !== undefined && { movimento: this.movimento }),
+    };
+  }
 }

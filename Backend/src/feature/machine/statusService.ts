@@ -2,7 +2,13 @@ import { Forklift } from "../../schemas/forklift.js";
 import { Incident } from "../../schemas/incident.js";
 import { Category } from "../../schemas/category.js";
 import { Branch } from "../../schemas/branch.js";
+import { IncidentModel } from "../../models/incidentModel.js";
+import { ForkliftRepository } from "../forklift/forkliftRepository.js";
+import { IncidentRepository } from "../incident/incidentRepository.js";
+import { CategoryRepository } from "../category/categoryRepository.js";
+import { BranchRepository } from "../branch/branchRepository.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
+import { publicarMaquina } from "../stream/streamHub.js";
 
 const STATUS = ["disponivel", "em_uso", "manutencao", "alerta", "offline"] as const;
 export type Status = (typeof STATUS)[number];
@@ -10,6 +16,11 @@ export type Status = (typeof STATUS)[number];
 export const ehStatus = (valor: unknown): valor is Status => STATUS.includes(valor as Status);
 
 const LIMITE_PADRAO = 5;
+
+const empilhadeiras = new ForkliftRepository(Forklift);
+const incidentes = new IncidentRepository(Incident);
+const categorias = new CategoryRepository(Category);
+const filiais = new BranchRepository(Branch);
 
 // Força mínima de impacto que vira alerta; ajustável no .env porque o sensor precisa de calibração em campo.
 export function limiteImpacto(): number {
@@ -20,48 +31,66 @@ export function limiteImpacto(): number {
 
 // Categoria da empresa da filial ligada ao status, ou null.
 export async function categoriaDoStatus(filialId: unknown, status: Status) {
-  const filial: any = await Branch.findById(filialId).lean();
-  const categoria: any = filial && (await Category.findOne({ empresaId: filial.empresaId, statusVinculados: status }).lean());
-  return categoria?._id ?? null;
+  const filial = await filiais.buscarPorId(filialId);
+  const categoria = filial && (await categorias.obterUm({ empresaId: filial.getEmpresaId(), statusVinculados: status }));
+  return categoria?.getIdOriginal() ?? null;
 }
 
 // Único caminho de mudança de status (manual ou leitura do dispositivo).
 // ponytail: grava o status e depois resolve os incidentes, sem transação; uma falha no meio deixa incidentes pendentes.
-export async function aplicarStatus(forkliftId: string, novo: Status): Promise<void> {
-  const empilhadeira: any = await Forklift.findById(forkliftId).lean();
+export async function aplicarStatus(forkliftId: string, novo: Status, manutencaoPorOffline = false): Promise<void> {
+  const empilhadeira = (await empilhadeiras.buscarPorId(forkliftId))?.getDocumento();
   if (!empilhadeira) throw new ErroHttp(StatusCode.NOT_FOUND, "Empilhadeira não encontrada.");
 
-  const atual: Status = empilhadeira.status ?? "disponivel";
+  const atual = empilhadeira.status ?? "disponivel";
   // Status repetido não mexe em nada: uma leitura repetida não desfaz um ajuste manual.
-  if (atual === novo) return;
+  // Achado 7: se status repetido manual em máquina com manutencaoPorOffline=true, limpa a flag (TLQ-07.8)
+  if (atual === novo) {
+    if (!manutencaoPorOffline && empilhadeira.manutencaoPorOffline) {
+      await empilhadeiras.atualizarUm({ _id: forkliftId }, { $set: { manutencaoPorOffline: false } });
+    }
+    return;
+  }
 
-  const alteracoes: Record<string, unknown> = { status: novo, statusAlteradoEm: new Date() };
+  const alteracoes: Record<string, unknown> = {
+    status: novo,
+    statusAlteradoEm: new Date(),
+    manutencaoPorOffline,
+  };
   if (!empilhadeira.categoriaTravada) {
     const destino = await categoriaDoStatus(empilhadeira.filialId, novo);
     if (destino) alteracoes.categoriaId = destino;
   }
 
-  await Forklift.updateOne({ _id: forkliftId }, { $set: alteracoes });
+  await empilhadeiras.atualizarUm({ _id: forkliftId }, { $set: alteracoes });
 
   if (atual === "alerta") {
-    await Incident.updateMany({ empilhadeiraId: forkliftId, status: "pendente" }, { $set: { status: "resolvido" } });
+    await incidentes.atualizarVarios({ empilhadeiraId: forkliftId, status: "pendente" }, { $set: { status: "resolvido" } });
+  }
+
+  try {
+    await publicarMaquina(forkliftId);
+  } catch {
+    // Falha em publicarMaquina não desfaz nem lança no aplicarStatus
   }
 }
 
 // Leitura de impacto acima do limite: registra o incidente e põe a máquina em alerta.
 // Um segundo impacto só cria outro incidente, porque `alerta` → `alerta` não muda nada.
 export async function registrarImpacto(dispositivoId: string, forcaImpacto: number, data: Date): Promise<void> {
-  const empilhadeira: any = await Forklift.findOne({ dispositivoConectadoId: dispositivoId }).lean();
+  const empilhadeira = (await empilhadeiras.obterUm({ dispositivoConectadoId: dispositivoId }))?.getDocumento();
   if (!empilhadeira) return;
 
-  await Incident.create({
-    empilhadeiraId: empilhadeira._id,
-    operadorId: empilhadeira.operadorConectadoId,
-    filialId: empilhadeira.filialId,
-    forcaImpacto,
-    dataIncidente: data,
-    status: "pendente",
-    origem: "sensor",
-  });
+  await incidentes.criar(
+    new IncidentModel({
+      empilhadeiraId: empilhadeira._id,
+      operadorId: empilhadeira.operadorConectadoId,
+      filialId: empilhadeira.filialId,
+      forcaImpacto,
+      dataIncidente: data,
+      status: "pendente",
+      origem: "sensor",
+    })
+  );
   await aplicarStatus(String(empilhadeira._id), "alerta");
 }

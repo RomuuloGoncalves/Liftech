@@ -19,18 +19,19 @@
   border-radius: var(--radius-md);
   background: var(--gray-bg);
   font: inherit;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text-h);
   resize: vertical;
-}
-
-.textarea::placeholder {
-  color: var(--text-muted);
 }
 
 .textarea:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .actions {

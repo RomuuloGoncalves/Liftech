@@ -7,6 +7,7 @@
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  animation: fade-in var(--dur-base) var(--ease-out);
 }
 
 .panel {
@@ -18,7 +19,13 @@
   box-sizing: border-box;
   background: var(--bg);
   box-shadow: var(--shadow);
-  animation: panel-in 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  animation: panel-in 220ms var(--ease-out);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes panel-in {
@@ -49,7 +56,7 @@
 .title {
   margin: 0 0 4px;
   font-size: var(--fs-xl);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-h);
 }
 
@@ -71,7 +78,16 @@
   background: transparent;
   color: var(--text-h);
   cursor: pointer;
-  
+}
+
+.closeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .fields {
@@ -91,7 +107,7 @@
 }
 
 .label {
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-h);
 }
@@ -103,12 +119,17 @@
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-h);
-  font-size: var(--fs-base);
+  font-size: var(--fs-md);
 }
 
 .input:focus {
   outline: 2px solid var(--accent-border);
   outline-offset: 1px;
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .divider {
@@ -127,38 +148,62 @@
 }
 
 .submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   padding: 12px;
   border: none;
   border-radius: var(--radius-lg);
   background: var(--blue);
   color: var(--white);
-  font-size: var(--fs-base);
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
   transition: transform 120ms ease, opacity 120ms ease;
 }
 
-.submitButton:hover {
+.submitButton:hover:not(:disabled) {
   opacity: 0.92;
 }
 
-.submitButton:active {
+.submitButton:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .cancelButton {
   padding: 4px;
   border: none;
   background: transparent;
-  color: var(--red);
+  color: var(--danger-text);
   font-size: var(--fs-base);
   font-weight: 600;
   cursor: pointer;
 }
 
-.cancelButton:hover {
+.cancelButton:hover:not(:disabled) {
   text-decoration: underline;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 @media (max-width: 767px) {

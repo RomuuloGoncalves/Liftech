@@ -9,6 +9,7 @@
     "dev:back": "cd Backend && yarn dev",
     "dev:front": "cd Frontend && yarn dev",
     "dev": "concurrently \"yarn dev:back\" \"yarn dev:front\"",
+    "dev:sim": "concurrently -n back,front,sim --handle-input \"yarn dev:back\" \"yarn dev:front\" \"cd Backend && yarn simulate:hardware --demo\"",
     "test:back": "cd Backend && yarn test",
     "test:front": "cd Frontend && yarn test",
     "test": "concurrently --kill-others-on-fail=false \"yarn test:back\" \"yarn test:front\""

@@ -1,5 +1,5 @@
 .row {
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
   display: flex;
   flex-direction: column;
   gap: calc(12 * var(--px, 1px));
@@ -40,6 +40,7 @@
   border-radius: calc(2 * var(--px, 1px));
   background: var(--chip-bg);
   font-size: calc(11 * var(--px, 1px));
+  font-weight: 500;
   border-left: 2px solid var(--chip);
 }
 
@@ -59,7 +60,8 @@
 .manutencao {
   --chip: var(--yellow);
   --chip-bg: var(--yellow-bg);
-  --chip-text: var(--yellow);
+  --chip-text: var(--yellow-text);
+  color: var(--yellow-text);
 }
 
 .disponiveis {
@@ -88,6 +90,7 @@
   border-radius: calc(2 * var(--px, 1px));
   background: var(--white);
   font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
   line-height: calc(14 * var(--px, 1px));
   text-align: center;
   color: var(--text);
@@ -111,7 +114,7 @@
   padding: 0 calc(12 * var(--px, 1px));
   border: 1px solid var(--line);
   border-radius: calc(2 * var(--px, 1px));
-  color: var(--black-text);
+  color: var(--text);
 }
 
 .search input {
@@ -123,10 +126,6 @@
   font: inherit;
   font-size: calc(11 * var(--px, 1px));
   color: var(--text-h);
-}
-
-.search input::placeholder {
-  color: var(--black-text);
 }
 
 .search:focus-within {
@@ -174,7 +173,7 @@
   border-radius: calc(2 * var(--px, 1px));
   font: inherit;
   font-size: calc(11 * var(--px, 1px));
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -221,7 +220,7 @@
   background: var(--blue);
   color: var(--white);
   cursor: pointer;
-  transition: transform 120ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .addButton:active {
@@ -233,4 +232,11 @@
   padding: calc(24 * var(--px, 1px)) 0;
   font-size: calc(12 * var(--px, 1px));
   color: var(--text);
+}
+
+.editButton:focus-visible,
+.deleteButton:focus-visible,
+.addButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }

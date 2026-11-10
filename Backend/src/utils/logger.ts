@@ -1,19 +1,19 @@
-import pino from 'pino';
+import pino from "pino";
 
 export function obterOpcoesLogger(env = process.env): pino.LoggerOptions {
-  const isProduction = env.NODE_ENV === 'production';
+  const isProduction = env.NODE_ENV === "production";
   return {
-    level: env.LOG_LEVEL || 'info',
-    redact: ['req.headers.authorization'],
+    level: env.LOG_LEVEL || "info",
+    redact: ["req.headers.authorization"],
     ...(isProduction
       ? {}
       : {
           transport: {
-            target: 'pino-pretty',
+            target: "pino-pretty",
             options: {
               colorize: true,
-              translateTime: 'SYS:standard',
-              ignore: 'pid,hostname,req,res',
+              translateTime: "SYS:standard",
+              ignore: "pid,hostname,req,res",
             },
           },
         }),

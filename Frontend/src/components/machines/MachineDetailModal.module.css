@@ -70,8 +70,9 @@
 }
 
 .infoValue {
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
@@ -104,7 +105,8 @@
 .tab {
   width: 100px;
   height: 32px;
-  font-weight: bold;
+  font-size: var(--fs-sm);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -174,6 +176,7 @@
   gap: 2px;
   font-size: var(--fs-xs);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: var(--text);
   background: var(--accent);
   border: 1px solid var(--accent);
@@ -198,7 +201,7 @@
 }
 
 .operator {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--white);
 }
 
@@ -206,7 +209,7 @@
   margin: 0;
   padding: 24px 0;
   text-align: center;
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   color: var(--text);
 }
 
@@ -218,8 +221,8 @@
   border: 0.5px solid var(--border);
   border-radius: 5px;
   color: var(--white);
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -242,4 +245,87 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.historySkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0 10px 30px;
+  position: relative;
+}
+
+.skeletonRow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 270px;
+  padding: 8px 12px;
+  background: var(--gray-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.skeletonDot {
+  position: absolute;
+  left: -31px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.skeletonContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonLineShort {
+  width: 90px;
+  height: 12px;
+}
+
+.skeletonLineLong {
+  width: 180px;
+  height: 10px;
+}
+
+.historyError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.historyErrorMessage {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--danger-text);
+}
+
+.historyRetryButton {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.historyRetryButton:hover {
+  border-color: var(--blue);
+}
+
+.historyRetryButton:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 1px;
 }

@@ -12,8 +12,8 @@
 }
 
 .label {
-  font-size: var(--fs-base);
-  font-weight: 500;
+  font-size: var(--fs-md);
+  font-weight: 600;
   color: var(--text-h);
 }
 
@@ -24,7 +24,7 @@
 }
 
 .value {
-  font-size: var(--fs-base);
+  font-size: var(--fs-md);
   color: var(--text);
 }
 
@@ -38,7 +38,7 @@
   cursor: pointer;
   color: var(--text);
   border-radius: var(--radius-sm);
-  transition: color 150ms ease;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .editButton:hover {
@@ -61,9 +61,9 @@
   background: transparent;
   border: none;
   padding: 0;
-  font-size: var(--fs-base);
-  font-weight: 500;
-  color: var(--danger-solid);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--danger-text);
   cursor: pointer;
   text-decoration: none;
 }
@@ -89,7 +89,7 @@
   font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 150ms ease;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .logoutButton:hover {

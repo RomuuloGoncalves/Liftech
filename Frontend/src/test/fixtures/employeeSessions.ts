@@ -1,7 +1,7 @@
 import { MACHINES } from './machines'
 import type { FiltroSessoes, Sessao } from '../../services/sessionService'
 
-/** Builds an API session from local date and times, as the backend would send it. */
+/** Constrói uma sessão da API a partir de datas e horários locais, como o backend enviaria. */
 export const sessao = (machineId: string, date: string, start: string, end: string | null, id = `${machineId}-${date}-${start}`): Sessao => {
   const machine = MACHINES.find((item) => item.id === machineId)
   return {
@@ -22,12 +22,12 @@ const SLOTS: Array<[string, string]> = [
 ]
 const DATES = ['2025-09-14', '2025-09-12', '2025-09-10', '2025-09-08']
 
-/** 4 sessions on each of the first 8 machines, spread over 4 days. */
+/** 4 sessões em cada uma das primeiras 8 máquinas, distribuídas em 4 dias. */
 const USAGE_SESSIONS: Sessao[] = MACHINES.slice(0, 8).flatMap((machine, machineIndex) =>
   SLOTS.map(([start, end], slot) => sessao(machine.id, DATES[(machineIndex + slot) % DATES.length], start, end))
 )
 
-/** Stand-in for GET /sessions: filters by machine and by local day, inclusive. */
+/** Substituto para GET /sessions: filtra por máquina e por dia local, inclusivo. */
 export const listSessions = async ({ machineId, from, to }: FiltroSessoes = {}): Promise<Sessao[]> => {
   const day = (s: Sessao) => new Date(s.inicio).toLocaleDateString('sv')
   return USAGE_SESSIONS.filter(

@@ -174,13 +174,13 @@ describe('EmployeeFormModal (create) branch', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ filialId: 'f2' }))
   })
 
-  it('has no branch field with a single branch', () => {
+  it('has no branch field with a single branch and saves to that branch', () => {
     const { onSave } = renderForm({ branches: [branches[0]] })
 
     expect(screen.queryByLabelText('Filial')).not.toBeInTheDocument()
     fillRequired()
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
-    expect(onSave.mock.calls[0][0]).not.toHaveProperty('filialId')
+    expect(onSave.mock.calls[0][0]).toHaveProperty('filialId', 'f1')
   })
 
   it('has no branch field when editing', () => {
@@ -201,7 +201,7 @@ describe('EmployeeFormModal (edit, employee with login)', () => {
     expect(screen.getByLabelText('Horário Entrada')).toHaveValue('08:00')
     expect(screen.getByLabelText('Horário saída')).toHaveValue('17:00')
     expect(screen.getByLabelText('Usuário')).toHaveValue('AlexandreMattos')
-    // The API never returns the password, so the field starts empty.
+    // A API nunca retorna a senha, então o campo começa vazio.
     expect(screen.getByLabelText('Senha')).toHaveValue('')
   })
 
@@ -290,5 +290,47 @@ describe('EmployeeFormModal (edit, employee without login)', () => {
 
     expect(onSave).not.toHaveBeenCalled()
     expect(screen.getByText('Este usuário já está em uso')).toBeInTheDocument()
+  })
+})
+
+describe('EmployeeFormModal saving state', () => {
+  it('disables fields and button, shows spinner and aria-busy while onSave is pending', async () => {
+    let resolveSave!: () => void
+    const onSave = vi.fn().mockImplementation(() => new Promise<void>((res) => { resolveSave = res }))
+    renderForm({ onSave })
+
+    fillRequired()
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmar' })
+    fireEvent.click(confirmBtn)
+
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(screen.getByText('Salvando...')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome funcionário')).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+
+    // Segundo clique não envia novamente
+    fireEvent.click(confirmBtn)
+    expect(onSave).toHaveBeenCalledTimes(1)
+
+    // Resolve a Promise
+    resolveSave()
+  })
+
+  it('frees controls and preserves data when onSave rejects', async () => {
+    const onSave = vi.fn().mockRejectedValue(new Error('Network error'))
+    renderForm({ onSave })
+
+    fillRequired()
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmar' })
+    fireEvent.click(confirmBtn)
+
+    await screen.findByRole('button', { name: 'Confirmar' })
+    expect(screen.getByRole('button', { name: 'Confirmar' })).toBeEnabled()
+    expect(screen.queryByTestId('spinner')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Nome funcionário')).toHaveValue('Maria Lima')
+    expect(screen.getByLabelText('Nome funcionário')).toBeEnabled()
   })
 })

@@ -51,6 +51,16 @@ describe('EmployeeSessionPage', () => {
     resetWorkSession()
     atual.mockReset().mockResolvedValue(null)
     encerrar.mockReset()
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
   })
 
   afterEach(() => vi.useRealTimers())
@@ -77,7 +87,7 @@ describe('EmployeeSessionPage', () => {
     expect(atual).toHaveBeenCalledTimes(2)
   })
 
-  it('ends the session through the API and goes to /funcionario', async () => {
+  it('ends the session through the API and goes to /funcionario with success toast', async () => {
     seed()
     encerrar.mockResolvedValue({ ...sessao(), fim: new Date().toISOString() })
     await setup()
@@ -85,6 +95,34 @@ describe('EmployeeSessionPage', () => {
       fireEvent.click(endButton())
     })
     expect(encerrar).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('home')).toBeInTheDocument()
+    expect(screen.getByText('Sessão encerrada')).toBeInTheDocument()
+  })
+
+  it('shows spinner, disables both buttons, has aria-busy and prevents double click while ending', async () => {
+    seed()
+    let resolveEnd: () => void = () => {}
+    encerrar.mockReturnValue(new Promise((resolve) => { resolveEnd = () => resolve({ ...sessao(), fim: new Date().toISOString() }) }))
+    await setup()
+
+    const reportButton = screen.getByRole('button', { name: /Reportar uma ocorrência/ })
+    await act(async () => {
+      fireEvent.click(endButton())
+    })
+
+    const endingBtn = screen.getByRole('button', { name: /Encerrando…/ })
+    expect(endingBtn).toBeDisabled()
+    expect(endingBtn).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
+    expect(reportButton).toBeDisabled()
+
+    // Segundo clique não faz nada
+    fireEvent.click(endingBtn)
+    expect(encerrar).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      resolveEnd()
+    })
     expect(screen.getByText('home')).toBeInTheDocument()
   })
 
@@ -98,6 +136,7 @@ describe('EmployeeSessionPage', () => {
     expect(screen.getByText('Não foi possível encerrar a sessão. Tente novamente.')).toBeInTheDocument()
     expect(screen.getByRole('timer')).toBeInTheDocument()
     expect(endButton()).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reportar uma ocorrência/ })).not.toBeDisabled()
     expect(screen.queryByText('home')).not.toBeInTheDocument()
   })
 
@@ -112,5 +151,46 @@ describe('EmployeeSessionPage', () => {
   it('redirects to /funcionario/maquinas without an open session', async () => {
     await setup()
     expect(screen.getByText('maquinas')).toBeInTheDocument()
+  })
+
+  it('with reduced-motion: reduce, requestAnimationFrame is not called and video opacity is 1', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion: reduce'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame')
+    seed()
+    const { container } = await setup()
+    const video = container.querySelector('video')
+    expect(video).toBeInTheDocument()
+    expect(video?.style.opacity).toBe('1')
+    expect(rafSpy).not.toHaveBeenCalled()
+    rafSpy.mockRestore()
+  })
+
+  it('without reduced-motion, loop runs requestAnimationFrame', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame')
+    seed()
+    const { container } = await setup()
+    const video = container.querySelector('video')
+    expect(video).toBeInTheDocument()
+    expect(rafSpy).toHaveBeenCalled()
+    rafSpy.mockRestore()
   })
 })

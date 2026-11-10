@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  validarAtualizacao,
-  validarExclusao,
-  atualizarConta,
-  excluirConta,
-  REGEX_EMAIL,
-} from "../../src/feature/me/meService.js";
+import { validarAtualizacao, validarExclusao, atualizarConta, excluirConta, REGEX_EMAIL } from "../../src/feature/me/meService.js";
 import { ErroHttp, StatusCode } from "../../src/utils/responseHandler.js";
 import { User } from "../../src/schemas/user.js";
 import { gerarHashSenha, verificarSenha } from "../../src/utils/senha.js";
@@ -251,10 +245,7 @@ describe("meService - validação", () => {
         email: "novo@empresa.com",
       });
 
-      expect(User.updateOne).toHaveBeenCalledWith(
-        { _id: adminUsuario._id },
-        { $set: { email: "novo@empresa.com" } }
-      );
+      expect(User.updateOne).toHaveBeenCalledWith({ _id: adminUsuario._id }, { $set: { email: "novo@empresa.com" } });
       expect(resultado).toEqual({ email: "novo@empresa.com" });
     });
 
@@ -320,10 +311,7 @@ describe("meService - validação", () => {
       });
 
       expect(resultado).toEqual({ email: "mesmo@empresa.com" });
-      expect(User.updateOne).toHaveBeenCalledWith(
-        { _id: adminUsuario._id },
-        { $set: { email: "mesmo@empresa.com" } }
-      );
+      expect(User.updateOne).toHaveBeenCalledWith({ _id: adminUsuario._id }, { $set: { email: "mesmo@empresa.com" } });
     });
   });
 
@@ -370,9 +358,7 @@ describe("meService - validação", () => {
     it("lança 404 quando usuário não é encontrado no banco", async () => {
       mockarUsuarioDb(null);
 
-      await expect(
-        excluirConta(adminUsuario, empresaId, senhaAtual)
-      ).rejects.toThrow("Usuário não encontrado(a).");
+      await expect(excluirConta(adminUsuario, empresaId, senhaAtual)).rejects.toThrow("Usuário não encontrado(a).");
     });
 
     it("lança 403 para senhaAtual errada e não chama deleteOne", async () => {

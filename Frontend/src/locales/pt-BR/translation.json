@@ -9,7 +9,8 @@
     "close": "Fechar",
     "loading": "Carregando...",
     "closeNotification": "Fechar aviso",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "saving": "Salvando..."
   },
   "navigation": {
     "overview": "Visão Geral",
@@ -80,7 +81,14 @@
     "changeStatus": "Alterar status",
     "sectorNone": "Sem setor",
     "filterSectorAll": "Todos os setores",
-    "filterSectorLabel": "Filtrar por setor"
+    "filterSectorLabel": "Filtrar por setor",
+    "historyDate": "Data:",
+    "idSuffix": "(ID)",
+    "historyError": "Não foi possível carregar o histórico.",
+    "historyRetry": "Tentar de novo",
+    "statusUpdated": "Status atualizado",
+    "lockLocked": "Categoria travada",
+    "lockUnlocked": "Categoria destravada"
   },
   "alerts": {
     "accidents": "Acidentes",
@@ -204,11 +212,14 @@
     "tabAdmin": "Entrar Administrador",
     "tabCollaborator": "Colaborador",
     "invalidCredentials": "Usuário ou senha inválidos.",
+    "accessDenied": "Acesso negado. Fale com o seu supervisor.",
     "networkError": "Não foi possível conectar ao servidor.",
     "loginError": "Erro ao realizar login.",
     "requestDuplicate": "Já existe uma solicitação pendente para este email.",
     "requestError": "Não foi possível enviar a solicitação.",
-    "tabsLabel": "Tipo de acesso"
+    "tabsLabel": "Tipo de acesso",
+    "entering": "Entrando...",
+    "requesting": "Enviando..."
   },
   "fleet": {
     "pageTitle": "Gerenciamento das máquinas",
@@ -270,7 +281,8 @@
     "linkedStatus": "Status vinculados",
     "statusTaken": "Já ligado a outra categoria",
     "saveError": "Não foi possível salvar. Tente novamente.",
-    "noCategories": "Nenhuma categoria cadastrada"
+    "noCategories": "Nenhuma categoria cadastrada",
+    "toastCategorySaved": "Categoria \"{{name}}\" salva"
   },
   "employee": {
     "sessionBar": {
@@ -304,7 +316,8 @@
       "remaining": "Tempo restante da jornada",
       "remainingValue": "04 Horas",
       "availableTitle": "Empilhadeiras disponíveis",
-      "more": "Mais"
+      "more": "Mais",
+      "availableEmpty": "Nenhuma empilhadeira disponível encontrada"
     },
     "machines": {
       "title": "Máquinas disponíveis",
@@ -327,7 +340,11 @@
       "historyEmpty": "Nenhum registro no período",
       "cancel": "Cancelar",
       "activate": "Ativar máquina",
-      "activeSessionHint": "Você já tem uma sessão em andamento."
+      "activeSessionHint": "Você já tem uma sessão em andamento.",
+      "activating": "Ativando…",
+      "historyLoading": "Carregando histórico…",
+      "historyError": "Não foi possível carregar o histórico.",
+      "historyRetry": "Tentar de novo"
     },
     "session": {
       "description": "O <b>registro do tempo de utilização</b> já está em andamento. Ao finalizar, lembre-se de <b>encerrar a operação</b>.",
@@ -335,7 +352,11 @@
       "end": "Encerrar Sessão",
       "reportIncident": "Reportar uma ocorrência",
       "startError": "Não foi possível iniciar a sessão. Tente novamente.",
-      "endError": "Não foi possível encerrar a sessão. Tente novamente."
+      "endError": "Não foi possível encerrar a sessão. Tente novamente.",
+      "ending": "Encerrando…",
+      "ended": "Sessão encerrada",
+      "starting": "Iniciando…",
+      "started": "Sessão iniciada"
     },
     "history": {
       "title": "Histórico",
@@ -347,7 +368,8 @@
       "endTime": "Hora final",
       "searchPlaceholder": "Procurar Máquina",
       "empty": "Nenhum registro encontrado",
-      "moreDetails": "Mais detalhes"
+      "moreDetails": "Mais detalhes",
+      "date": "Data"
     },
     "incident": {
       "title": "Reporte uma ocorrência",
@@ -362,7 +384,8 @@
       "submit": "Enviar ocorrência",
       "required": "Campo obrigatório",
       "toastSent": "Ocorrência enviada com sucesso",
-      "sendError": "Não foi possível enviar a ocorrência. Tente novamente."
+      "sendError": "Não foi possível enviar a ocorrência. Tente novamente.",
+      "submitting": "Enviando…"
     },
     "settings": {
       "title": "Configurações",
@@ -395,10 +418,14 @@
     "deleteMessage": "Deseja excluir a filial {{name}}?",
     "saveError": "Não foi possível salvar a filial.",
     "deleteError": "Não foi possível excluir a filial.",
-    "deleteBlocked": "Não foi possível excluir: a filial é a matriz ou ainda tem recursos."
+    "deleteBlocked": "Não foi possível excluir: a filial é a matriz ou ainda tem recursos.",
+    "toastCreated": "Filial \"{{name}}\" cadastrada",
+    "toastRenamed": "Filial \"{{name}}\" renomeada",
+    "toastDeleted": "Filial \"{{name}}\" excluída"
   },
   "notFound": {
-    "description": "A página que você está procurando não existe ou foi movida.",
+    "title": "Esta rota saiu do mapa do galpão",
+    "description": "A página que você procura não existe ou mudou de lugar. Volte para o início e siga por outro corredor.",
     "backHome": "Voltar para o início"
   },
   "accessRequests": {
@@ -446,9 +473,11 @@
       "media": "Média"
     },
     "description": {
-      "tombamento": "Nível de urgência crítico associado a um <b>tombamento</b>.",
       "colisao": "Nível de urgência crítico associado a uma <b>colisão</b>.",
-      "frenagem": "Nível de urgência crítico associado a uma <b>frenagem brusca</b>."
+      "frenagem_brusca": "Nível de urgência crítico associado a uma <b>frenagem brusca</b>.",
+      "aceleracao_brusca": "Nível de urgência crítico associado a uma <b>aceleração brusca</b>.",
+      "curva_brusca": "Nível de urgência crítico associado a uma <b>curva brusca</b>.",
+      "inclinacao_excessiva": "Nível de urgência crítico associado a uma <b>inclinação excessiva</b>."
     }
   },
   "feedback": {
@@ -457,7 +486,8 @@
     "placeholder": "Digite uma sugestão de melhoria ou um feedback!",
     "send": "Enviar",
     "sent": "Feedback enviado. Obrigado!",
-    "error": "Não foi possível enviar o feedback. Tente de novo."
+    "error": "Não foi possível enviar o feedback. Tente de novo.",
+    "sending": "Enviando…"
   },
   "dashboard": {
     "navLabel": "Dashboard",
@@ -506,6 +536,8 @@
   "alertModal": {
     "title": "Alerta!",
     "message": "Acidente no setor <b>{{setor}}</b>, <b>{{funcionario}}</b> funcionário responsável pela máquina {{maquina}}.",
+    "offlineTitle": "Placa sem comunicação",
+    "offlineMessage": "A máquina <b>{{maquina}}</b> está sem comunicação com o sistema.",
     "notInformed": "não informado",
     "ok": "Ok"
   },

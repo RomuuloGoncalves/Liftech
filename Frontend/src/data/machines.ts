@@ -8,7 +8,7 @@ export interface Machine {
   id: string
   identificacao: string
   nome: string
-  /** Name of the linked sector, '' without one. */
+  /** Nome do setor vinculado, '' se não houver. */
   setor: string
   setorId: string | null
   filialId?: string
@@ -16,6 +16,8 @@ export interface Machine {
   categoriaId: string | null
   categoriaTravada: boolean
   alertaEm?: string | null
+  dispositivoOffline?: boolean
+  alertaTipos?: string[]
   dispositivoConectado: {
     enderecoMac: string
     nomeDispositivo?: string
@@ -24,17 +26,64 @@ export interface Machine {
     nome: string
   }
   tempoSessaoMinutos: number
+  /** Horas de uso somando todas as sessões da máquina. */
   tempoUsoTotalHoras?: number
+  /** Horas de uso na semana atual (segunda a domingo). */
+  tempoUsoSemanaHoras?: number
+  /** Operador da sessão mais recente (ou da aberta); null se a máquina nunca foi usada. */
+  ultimoOperador?: { nome: string } | null
 }
 
 export type MachineEventType = 'acidente' | 'manutencao'
-export type AccidentCause = 'frenagem' | 'colisao' | 'tombamento'
+export type AccidentCause =
+  | 'colisao'
+  | 'frenagem_brusca'
+  | 'aceleracao_brusca'
+  | 'curva_brusca'
+  | 'inclinacao_excessiva'
 export type UrgencyLevel = 'media' | 'alta' | 'critica'
 
 export const ACCIDENT_URGENCY: Record<AccidentCause, UrgencyLevel> = {
-  frenagem: 'media',
   colisao: 'alta',
-  tombamento: 'critica',
+  frenagem_brusca: 'media',
+  aceleracao_brusca: 'media',
+  curva_brusca: 'media',
+  inclinacao_excessiva: 'critica',
+}
+
+const URGENCY_PRIORITY: Record<UrgencyLevel, number> = {
+  critica: 3,
+  alta: 2,
+  media: 1,
+}
+
+/**
+ * Retorna a maior urgência dos incidentes da máquina (baseada em `alertaTipos`).
+ * `alertaTipos` vem ordenado do mais recente ao mais antigo.
+ * Em caso de empate na maior urgência, prevalece a do tipo mais recente (primeiro de `alertaTipos`).
+ * Se `alertaTipos` for vazio ou indefinido, devolve `undefined`.
+ */
+export function urgenciaDaMaquina(
+  machine: Pick<Machine, 'alertaTipos'> | { alertaTipos?: (AccidentCause | string)[] | null }
+): UrgencyLevel | undefined {
+  const tipos = machine.alertaTipos
+  if (!tipos || tipos.length === 0) return undefined
+
+  let maiorUrgencia: UrgencyLevel | undefined = undefined
+  let maiorPrioridade = 0
+
+  for (const tipo of tipos) {
+    const urgencia = ACCIDENT_URGENCY[tipo as AccidentCause]
+    if (urgencia) {
+      const prioridade = URGENCY_PRIORITY[urgencia]
+      if (prioridade > maiorPrioridade) {
+        maiorPrioridade = prioridade
+        maiorUrgencia = urgencia
+      }
+    }
+  }
+
+  return maiorUrgencia
 }
 
 export interface MachineEvent {
@@ -48,9 +97,18 @@ export interface MachineEvent {
   causa?: AccidentCause
 }
 
-export const DEFAULT_PERIOD = { from: '2024-07-14', to: '2026-07-14' }
+/** Dias do período padrão dos filtros de data. */
+export const DEFAULT_PERIOD_DAYS = 30
 
-/** API incident as an `acidente` event; the sensor reports a collision, the collaborator report has no cause. */
+/** Período padrão dos filtros: dos últimos 30 dias até hoje, em data local ('sv' formata como AAAA-MM-DD). */
+export function defaultPeriod(): { from: string; to: string } {
+  const to = new Date()
+  const from = new Date(to)
+  from.setDate(from.getDate() - DEFAULT_PERIOD_DAYS)
+  return { from: from.toLocaleDateString('sv'), to: to.toLocaleDateString('sv') }
+}
+
+/** Incidente da API como evento `acidente`; o sensor reporta causa do acidente (padrão colisao), o relato do colaborador não possui causa. */
 export function incidentToEvent(incident: Incidente): MachineEvent {
   const date = new Date(incident.dataIncidente)
   const time = date.toLocaleTimeString('sv')
@@ -62,20 +120,17 @@ export function incidentToEvent(incident: Incidente): MachineEvent {
     data: date.toLocaleDateString('sv'),
     inicio: time,
     fim: time,
-    ...(incident.origem === 'sensor' && { causa: 'colisao' as const }),
+    ...(incident.origem === 'sensor' && { causa: ((incident.tipo ?? 'colisao') as AccidentCause) }),
   }
 }
 
-/** Card urgency: the cause decides; a collaborator report without cause is `alta`. */
+/** Urgência do card: a causa determina; relato do colaborador sem causa é `alta`. */
 export const eventUrgency = (event: MachineEvent): UrgencyLevel => (event.causa ? ACCIDENT_URGENCY[event.causa] : 'alta')
-
-/** Default end of the period: today when it is past DEFAULT_PERIOD.to, so new incidents show up. */
-export const defaultPeriodTo = () => [DEFAULT_PERIOD.to, new Date().toLocaleDateString('sv')].sort()[1]
 
 export interface MachineFilters {
   query?: string
   status?: MachineStatus | 'Todos'
-  /** 'Todos' or missing = any sector. */
+  /** 'Todos' ou ausente = qualquer setor. */
   setorId?: string
 }
 

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AxiosError, type InternalAxiosRequestConfig, type AxiosResponseHeaders } from 'axios';
 import { MemoryRouter } from 'react-router-dom';
@@ -141,6 +141,25 @@ describe('AccountActionModal', () => {
         expect(alert).toHaveTextContent(/e-mail já em uso/i);
       });
     });
+
+    it('renderiza mensagem de erro com cor acessível var(--danger-text) e peso 500', async () => {
+      vi.mocked(authService.atualizarConta).mockRejectedValue(criarErroAxios(403));
+      renderModal('email');
+
+      fireEvent.change(screen.getByLabelText(/novo e-mail/i), {
+        target: { value: 'novo@empresa.com' },
+      });
+      fireEvent.change(screen.getByLabelText(/senha atual/i), {
+        target: { value: 'senhaErrada' },
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /salvar/i }));
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert');
+        expect(alert).toHaveStyle({ color: 'var(--danger-text)', fontWeight: '500' });
+      });
+    });
   });
 
   describe('mode: senha', () => {
@@ -187,9 +206,9 @@ describe('AccountActionModal', () => {
     it('mostra aviso de exclusão e botão Excluir desabilitado até digitar senha', () => {
       renderModal('excluir');
 
-      expect(
-        screen.getByText(/esta ação não pode ser desfeita/i)
-      ).toBeInTheDocument();
+      const warning = screen.getByText(/esta ação não pode ser desfeita/i);
+      expect(warning).toBeInTheDocument();
+      expect(warning).toHaveStyle({ color: 'var(--danger-text)', fontWeight: '500' });
 
       const deleteBtn = screen.getByRole('button', { name: /excluir/i });
       expect(deleteBtn).toBeDisabled();
@@ -277,6 +296,8 @@ describe('AccountActionModal', () => {
 
       fireEvent.click(saveBtn);
       expect(saveBtn).toBeDisabled();
+      expect(saveBtn).toHaveAttribute('aria-busy', 'true');
+      expect(within(saveBtn).getByTestId('spinner')).toBeInTheDocument();
       expect(cancelBtn).toBeDisabled();
 
       // Tentativa de segundo clique

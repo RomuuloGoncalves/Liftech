@@ -224,7 +224,10 @@ const SolicitacoesPage: React.FC = () => {
           message={t('accessRequests.acceptMessage', { company: dialog.request.nomeEmpresa })}
           confirmLabel={t('accessRequests.accept')}
           onConfirm={handleConfirmAccept}
-          onCancel={() => setDialog(null)}
+          onCancel={() => {
+            if (!busyId) setDialog(null);
+          }}
+          busy={busyId === dialog.request._id}
         />
       )}
 

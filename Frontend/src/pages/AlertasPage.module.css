@@ -10,9 +10,9 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 16px;
+  padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   background: var(--bg);
 }
 
@@ -32,7 +32,7 @@
   padding: 4px 8px;
   border-radius: 5px;
   background: var(--red-bg);
-  color: var(--red);
+  color: var(--danger-text);
   font-size: var(--fs-sm);
   font-weight: 600;
   line-height: 16px;
@@ -45,6 +45,7 @@
   background: var(--red);
   color: var(--white);
   font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
   line-height: 14px;
   text-align: center;
 }
@@ -101,13 +102,9 @@
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
-.searchInput::placeholder {
-  color: color-mix(in srgb, var(--black-text) 55%, transparent);
-}
-
 .searchInput:hover,
 .period:hover {
-  border-color: color-mix(in srgb, var(--black-text) 35%, transparent);
+  border-color: color-mix(in srgb, var(--text) 35%, transparent);
 }
 
 .searchInput:focus,
@@ -138,7 +135,7 @@
 }
 
 .periodSeparator {
-  color: color-mix(in srgb, var(--black-text) 55%, transparent);
+  color: color-mix(in srgb, var(--text) 55%, transparent);
 }
 
 .dateInput {

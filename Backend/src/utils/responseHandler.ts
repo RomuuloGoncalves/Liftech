@@ -24,11 +24,15 @@ export function respostaErro(res: Response, status: StatusCode, message: string 
 
 // Erro com o status HTTP que o controller deve responder.
 export class ErroHttp extends Error {
-  constructor(readonly status: StatusCode, message: string) {
+  constructor(
+    readonly status: StatusCode,
+    message: string
+  ) {
     super(message);
   }
 }
 
-export function responderErro(res: Response, error: any) {
-  return respostaErro(res, error instanceof ErroHttp ? error.status : StatusCode.INTERNAL_SERVER_ERROR, error.message);
+export function responderErro(res: Response, error: unknown) {
+  if (error instanceof ErroHttp) return respostaErro(res, error.status, error.message);
+  return respostaErro(res, StatusCode.INTERNAL_SERVER_ERROR, error instanceof Error ? error.message : String(error));
 }

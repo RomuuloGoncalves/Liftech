@@ -2,10 +2,13 @@ import React, { useEffect, useId, useMemo, useState } from 'react'
 import { Calendar, CircleUser, Cpu, MapPin, Pencil, Timer, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
+import Select from '../common/Select'
+import Spinner from '../common/Spinner'
+import { useToast } from '../common/Toast'
+import { SkeletonBlock } from '../common/PageSkeleton'
 import {
-  DEFAULT_PERIOD,
   MACHINE_STATUSES,
-  defaultPeriodTo,
+  defaultPeriod,
   incidentToEvent,
   type Machine,
   type MachineEvent,
@@ -22,8 +25,8 @@ interface MachineDetailModalProps {
   onEdit?: (machine: Machine) => void
   onDelete?: (machine: Machine) => void
   onClose: () => void
-  onChangeStatus?: (status: MachineStatus) => void
-  onToggleLock?: (valor: boolean) => void
+  onChangeStatus?: (status: MachineStatus) => void | Promise<unknown>
+  onToggleLock?: (valor: boolean) => void | Promise<unknown>
   /** `fleet`: linhas e abas do frame da Frota, sem Editar/Excluir. `alerts`: igual, com a aba de alertas primeiro e sem selo de status. */
   variant?: 'overview' | 'fleet' | 'alerts'
 }
@@ -53,23 +56,97 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   variant = 'overview',
 }) => {
   const { t, i18n } = useTranslation()
+  const { show } = useToast()
   const uid = useId()
   const tabs = TABS[variant]
   const [tab, setTab] = useState<MachineEventType>(tabs[0].type)
-  const [from, setFrom] = useState(DEFAULT_PERIOD.from)
-  const [to, setTo] = useState(defaultPeriodTo)
+  const [from, setFrom] = useState(() => defaultPeriod().from)
+  const [to, setTo] = useState(() => defaultPeriod().to)
   const [accidents, setAccidents] = useState<MachineEvent[]>([])
+  const [fetchLoading, setHistoryLoading] = useState(true)
+  const [fetchError, setHistoryError] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
+
+  const [currentStatus, setCurrentStatus] = useState<MachineStatus>(machine.status)
+  const [currentLock, setCurrentLock] = useState<boolean>(machine.categoriaTravada)
+  const [statusChanging, setStatusChanging] = useState(false)
+  const [lockChanging, setLockChanging] = useState(false)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- espelha a prop quando a máquina muda
+    setCurrentStatus(machine.status)
+  }, [machine.status])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- espelha a prop quando a máquina muda
+    setCurrentLock(machine.categoriaTravada)
+  }, [machine.categoriaTravada])
+
+  const handleStatusChange = async (nextStatus: MachineStatus) => {
+    if (statusChanging || nextStatus === currentStatus || !onChangeStatus) return
+    const prevStatus = currentStatus
+    setCurrentStatus(nextStatus)
+    const res = onChangeStatus(nextStatus)
+    if (res && typeof (res as Promise<unknown>).then === 'function') {
+      setStatusChanging(true)
+      try {
+        await res
+        show(t('machines.statusUpdated'))
+      } catch {
+        setCurrentStatus(prevStatus)
+      } finally {
+        setStatusChanging(false)
+      }
+    }
+  }
+
+  const handleToggleLock = async () => {
+    if (lockChanging || !onToggleLock) return
+    const prevLock = currentLock
+    const nextLock = !prevLock
+    setCurrentLock(nextLock)
+    const res = onToggleLock(nextLock)
+    if (res && typeof (res as Promise<unknown>).then === 'function') {
+      setLockChanging(true)
+      try {
+        await res
+        show(t(nextLock ? 'machines.lockLocked' : 'machines.lockUnlocked'))
+      } catch {
+        setCurrentLock(prevLock)
+      } finally {
+        setLockChanging(false)
+      }
+    }
+  }
 
   useEffect(() => {
     let stale = false
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reinicia o carregamento a cada nova busca
+    setHistoryLoading(true)
+    setHistoryError(false)
+
     incidentService.listar({ machineId: machine.id, from: from || undefined, to: to || undefined }).then(
-      (list) => !stale && setAccidents(list.map(incidentToEvent)),
-      () => !stale && setAccidents([])
+      (list) => {
+        if (!stale) {
+          setAccidents(list.map(incidentToEvent))
+          setHistoryLoading(false)
+        }
+      },
+      () => {
+        if (!stale) {
+          setHistoryError(true)
+          setHistoryLoading(false)
+        }
+      }
     )
     return () => {
       stale = true
     }
-  }, [machine.id, from, to])
+  }, [machine.id, from, to, retryCount])
+
+  // A busca só alimenta a aba de alertas; a aba de manutenção não espera por ela.
+  const historyLoading = tab === 'acidente' && fetchLoading
+  const historyError = tab === 'acidente' && fetchError
 
   const visibleEvents = useMemo(
     () => (tab === 'acidente' ? accidents : []),
@@ -87,7 +164,8 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
           {
             icon: <CircleUser size={14} />,
             label: t('fleet.detailEmployee'),
-            value: machine.operadorConectado?.nome || dash,
+            // Quem usou por último (ou está usando agora).
+            value: machine.ultimoOperador?.nome || machine.operadorConectado?.nome || dash,
           },
           {
             icon: <Timer size={14} />,
@@ -113,7 +191,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       onClose={onClose}
       badge={
         variant !== 'alerts' && (
-          <StatusBadge status={machine.status} className={styles.badge} />
+          <StatusBadge status={currentStatus} className={styles.badge} />
         )
       }
       footer={
@@ -135,7 +213,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       <dl className={styles.meta}>
         <div className={styles.metaRow}>
           <dt>{t('machines.detailCode')}:</dt>
-          <dd>{machine.identificacao}(ID)</dd>
+          <dd>{machine.identificacao}{t('machines.idSuffix')}</dd>
         </div>
         <div className={styles.metaRow}>
           <dt>{t('machines.detailMac')}:</dt>
@@ -148,26 +226,35 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
           {onChangeStatus && (
             <label className={styles.statusField}>
               {t('machines.changeStatus')}
-              <select
-                className={styles.dateInput}
-                value={machine.status}
-                onChange={(event) => onChangeStatus(event.target.value as MachineStatus)}
-              >
-                {MACHINE_STATUSES.map((option) => (
-                  <option key={option} value={option}>
-                    {t(`machines.status.${option}`)}
-                  </option>
-                ))}
-              </select>
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                <Select
+                  ariaLabel={t('machines.changeStatus')}
+                  value={currentStatus}
+                  disabled={statusChanging}
+                  onChange={(val) => handleStatusChange(val as MachineStatus)}
+                  options={MACHINE_STATUSES.map((option) => ({
+                    value: option,
+                    label: t(`machines.status.${option}`),
+                  }))}
+                />
+                {statusChanging && (
+                  <span style={{ position: 'absolute', right: '36px', pointerEvents: 'none' }}>
+                    <Spinner size={14} />
+                  </span>
+                )}
+              </div>
             </label>
           )}
           {onToggleLock && (
             <button
               type="button"
               className={`${styles.action} ${styles.edit}`}
-              onClick={() => onToggleLock(!machine.categoriaTravada)}
+              onClick={handleToggleLock}
+              disabled={lockChanging}
+              aria-busy={lockChanging ? 'true' : undefined}
             >
-              {t(machine.categoriaTravada ? 'fleet.unlock' : 'fleet.lock')}
+              {lockChanging && <Spinner size={14} />}
+              {t(currentLock ? 'fleet.unlock' : 'fleet.lock')}
             </button>
           )}
         </div>
@@ -202,7 +289,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
         </div>
         <div className={styles.period}>
           <Calendar size={12} aria-hidden="true" />
-          <span className={styles.dateLabel} > Date:</span>
+          <span className={styles.dateLabel}>{t('machines.historyDate')}</span>
           <input
             type="date"
             className={styles.dateInput}
@@ -221,8 +308,37 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
         </div>
       </div>
 
-      <div role="tabpanel" id={`${uid}-panel`} aria-labelledby={`${uid}-tab-${tab}`} className={styles.history}>
-        {visibleEvents.length === 0 ? (
+      <div
+        role="tabpanel"
+        id={`${uid}-panel`}
+        aria-labelledby={`${uid}-tab-${tab}`}
+        className={styles.history}
+        aria-busy={historyLoading ? 'true' : undefined}
+      >
+        {historyLoading ? (
+          <div className={styles.historySkeleton} data-testid="history-skeleton">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={styles.skeletonRow}>
+                <SkeletonBlock className={styles.skeletonDot} />
+                <div className={styles.skeletonContent}>
+                  <SkeletonBlock className={styles.skeletonLineShort} />
+                  <SkeletonBlock className={styles.skeletonLineLong} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : historyError ? (
+          <div className={styles.historyError}>
+            <p className={styles.historyErrorMessage}>{t('machines.historyError')}</p>
+            <button
+              type="button"
+              className={styles.historyRetryButton}
+              onClick={() => setRetryCount((c) => c + 1)}
+            >
+              {t('machines.historyRetry')}
+            </button>
+          </div>
+        ) : visibleEvents.length === 0 ? (
           <p className={styles.empty}>{t('machines.historyEmpty')}</p>
         ) : (
           <ol className={styles.timeline}>

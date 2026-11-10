@@ -88,4 +88,22 @@ describe('InitialPasswordModal', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(2);
   });
+
+  it('applies --mono font-family to password and --fs-sm font-size to warning box', () => {
+    render(
+      <ToastProvider>
+        <InitialPasswordModal
+          email="admin@empresa.com"
+          senha="initialPassword12"
+          onClose={vi.fn()}
+        />
+      </ToastProvider>
+    );
+
+    const passwordInput = screen.getByDisplayValue('initialPassword12');
+    expect(passwordInput).toHaveStyle({ fontFamily: 'var(--mono)' });
+
+    const warningBox = screen.getByText(/Copie e guarde esta senha em local seguro/i);
+    expect(warningBox).toHaveStyle({ fontSize: 'var(--fs-sm)' });
+  });
 });

@@ -1,0 +1,536 @@
+[
+ {
+  "start": 14.14,
+  "end": 15.56,
+  "text": "Imagina uma operação industrial",
+  "i": 1
+ },
+ {
+  "start": 15.7,
+  "end": 17.1,
+  "text": "em que dezenas de empilhadeiras",
+  "i": 2
+ },
+ {
+  "start": 17.1,
+  "end": 18.84,
+  "text": "movimentam cargas diariamente.",
+  "i": 3
+ },
+ {
+  "start": 19.28,
+  "end": 20.96,
+  "text": "Agora, imagine que uma dessas máquinas",
+  "i": 4
+ },
+ {
+  "start": 20.96,
+  "end": 23.78,
+  "text": "sofre uma colisão ou uma frenagem brusca.",
+  "i": 5
+ },
+ {
+  "start": 24.12,
+  "end": 25.02,
+  "text": "Como responsável pela",
+  "i": 6
+ },
+ {
+  "start": 25.02,
+  "end": 26.5,
+  "text": "operação, ficaria sabendo?",
+  "i": 7
+ },
+ {
+  "start": 26.76,
+  "end": 28.94,
+  "text": "E como identificaria o equipamento envolvido",
+  "i": 8
+ },
+ {
+  "start": 28.94,
+  "end": 32.62,
+  "text": "e o momento em que ocorreu o incidente?",
+  "i": 9
+ },
+ {
+  "start": 34.8,
+  "end": 36.46,
+  "text": "Foi pensando nesse desafio",
+  "i": 10
+ },
+ {
+  "start": 36.46,
+  "end": 37.96,
+  "text": "que nós desenvolvemos a Liftech.",
+  "i": 11
+ },
+ {
+  "start": 38.3,
+  "end": 40.2,
+  "text": "É um projeto da Engenharia da Computação",
+  "i": 12
+ },
+ {
+  "start": 40.2,
+  "end": 42.6,
+  "text": "da Universidade de Sorocaba, orientado pelo",
+  "i": 13
+ },
+ {
+  "start": 42.6,
+  "end": 44.66,
+  "text": "professor Denicezar Angelo Baldo.",
+  "i": 14
+ },
+ {
+  "start": 44.86,
+  "end": 46.06,
+  "text": "E esse é o quadro de membros",
+  "i": 15
+ },
+ {
+  "start": 46.06,
+  "end": 47.34,
+  "text": "da nossa equipe Liftech.",
+  "i": 16
+ },
+ {
+  "start": 51.08,
+  "end": 53.16,
+  "text": "Em muitas operações, o acompanhamento",
+  "i": 17
+ },
+ {
+  "start": 53.16,
+  "end": 54.44,
+  "text": "das empilhadeiras depende de",
+  "i": 18
+ },
+ {
+  "start": 54.44,
+  "end": 57.3,
+  "text": "verificações manuais e registros descentralizados,",
+  "i": 19
+ },
+ {
+  "start": 57.84,
+  "end": 58.7,
+  "text": "dificultando o controle",
+  "i": 20
+ },
+ {
+  "start": 58.7,
+  "end": 60.94,
+  "text": "da frota, a identificação dos operadores",
+  "i": 21
+ },
+ {
+  "start": 61.12,
+  "end": 62.74,
+  "text": "e o registro das ocorrências.",
+  "i": 22
+ },
+ {
+  "start": 63.16,
+  "end": 65.78,
+  "text": "A Liftech propõe integrar essas operações",
+  "i": 23
+ },
+ {
+  "start": 65.78,
+  "end": 67.92,
+  "text": "em uma única plataforma, permitindo",
+  "i": 24
+ },
+ {
+  "start": 67.92,
+  "end": 69.52,
+  "text": "acompanhar o estado das máquinas,",
+  "i": 25
+ },
+ {
+  "start": 69.74,
+  "end": 72.36,
+  "text": "consultar históricos, registrar incidentes",
+  "i": 26
+ },
+ {
+  "start": 72.36,
+  "end": 75,
+  "text": "e facilitar a gestão operacional.",
+  "i": 27
+ },
+ {
+  "start": 75.42,
+  "end": 77.66,
+  "text": "O nosso objetivo é transformar dados da",
+  "i": 28
+ },
+ {
+  "start": 77.66,
+  "end": 80.08,
+  "text": "nossa operação em informações úteis para poder",
+  "i": 29
+ },
+ {
+  "start": 80.08,
+  "end": 82.34,
+  "text": "apoiar decisões mais rápidas, melhorar",
+  "i": 30
+ },
+ {
+  "start": 82.34,
+  "end": 84.84,
+  "text": "a rastreabilidade dos eventos e contribuir",
+  "i": 31
+ },
+ {
+  "start": 84.84,
+  "end": 87,
+  "text": "para um ambiente industrial mais seguro.",
+  "i": 32
+ },
+ {
+  "start": 90.02,
+  "end": 91.3,
+  "text": "Para desenvolver essa solução,",
+  "i": 33
+ },
+ {
+  "start": 91.46,
+  "end": 93.88,
+  "text": "nós integramos o hardware e o software.",
+  "i": 34
+ },
+ {
+  "start": 94.04,
+  "end": 95.8,
+  "text": "Na parte do hardware, nós utilizamos o",
+  "i": 35
+ },
+ {
+  "start": 95.8,
+  "end": 98.4,
+  "text": "microcontrolador ESP32, que é programado",
+  "i": 36
+ },
+ {
+  "start": 98.4,
+  "end": 100.8,
+  "text": "com C++, conectados a sensores de três",
+  "i": 37
+ },
+ {
+  "start": 100.8,
+  "end": 103.32,
+  "text": "eixos que coletam dados relacionados aos",
+  "i": 38
+ },
+ {
+  "start": 103.32,
+  "end": 105.3,
+  "text": "movimentos e à orientação e aceleração",
+  "i": 39
+ },
+ {
+  "start": 105.3,
+  "end": 107.52,
+  "text": "das empilhadeiras, permitindo identificar",
+  "i": 40
+ },
+ {
+  "start": 107.52,
+  "end": 109.48,
+  "text": "possíveis ocorrências operacionais.",
+  "i": 41
+ },
+ {
+  "start": 109.76,
+  "end": 111.8,
+  "text": "Já na parte do software, nós utilizamos",
+  "i": 42
+ },
+ {
+  "start": 111.8,
+  "end": 114.1,
+  "text": "o React com TypeScript no Front-End,",
+  "i": 43
+ },
+ {
+  "start": 114.32,
+  "end": 117.78,
+  "text": "Node.js com Express e TypeScript no Back-End.",
+  "i": 44
+ },
+ {
+  "start": 117.96,
+  "end": 119.38,
+  "text": "Para armazenar os nossos dados,",
+  "i": 45
+ },
+ {
+  "start": 119.46,
+  "end": 123.34,
+  "text": "nós utilizamos o MongoDB com Mongoose utilizando",
+  "i": 46
+ },
+ {
+  "start": 123.34,
+  "end": 125.28,
+  "text": "RabbitMQ, que é utilizado na",
+  "i": 47
+ },
+ {
+  "start": 125.28,
+  "end": 127.16,
+  "text": "comunicação entre componentes do sistema.",
+  "i": 48
+ },
+ {
+  "start": 127.48,
+  "end": 129.38,
+  "text": "Também utilizamos o Figma para desenvolver",
+  "i": 49
+ },
+ {
+  "start": 129.38,
+  "end": 131.52,
+  "text": "os protótipos das nossas interfaces e o",
+  "i": 50
+ },
+ {
+  "start": 131.52,
+  "end": 134.1,
+  "text": "GitHub para controlar as versões do código.",
+  "i": 51
+ },
+ {
+  "start": 134.36,
+  "end": 135.92,
+  "text": "O funcionamento começa com a coleta de",
+  "i": 52
+ },
+ {
+  "start": 135.92,
+  "end": 137.98,
+  "text": "dados pelos sensores, que são encaminhados",
+  "i": 53
+ },
+ {
+  "start": 137.98,
+  "end": 140.4,
+  "text": "para processamento e armazenamento.",
+  "i": 54
+ },
+ {
+  "start": 140.66,
+  "end": 142.68,
+  "text": "Essas informações, elas alimentam a",
+  "i": 55
+ },
+ {
+  "start": 142.68,
+  "end": 144.86,
+  "text": "plataforma digital, onde poderão ser consultadas",
+  "i": 56
+ },
+ {
+  "start": 144.86,
+  "end": 146.66,
+  "text": "pelos responsáveis da nossa operação.",
+  "i": 57
+ },
+ {
+  "start": 147.48,
+  "end": 149.26,
+  "text": "Toda tecnologia que converge para a",
+  "i": 58
+ },
+ {
+  "start": 149.26,
+  "end": 151.58,
+  "text": "central operacional da Liftech, nela o",
+  "i": 59
+ },
+ {
+  "start": 151.58,
+  "end": 153.3,
+  "text": "administrador vai poder visualizar",
+  "i": 60
+ },
+ {
+  "start": 153.3,
+  "end": 155.16,
+  "text": "empilhadeiras por estado operacional,",
+  "i": 61
+ },
+ {
+  "start": 155.3,
+  "end": 157.14,
+  "text": "gerenciar funcionários, setores,",
+  "i": 62
+ },
+ {
+  "start": 157.58,
+  "end": 159.32,
+  "text": "consultar informações do equipamento e",
+  "i": 63
+ },
+ {
+  "start": 159.32,
+  "end": 160.68,
+  "text": "acompanhar o histórico de ocorrências.",
+  "i": 64
+ },
+ {
+  "start": 161.34,
+  "end": 163,
+  "text": "Já os funcionários contarão com a",
+  "i": 65
+ },
+ {
+  "start": 163,
+  "end": 164.6,
+  "text": "interface móvel simplificada,",
+  "i": 66
+ },
+ {
+  "start": 165,
+  "end": 166.46,
+  "text": "para poder acompanhar a sua sessão de",
+  "i": 67
+ },
+ {
+  "start": 166.46,
+  "end": 168.62,
+  "text": "utilização e reportar incidentes.",
+  "i": 68
+ },
+ {
+  "start": 168.88,
+  "end": 170.9,
+  "text": "A plataforma também foi projetada para",
+  "i": 69
+ },
+ {
+  "start": 170.9,
+  "end": 172.62,
+  "text": "oferecer suporte a 7 idiomas,",
+  "i": 70
+ },
+ {
+  "start": 172.92,
+  "end": 174.68,
+  "text": "ampliando as possibilidades de utilização.",
+  "i": 71
+ },
+ {
+  "start": 177.24,
+  "end": 179.48,
+  "text": "O nosso diferencial é integrar o",
+  "i": 72
+ },
+ {
+  "start": 179.48,
+  "end": 181.62,
+  "text": "monitoramento físico das empilhadeiras",
+  "i": 73
+ },
+ {
+  "start": 181.62,
+  "end": 183.06,
+  "text": "com a gestão operacional em um único",
+  "i": 74
+ },
+ {
+  "start": 183.06,
+  "end": 184.98,
+  "text": "ambiente, reunindo informações que",
+  "i": 75
+ },
+ {
+  "start": 184.98,
+  "end": 186.66,
+  "text": "normalmente podem estar dispersas.",
+  "i": 76
+ },
+ {
+  "start": 187.54,
+  "end": 189.58,
+  "text": "Nós esperamos oferecer uma plataforma",
+  "i": 77
+ },
+ {
+  "start": 189.58,
+  "end": 191.62,
+  "text": "que seja capaz de facilitar o acompanhamento",
+  "i": 78
+ },
+ {
+  "start": 191.62,
+  "end": 193.3,
+  "text": "da frota, organizar o registro",
+  "i": 79
+ },
+ {
+  "start": 193.3,
+  "end": 195.74,
+  "text": "de ocorrências e apoiar decisões",
+  "i": 80
+ },
+ {
+  "start": 195.74,
+  "end": 197.66,
+  "text": "relacionadas à segurança e à manutenção.",
+  "i": 81
+ },
+ {
+  "start": 198.02,
+  "end": 199.46,
+  "text": "Nós acreditamos que a tecnologia",
+  "i": 82
+ },
+ {
+  "start": 199.46,
+  "end": 201.08,
+  "text": "pode ir além de coletar dados,",
+  "i": 83
+ },
+ {
+  "start": 201.34,
+  "end": 203.54,
+  "text": "ela pode transformar as informações em",
+  "i": 84
+ },
+ {
+  "start": 203.54,
+  "end": 205.58,
+  "text": "decisões e ajudar a tornar as",
+  "i": 85
+ },
+ {
+  "start": 205.56,
+  "end": 208.6,
+  "text": "operações mais eficientes e seguras.",
+  "i": 86
+ },
+ {
+  "start": 209.12,
+  "end": 211.66,
+  "text": "E essa é a Liftech, otimizando a inteligência",
+  "i": 87
+ },
+ {
+  "start": 211.66,
+  "end": 213.76,
+  "text": "operacional para movimentar o futuro.",
+  "i": 88
+ },
+ {
+  "start": 214.16,
+  "end": 217.12,
+  "text": "Muito obrigado pela sua atenção.",
+  "i": 89
+ }
+]

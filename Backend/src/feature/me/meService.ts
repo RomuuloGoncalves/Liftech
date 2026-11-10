@@ -1,8 +1,12 @@
+import { ehChaveDuplicada } from "../../utils/mongo.js";
 import { ErroHttp, StatusCode } from "../../utils/responseHandler.js";
 import { exigirSemOperadores } from "../../utils/corpo.js";
 import { User } from "../../schemas/user.js";
+import { UserRepository } from "../user/userRepository.js";
 import { exigirAdmin, type UsuarioRequisicao } from "../../core/autenticar.js";
 import { verificarSenha, gerarHashSenha } from "../../utils/senha.js";
+
+const usuarios = new UserRepository(User);
 
 export const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -88,18 +92,16 @@ export function validarExclusao(corpo: unknown): DadosExclusao {
   };
 }
 
-export async function atualizarConta(
-  usuario: UsuarioRequisicao,
-  dados: DadosAtualizacao
-): Promise<{ email: string }> {
+export async function atualizarConta(usuario: UsuarioRequisicao, dados: DadosAtualizacao): Promise<{ email: string }> {
   exigirAdmin(usuario, "Apenas administradores podem atualizar os dados de conta.");
 
-  const usuarioDb = await User.findById(usuario._id).select("+senhaHash").lean();
+  const usuarioDb = await usuarios.buscarPorId(usuario._id, "+senhaHash");
   if (!usuarioDb) {
     throw new ErroHttp(StatusCode.NOT_FOUND, "Usuário não encontrado(a).");
   }
 
-  if (!usuarioDb.senhaHash || !verificarSenha(dados.senhaAtual, usuarioDb.senhaHash)) {
+  const senhaHash = usuarioDb.getSenhaHash();
+  if (!senhaHash || !verificarSenha(dados.senhaAtual, senhaHash)) {
     throw new ErroHttp(StatusCode.FORBIDDEN, "Senha atual incorreta.");
   }
 
@@ -112,32 +114,29 @@ export async function atualizarConta(
   }
 
   try {
-    await User.updateOne({ _id: usuario._id }, { $set: updateFields });
-  } catch (error: any) {
-    if (error?.code === 11000) {
+    await usuarios.atualizarUm({ _id: usuario._id }, { $set: updateFields });
+  } catch (error) {
+    if (ehChaveDuplicada(error)) {
       throw new ErroHttp(StatusCode.CONFLICT, "E-mail já em uso.");
     }
     throw error;
   }
 
   return {
-    email: dados.email ?? (usuarioDb.email || ""),
+    email: dados.email ?? (usuarioDb.getEmail() || ""),
   };
 }
 
-export async function excluirConta(
-  usuario: UsuarioRequisicao,
-  empresaId: string | undefined,
-  senhaAtual: string
-): Promise<void> {
+export async function excluirConta(usuario: UsuarioRequisicao, empresaId: string | undefined, senhaAtual: string): Promise<void> {
   exigirAdmin(usuario, "Apenas administradores podem excluir a conta.");
 
-  const usuarioDb = await User.findById(usuario._id).select("+senhaHash").lean();
+  const usuarioDb = await usuarios.buscarPorId(usuario._id, "+senhaHash");
   if (!usuarioDb) {
     throw new ErroHttp(StatusCode.NOT_FOUND, "Usuário não encontrado(a).");
   }
 
-  if (!usuarioDb.senhaHash || !verificarSenha(senhaAtual, usuarioDb.senhaHash)) {
+  const senhaHash = usuarioDb.getSenhaHash();
+  if (!senhaHash || !verificarSenha(senhaAtual, senhaHash)) {
     throw new ErroHttp(StatusCode.FORBIDDEN, "Senha atual incorreta.");
   }
 
@@ -145,7 +144,7 @@ export async function excluirConta(
     throw new ErroHttp(StatusCode.CONFLICT, "Você é o único administrador da empresa.");
   }
 
-  const outrosAdmins = await User.countDocuments({
+  const outrosAdmins = await usuarios.contar({
     empresaId,
     role: "admin",
     _id: { $ne: usuario._id },
@@ -158,5 +157,5 @@ export async function excluirConta(
   }
 
   // ponytail: count + delete sem transação; usar transação se houver muitos admins
-  await User.deleteOne({ _id: usuario._id });
+  await usuarios.deletarUm({ _id: usuario._id });
 }

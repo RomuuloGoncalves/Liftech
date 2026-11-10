@@ -71,6 +71,14 @@ describe('LoginPage', () => {
     expect(screen.queryByText('home screen')).not.toBeInTheDocument()
   })
 
+  it('shows access denied on 403 (blocked collaborator) and stays', async () => {
+    login.mockRejectedValue(new AxiosError('x', '403', undefined, undefined, { status: 403 } as AxiosResponse))
+    renderPage('colaborador')
+    submit('Usuário', 'joao', 'minhasenha')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Acesso negado. Fale com o seu supervisor.')
+    expect(screen.queryByText('employee screen')).not.toBeInTheDocument()
+  })
+
   it('shows network error when there is no response', async () => {
     login.mockRejectedValue(new AxiosError('Network Error'))
     renderPage('colaborador')
@@ -96,6 +104,9 @@ describe('LoginPage', () => {
     login.mockReturnValue(new Promise(() => {}))
     renderPage('admin')
     submit('Email empresarial', 'admin@empresa.com', 'minhasenha')
-    expect(await screen.findByRole('button', { name: 'Entrar' })).toBeDisabled()
+    const button = await screen.findByRole('button', { name: 'Entrar' })
+    expect(button).toBeDisabled()
+    expect(button).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
   })
 })

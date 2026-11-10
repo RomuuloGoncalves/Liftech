@@ -14,8 +14,8 @@
 
 .cardLg {
   composes: card;
-  gap: 12px;
-  padding: 16px;
+  gap: var(--card-gap-lg);
+  padding: var(--card-pad-lg);
 }
 
 /* Variantes ficam depois da casca: o composes só ordena certo dentro deste arquivo.

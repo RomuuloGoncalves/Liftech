@@ -2,6 +2,7 @@ import React, { useId, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Modal from '../common/Modal'
+import Spinner from '../common/Spinner'
 import buttons from '../common/DialogButtons.module.css'
 import { CATEGORY_COLORS, categoryNameError, isHexColor } from '../../data/fleet'
 import { MACHINE_STATUSES, type MachineStatus } from '../../data/machines'
@@ -50,8 +51,9 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     setHex(color)
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (saving) return
     const problem = categoryNameError(nome, existingNames)
     if (problem) {
       setError(t(problem === 'required' ? 'fleet.required' : 'fleet.duplicateName'))
@@ -62,10 +64,13 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     setSaving(true)
     // Mantém a ordem dos códigos, não a dos cliques.
     const statusVinculados = MACHINE_STATUSES.filter((status) => linked.includes(status))
-    Promise.resolve(onSubmit({ nome: nome.trim(), cor, statusVinculados })).catch(() => {
+    try {
+      await onSubmit({ nome: nome.trim(), cor, statusVinculados })
+    } catch {
       setSaveError(true)
+    } finally {
       setSaving(false)
-    })
+    }
   }
 
   const toggle = (status: MachineStatus) =>
@@ -82,6 +87,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               aria-label={t('fleet.colorLabel')}
               aria-expanded={pickerOpen}
               data-color={cor}
+              disabled={saving}
               onClick={(event) => {
                 const rect = event.currentTarget.getBoundingClientRect()
                 setPickerAt(pickerOpen ? null : { top: rect.bottom + 8, left: rect.left - 75 })
@@ -137,6 +143,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               placeholder={t('fleet.namePlaceholder')}
               maxLength={30}
               value={nome}
+              disabled={saving}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? `${uid}-error` : undefined}
               onChange={(event) => setNome(event.target.value)}
@@ -158,7 +165,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
                 <input
                   type="checkbox"
                   checked={linked.includes(status)}
-                  disabled={taken}
+                  disabled={taken || saving}
                   aria-describedby={taken ? `${uid}-taken-${status}` : undefined}
                   onChange={() => toggle(status)}
                 />
@@ -180,10 +187,11 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
         )}
 
         <div className={buttons.actions}>
-          <button type="button" className={buttons.cancel} onClick={onClose}>
+          <button type="button" className={buttons.cancel} onClick={onClose} disabled={saving}>
             {t('common.cancel')}
           </button>
-          <button type="submit" className={buttons.confirm} disabled={saving}>
+          <button type="submit" className={buttons.confirm} disabled={saving} aria-busy={saving}>
+            {saving && <Spinner />}
             {t(initial ? 'common.save' : 'fleet.createSubmit')}
           </button>
         </div>

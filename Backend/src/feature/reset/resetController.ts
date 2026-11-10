@@ -11,7 +11,7 @@ export async function resetar(_req: Request, res: Response) {
   emAndamento = true;
   try {
     return respostaSucesso(res, StatusCode.OK, await resetarBanco());
-  } catch (error: any) {
+  } catch (error) {
     return responderErro(res, error);
   } finally {
     emAndamento = false;

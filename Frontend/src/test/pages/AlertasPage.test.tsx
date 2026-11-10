@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
+import { ActiveBranchProvider } from '../../context/ActiveBranchContext'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AlertasPage from '../../pages/AlertasPage'
 import styles from '../../pages/AlertasPage.module.css'
-import { DEFAULT_PERIOD, defaultPeriodTo } from '../../data/machines'
+import { defaultPeriod } from '../../data/machines'
 import { MACHINES } from '../fixtures/machines'
 import { incidentService, type FiltroIncidentes, type Incidente } from '../../services/incidentService'
 import { machineService } from '../../services/machineService'
@@ -25,7 +27,7 @@ const ACCIDENT_OPERATORS = ['Alexandre Gomes', 'Carlos Silva', 'Ana Souza', 'Jo�
 const FIRST_EVENT_DAY = Date.UTC(2024, 7, 1)
 const DAY_MS = 24 * 60 * 60 * 1000
 
-// The mock accidents as the API would send them: odd ones reported by the collaborator.
+// Os acidentes simulados conforme a API enviaria: os ímpares reportados pelo colaborador.
 const ACCIDENTS = MACHINES.flatMap((machine, machineIndex) =>
   ACCIDENT_SLOTS.map(([inicio, fim], slot) => {
     const dayOffset = (machineIndex * 7 + slot * 45) % 600
@@ -55,13 +57,13 @@ const accidentsIn = (from: string, to: string) =>
     (b.event.data + b.event.inicio).localeCompare(a.event.data + a.event.inicio)
   )
 
-// Stand-in for GET /incidents: by machine and local day, inclusive, most recent first.
+// Substituto para GET /incidents: por máquina e dia local, inclusivo, mais recentes primeiro.
 const listIncidents = async ({ machineId, from, to }: FiltroIncidentes = {}) =>
   accidentsIn(from ?? '', to ?? '')
     .filter(({ event }) => !machineId || event.machineId === machineId)
     .map(({ incident }) => incident)
 
-const DEFAULT = () => accidentsIn(DEFAULT_PERIOD.from, defaultPeriodTo()).map(({ event }) => event)
+const DEFAULT = () => accidentsIn(defaultPeriod().from, defaultPeriod().to).map(({ event }) => event)
 
 const cards = () => screen.queryAllByRole('article')
 const field = (card: HTMLElement, label: string) => within(card).getByText(label).nextElementSibling?.textContent
@@ -77,16 +79,40 @@ const renderPage = async () => {
   await loaded()
 }
 
+// "Hoje" dentro dos acidentes de exemplo: os últimos 30 dias têm incidentes de sensor e de colaborador.
+const HOJE = new Date(2025, 0, 12, 12, 0, 0)
+
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(HOJE)
   listarIncidentes.mockReset().mockImplementation(listIncidents)
   vi.mocked(machineService.listar).mockReset().mockResolvedValue(MACHINES)
 })
 
+afterEach(() => vi.useRealTimers())
+
 describe('AlertasPage', () => {
-  it('renders one card per API incident of the default period, which ends today', async () => {
+  it('lists only the machines and incidents of the active branch', async () => {
+    const filiais = [{ _id: 'f1', nome: 'Matriz', matriz: true }, { _id: 'f2', nome: 'Unidade Norte', matriz: false }]
+    localStorage.setItem('user', JSON.stringify({ _id: 'u1', nome: 'Ana', role: 'admin', escopo: 'empresa', filiais }))
+    localStorage.setItem('liftech.activeBranch', 'f2')
+    render(
+      <MemoryRouter>
+        <ActiveBranchProvider>
+          <AlertasPage />
+        </ActiveBranchProvider>
+      </MemoryRouter>
+    )
+    await loaded()
+    expect(machineService.listar).toHaveBeenCalledWith('f2')
+    expect(listarIncidentes).toHaveBeenCalledWith({ from: '2024-12-13', to: '2025-01-12', filialId: 'f2' })
+    localStorage.clear()
+  })
+
+  it('renders one card per API incident of the default period, the last 30 days', async () => {
     await renderPage()
-    expect(listarIncidentes).toHaveBeenCalledWith({ from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
-    expect(defaultPeriodTo()).toBe([DEFAULT_PERIOD.to, new Date().toLocaleDateString('sv')].sort()[1])
+    expect(defaultPeriod()).toEqual({ from: '2024-12-13', to: '2025-01-12' })
+    expect(listarIncidentes).toHaveBeenCalledWith({ from: '2024-12-13', to: '2025-01-12' })
     expect(DEFAULT().length).toBeGreaterThan(0)
     expect(cards()).toHaveLength(DEFAULT().length)
   })
@@ -117,7 +143,7 @@ describe('AlertasPage', () => {
 
   it('shows urgency Alta for sensor collisions and for collaborator reports', async () => {
     await renderPage()
-    const origins = new Set(accidentsIn(DEFAULT_PERIOD.from, defaultPeriodTo()).map(({ incident }) => incident.origem))
+    const origins = new Set(accidentsIn(defaultPeriod().from, defaultPeriod().to).map(({ incident }) => incident.origem))
     expect(origins).toEqual(new Set(['sensor', 'funcionario']))
     expect(new Set(cards().map((card) => field(card, 'Nível de urgência')))).toEqual(new Set(['Alta']))
   })
@@ -212,7 +238,7 @@ describe('AlertasPage', () => {
     const tabs = within(dialog).getAllByRole('tab')
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Acidentes', 'Manutenção'])
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
-    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: DEFAULT_PERIOD.from, to: defaultPeriodTo() })
+    expect(listarIncidentes).toHaveBeenLastCalledWith({ machineId: '4', from: defaultPeriod().from, to: defaultPeriod().to })
     expect(within(within(dialog).getByRole('tabpanel')).getAllByRole('listitem')).toHaveLength(visible)
     expect(within(dialog).queryByText('Em manutenção')).not.toBeInTheDocument()
     expect(within(dialog).queryByRole('button', { name: /Editar|Excluir/ })).not.toBeInTheDocument()
@@ -299,14 +325,14 @@ describe('AlertasPage skeleton', () => {
       await renderPage()
       const helpButton = screen.getByRole('button', { name: 'Sobre os níveis de urgência' })
 
-      // Test Escape
+      // Testa Escape
       fireEvent.click(helpButton)
       expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
       fireEvent.keyDown(window, { key: 'Escape' })
       expect(screen.queryByRole('dialog', { name: 'Informações sobre nível crítico' })).not.toBeInTheDocument()
       expect(document.activeElement).toBe(helpButton)
 
-      // Test Fechar click
+      // Testa clique em Fechar
       fireEvent.click(helpButton)
       expect(screen.getByRole('dialog', { name: 'Informações sobre nível crítico' })).toBeInTheDocument()
       fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))

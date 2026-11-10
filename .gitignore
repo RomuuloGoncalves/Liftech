@@ -55,5 +55,7 @@ CLAUDE.md
 # HyperFrames e Edição de Vídeos
 .hyperframes/
 videos/**/output/
-videos/**/work/*.mov
+videos/**/source/
+videos/**/*.mp4
+videos/**/*.mov
 package-lock.json

@@ -61,6 +61,7 @@
 .dateTime {
   display: flex;
   flex-direction: column;
+  font-variant-numeric: tabular-nums;
 }
 
 .action {
@@ -79,17 +80,16 @@
   color: var(--white);
   font-family: inherit;
   font-size: var(--fs-sm);
+  font-weight: 600;
   cursor: pointer;
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .action:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.divider {
-  width: 100%;
-  margin: 0;
-  border: none;
-  border-top: 1px solid var(--line);
 }

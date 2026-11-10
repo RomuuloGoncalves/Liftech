@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,6 +11,8 @@ import {
   X,
 } from "lucide-react";
 import ConfirmDialog from "../common/ConfirmDialog";
+import Spinner from "../common/Spinner";
+import { useToast } from "../common/Toast";
 import { useActiveBranch } from "../../context/ActiveBranchContext";
 import type { Filial } from "../../services/authService";
 import styles from "./BranchSelector.module.css";
@@ -19,12 +21,14 @@ interface NameFormProps {
   initial: string;
   onConfirm: (nome: string) => void;
   onCancel: () => void;
+  busy?: boolean;
 }
 
 const NameForm: React.FC<NameFormProps> = ({
   initial,
   onConfirm,
   onCancel,
+  busy = false,
 }) => {
   const { t } = useTranslation();
   const [value, setValue] = useState(initial);
@@ -35,7 +39,7 @@ const NameForm: React.FC<NameFormProps> = ({
       className={styles.nameForm}
       onSubmit={(event) => {
         event.preventDefault();
-        if (nome) onConfirm(nome);
+        if (nome && !busy) onConfirm(nome);
       }}
     >
       <input
@@ -44,21 +48,24 @@ const NameForm: React.FC<NameFormProps> = ({
         aria-label={t("branches.nameLabel")}
         value={value}
         onChange={(event) => setValue(event.target.value)}
+        disabled={busy}
         autoFocus
       />
       <button
         type="submit"
         className={`${styles.iconButton} ${styles.confirm}`}
         aria-label={t("branches.confirm")}
-        disabled={!nome}
+        disabled={!nome || busy}
+        aria-busy={busy}
       >
-        <Check size={14} aria-hidden="true" />
+        {busy ? <Spinner size={14} /> : <Check size={14} aria-hidden="true" />}
       </button>
       <button
         type="button"
         className={styles.iconButton}
         aria-label={t("common.cancel")}
         onClick={onCancel}
+        disabled={busy}
       >
         <X size={14} aria-hidden="true" />
       </button>
@@ -85,28 +92,32 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
     renameBranch,
     removeBranch,
   } = useActiveBranch();
+  const { show, showError } = useToast();
   const [open, setOpen] = useState(false);
   const [managing, setManaging] = useState(false);
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Filial | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const labelId = useId();
   const triggerId = useId();
 
-  const close = () => {
+  const close = useCallback(() => {
+    if (saving || deleting) return;
     setOpen(false);
     setManaging(false);
     setCreating(false);
     setEditingId(null);
     setError(null);
     triggerRef.current?.focus();
-  };
+  }, [saving, deleting]);
 
   useEffect(() => {
-    // The delete dialog is rendered outside the selector, so a click on it must not count as "outside".
+    // O modal de exclusão é renderizado fora do seletor, então um clique nele não deve contar como "fora".
     if (!open || pendingDelete) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
@@ -121,7 +132,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
       window.removeEventListener("keydown", closeOnEscape);
       document.removeEventListener("mousedown", closeOnOutside);
     };
-  }, [open, pendingDelete]);
+  }, [open, pendingDelete, close]);
 
   if (!user) return null;
 
@@ -131,29 +142,45 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
       : (branches.find((branch) => branch._id === activeBranch)?.nome ??
         t("branches.all"));
 
-  const save = async (action: () => Promise<void>, done: () => void) => {
+  const save = async (
+    action: () => Promise<void>,
+    done: () => void,
+    successToast?: string,
+  ) => {
+    if (saving) return;
+    setSaving(true);
     setError(null);
     try {
       await action();
       done();
+      if (successToast) show(successToast);
     } catch {
-      setError(t("branches.saveError"));
+      const msg = t("branches.saveError");
+      setError(msg);
+      showError(msg);
+    } finally {
+      setSaving(false);
     }
   };
 
   const confirmDelete = async () => {
+    if (deleting) return;
     const branch = pendingDelete;
-    setPendingDelete(null);
     if (!branch) return;
+    setDeleting(true);
     setError(null);
     try {
       await removeBranch(branch._id);
+      show(t("branches.toastDeleted", { name: branch.nome }));
+      setPendingDelete(null);
     } catch (e) {
-      setError(
-        hasStatus(e, 409)
-          ? t("branches.deleteBlocked")
-          : t("branches.deleteError"),
-      );
+      const msg = hasStatus(e, 409)
+        ? t("branches.deleteBlocked")
+        : t("branches.deleteError");
+      setError(msg);
+      showError(msg);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -204,10 +231,12 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
                   <NameForm
                     key={branch._id}
                     initial={branch.nome}
+                    busy={saving}
                     onConfirm={(nome) =>
                       save(
                         () => renameBranch(branch._id, nome),
                         () => setEditingId(null),
+                        t("branches.toastRenamed", { name: nome }),
                       )
                     }
                     onCancel={() => setEditingId(null)}
@@ -220,6 +249,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
                       className={`${styles.iconButton} ${styles.edit}`}
                       aria-label={t("branches.rename", { name: branch.nome })}
                       onClick={() => setEditingId(branch._id)}
+                      disabled={saving || deleting}
                     >
                       <Pencil size={14} aria-hidden="true" />
                     </button>
@@ -228,6 +258,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
                       className={`${styles.iconButton} ${styles.danger}`}
                       aria-label={t("branches.remove", { name: branch.nome })}
                       onClick={() => setPendingDelete(branch)}
+                      disabled={saving || deleting}
                     >
                       <Trash2 size={14} aria-hidden="true" />
                     </button>
@@ -265,10 +296,12 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
           {creating && (
             <NameForm
               initial=""
+              busy={saving}
               onConfirm={(nome) =>
                 save(
                   () => createBranch(nome),
                   () => setCreating(false),
+                  t("branches.toastCreated", { name: nome }),
                 )
               }
               onCancel={() => setCreating(false)}
@@ -286,6 +319,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
               <button
                 type="button"
                 className={`${styles.actionBranch} ${styles.action} ${managing ? styles.actionManageActive : ""}`}
+                disabled={saving || deleting}
                 onClick={() => {
                   setManaging((value) => !value);
                   setEditingId(null);
@@ -302,6 +336,7 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
               <button
                 type="button"
                 className={`${styles.actionBranchCreate} ${styles.action}`}
+                disabled={saving || deleting}
                 onClick={() => {
                   setCreating(true);
                   setError(null);
@@ -321,7 +356,10 @@ const BranchSelector: React.FC<{ collapsed?: boolean }> = ({
             title={t("branches.deleteTitle")}
             message={t("branches.deleteMessage", { name: pendingDelete.nome })}
             onConfirm={confirmDelete}
-            onCancel={() => setPendingDelete(null)}
+            onCancel={() => {
+              if (!deleting) setPendingDelete(null);
+            }}
+            busy={deleting}
           />,
           document.body,
         )}

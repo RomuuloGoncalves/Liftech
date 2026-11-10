@@ -19,28 +19,30 @@ interface LevelInfoModalProps {
 const LevelInfoModal: React.FC<LevelInfoModalProps> = ({ onClose }) => {
   const { t } = useTranslation()
 
-  const causes = Object.keys(ACCIDENT_URGENCY) as AccidentCause[]
-  const levelsWithCause = LEVEL_ORDER.map((level) => {
-    const cause = causes.find((c) => ACCIDENT_URGENCY[c] === level)
-    return { level, cause }
-  }).filter((item): item is { level: UrgencyLevel; cause: AccidentCause } => Boolean(item.cause))
+  const allCauses = Object.keys(ACCIDENT_URGENCY) as AccidentCause[]
+  const levelsWithCauses = LEVEL_ORDER.map((level) => {
+    const causes = allCauses.filter((cause) => ACCIDENT_URGENCY[cause] === level)
+    return { level, causes }
+  }).filter((item) => item.causes.length > 0)
 
   return (
     <Modal title={t('levelInfo.title')} onClose={onClose}>
       <ul className={styles.list}>
-        {levelsWithCause.map(({ level, cause }) => (
+        {levelsWithCauses.map(({ level, causes }) => (
           <li
             key={level}
             className={`${styles.card} ${TONE[level] || ''}`.trim()}
             data-level={level}
           >
             <h3 className={styles.level}>{t(`levelInfo.level.${level}`)}</h3>
-            <p className={styles.text}>
-              <Trans
-                i18nKey={`levelInfo.description.${cause}`}
-                components={{ b: <strong /> }}
-              />
-            </p>
+            {causes.map((cause) => (
+              <p key={cause} className={styles.text}>
+                <Trans
+                  i18nKey={`levelInfo.description.${cause}`}
+                  components={{ b: <strong /> }}
+                />
+              </p>
+            ))}
           </li>
         ))}
       </ul>

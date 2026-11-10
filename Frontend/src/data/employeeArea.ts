@@ -10,9 +10,11 @@ export interface UsageRecord {
   start: string
   end: string
   durationLabel: string
+  /** Duração em minutos; sessão aberta conta até agora. */
+  durationMinutes: number
 }
 
-// 'sv' formats as YYYY-MM-DD and HH:mm:ss in the local time zone.
+// 'sv' formata como YYYY-MM-DD e HH:mm:ss no fuso horário local.
 const localDate = (date: Date) => date.toLocaleDateString('sv')
 const localTime = (date: Date) => date.toLocaleTimeString('sv')
 
@@ -25,6 +27,7 @@ export function formatDuration(minutes: number): string {
 export function toUsageRecord(session: Sessao, now = Date.now()): UsageRecord {
   const start = new Date(session.inicio)
   const end = session.fim ? new Date(session.fim) : null
+  const minutes = Math.max(0, ((end?.getTime() ?? now) - start.getTime()) / 60000)
   return {
     id: session._id,
     machineId: session.machineId,
@@ -33,7 +36,8 @@ export function toUsageRecord(session: Sessao, now = Date.now()): UsageRecord {
     date: localDate(start),
     start: localTime(start),
     end: end ? localTime(end) : '',
-    durationLabel: formatDuration(((end?.getTime() ?? now) - start.getTime()) / 60000),
+    durationLabel: formatDuration(minutes),
+    durationMinutes: minutes,
   }
 }
 

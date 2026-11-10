@@ -67,7 +67,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onOpen, onToggleA
           role="switch"
           aria-checked={allowed}
           aria-label={t('team.toggleAccess', { name })}
-          // No login, nothing to allow: the switch waits until the form creates one.
+          // Sem login, nada a permitir: o interruptor aguarda o formulário criar um.
           disabled={employee.usuario === null}
           className={`${styles.switch} ${allowed ? styles.switchOn : ''}`}
           onClick={() => onToggleAccess(employee)}

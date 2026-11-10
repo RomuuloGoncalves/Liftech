@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import AlertModal from '../../../components/alerts/AlertModal';
 import type { Incidente } from '../../../services/incidentService';
+import i18n from '../../../config/i18n';
 
 const incidentBase: Incidente = {
   _id: 'i1',
@@ -115,5 +116,118 @@ describe('AlertModal', () => {
     fireEvent.click(backdrop);
 
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  describe('offline variant (TLQ-07)', () => {
+    afterEach(async () => {
+      await act(async () => {
+        await i18n.changeLanguage('pt-BR');
+      });
+    });
+
+    it('renders machine identification in bold and offline message', async () => {
+      let containerResult: HTMLElement | undefined;
+      await act(async () => {
+        const { container } = render(
+          <AlertModal
+            variant="offline"
+            offline={{ machineId: 'm1', identificacao: 'EMP-084(ID)', filialId: 'f1' }}
+            onClose={vi.fn()}
+          />
+        );
+        containerResult = container;
+      });
+
+      const dialog = screen.getByRole('alertdialog', { name: 'Placa sem comunicação' });
+      expect(dialog).toBeInTheDocument();
+      expect(dialog).toHaveTextContent(
+        'A máquina EMP-084(ID) está sem comunicação com o sistema.'
+      );
+
+      const bTags = containerResult!.querySelectorAll('b');
+      expect(bTags).toHaveLength(1);
+      expect(bTags[0]).toHaveTextContent('EMP-084(ID)');
+    });
+
+    it('falls back to "não informado" when identificacao is empty', async () => {
+      await act(async () => {
+        render(
+          <AlertModal
+            variant="offline"
+            offline={{ machineId: 'm1', identificacao: '', filialId: 'f1' }}
+            onClose={vi.fn()}
+          />
+        );
+      });
+
+      expect(screen.getByRole('alertdialog')).toHaveTextContent(
+        'A máquina não informado está sem comunicação com o sistema.'
+      );
+    });
+
+    it('focuses Ok button and calls onClose on click or Escape', async () => {
+      const onClose = vi.fn();
+      await act(async () => {
+        render(
+          <AlertModal
+            variant="offline"
+            identificacao="EMP-084"
+            onClose={onClose}
+          />
+        );
+      });
+
+      const okButton = screen.getByRole('button', { name: 'Ok' });
+      expect(okButton).toHaveFocus();
+
+      await act(async () => {
+        fireEvent.click(okButton);
+      });
+      expect(onClose).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: 'Escape' });
+      });
+      expect(onClose).toHaveBeenCalledTimes(2);
+    });
+
+    const languages = [
+      { code: 'pt-BR', title: 'Placa sem comunicação' },
+      { code: 'en-US', title: 'Device offline' },
+      { code: 'es', title: 'Placa sin comunicación' },
+      { code: 'fr', title: 'Carte hors ligne' },
+      { code: 'de', title: 'Platine ohne Verbindung' },
+      { code: 'ja', title: '基板通信途絶' },
+      { code: 'ru', title: 'Плата не на связи' },
+    ];
+
+    it.each(languages)(
+      'renders offline variant showing machine identification in $code',
+      async ({ code, title }) => {
+        await act(async () => {
+          await i18n.changeLanguage(code);
+        });
+
+        let unmountFn: () => void = () => {};
+        await act(async () => {
+          const { unmount } = render(
+            <AlertModal
+              variant="offline"
+              offline={{ machineId: 'm1', identificacao: 'EMP-999' }}
+              onClose={vi.fn()}
+            />
+          );
+          unmountFn = unmount;
+        });
+
+        const dialog = screen.getByRole('alertdialog', { name: title });
+        expect(dialog).toBeInTheDocument();
+        expect(dialog).toHaveTextContent('EMP-999');
+
+        await act(async () => {
+          unmountFn();
+        });
+      }
+    );
   });
 });

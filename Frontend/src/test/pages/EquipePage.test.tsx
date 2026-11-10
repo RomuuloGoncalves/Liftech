@@ -57,7 +57,7 @@ const find = (id: string) => EMPLOYEES.find((e) => e.id === id) as Employee
 const operatorFields = ({ nome, telefone, cargo, horarioEntrada, horarioSaida }: EmployeeFormValues) =>
   ({ nome, telefone, cargo, horarioEntrada, horarioSaida })
 
-// What the API answers by default: the operator as sent, a generated matricula, the login when created.
+// O que a API responde por padrão: o operador como enviado, uma matrícula gerada e o login quando criado.
 beforeEach(() => {
   localStorage.clear()
   listar.mockReset()
@@ -88,7 +88,7 @@ beforeEach(() => {
   removerSetor.mockResolvedValue(undefined)
 })
 
-// The page loads the employees first; the toast provider is there so error toasts can be read.
+// A página carrega os funcionários primeiro; o provedor de toast está presente para que os toasts de erro possam ser lidos.
 const renderLoaded = async () => {
   const view = render(
     <ToastProvider>
@@ -380,7 +380,7 @@ describe('EquipePage: delete with confirmation', () => {
     expect(screen.getByText('Excluir Alexandre Mattos? Esta ação não pode ser desfeita.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(screen.queryByText('Alexandre Mattos')).not.toBeInTheDocument()
     expect(employeeCards()).toHaveLength(before - 1)
   })
@@ -393,7 +393,7 @@ describe('EquipePage: delete with confirmation', () => {
     expect(screen.getByText('Excluir Doca de Carga? Esta ação não pode ser desfeita.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
 
-    expect(screen.queryByRole('button', { name: 'Ver detalhes de Doca de Carga' })).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Ver detalhes de Doca de Carga' })).not.toBeInTheDocument())
     expect(sectorCards()).toHaveLength(SECTORS.length - 1)
   })
 
@@ -462,7 +462,7 @@ describe('EquipePage notifications', () => {
     await renderWithToasts()
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Alexandre Mattos' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
-    expect(toastTexts()).toEqual(['Funcionário "Alexandre Mattos" excluído'])
+    await waitFor(() => expect(toastTexts()).toEqual(['Funcionário "Alexandre Mattos" excluído']))
   })
 
   it('announces a registered sector', async () => {
@@ -485,7 +485,7 @@ describe('EquipePage notifications', () => {
     await renderWithToasts()
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Doca de Carga' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
-    expect(toastTexts()).toEqual(['Setor "Doca de Carga" excluído'])
+    await waitFor(() => expect(toastTexts()).toEqual(['Setor "Doca de Carga" excluído']))
   })
 })
 
@@ -741,17 +741,36 @@ describe('EquipePage: delete through the API', () => {
     expect(screen.queryByText('Alexandre Mattos')).not.toBeInTheDocument()
   })
 
+  it('shows ConfirmDialog busy with spinner and disabled buttons while deleting employee', async () => {
+    let resolveDelete!: () => void
+    remover.mockReturnValue(new Promise<undefined>((res) => { resolveDelete = () => { res(undefined) } }))
+    await renderLoaded()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Alexandre Mattos' }))
+    const confirmBtn = screen.getByRole('button', { name: 'Excluir' })
+    const cancelBtn = screen.getByRole('button', { name: 'Cancelar' })
+
+    fireEvent.click(confirmBtn)
+
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(screen.getByRole('dialog')).getByTestId('spinner')).toBeInTheDocument()
+    expect(cancelBtn).toBeDisabled()
+
+    await act(async () => { resolveDelete() })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
   it('brings the employee back in place with the open-session toast when the API answers 409', async () => {
     remover.mockRejectedValue(httpError(409))
     await renderLoaded()
 
     remove('Carlos Silva')
-    expect(screen.queryByText('Carlos Silva')).not.toBeInTheDocument()
 
-    expect(await screen.findByText('Carlos Silva')).toBeInTheDocument()
+    await waitFor(() => expect(toastTexts()).toContain('Funcionário com sessão aberta: encerre a sessão antes de excluir.'))
+    expect(screen.getByRole('dialog', { name: 'Excluir funcionário' })).toBeInTheDocument()
     expect(employeeCards()).toHaveLength(EMPLOYEES.length)
     expect(employeeCards()[1]).toHaveAccessibleName('Alterar acesso de Carlos Silva')
-    expect(toastTexts()).toContain('Funcionário com sessão aberta: encerre a sessão antes de excluir.')
   })
 
   it('brings the employee back with the generic error toast when the delete fails otherwise', async () => {
@@ -941,15 +960,35 @@ describe('EquipePage: sectors through the API', () => {
     expect(openCard('Doca de Carga')).not.toBeInTheDocument()
   })
 
+  it('shows ConfirmDialog busy with spinner and disabled buttons while deleting sector', async () => {
+    let resolveDelete!: () => void
+    removerSetor.mockReturnValue(new Promise<undefined>((res) => { resolveDelete = () => { res(undefined) } }))
+    await renderLoaded()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir Doca de Carga' }))
+    const confirmBtn = screen.getByRole('button', { name: 'Excluir' })
+    const cancelBtn = screen.getByRole('button', { name: 'Cancelar' })
+
+    fireEvent.click(confirmBtn)
+
+    expect(confirmBtn).toBeDisabled()
+    expect(confirmBtn).toHaveAttribute('aria-busy', 'true')
+    expect(within(screen.getByRole('dialog')).getByTestId('spinner')).toBeInTheDocument()
+    expect(cancelBtn).toBeDisabled()
+
+    await act(async () => { resolveDelete() })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
   it('brings the sector back in place with the machine count when the delete answers 409', async () => {
     removerSetor.mockRejectedValue(httpError(409, 'Setor com 3 máquina(s) ligada(s).'))
     await renderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Doca de Carga' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
-    expect(openCard('Doca de Carga')).not.toBeInTheDocument()
 
     await waitFor(() => expect(toastTexts()).toContain('Setor com 3 máquina(s) ligada(s)'))
+    expect(screen.getByRole('dialog', { name: 'Excluir setor' })).toBeInTheDocument()
     expect(sectorCards()).toHaveLength(SECTORS.length)
     expect(sectorCards()[4]).toHaveAccessibleName('Ver detalhes de Doca de Carga')
   })

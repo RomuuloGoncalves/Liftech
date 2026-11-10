@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Lock, MoreVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Machine, MachineStatus, UrgencyLevel } from '../../data/machines'
+import { urgenciaDaMaquina } from '../../data/machines'
 import { formatAlertDate } from '../../utils/format'
 import { InfoField } from '../common/InfoField'
 import { STATUS_TONE } from '../machines/StatusBadge'
@@ -73,10 +74,11 @@ const FleetCard: React.FC<FleetCardProps> = ({
   const alertaEm = machine.alertaEm ?? undefined
   // Horário local, igual aos incidentes de Alertas ('sv' dá YYYY-MM-DD e HH:mm:ss).
   const alertAt = incident ?? (alertaEm && { data: new Date(alertaEm).toLocaleDateString('sv'), hora: new Date(alertaEm).toLocaleTimeString('sv') })
-  const urgencyTone = incident?.urgency ? URGENCY_TONE[incident.urgency] : styles.danger
+  const computedUrgency = incident?.urgency ?? urgenciaDaMaquina(machine)
+  const urgencyTone = computedUrgency ? URGENCY_TONE[computedUrgency] : styles.danger
   const alertHighlight: Highlight = {
     label: t('fleet.cardUrgency'),
-    value: incident?.urgency ? t(`alerts.urgency.${incident.urgency}`) : t('fleet.cardUrgent'),
+    value: computedUrgency ? t(`alerts.urgency.${computedUrgency}`) : t('fleet.cardUrgent'),
     tone: urgencyTone,
     left: {
       label: t('fleet.cardDateTime'),
@@ -93,9 +95,9 @@ const FleetCard: React.FC<FleetCardProps> = ({
     disponivel: {
       label: t('fleet.cardWeeklyHours'),
       value:
-        machine.tempoUsoTotalHoras === undefined
+        machine.tempoUsoSemanaHoras === undefined
           ? undefinedText
-          : t('fleet.cardHours', { count: machine.tempoUsoTotalHoras }),
+          : t('fleet.cardHours', { count: machine.tempoUsoSemanaHoras }),
       tone: styles.success,
     },
   }
@@ -103,10 +105,11 @@ const FleetCard: React.FC<FleetCardProps> = ({
 
   return (
     <article
-      className={styles.card}
+      className={`${styles.card} ${machine.dispositivoOffline ? styles.offline : ''}`.trim()}
       draggable={Boolean(onDragStart)}
       data-dragging={isDragging || undefined}
       data-arriving={isArriving || undefined}
+      data-offline={machine.dispositivoOffline || undefined}
       onDragStart={(event) => {
         event.dataTransfer?.setData('text/plain', machine.id)
         onDragStart?.(machine.id)

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import FleetRow from '../../../components/fleet/FleetRow'
 import type { FleetCategory } from '../../../data/fleet'
-import type { Machine } from '../../../data/machines'
+import { defaultPeriod, type Machine } from '../../../data/machines'
 import { MACHINES } from '../../fixtures/machines'
 
 const pick = (...codes: string[]) => codes.map((code) => MACHINES.find((m) => m.identificacao === code)!)
@@ -92,11 +92,11 @@ describe('FleetRow', () => {
     expect(onDrop).toHaveBeenCalledWith('ativas')
   })
 
-  it('shows the period only on the accidents row and filters by alertaEm', () => {
-    const machines = pick('EMP-081', 'EMP-085').map((m) => ({ ...m, alertaEm: '2025-03-10T08:00:00.000Z' }))
+  it('shows the period only on the accidents row, starting on the last 30 days, and filters by alertaEm', () => {
+    const machines = pick('EMP-081', 'EMP-085').map((m) => ({ ...m, alertaEm: new Date().toISOString() }))
     setup(machines, { category: category({ id: 'acidentes', chave: 'acidentes' }), label: 'Acidentes' })
-    expect(screen.getByLabelText('Data inicial')).toHaveValue('2024-07-14')
-    expect(screen.getByLabelText('Data final')).toHaveValue(['2026-07-14', new Date().toISOString().slice(0, 10)].sort()[1])
+    expect(screen.getByLabelText('Data inicial')).toHaveValue(defaultPeriod().from)
+    expect(screen.getByLabelText('Data final')).toHaveValue(defaultPeriod().to)
     expect(cards()).toEqual(['EMP-081', 'EMP-085'])
 
     fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: '2030-01-01' } })
@@ -175,7 +175,7 @@ describe('FleetRow drop target', () => {
     const onDragLeaveRow = vi.fn()
     setup(pick('EMP-082'), { onDragLeaveRow })
     const region = screen.getByRole('region', { name: 'Ativas' })
-    // jsdom's fireEvent.dragLeave drops relatedTarget; a MouseEvent of type dragleave keeps it, like browsers.
+    // O fireEvent.dragLeave do jsdom descarta o relatedTarget; um MouseEvent com tipo dragleave o preserva, como os navegadores.
     const leave = (relatedTarget: Element) =>
       region.dispatchEvent(new MouseEvent('dragleave', { bubbles: true, relatedTarget }))
     leave(within(region).getByRole('article'))
