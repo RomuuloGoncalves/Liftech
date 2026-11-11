@@ -1,5 +1,6 @@
 #include <WiFi.h>
-#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
 #include <Preferences.h>
@@ -14,12 +15,17 @@
 const char* NOME_WIFI = "NOME_DA_REDE";
 const char* SENHA_WIFI = "SENHA_DA_REDE";
 
-// Troque pelo IP do computador que está rodando a API
-const char* URL_API_TELEMETRIA =
-  "http://192.168.1.103:3000/api/telemetry";
+// Broker MQTT do CloudAMQP (mesma instância da RABBITMQ_URL da API).
+// Pegue host, usuário, senha e vhost na página da instância. Não versionar a senha real.
+// O plugin rabbitmq_mqtt traduz o tópico "telemetria/<MAC>" para a routing key
+// "telemetria.<MAC>" no exchange amq.topic, que a API consome (docs/telemetria.md).
+const char* MQTT_HOST = "HOST.cloudamqp.com";
+const int MQTT_PORTA = 8883; // TLS
+const char* MQTT_USUARIO = "VHOST:USUARIO"; // formato do CloudAMQP: vhost:usuario
+const char* MQTT_SENHA = "SENHA_MQTT";
 
-const char* URL_API_EVENTO =
-  "http://192.168.1.103:3000/api/incidents";
+// Igual ao RABBITMQ_PREFIXO do .env da API (vazio em produção, ex.: "dev_").
+const char* PREFIXO_TOPICO = "";
 
 // O identificador do dispositivo e obtido via WiFi.macAddress()
 
@@ -64,6 +70,9 @@ float inclinacaoInicialX = 0;
 float inclinacaoInicialY = 0;
 
 Preferences memoria;
+
+WiFiClientSecure clienteTLS;
+PubSubClient mqtt(clienteTLS);
 
 void escreverRegistrador(byte registrador, byte valor) {
 
@@ -350,8 +359,31 @@ void conectarWiFi() {
   }
 }
 
+bool conectarMQTT() {
+
+  if (mqtt.connected()) {
+    return true;
+  }
+
+  // O ID do cliente precisa ser único no broker: usa o MAC.
+  String idCliente = "liftech-" + WiFi.macAddress();
+
+  if (mqtt.connect(idCliente.c_str(), MQTT_USUARIO, MQTT_SENHA)) {
+
+    Serial.println("MQTT conectado.");
+
+    return true;
+  }
+
+  Serial.print("Falha MQTT, estado: ");
+  Serial.println(mqtt.state());
+
+  return false;
+}
+
+// tipo: "telemetria" ou "evento". Tópico final: <prefixo><tipo>/<MAC>.
 bool enviarJSON(
-  const char* endereco,
+  const char* tipo,
   JsonDocument &documento
 ) {
 
@@ -360,7 +392,7 @@ bool enviarJSON(
     conectarWiFi();
   }
 
-  if (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED || !conectarMQTT()) {
     return false;
   }
 
@@ -371,28 +403,15 @@ bool enviarJSON(
     json
   );
 
-  HTTPClient http;
+  String topico =
+    String(PREFIXO_TOPICO) + tipo + "/" + WiFi.macAddress();
 
-  http.begin(endereco);
-
-  http.addHeader(
-    "Content-Type",
-    "application/json"
-  );
-
-  int resposta =
-    http.POST(json);
-
-  http.end();
-
-  if (resposta >= 200 &&
-      resposta < 300) {
-
+  if (mqtt.publish(topico.c_str(), json.c_str())) {
     return true;
   }
 
-  Serial.print("Erro HTTP: ");
-  Serial.println(resposta);
+  Serial.print("Erro ao publicar em ");
+  Serial.println(topico);
 
   return false;
 }
@@ -440,7 +459,7 @@ void enviarTelemetria(
     magnitude;
 
   enviarJSON(
-    URL_API_TELEMETRIA,
+    "telemetria",
     documento
   );
 }
@@ -506,7 +525,7 @@ void enviarEvento(
 
   bool enviado =
     enviarJSON(
-      URL_API_EVENTO,
+      "evento",
       documento
     );
 
@@ -563,6 +582,16 @@ void setup() {
 
   conectarWiFi();
 
+  // ponytail: TLS sem validar o certificado do broker; use clienteTLS.setCACert(...) para validar.
+  clienteTLS.setInsecure();
+
+  mqtt.setServer(MQTT_HOST, MQTT_PORTA);
+
+  // O evento passa dos 256 bytes padrão do PubSubClient.
+  mqtt.setBufferSize(512);
+
+  conectarMQTT();
+
   carregarCalibracao();
 
   Serial.println();
@@ -575,6 +604,8 @@ void loop() {
 
   unsigned long agora =
     millis();
+
+  mqtt.loop();
 
   if (Serial.available()) {
 
