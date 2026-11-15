@@ -26,6 +26,7 @@ const setup = () =>
       <Routes>
         <Route path="/funcionario/configuracoes" element={<><EmployeeSettingsPage /><Where /></>} />
         <Route path="/login/colaborador" element={<Where />} />
+        <Route path="/politica-privacidade" element={<Where />} />
       </Routes>
     </MemoryRouter>
   )
@@ -238,9 +239,9 @@ describe('EmployeeSettingsPage', () => {
     expect(screen.getByRole('textbox', { name: 'Como foi sua experiência?' })).toHaveValue('')
   })
 
-  it('"Política e Privacidade" does nothing: the route does not change', () => {
+  it('"Política e Privacidade" redirects to privacy policy page', () => {
     setup()
     fireEvent.click(screen.getByRole('button', { name: 'Política e Privacidade' }))
-    expect(path()).toBe('/funcionario/configuracoes')
+    expect(path()).toBe('/politica-privacidade')
   })
 })

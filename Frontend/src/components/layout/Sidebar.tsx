@@ -255,9 +255,9 @@ const Sidebar: React.FC = () => {
             {!showCollapsedLayout && <ChevronRight size={16} aria-hidden="true" />}
           </button>
           {!showCollapsedLayout && (
-            <a className={styles.privacyLink} href="/politicas-privacidade">
+            <Link className={styles.privacyLink} to="/politica-privacidade">
               {t('navigation.privacy')}
-            </a>
+            </Link>
           )}
         </div>
       </nav>

@@ -1,5 +1,5 @@
 import React, { Component, lazy, Suspense, type ErrorInfo, type ReactNode } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import PageSkeleton from '../components/common/PageSkeleton'
 
 // Carregamento lazy de páginas e layout para otimização de bundle
@@ -12,6 +12,7 @@ const AlertasPage = lazy(() => import('../pages/AlertasPage'))
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const SolicitarAcessoPage = lazy(() => import('../pages/SolicitarAcessoPage'))
 const SolicitacoesPage = lazy(() => import('../pages/SolicitacoesPage'))
+const PoliticaPrivacidadePage = lazy(() => import('../pages/PoliticaPrivacidadePage'))
 const EmployeeLayout = lazy(() => import('../components/employee/EmployeeLayout'))
 const EmployeeHomePage = lazy(() => import('../pages/employee/EmployeeHomePage'))
 const EmployeeMachinesPage = lazy(() => import('../pages/employee/EmployeeMachinesPage'))
@@ -76,6 +77,8 @@ const AppRoutes: React.FC = () => {
           <Route path="/login/colaborador" element={<LoginPage key="colaborador" role="colaborador" />} />
           <Route path="/solicitar-acesso" element={<SolicitarAcessoPage />} />
           <Route path="/solicitacoes" element={<SolicitacoesPage />} />
+          <Route path="/politica-privacidade" element={<PoliticaPrivacidadePage />} />
+          <Route path="/politicas-privacidade" element={<Navigate to="/politica-privacidade" replace />} />
           <Route path="/funcionario" element={<EmployeeLayout />}>
             <Route index element={<EmployeeHomePage />} />
             <Route path="maquinas" element={<EmployeeMachinesPage />} />

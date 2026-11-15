@@ -114,8 +114,11 @@ const EmployeeSettingsPage: React.FC = () => {
         </button>
       </section>
 
-      {/* ponytail: sem ação até existir a página de Política e Privacidade */}
-      <button type="button" className={styles.privacy}>
+      <button
+        type="button"
+        className={styles.privacy}
+        onClick={() => navigate('/politica-privacidade')}
+      >
         {t('employee.settings.privacy')}
       </button>
     </div>

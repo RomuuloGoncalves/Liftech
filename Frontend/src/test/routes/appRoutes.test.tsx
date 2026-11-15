@@ -75,6 +75,23 @@ describe('Centralized AppRoutes', () => {
     expect(screen.queryByText(/Página Não Encontrada/i)).not.toBeInTheDocument()
   })
 
+  it('renders PoliticaPrivacidadePage on /politica-privacidade and redirects /politicas-privacidade', async () => {
+    const { unmount } = render(
+      <MemoryRouter initialEntries={['/politica-privacidade']}>
+        <AppRoutes />
+      </MemoryRouter>
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: 'Política de Privacidade' })).toBeInTheDocument()
+    unmount()
+
+    render(
+      <MemoryRouter initialEntries={['/politicas-privacidade']}>
+        <AppRoutes />
+      </MemoryRouter>
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: 'Política de Privacidade' })).toBeInTheDocument()
+  })
+
   it('renders error boundary with Recarregar button when import() is rejected', async () => {
     const originalConsoleError = console.error
     console.error = vi.fn()

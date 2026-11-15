@@ -8,7 +8,14 @@ import Sidebar from './components/layout/Sidebar'
 import AppRoutes from './routes/appRoutes'
 import './App.css'
 
-const AUTH_ROUTES = ['/login', '/login/colaborador', '/solicitar-acesso', '/solicitacoes']
+const AUTH_ROUTES = [
+  '/login',
+  '/login/colaborador',
+  '/solicitar-acesso',
+  '/solicitacoes',
+  '/politicas-privacidade',
+  '/politica-privacidade',
+]
 
 function AppShell() {
   const location = useLocation()
