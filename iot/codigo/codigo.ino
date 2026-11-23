@@ -1,25 +1,61 @@
 #include <WiFi.h>
-#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include <MQTT.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
 #include <Preferences.h>
+#include <ArduinoOTA.h>
+#include <esp_ota_ops.h>
 #include <math.h>
+#include <time.h>
+
+#include "secrets.h"
+
+#define FW_VERSAO "1.0.0"
 
 #define ENDERECO_ADXL345 0x53
 
 #define PINO_SDA 21
 #define PINO_SCL 22
 
-// Preencha antes de gravar na placa. Não versionar a senha real.
-const char* NOME_WIFI = "NOME_DA_REDE";
-const char* SENHA_WIFI = "SENHA_DA_REDE";
+// Certificado raiz ISRG Root X1 (Let's Encrypt / CloudAMQP)
+const char* CA_CLOUDAMQP =
+  "-----BEGIN CERTIFICATE-----\n"
+  "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\n"
+  "-----END CERTIFICATE-----\n";
 
-// Troque pelo IP do computador que está rodando a API
-const char* URL_API_TELEMETRIA =
-  "http://192.168.1.103:3000/api/telemetry";
-
-const char* URL_API_EVENTO =
-  "http://192.168.1.103:3000/api/incidents";
+#define INTERVALO_RECONEXAO_WIFI 10000
+#define INTERVALO_RECONEXAO_MQTT 5000
+#define TAMANHO_BUFFER_MQTT 768
+#define EPOCH_MINIMO_VALIDO 1700000000L
 
 // O identificador do dispositivo e obtido via WiFi.macAddress()
 
@@ -64,6 +100,21 @@ float inclinacaoInicialX = 0;
 float inclinacaoInicialY = 0;
 
 Preferences memoria;
+
+WiFiClientSecure clienteTLS;
+MQTTClient mqtt(TAMANHO_BUFFER_MQTT);
+
+String macDispositivo = "";
+String mqttClientId = "";
+String topicoTelemetria = "";
+String topicoEvento = "";
+
+unsigned long ultimaTentativaWiFi = 0;
+unsigned long ultimaTentativaMqtt = 0;
+bool wifiConectadoAntes = false;
+bool ntpIniciado = false;
+bool ntpSincronizadoAntes = false;
+bool mqttConectadoAntes = false;
 
 void escreverRegistrador(byte registrador, byte valor) {
 
@@ -261,9 +312,16 @@ void calibrarSensor() {
   Serial.println();
 }
 
-void carregarCalibracao() {
+bool carregarCalibracao() {
 
-  memoria.begin("calibracao", true);
+  if (!memoria.begin("calibracao", true)) {
+    return false;
+  }
+
+  if (!memoria.isKey("gravidade_z")) {
+    memoria.end();
+    return false;
+  }
 
   gravidadeX =
     memoria.getFloat(
@@ -304,63 +362,132 @@ void carregarCalibracao() {
 
   Serial.print("Inclinacao inicial Y: ");
   Serial.println(inclinacaoInicialY);
+
+  return true;
 }
 
-void conectarWiFi() {
+void inicializarIdentidadeRede() {
 
-  if (WiFi.status() == WL_CONNECTED) {
+  macDispositivo = WiFi.macAddress();
+
+  String macLimpo = macDispositivo;
+  macLimpo.replace(":", "");
+
+  mqttClientId = "liftech-" + macLimpo;
+  topicoTelemetria = String(MQTT_PREFIXO) + "telemetria/" + macDispositivo;
+  topicoEvento = String(MQTT_PREFIXO) + "evento/" + macDispositivo;
+}
+
+void iniciarRede() {
+
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
+
+  inicializarIdentidadeRede();
+
+  clienteTLS.setCACert(CA_CLOUDAMQP);
+  clienteTLS.setHandshakeTimeout(5);
+
+  mqtt.begin(MQTT_HOST, MQTT_PORTA, clienteTLS);
+  mqtt.setTimeout(1000);
+
+  Serial.print("Dispositivo MAC: ");
+  Serial.println(macDispositivo);
+  Serial.print("Topico telemetria: ");
+  Serial.println(topicoTelemetria);
+  Serial.print("Topico eventos: ");
+  Serial.println(topicoEvento);
+
+  ultimaTentativaWiFi = millis();
+  WiFi.begin(WIFI_SSID, WIFI_SENHA);
+
+  Serial.println("Conectando ao Wi-Fi em segundo plano...");
+}
+
+void gerenciarConexao(unsigned long agora) {
+
+  if (WiFi.status() != WL_CONNECTED) {
+
+    if (wifiConectadoAntes) {
+      wifiConectadoAntes = false;
+      ntpIniciado = false;
+      ntpSincronizadoAntes = false;
+
+      if (mqttConectadoAntes || mqtt.connected()) {
+        mqtt.disconnect();
+        mqttConectadoAntes = false;
+      }
+
+      Serial.println("Wi-Fi desconectado.");
+    }
+
+    if (agora - ultimaTentativaWiFi >= INTERVALO_RECONEXAO_WIFI) {
+      ultimaTentativaWiFi = agora;
+      Serial.println("Tentando reconectar ao Wi-Fi...");
+      WiFi.disconnect(false);
+      WiFi.begin(WIFI_SSID, WIFI_SENHA);
+    }
+
     return;
   }
 
-  Serial.print("Conectando ao Wi-Fi");
-
-  WiFi.begin(
-    NOME_WIFI,
-    SENHA_WIFI
-  );
-
-  int tentativas = 0;
-
-  while (
-    WiFi.status() != WL_CONNECTED &&
-    tentativas < 30
-  ) {
-
-    delay(500);
-
-    Serial.print(".");
-
-    tentativas++;
-  }
-
-  Serial.println();
-
-  if (WiFi.status() == WL_CONNECTED) {
-
+  if (!wifiConectadoAntes) {
+    wifiConectadoAntes = true;
     Serial.println("Wi-Fi conectado.");
-
     Serial.print("IP: ");
     Serial.println(WiFi.localIP());
+  }
 
-  } else {
+  if (!ntpIniciado) {
+    ntpIniciado = true;
+    configTime(0, 0, "pool.ntp.org", "a.st1.ntp.br", "time.nist.gov");
+    Serial.println("Sincronizando horario via NTP...");
+  }
 
-    Serial.println(
-      "Falha ao conectar ao Wi-Fi."
-    );
+  if (time(nullptr) < EPOCH_MINIMO_VALIDO) {
+    return;
+  }
+
+  if (!ntpSincronizadoAntes) {
+    ntpSincronizadoAntes = true;
+    // Permite tentar a primeira conexao MQTT imediatamente apos o NTP sincronizar
+    ultimaTentativaMqtt = agora - INTERVALO_RECONEXAO_MQTT;
+    Serial.println("Horario NTP sincronizado.");
+  }
+
+  if (mqtt.connected()) {
+    mqtt.loop();
+    return;
+  }
+
+  if (mqttConectadoAntes) {
+    mqttConectadoAntes = false;
+    Serial.println("MQTT desconectado.");
+  }
+
+  if (agora - ultimaTentativaMqtt >= INTERVALO_RECONEXAO_MQTT) {
+    ultimaTentativaMqtt = agora;
+
+    Serial.print("Conectando ao broker MQTT...");
+
+    if (mqtt.connect(mqttClientId.c_str(), MQTT_USUARIO, MQTT_SENHA)) {
+      mqttConectadoAntes = true;
+      Serial.println(" conectado.");
+    } else {
+      Serial.print(" falha (erro=");
+      Serial.print(mqtt.lastError());
+      Serial.println(").");
+    }
   }
 }
 
-bool enviarJSON(
-  const char* endereco,
-  JsonDocument &documento
+bool publicarMQTT(
+  const String &topico,
+  JsonDocument &documento,
+  int qos
 ) {
 
-  if (WiFi.status() != WL_CONNECTED) {
-
-    conectarWiFi();
-  }
-
-  if (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED || !mqtt.connected()) {
     return false;
   }
 
@@ -371,30 +498,24 @@ bool enviarJSON(
     json
   );
 
-  HTTPClient http;
-
-  http.begin(endereco);
-
-  http.addHeader(
-    "Content-Type",
-    "application/json"
+  bool enviado = mqtt.publish(
+    topico.c_str(),
+    json.c_str(),
+    false,
+    qos
   );
 
-  int resposta =
-    http.POST(json);
-
-  http.end();
-
-  if (resposta >= 200 &&
-      resposta < 300) {
-
-    return true;
+  if (enviado) {
+    confirmarOtaValida();
+  } else {
+    Serial.print("Erro MQTT ao publicar em ");
+    Serial.print(topico);
+    Serial.print(" (erro=");
+    Serial.print(mqtt.lastError());
+    Serial.println(").");
   }
 
-  Serial.print("Erro HTTP: ");
-  Serial.println(resposta);
-
-  return false;
+  return enviado;
 }
 
 void enviarTelemetria(
@@ -412,7 +533,7 @@ void enviarTelemetria(
     "telemetria";
 
   documento["dispositivo"] =
-    WiFi.macAddress();
+    macDispositivo;
 
   documento["tempo"] =
     millis();
@@ -439,10 +560,26 @@ void enviarTelemetria(
   movimento["magnitude"] =
     magnitude;
 
-  enviarJSON(
-    URL_API_TELEMETRIA,
-    documento
-  );
+  bool enviado =
+    publicarMQTT(
+      topicoTelemetria,
+      documento,
+      0
+    );
+
+  Serial.print("[Telemetria] acc=(");
+  Serial.print(aceleracaoX, 2);
+  Serial.print(", ");
+  Serial.print(aceleracaoY, 2);
+  Serial.print(", ");
+  Serial.print(aceleracaoZ, 2);
+  Serial.print(") inc=(");
+  Serial.print(inclinacaoX, 1);
+  Serial.print(", ");
+  Serial.print(inclinacaoY, 1);
+  Serial.print(") mag=");
+  Serial.print(magnitude, 2);
+  Serial.println(enviado ? " [MQTT OK]" : " [offline]");
 }
 
 void enviarEvento(
@@ -464,7 +601,7 @@ void enviarEvento(
     "evento";
 
   documento["dispositivo"] =
-    WiFi.macAddress();
+    macDispositivo;
 
   documento["id_evento"] =
     contadorEventos;
@@ -505,9 +642,10 @@ void enviarEvento(
     magnitude;
 
   bool enviado =
-    enviarJSON(
-      URL_API_EVENTO,
-      documento
+    publicarMQTT(
+      topicoEvento,
+      documento,
+      1
     );
 
   if (enviado) {
@@ -517,6 +655,190 @@ void enviarEvento(
     );
 
     Serial.println(tipo);
+
+  } else {
+
+    Serial.print(
+      "EVENTO NAO ENVIADO (offline): "
+    );
+
+    Serial.println(tipo);
+  }
+}
+
+#define TEMPO_LIMITE_VALIDACAO_OTA_MS 90000UL
+
+bool otaIniciada = false;
+bool otaEmAndamento = false;
+bool otaPendenteValidacao = false;
+bool rollbackVerificadoNoBoot = false;
+int otaUltimoMarcoProgresso = -1;
+unsigned long inicioBootOtaMs = 0;
+char otaHostname[32] = "";
+
+// Sobrescreve o simbolo fraco C do core arduino-esp32 para adiar a validacao ate o primeiro publish OK.
+extern "C" bool verifyRollbackLater() {
+  return true;
+}
+
+bool otaPendenteNoNvs() {
+  Preferences prefsOta;
+  if (!prefsOta.begin("ota", true)) {
+    return false;
+  }
+  bool pendente = prefsOta.getBool("pendente", false);
+  prefsOta.end();
+  return pendente;
+}
+
+void definirOtaPendenteNvs(bool pendente) {
+  Preferences prefsOta;
+  if (!prefsOta.begin("ota", false)) {
+    return;
+  }
+  prefsOta.putBool("pendente", pendente);
+  prefsOta.end();
+}
+
+void verificarEstadoRollbackNoBoot() {
+  if (rollbackVerificadoNoBoot) {
+    return;
+  }
+  rollbackVerificadoNoBoot = true;
+  inicioBootOtaMs = millis();
+
+  const esp_partition_t* particaoAtual = esp_ota_get_running_partition();
+  esp_ota_img_states_t estadoOta = ESP_OTA_IMG_UNDEFINED;
+  bool pendenteBootloader = false;
+
+  if (particaoAtual != nullptr &&
+      esp_ota_get_state_partition(particaoAtual, &estadoOta) == ESP_OK) {
+    pendenteBootloader = (estadoOta == ESP_OTA_IMG_PENDING_VERIFY);
+  }
+
+  // Usa NVS como fallback caso o bootloader do core nao tenha CONFIG_APP_ROLLBACK_ENABLE.
+  if (pendenteBootloader || otaPendenteNoNvs()) {
+    otaPendenteValidacao = true;
+    Serial.println("OTA: firmware aguardando confirmacao (janela de 90 s para rollback).");
+  }
+}
+
+// Chamar apos Wi-Fi + MQTT conectados e o primeiro publish bem-sucedido (IOT-2).
+void confirmarOtaValida() {
+  if (!otaPendenteValidacao) {
+    return;
+  }
+
+  esp_err_t err = esp_ota_mark_app_valid_cancel_rollback();
+  definirOtaPendenteNvs(false);
+  otaPendenteValidacao = false;
+
+  if (err == ESP_OK) {
+    Serial.println("OTA: firmware confirmado como valido.");
+  } else {
+    Serial.print("OTA: aviso ao confirmar firmware: ");
+    Serial.println(esp_err_to_name(err));
+  }
+}
+
+void iniciarOta() {
+  verificarEstadoRollbackNoBoot();
+
+  if (otaIniciada) {
+    return;
+  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("OTA: aguardando Wi-Fi para iniciar.");
+    return;
+  }
+
+  String mac = WiFi.macAddress();
+  mac.replace(":", "");
+  snprintf(otaHostname, sizeof(otaHostname), "liftech-%s", mac.c_str());
+
+  ArduinoOTA.setHostname(otaHostname);
+  ArduinoOTA.setPasswordHash(OTA_SENHA_MD5);
+
+  ArduinoOTA.onStart([]() {
+    otaEmAndamento = true;
+    otaUltimoMarcoProgresso = -1;
+    const char* tipo =
+      (ArduinoOTA.getCommand() == U_FLASH) ? "firmware" : "filesystem";
+    Serial.print("OTA: iniciando atualizacao de ");
+    Serial.println(tipo);
+  });
+
+  ArduinoOTA.onProgress([](unsigned int progresso, unsigned int total) {
+    if (total == 0) {
+      return;
+    }
+    int percentual = (int)((progresso * 100UL) / total);
+    int marco = percentual / 20;
+    if (marco != otaUltimoMarcoProgresso) {
+      otaUltimoMarcoProgresso = marco;
+      Serial.print("OTA: progresso ");
+      Serial.print(percentual);
+      Serial.println("%");
+    }
+  });
+
+  ArduinoOTA.onEnd([]() {
+    otaEmAndamento = false;
+    definirOtaPendenteNvs(true);
+    Serial.println("OTA: atualizacao concluida. Reiniciando...");
+  });
+
+  ArduinoOTA.onError([](ota_error_t erro) {
+    otaEmAndamento = false;
+    Serial.print("OTA: erro [");
+    Serial.print(erro);
+    Serial.print("] ");
+    if (erro == OTA_AUTH_ERROR) {
+      Serial.println("Falha de autenticacao");
+    } else if (erro == OTA_BEGIN_ERROR) {
+      Serial.println("Falha ao iniciar gravacao");
+    } else if (erro == OTA_CONNECT_ERROR) {
+      Serial.println("Falha de conexao");
+    } else if (erro == OTA_RECEIVE_ERROR) {
+      Serial.println("Falha ao receber dados");
+    } else if (erro == OTA_END_ERROR) {
+      Serial.println("Falha ao finalizar gravacao");
+    } else {
+      Serial.println("Erro desconhecido");
+    }
+  });
+
+  ArduinoOTA.begin();
+  otaIniciada = true;
+
+  Serial.print("OTA: pronto em ");
+  Serial.print(otaHostname);
+  Serial.println(".local");
+}
+
+void tratarOta() {
+  // Verifica timeout de rollback antes do Wi-Fi para recuperar mesmo se a rede falhar.
+  if (otaPendenteValidacao &&
+      (millis() - inicioBootOtaMs >= TEMPO_LIMITE_VALIDACAO_OTA_MS)) {
+    definirOtaPendenteNvs(false);
+    otaPendenteValidacao = false;
+    Serial.println("OTA: timeout de 90 s sem confirmacao. Executando rollback...");
+    esp_err_t err = esp_ota_mark_app_invalid_rollback_and_reboot();
+    Serial.print("OTA: falha ao executar rollback: ");
+    Serial.println(esp_err_to_name(err));
+  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    return;
+  }
+
+  if (!otaIniciada) {
+    iniciarOta();
+  }
+
+  if (otaIniciada) {
+    ArduinoOTA.handle();
   }
 }
 
@@ -557,13 +879,23 @@ void setup() {
     "ESP32 + ADXL345"
   );
 
+  Serial.print("Versao: ");
+  Serial.println(FW_VERSAO);
+
   Serial.println(
     "================================="
   );
 
-  conectarWiFi();
+  iniciarRede();
 
-  carregarCalibracao();
+  iniciarOta();
+
+  if (!carregarCalibracao()) {
+    Serial.println(
+      "Nenhuma calibracao no NVS. Iniciando autocalibracao..."
+    );
+    calibrarSensor();
+  }
 
   Serial.println();
   Serial.println(
@@ -573,8 +905,15 @@ void setup() {
 
 void loop() {
 
+  tratarOta();
+  if (otaEmAndamento) {
+    return;
+  }
+
   unsigned long agora =
     millis();
+
+  gerenciarConexao(agora);
 
   if (Serial.available()) {
 
