@@ -3,10 +3,10 @@
 
 // Copie este arquivo para secrets.h e preencha com as credenciais reais.
 // O arquivo secrets.h esta no .gitignore e nao deve ser versionado.
+// As credenciais da rede Wi-Fi (STA) sao configuradas pelo portal Web e salvas no NVS.
 
-// Wi-Fi
-#define WIFI_SSID "NOME_DA_REDE"
-#define WIFI_SENHA "SENHA_DA_REDE"
+// Access Point de configuracao (minimo 8 caracteres para WPA2)
+#define AP_SENHA "SUBSTITUA_PELA_SENHA_AP"
 
 // Broker MQTT (CloudAMQP sobre TLS na porta 8883)
 // Usuario no CloudAMQP segue o formato "vhost:usuario".
