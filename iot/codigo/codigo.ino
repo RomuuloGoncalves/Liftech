@@ -134,12 +134,44 @@ float filtroZ = 0;
 
 const float ALPHA = 0.20;
 
-// ---------- LIMITES ----------
-const float LIMITE_ACELERACAO = 1.50;
-const float LIMITE_FRENAGEM = -1.50;
-const float LIMITE_COLISAO = 2.50;
-const float LIMITE_CURVA = 1.50;
-const float LIMITE_INCLINACAO = 15.0;
+// ---------- GRAVIDADE E MOVIMENTO ----------
+// A gravidade e estimada por um filtro lento (~0,5 s). O movimento e a leitura
+// menos essa estimativa, entao inclinar a placa nao gera aceleracao falsa.
+const float GRAVIDADE_MS2 = 9.80665;
+const float ALPHA_GRAVIDADE = 0.02;
+
+float gravX = 0;
+float gravY = 0;
+float gravZ = 0;
+bool gravInicializada = false;
+
+// Movimento instantaneo (sem filtro), usado para detectar colisao.
+float dinamicaBruta = 0;
+
+// ---------- LIMITES (m/s2, sem a gravidade) ----------
+// Valores iniciais: ajustar com dados reais da empilhadeira. Podem ser
+// sobrescritos no secrets.h (ver secrets.example.h).
+#ifndef LIMITE_ACELERACAO_MS2
+#define LIMITE_ACELERACAO_MS2 3.0
+#endif
+#ifndef LIMITE_FRENAGEM_MS2
+#define LIMITE_FRENAGEM_MS2 -3.5
+#endif
+#ifndef LIMITE_COLISAO_MS2
+#define LIMITE_COLISAO_MS2 10.0
+#endif
+#ifndef LIMITE_CURVA_MS2
+#define LIMITE_CURVA_MS2 3.0
+#endif
+#ifndef LIMITE_INCLINACAO_GRAUS
+#define LIMITE_INCLINACAO_GRAUS 15.0
+#endif
+
+const float LIMITE_ACELERACAO = LIMITE_ACELERACAO_MS2;
+const float LIMITE_FRENAGEM = LIMITE_FRENAGEM_MS2;
+const float LIMITE_COLISAO = LIMITE_COLISAO_MS2;
+const float LIMITE_CURVA = LIMITE_CURVA_MS2;
+const float LIMITE_INCLINACAO = LIMITE_INCLINACAO_GRAUS;
 
 // ---------- OTA ----------
 bool otaIniciada = false;
@@ -321,18 +353,39 @@ float calcularMagnitude() {
   );
 }
 
+// Estima a gravidade (filtro lento) e devolve o movimento = leitura - gravidade.
+void separarMovimento(float x, float y, float z, float &dx, float &dy, float &dz) {
+  if (!gravInicializada) {
+    gravX = x;
+    gravY = y;
+    gravZ = z;
+    gravInicializada = true;
+  } else {
+    gravX += ALPHA_GRAVIDADE * (x - gravX);
+    gravY += ALPHA_GRAVIDADE * (y - gravY);
+    gravZ += ALPHA_GRAVIDADE * (z - gravZ);
+  }
+
+  dx = x - gravX;
+  dy = y - gravY;
+  dz = z - gravZ;
+}
+
+// Inclinacao do vetor de gravidade; com calibracao, e relativa a posicao calibrada.
+float inclinacaoDe(float eixo, float outroA, float outroB) {
+  return atan2(eixo, sqrt(outroA * outroA + outroB * outroB)) * 180.0 / PI;
+}
+
 float calcularInclinacaoX() {
-  return atan2(
-    filtroX,
-    sqrt(filtroY * filtroY + filtroZ * filtroZ)
-  ) * 180.0 / PI;
+  float atual = inclinacaoDe(gravX, gravY, gravZ);
+  float ref = calibrado ? inclinacaoDe(offsetX, offsetY, offsetZ) : 0;
+  return atual - ref;
 }
 
 float calcularInclinacaoY() {
-  return atan2(
-    filtroY,
-    sqrt(filtroX * filtroX + filtroZ * filtroZ)
-  ) * 180.0 / PI;
+  float atual = inclinacaoDe(gravY, gravX, gravZ);
+  float ref = calibrado ? inclinacaoDe(offsetY, offsetX, offsetZ) : 0;
+  return atual - ref;
 }
 
 // ==========================================
@@ -631,10 +684,9 @@ void registrarEvento(String tipo, float valor, String gravidade) {
 }
 
 void detectarEventos() {
-  float magnitude = calcularMagnitude();
-
-  if (magnitude >= LIMITE_COLISAO) {
-    registrarEvento("colisao", magnitude, "critica");
+  // Colisao usa o valor bruto: o filtro atenuaria um impacto curto.
+  if (dinamicaBruta >= LIMITE_COLISAO) {
+    registrarEvento("colisao", dinamicaBruta, "critica");
     return;
   }
 
@@ -1031,13 +1083,12 @@ void loop() {
     sensorOk = true;
     ultimaLeituraOkMs = agora;
 
-    if (calibrado) {
-      x -= offsetX;
-      y -= offsetY;
-      z -= offsetZ;
-    }
+    float dx, dy, dz;
+    separarMovimento(x, y, z, dx, dy, dz);
 
-    aplicarFiltro(x, y, z);
+    dinamicaBruta = sqrt(dx * dx + dy * dy + dz * dz);
+
+    aplicarFiltro(dx, dy, dz);
 
     detectarEventos();
   } else {
