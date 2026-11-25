@@ -1,833 +1,1053 @@
 #include <WiFi.h>
-#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include <WebServer.h>
+#include <MQTT.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
 #include <Preferences.h>
+#include <ArduinoOTA.h>
+#include <esp_ota_ops.h>
 #include <math.h>
+#include <time.h>
 
-#define ENDERECO_ADXL345 0x53
+#include "secrets.h"
+#include "portal.h"
 
-#define PINO_SDA 21
-#define PINO_SCL 22
+// ==========================================
+// LIFTECH - MONITORAMENTO DE EMPILHADEIRAS
+// ESP32 + ADXL345 + PORTAL WI-FI + MQTT/TLS + OTA
+// ==========================================
 
-// Preencha antes de gravar na placa. Não versionar a senha real.
-const char* NOME_WIFI = "NOME_DA_REDE";
-const char* SENHA_WIFI = "SENHA_DA_REDE";
+#define FW_VERSAO "1.1.0"
 
-// Troque pelo IP do computador que está rodando a API
-const char* URL_API_TELEMETRIA =
-  "http://192.168.1.103:3000/api/telemetry";
+// ---------- IDENTIFICAÇÃO ----------
+// Identidade da instancia no sistema; fallback caso o secrets.h local ainda nao defina.
+#ifndef EMPILHADEIRA_ID
+#define EMPILHADEIRA_ID "EMP001"
+#endif
+#ifndef EMPILHADEIRA_NOME
+#define EMPILHADEIRA_NOME ""
+#endif
+#ifndef DISPOSITIVO_NOME
+#define DISPOSITIVO_NOME ""
+#endif
 
-const char* URL_API_EVENTO =
-  "http://192.168.1.103:3000/api/incidents";
+// ---------- SENSOR ADXL345 ----------
+#define ADXL_ADDR 0x53
+#define SDA_PIN 21
+#define SCL_PIN 22
 
-// O identificador do dispositivo e obtido via WiFi.macAddress()
+// ---------- ACCESS POINT ----------
+const char* AP_SSID = "Liftech-" EMPILHADEIRA_ID;
 
-#define INTERVALO_LEITURA 10
-#define INTERVALO_TELEMETRIA 5000
+WebServer server(80);
+Preferences preferences;
 
-#define TEMPO_BLOQUEIO_EVENTO 3000
+// ---------- MQTT / TLS / NTP ----------
+// Certificado raiz ISRG Root X1 (Let's Encrypt / CloudAMQP)
+const char* CA_CLOUDAMQP =
+  "-----BEGIN CERTIFICATE-----\n"
+  "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\n"
+  "-----END CERTIFICATE-----\n";
 
-// Valores iniciais.
-// Depois vamos calibrar com dados reais da empilhadeira.
+#define INTERVALO_RECONEXAO_WIFI 10000
+#define INTERVALO_RECONEXAO_MQTT 5000
+#define TAMANHO_BUFFER_MQTT 768
+#define EPOCH_MINIMO_VALIDO 1700000000L
+#define TEMPO_LIMITE_VALIDACAO_OTA_MS 90000UL
 
-#define LIMITE_ACELERACAO_BRUSCA 1.50
-#define LIMITE_FRENAGEM_BRUSCA -1.50
-#define LIMITE_COLISAO 2.50
-#define LIMITE_CURVA_BRUSCA 1.50
-#define LIMITE_INCLINACAO 15.0
+WiFiClientSecure clienteTLS;
+MQTTClient mqtt(TAMANHO_BUFFER_MQTT);
 
+String macDispositivo = "";
+String mqttClientId = "";
+String topicoTelemetria = "";
+String topicoEvento = "";
+
+// ---------- WI-FI ----------
+String wifiSSID = "";
+String wifiPassword = "";
+
+bool wifiConnected = false;
+unsigned long ultimaTentativaWiFi = 0;
+unsigned long ultimaTentativaMqtt = 0;
+bool wifiConectadoAntes = false;
+bool ntpIniciado = false;
+bool ntpSincronizadoAntes = false;
+bool mqttConectadoAntes = false;
+
+// ---------- TEMPORIZAÇÃO ----------
 unsigned long ultimaLeitura = 0;
 unsigned long ultimaTelemetria = 0;
+unsigned long ultimoEvento = 0;
 
-unsigned long ultimoEventoFrenagem = 0;
-unsigned long ultimoEventoAceleracao = 0;
-unsigned long ultimoEventoColisao = 0;
-unsigned long ultimoEventoCurva = 0;
-unsigned long ultimoEventoInclinacao = 0;
+const unsigned long INTERVALO_LEITURA = 10;
+const unsigned long INTERVALO_TELEMETRIA = 5000;
+const unsigned long BLOQUEIO_EVENTO = 3000;
 
 unsigned long contadorEventos = 0;
 
-float aceleracaoXFiltrada = 0;
-float aceleracaoYFiltrada = 0;
-float aceleracaoZFiltrada = 0;
+// ---------- ESTADO DO SENSOR E TELEMETRIA ----------
+bool sensorOk = false;
+unsigned long ultimaLeituraOkMs = 0;
+unsigned long ultimoEnvioOkMs = 0;
 
-const float FATOR_FILTRO = 0.20;
+// ---------- CALIBRAÇÃO ----------
+float offsetX = 0;
+float offsetY = 0;
+float offsetZ = 0;
 
-// Gravidade medida na posição de instalação
-float gravidadeX = 0;
-float gravidadeY = 0;
-float gravidadeZ = 0;
+bool calibrado = false;
 
-// Inclinação inicial
-float inclinacaoInicialX = 0;
-float inclinacaoInicialY = 0;
+// ---------- FILTRO ----------
+float filtroX = 0;
+float filtroY = 0;
+float filtroZ = 0;
 
-Preferences memoria;
+const float ALPHA = 0.20;
 
-void escreverRegistrador(byte registrador, byte valor) {
+// ---------- LIMITES ----------
+const float LIMITE_ACELERACAO = 1.50;
+const float LIMITE_FRENAGEM = -1.50;
+const float LIMITE_COLISAO = 2.50;
+const float LIMITE_CURVA = 1.50;
+const float LIMITE_INCLINACAO = 15.0;
 
-  Wire.beginTransmission(ENDERECO_ADXL345);
+// ---------- OTA ----------
+bool otaIniciada = false;
+bool otaEmAndamento = false;
+bool otaPendenteValidacao = false;
+bool rollbackVerificadoNoBoot = false;
+int otaUltimoMarcoProgresso = -1;
+unsigned long inicioBootOtaMs = 0;
+char otaHostname[32] = "";
 
-  Wire.write(registrador);
+// Sobrescreve o simbolo fraco C do core arduino-esp32 para adiar a validacao ate o primeiro publish OK.
+extern "C" bool verifyRollbackLater() {
+  return true;
+}
+
+// ==========================================
+// COMUNICAÇÃO COM ADXL345
+// ==========================================
+
+void escreverRegistrador(byte reg, byte valor) {
+  Wire.beginTransmission(ADXL_ADDR);
+  Wire.write(reg);
   Wire.write(valor);
-
   Wire.endTransmission();
 }
 
-bool lerAceleracao(
-  int16_t &x,
-  int16_t &y,
-  int16_t &z
-) {
+bool iniciarSensor() {
+  Wire.beginTransmission(ADXL_ADDR);
+  Wire.write(0x00);
 
-  Wire.beginTransmission(ENDERECO_ADXL345);
+  if (Wire.endTransmission() != 0) {
+    Serial.println("ADXL345 nao encontrado!");
+    return false;
+  }
 
+  escreverRegistrador(0x2D, 0x08);
+  escreverRegistrador(0x31, 0x0B);
+  escreverRegistrador(0x2C, 0x0A);
+
+  Serial.println("ADXL345 iniciado!");
+  return true;
+}
+
+bool lerSensor(float &x, float &y, float &z) {
+  Wire.beginTransmission(ADXL_ADDR);
   Wire.write(0x32);
 
   if (Wire.endTransmission(false) != 0) {
     return false;
   }
 
-  if (Wire.requestFrom(ENDERECO_ADXL345, 6) != 6) {
+  if (Wire.requestFrom(ADXL_ADDR, 6) != 6) {
     return false;
   }
 
-  x = Wire.read() | (Wire.read() << 8);
-  y = Wire.read() | (Wire.read() << 8);
-  z = Wire.read() | (Wire.read() << 8);
+  int16_t rawX = Wire.read() | (Wire.read() << 8);
+  int16_t rawY = Wire.read() | (Wire.read() << 8);
+  int16_t rawZ = Wire.read() | (Wire.read() << 8);
+
+  // ADXL345: escala aproximada em m/s²
+  x = rawX * 0.0039 * 9.80665;
+  y = rawY * 0.0039 * 9.80665;
+  z = rawZ * 0.0039 * 9.80665;
 
   return true;
 }
 
-float aplicarFiltro(
-  float atual,
-  float anterior
-) {
+// ==========================================
+// PREFERENCES
+// ==========================================
 
-  return anterior +
-         FATOR_FILTRO *
-         (atual - anterior);
+void carregarWiFiSalvo() {
+  if (!preferences.begin("liftech", true)) {
+    calibrado = false;
+    return;
+  }
+
+  wifiSSID = preferences.getString("ssid", "");
+  wifiPassword = preferences.getString("password", "");
+
+  offsetX = preferences.getFloat("offsetX", 0);
+  offsetY = preferences.getFloat("offsetY", 0);
+  offsetZ = preferences.getFloat("offsetZ", 0);
+
+  calibrado = preferences.getBool("calibrado", false);
+
+  preferences.end();
 }
 
-bool podeGerarEvento(
-  unsigned long ultimoEvento
-) {
+void salvarWiFi(String ssid, String password) {
+  preferences.begin("liftech", false);
 
-  return millis() - ultimoEvento >
-         TEMPO_BLOQUEIO_EVENTO;
+  preferences.putString("ssid", ssid);
+  preferences.putString("password", password);
+
+  preferences.end();
+
+  wifiSSID = ssid;
+  wifiPassword = password;
 }
 
-float calcularInclinacaoX(
-  float x,
-  float y,
-  float z
-) {
+void salvarCalibracao() {
+  preferences.begin("liftech", false);
 
-  return atan2(
-    x,
-    sqrt(y * y + z * z)
-  ) * 180.0 / PI;
+  preferences.putFloat("offsetX", offsetX);
+  preferences.putFloat("offsetY", offsetY);
+  preferences.putFloat("offsetZ", offsetZ);
+
+  preferences.putBool("calibrado", true);
+
+  preferences.end();
+
+  calibrado = true;
 }
 
-float calcularInclinacaoY(
-  float x,
-  float y,
-  float z
-) {
+// ==========================================
+// CALIBRAÇÃO
+// ==========================================
 
-  return atan2(
-    y,
-    sqrt(x * x + z * z)
-  ) * 180.0 / PI;
-}
+bool calibrarSensor() {
+  Serial.println("Iniciando calibracao...");
 
-void calibrarSensor() {
-
-  Serial.println();
-  Serial.println("=================================");
-  Serial.println("INICIANDO CALIBRACAO");
-  Serial.println("=================================");
-  Serial.println("Mantenha a empilhadeira parada.");
-  Serial.println("Nao mexa no sensor.");
-  Serial.println();
-
-  delay(2000);
-
-  const int NUMERO_AMOSTRAS = 300;
+  const int AMOSTRAS = 300;
 
   float somaX = 0;
   float somaY = 0;
   float somaZ = 0;
-
   int amostrasValidas = 0;
 
-  for (int i = 0; i < NUMERO_AMOSTRAS; i++) {
+  for (int i = 0; i < AMOSTRAS; i++) {
+    float x, y, z;
 
-    int16_t x;
-    int16_t y;
-    int16_t z;
-
-    if (lerAceleracao(x, y, z)) {
-
-      somaX += x * 0.0039;
-      somaY += y * 0.0039;
-      somaZ += z * 0.0039;
-
+    if (lerSensor(x, y, z)) {
+      somaX += x;
+      somaY += y;
+      somaZ += z;
       amostrasValidas++;
     }
 
-    delay(10);
+    delay(4);
   }
 
   if (amostrasValidas == 0) {
+    Serial.println("ERRO: nenhuma amostra obtida na calibracao.");
+    sensorOk = false;
+    return false;
+  }
 
-    Serial.println("ERRO: nenhuma amostra obtida.");
+  offsetX = somaX / amostrasValidas;
+  offsetY = somaY / amostrasValidas;
+  offsetZ = somaZ / amostrasValidas;
 
+  filtroX = 0;
+  filtroY = 0;
+  filtroZ = 0;
+
+  salvarCalibracao();
+
+  sensorOk = true;
+  Serial.println("Calibracao concluida!");
+  return true;
+}
+
+// ==========================================
+// FILTRO E CÁLCULOS
+// ==========================================
+
+void aplicarFiltro(float x, float y, float z) {
+  filtroX = ALPHA * x + (1 - ALPHA) * filtroX;
+  filtroY = ALPHA * y + (1 - ALPHA) * filtroY;
+  filtroZ = ALPHA * z + (1 - ALPHA) * filtroZ;
+}
+
+float calcularMagnitude() {
+  return sqrt(
+    filtroX * filtroX +
+    filtroY * filtroY +
+    filtroZ * filtroZ
+  );
+}
+
+float calcularInclinacaoX() {
+  return atan2(
+    filtroX,
+    sqrt(filtroY * filtroY + filtroZ * filtroZ)
+  ) * 180.0 / PI;
+}
+
+float calcularInclinacaoY() {
+  return atan2(
+    filtroY,
+    sqrt(filtroX * filtroX + filtroZ * filtroZ)
+  ) * 180.0 / PI;
+}
+
+// ==========================================
+// OTA E ROLLBACK (90 s)
+// ==========================================
+
+bool otaPendenteNoNvs() {
+  Preferences prefsOta;
+  if (!prefsOta.begin("ota", true)) {
+    return false;
+  }
+  bool pendente = prefsOta.getBool("pendente", false);
+  prefsOta.end();
+  return pendente;
+}
+
+void definirOtaPendenteNvs(bool pendente) {
+  Preferences prefsOta;
+  if (!prefsOta.begin("ota", false)) {
+    return;
+  }
+  prefsOta.putBool("pendente", pendente);
+  prefsOta.end();
+}
+
+void verificarEstadoRollbackNoBoot() {
+  if (rollbackVerificadoNoBoot) {
+    return;
+  }
+  rollbackVerificadoNoBoot = true;
+  inicioBootOtaMs = millis();
+
+  const esp_partition_t* particaoAtual = esp_ota_get_running_partition();
+  esp_ota_img_states_t estadoOta = ESP_OTA_IMG_UNDEFINED;
+  bool pendenteBootloader = false;
+
+  if (particaoAtual != nullptr &&
+      esp_ota_get_state_partition(particaoAtual, &estadoOta) == ESP_OK) {
+    pendenteBootloader = (estadoOta == ESP_OTA_IMG_PENDING_VERIFY);
+  }
+
+  // Usa NVS como fallback caso o bootloader do core nao tenha CONFIG_APP_ROLLBACK_ENABLE.
+  if (pendenteBootloader || otaPendenteNoNvs()) {
+    otaPendenteValidacao = true;
+    Serial.println("OTA: firmware aguardando confirmacao (janela de 90 s para rollback).");
+  }
+}
+
+void confirmarOtaValida() {
+  if (!otaPendenteValidacao) {
     return;
   }
 
-  gravidadeX =
-    somaX / amostrasValidas;
+  esp_err_t err = esp_ota_mark_app_valid_cancel_rollback();
+  definirOtaPendenteNvs(false);
+  otaPendenteValidacao = false;
 
-  gravidadeY =
-    somaY / amostrasValidas;
-
-  gravidadeZ =
-    somaZ / amostrasValidas;
-
-  inclinacaoInicialX =
-    calcularInclinacaoX(
-      gravidadeX,
-      gravidadeY,
-      gravidadeZ
-    );
-
-  inclinacaoInicialY =
-    calcularInclinacaoY(
-      gravidadeX,
-      gravidadeY,
-      gravidadeZ
-    );
-
-  // Salva na memória permanente
-  memoria.begin("calibracao", false);
-
-  memoria.putFloat(
-    "gravidade_x",
-    gravidadeX
-  );
-
-  memoria.putFloat(
-    "gravidade_y",
-    gravidadeY
-  );
-
-  memoria.putFloat(
-    "gravidade_z",
-    gravidadeZ
-  );
-
-  memoria.putFloat(
-    "inicial_x",
-    inclinacaoInicialX
-  );
-
-  memoria.putFloat(
-    "inicial_y",
-    inclinacaoInicialY
-  );
-
-  memoria.end();
-
-  Serial.println();
-  Serial.println("CALIBRACAO CONCLUIDA");
-
-  Serial.print("Gravidade X: ");
-  Serial.println(gravidadeX, 4);
-
-  Serial.print("Gravidade Y: ");
-  Serial.println(gravidadeY, 4);
-
-  Serial.print("Gravidade Z: ");
-  Serial.println(gravidadeZ, 4);
-
-  Serial.print("Inclinacao inicial X: ");
-  Serial.println(inclinacaoInicialX, 2);
-
-  Serial.print("Inclinacao inicial Y: ");
-  Serial.println(inclinacaoInicialY, 2);
-
-  Serial.println();
-}
-
-void carregarCalibracao() {
-
-  memoria.begin("calibracao", true);
-
-  gravidadeX =
-    memoria.getFloat(
-      "gravidade_x",
-      0
-    );
-
-  gravidadeY =
-    memoria.getFloat(
-      "gravidade_y",
-      0
-    );
-
-  gravidadeZ =
-    memoria.getFloat(
-      "gravidade_z",
-      0
-    );
-
-  inclinacaoInicialX =
-    memoria.getFloat(
-      "inicial_x",
-      0
-    );
-
-  inclinacaoInicialY =
-    memoria.getFloat(
-      "inicial_y",
-      0
-    );
-
-  memoria.end();
-
-  Serial.println("Calibracao carregada.");
-
-  Serial.print("Inclinacao inicial X: ");
-  Serial.println(inclinacaoInicialX);
-
-  Serial.print("Inclinacao inicial Y: ");
-  Serial.println(inclinacaoInicialY);
-}
-
-void conectarWiFi() {
-
-  if (WiFi.status() == WL_CONNECTED) {
-    return;
-  }
-
-  Serial.print("Conectando ao Wi-Fi");
-
-  WiFi.begin(
-    NOME_WIFI,
-    SENHA_WIFI
-  );
-
-  int tentativas = 0;
-
-  while (
-    WiFi.status() != WL_CONNECTED &&
-    tentativas < 30
-  ) {
-
-    delay(500);
-
-    Serial.print(".");
-
-    tentativas++;
-  }
-
-  Serial.println();
-
-  if (WiFi.status() == WL_CONNECTED) {
-
-    Serial.println("Wi-Fi conectado.");
-
-    Serial.print("IP: ");
-    Serial.println(WiFi.localIP());
-
+  if (err == ESP_OK) {
+    Serial.println("OTA: firmware confirmado como valido.");
   } else {
-
-    Serial.println(
-      "Falha ao conectar ao Wi-Fi."
-    );
+    Serial.print("OTA: aviso ao confirmar firmware: ");
+    Serial.println(esp_err_to_name(err));
   }
 }
 
-bool enviarJSON(
-  const char* endereco,
-  JsonDocument &documento
-) {
+void iniciarOta() {
+  verificarEstadoRollbackNoBoot();
 
-  if (WiFi.status() != WL_CONNECTED) {
-
-    conectarWiFi();
+  if (otaIniciada) {
+    return;
   }
 
   if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("OTA: aguardando Wi-Fi para iniciar.");
+    return;
+  }
+
+  String mac = macDispositivo;
+  if (mac.length() == 0) {
+    mac = WiFi.macAddress();
+  }
+  mac.replace(":", "");
+  snprintf(otaHostname, sizeof(otaHostname), "liftech-%s", mac.c_str());
+
+  ArduinoOTA.setHostname(otaHostname);
+  ArduinoOTA.setPasswordHash(OTA_SENHA_MD5);
+
+  ArduinoOTA.onStart([]() {
+    otaEmAndamento = true;
+    otaUltimoMarcoProgresso = -1;
+    const char* tipo =
+      (ArduinoOTA.getCommand() == U_FLASH) ? "firmware" : "filesystem";
+    Serial.print("OTA: iniciando atualizacao de ");
+    Serial.println(tipo);
+  });
+
+  ArduinoOTA.onProgress([](unsigned int progresso, unsigned int total) {
+    if (total == 0) {
+      return;
+    }
+    int percentual = (int)((progresso * 100UL) / total);
+    int marco = percentual / 20;
+    if (marco != otaUltimoMarcoProgresso) {
+      otaUltimoMarcoProgresso = marco;
+      Serial.print("OTA: progresso ");
+      Serial.print(percentual);
+      Serial.println("%");
+    }
+  });
+
+  ArduinoOTA.onEnd([]() {
+    otaEmAndamento = false;
+    definirOtaPendenteNvs(true);
+    Serial.println("OTA: atualizacao concluida. Reiniciando...");
+  });
+
+  ArduinoOTA.onError([](ota_error_t erro) {
+    otaEmAndamento = false;
+    Serial.print("OTA: erro [");
+    Serial.print(erro);
+    Serial.print("] ");
+    if (erro == OTA_AUTH_ERROR) {
+      Serial.println("Falha de autenticacao");
+    } else if (erro == OTA_BEGIN_ERROR) {
+      Serial.println("Falha ao iniciar gravacao");
+    } else if (erro == OTA_CONNECT_ERROR) {
+      Serial.println("Falha de conexao");
+    } else if (erro == OTA_RECEIVE_ERROR) {
+      Serial.println("Falha ao receber dados");
+    } else if (erro == OTA_END_ERROR) {
+      Serial.println("Falha ao finalizar gravacao");
+    } else {
+      Serial.println("Erro desconhecido");
+    }
+  });
+
+  ArduinoOTA.begin();
+  otaIniciada = true;
+
+  Serial.print("OTA: pronto em ");
+  Serial.print(otaHostname);
+  Serial.println(".local");
+}
+
+void tratarOta() {
+  // Verifica timeout de rollback antes do Wi-Fi para recuperar mesmo se a rede falhar.
+  if (otaPendenteValidacao &&
+      (millis() - inicioBootOtaMs >= TEMPO_LIMITE_VALIDACAO_OTA_MS)) {
+    definirOtaPendenteNvs(false);
+    otaPendenteValidacao = false;
+    Serial.println("OTA: timeout de 90 s sem confirmacao. Executando rollback...");
+    esp_err_t err = esp_ota_mark_app_invalid_rollback_and_reboot();
+    Serial.print("OTA: falha ao executar rollback: ");
+    Serial.println(esp_err_to_name(err));
+  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    return;
+  }
+
+  if (!otaIniciada) {
+    iniciarOta();
+  }
+
+  if (otaIniciada) {
+    ArduinoOTA.handle();
+  }
+}
+
+// ==========================================
+// ENVIO MQTT / TLS
+// ==========================================
+
+void inicializarIdentidadeRede() {
+  macDispositivo = WiFi.macAddress();
+
+  String macLimpo = macDispositivo;
+  macLimpo.replace(":", "");
+
+  mqttClientId = "liftech-" + macLimpo;
+  topicoTelemetria = String(MQTT_PREFIXO) + "telemetria/" + macDispositivo;
+  topicoEvento = String(MQTT_PREFIXO) + "evento/" + macDispositivo;
+}
+
+bool publicarMQTT(const String &topico, JsonDocument &doc, int qos) {
+  if (WiFi.status() != WL_CONNECTED || !mqtt.connected()) {
     return false;
   }
 
   String json;
+  serializeJson(doc, json);
 
-  serializeJson(
-    documento,
-    json
+  bool enviado = mqtt.publish(
+    topico.c_str(),
+    json.c_str(),
+    false,
+    qos
   );
 
-  HTTPClient http;
-
-  http.begin(endereco);
-
-  http.addHeader(
-    "Content-Type",
-    "application/json"
-  );
-
-  int resposta =
-    http.POST(json);
-
-  http.end();
-
-  if (resposta >= 200 &&
-      resposta < 300) {
-
-    return true;
+  if (enviado) {
+    ultimoEnvioOkMs = millis();
+    confirmarOtaValida();
+  } else {
+    Serial.print("Erro MQTT ao publicar em ");
+    Serial.print(topico);
+    Serial.print(" (erro=");
+    Serial.print(mqtt.lastError());
+    Serial.println(").");
   }
 
-  Serial.print("Erro HTTP: ");
-  Serial.println(resposta);
-
-  return false;
+  return enviado;
 }
 
-void enviarTelemetria(
-  float aceleracaoX,
-  float aceleracaoY,
-  float aceleracaoZ,
-  float inclinacaoX,
-  float inclinacaoY,
-  float magnitude
-) {
-
-  JsonDocument documento;
-
-  documento["tipo"] =
-    "telemetria";
-
-  documento["dispositivo"] =
-    WiFi.macAddress();
-
-  documento["tempo"] =
-    millis();
-
-  JsonObject movimento =
-    documento["movimento"]
-      .to<JsonObject>();
-
-  movimento["aceleracao_x"] =
-    aceleracaoX;
-
-  movimento["aceleracao_y"] =
-    aceleracaoY;
-
-  movimento["aceleracao_z"] =
-    aceleracaoZ;
-
-  movimento["inclinacao_x"] =
-    inclinacaoX;
-
-  movimento["inclinacao_y"] =
-    inclinacaoY;
-
-  movimento["magnitude"] =
-    magnitude;
-
-  enviarJSON(
-    URL_API_TELEMETRIA,
-    documento
-  );
+void preencherMovimento(JsonObject movimento, float inclX, float inclY, float mag) {
+  movimento["aceleracao_x"] = filtroX;
+  movimento["aceleracao_y"] = filtroY;
+  movimento["aceleracao_z"] = filtroZ;
+  movimento["inclinacao_x"] = inclX;
+  movimento["inclinacao_y"] = inclY;
+  movimento["magnitude"] = mag;
 }
 
-void enviarEvento(
-  const char* tipo,
-  const char* gravidade,
-  float aceleracaoX,
-  float aceleracaoY,
-  float aceleracaoZ,
-  float inclinacaoX,
-  float inclinacaoY,
-  float magnitude
-) {
+// ==========================================
+// TELEMETRIA
+// ==========================================
+
+void enviarTelemetria() {
+  float inclX = calcularInclinacaoX();
+  float inclY = calcularInclinacaoY();
+  float mag = calcularMagnitude();
+
+  JsonDocument doc;
+
+  doc["tipo"] = "telemetria";
+  doc["dispositivo"] = macDispositivo;
+  doc["tempo"] = millis();
+
+  JsonObject movimento = doc["movimento"].to<JsonObject>();
+  preencherMovimento(movimento, inclX, inclY, mag);
+
+  bool enviado = publicarMQTT(topicoTelemetria, doc, 0);
+
+  Serial.print("[Telemetria] acc=(");
+  Serial.print(filtroX, 2);
+  Serial.print(", ");
+  Serial.print(filtroY, 2);
+  Serial.print(", ");
+  Serial.print(filtroZ, 2);
+  Serial.print(") inc=(");
+  Serial.print(inclX, 1);
+  Serial.print(", ");
+  Serial.print(inclY, 1);
+  Serial.print(") mag=");
+  Serial.print(mag, 2);
+  Serial.println(enviado ? " [MQTT OK]" : " [offline]");
+}
+
+// ==========================================
+// DETECÇÃO DE EVENTOS
+// ==========================================
+
+void registrarEvento(String tipo, float valor, String gravidade) {
+  if (millis() - ultimoEvento < BLOQUEIO_EVENTO) {
+    return;
+  }
 
   contadorEventos++;
 
-  JsonDocument documento;
+  float inclX = calcularInclinacaoX();
+  float inclY = calcularInclinacaoY();
+  float mag = calcularMagnitude();
 
-  documento["tipo"] =
-    "evento";
+  JsonDocument doc;
 
-  documento["dispositivo"] =
-    WiFi.macAddress();
+  doc["tipo"] = "evento";
+  doc["dispositivo"] = macDispositivo;
+  doc["id_evento"] = contadorEventos;
+  doc["tempo"] = millis();
 
-  documento["id_evento"] =
-    contadorEventos;
+  JsonObject evento = doc["evento"].to<JsonObject>();
+  evento["tipo"] = tipo;
+  evento["gravidade"] = gravidade;
 
-  documento["tempo"] =
-    millis();
+  JsonObject movimento = doc["movimento"].to<JsonObject>();
+  preencherMovimento(movimento, inclX, inclY, mag);
 
-  JsonObject evento =
-    documento["evento"]
-      .to<JsonObject>();
+  bool enviado = publicarMQTT(topicoEvento, doc, 1);
 
-  evento["tipo"] =
-    tipo;
+  ultimoEvento = millis();
 
-  evento["gravidade"] =
-    gravidade;
+  Serial.print(enviado ? "EVENTO ENVIADO: " : "EVENTO NAO ENVIADO (offline): ");
+  Serial.print(tipo);
+  Serial.print(" (");
+  Serial.print(valor, 2);
+  Serial.println(")");
+}
 
-  JsonObject movimento =
-    documento["movimento"]
-      .to<JsonObject>();
+void detectarEventos() {
+  float magnitude = calcularMagnitude();
 
-  movimento["aceleracao_x"] =
-    aceleracaoX;
+  if (magnitude >= LIMITE_COLISAO) {
+    registrarEvento("colisao", magnitude, "critica");
+    return;
+  }
 
-  movimento["aceleracao_y"] =
-    aceleracaoY;
+  if (filtroX >= LIMITE_ACELERACAO) {
+    registrarEvento("aceleracao_brusca", filtroX, "media");
+    return;
+  }
 
-  movimento["aceleracao_z"] =
-    aceleracaoZ;
+  if (filtroX <= LIMITE_FRENAGEM) {
+    registrarEvento("frenagem_brusca", filtroX, "alta");
+    return;
+  }
 
-  movimento["inclinacao_x"] =
-    inclinacaoX;
+  if (fabs(filtroY) >= LIMITE_CURVA) {
+    registrarEvento("curva_brusca", filtroY, "media");
+    return;
+  }
 
-  movimento["inclinacao_y"] =
-    inclinacaoY;
+  float inclinacao = calcularInclinacaoX();
 
-  movimento["magnitude"] =
-    magnitude;
-
-  bool enviado =
-    enviarJSON(
-      URL_API_EVENTO,
-      documento
-    );
-
-  if (enviado) {
-
-    Serial.print(
-      "EVENTO ENVIADO: "
-    );
-
-    Serial.println(tipo);
+  if (fabs(inclinacao) >= LIMITE_INCLINACAO) {
+    registrarEvento("inclinacao_excessiva", inclinacao, "alta");
   }
 }
+
+// ==========================================
+// PORTAL WEB
+// ==========================================
+
+void configurarRotas() {
+
+  server.on("/", HTTP_GET, []() {
+    server.send_P(200, "text/html", PAGINA_PORTAL);
+  });
+
+  server.on("/scan", HTTP_GET, []() {
+
+    int quantidade = WiFi.scanNetworks();
+
+    JsonDocument doc;
+    JsonArray redes = doc.to<JsonArray>();
+
+    if (quantidade > 0) {
+      for (int i = 0; i < quantidade; i++) {
+        JsonObject rede = redes.add<JsonObject>();
+
+        rede["ssid"] = WiFi.SSID(i);
+        rede["rssi"] = WiFi.RSSI(i);
+        rede["segura"] = WiFi.encryptionType(i) != WIFI_AUTH_OPEN;
+      }
+    }
+
+    String json;
+    serializeJson(doc, json);
+
+    server.send(200, "application/json", json);
+
+    WiFi.scanDelete();
+  });
+
+  server.on("/salvar", HTTP_POST, []() {
+
+    String ssid = server.arg("ssid");
+    String password = server.arg("password");
+
+    const char* erro = nullptr;
+    if (ssid.length() == 0) {
+      erro = "SSID obrigatorio";
+    } else if (ssid.length() > 32) {
+      erro = "SSID deve ter no maximo 32 bytes";
+    } else if (password.length() > 63) {
+      erro = "Senha deve ter no maximo 63 bytes";
+    }
+
+    if (erro != nullptr) {
+      JsonDocument doc;
+      doc["ok"] = false;
+      doc["erro"] = erro;
+
+      String json;
+      serializeJson(doc, json);
+
+      server.send(400, "application/json", json);
+      return;
+    }
+
+    salvarWiFi(ssid, password);
+
+    server.send(200, "application/json", "{\"ok\":true}");
+
+    delay(1500);
+    ESP.restart();
+  });
+
+  server.on("/status", HTTP_GET, []() {
+
+    unsigned long agora = millis();
+    bool conectado = (WiFi.status() == WL_CONNECTED);
+    time_t agoraEpoch = time(nullptr);
+    bool ntpOk = conectado && (agoraEpoch >= EPOCH_MINIMO_VALIDO);
+
+    char horaBuf[16] = "";
+    if (ntpOk) {
+      struct tm tmInfo;
+      gmtime_r(&agoraEpoch, &tmInfo);
+      snprintf(horaBuf, sizeof(horaBuf), "%02d:%02d:%02d UTC",
+               tmInfo.tm_hour, tmInfo.tm_min, tmInfo.tm_sec);
+    }
+
+    char leituraBuf[64] = "";
+    if (sensorOk && ultimaLeituraOkMs > 0) {
+      snprintf(
+        leituraBuf,
+        sizeof(leituraBuf),
+        "Acel. %.2f m/s² · Incl. X %.1f° / Y %.1f°",
+        calcularMagnitude(),
+        calcularInclinacaoX(),
+        calcularInclinacaoY()
+      );
+    }
+
+    JsonDocument doc;
+
+    doc["conectado"] = conectado;
+    doc["ssid"] = conectado ? WiFi.SSID() : "";
+    doc["rssi"] = conectado ? WiFi.RSSI() : 0;
+    doc["ip"] = conectado ? WiFi.localIP().toString() : "";
+    doc["apSsid"] = AP_SSID;
+    doc["apIp"] = WiFi.softAPIP().toString();
+    doc["mac"] = macDispositivo;
+    doc["mqtt"] = mqtt.connected();
+    doc["calibrado"] = calibrado;
+    doc["sensorOk"] = sensorOk;
+    doc["versao"] = FW_VERSAO;
+    doc["empilhadeiraId"] = EMPILHADEIRA_ID;
+    doc["empilhadeiraNome"] = EMPILHADEIRA_NOME;
+    doc["dispositivoNome"] = DISPOSITIVO_NOME;
+    doc["ntpOk"] = ntpOk;
+    doc["ntpHora"] = horaBuf;
+    doc["leitura"] = leituraBuf;
+
+    if (ultimaLeituraOkMs == 0) {
+      doc["leituraHaMs"] = -1;
+    } else {
+      doc["leituraHaMs"] = agora - ultimaLeituraOkMs;
+    }
+
+    if (ultimoEnvioOkMs == 0) {
+      doc["envioHaMs"] = -1;
+    } else {
+      doc["envioHaMs"] = agora - ultimoEnvioOkMs;
+    }
+
+    doc["uptimeS"] = agora / 1000UL;
+
+    String json;
+    serializeJson(doc, json);
+
+    server.send(200, "application/json", json);
+  });
+
+  server.on("/calibrar", HTTP_POST, []() {
+
+    bool ok = calibrarSensor();
+
+    JsonDocument doc;
+    doc["ok"] = ok;
+
+    String json;
+    serializeJson(doc, json);
+
+    server.send(200, "application/json", json);
+  });
+
+  server.begin();
+}
+
+// ==========================================
+// WI-FI AP + STA E RECONEXÃO NÃO BLOQUEANTE
+// ==========================================
+
+void iniciarWiFi() {
+
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.setAutoReconnect(true);
+
+  WiFi.softAP(AP_SSID, AP_SENHA);
+
+  inicializarIdentidadeRede();
+
+  clienteTLS.setCACert(CA_CLOUDAMQP);
+  clienteTLS.setHandshakeTimeout(5);
+
+  mqtt.begin(MQTT_HOST, MQTT_PORTA, clienteTLS);
+  mqtt.setTimeout(1000);
+
+  Serial.println("Access Point iniciado!");
+  Serial.print("SSID: ");
+  Serial.println(AP_SSID);
+
+  Serial.print("IP do portal: ");
+  Serial.println(WiFi.softAPIP());
+
+  Serial.print("Dispositivo MAC: ");
+  Serial.println(macDispositivo);
+  Serial.print("Topico telemetria: ");
+  Serial.println(topicoTelemetria);
+  Serial.print("Topico eventos: ");
+  Serial.println(topicoEvento);
+
+  if (wifiSSID.length() > 0) {
+
+    WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str());
+
+    Serial.println("Conectando ao Wi-Fi salvo...");
+
+    unsigned long inicio = millis();
+
+    while (WiFi.status() != WL_CONNECTED &&
+           millis() - inicio < 15000) {
+      delay(500);
+      Serial.print(".");
+    }
+
+    wifiConnected = WiFi.status() == WL_CONNECTED;
+    ultimaTentativaWiFi = millis();
+  }
+
+  if (wifiConnected) {
+    wifiConectadoAntes = true;
+    Serial.println("\nWi-Fi conectado!");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nAguardando configuracao ou reconexao Wi-Fi.");
+  }
+}
+
+void gerenciarConexao(unsigned long agora) {
+
+  if (WiFi.status() != WL_CONNECTED) {
+    wifiConnected = false;
+
+    if (wifiConectadoAntes) {
+      wifiConectadoAntes = false;
+      ntpIniciado = false;
+      ntpSincronizadoAntes = false;
+
+      if (mqttConectadoAntes || mqtt.connected()) {
+        mqtt.disconnect();
+        mqttConectadoAntes = false;
+      }
+
+      Serial.println("Wi-Fi desconectado.");
+    }
+
+    if (wifiSSID.length() > 0 &&
+        agora - ultimaTentativaWiFi >= INTERVALO_RECONEXAO_WIFI) {
+      ultimaTentativaWiFi = agora;
+      Serial.println("Tentando reconectar ao Wi-Fi...");
+      WiFi.disconnect(false);
+      WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str());
+    }
+
+    return;
+  }
+
+  wifiConnected = true;
+
+  if (!wifiConectadoAntes) {
+    wifiConectadoAntes = true;
+    Serial.println("Wi-Fi conectado!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  }
+
+  if (!ntpIniciado) {
+    ntpIniciado = true;
+    configTime(0, 0, "pool.ntp.org", "a.st1.ntp.br", "time.nist.gov");
+    Serial.println("Sincronizando horario via NTP...");
+  }
+
+  if (time(nullptr) < EPOCH_MINIMO_VALIDO) {
+    return;
+  }
+
+  if (!ntpSincronizadoAntes) {
+    ntpSincronizadoAntes = true;
+    // Permite tentar a primeira conexao MQTT imediatamente apos o NTP sincronizar
+    ultimaTentativaMqtt = agora - INTERVALO_RECONEXAO_MQTT;
+    Serial.println("Horario NTP sincronizado.");
+  }
+
+  if (mqtt.connected()) {
+    mqtt.loop();
+    return;
+  }
+
+  if (mqttConectadoAntes) {
+    mqttConectadoAntes = false;
+    Serial.println("MQTT desconectado.");
+  }
+
+  if (agora - ultimaTentativaMqtt >= INTERVALO_RECONEXAO_MQTT) {
+    ultimaTentativaMqtt = agora;
+
+    Serial.print("Conectando ao broker MQTT...");
+
+    if (mqtt.connect(mqttClientId.c_str(), MQTT_USUARIO, MQTT_SENHA)) {
+      mqttConectadoAntes = true;
+      Serial.println(" conectado.");
+    } else {
+      Serial.print(" falha (erro=");
+      Serial.print(mqtt.lastError());
+      Serial.println(").");
+    }
+  }
+}
+
+// ==========================================
+// SETUP
+// ==========================================
 
 void setup() {
 
   Serial.begin(115200);
 
-  delay(1000);
+  Wire.begin(SDA_PIN, SCL_PIN);
 
-  Wire.begin(
-    PINO_SDA,
-    PINO_SCL
-  );
-
-  // Configura ADXL345
-  escreverRegistrador(
-    0x31,
-    0x0B
-  );
-
-  escreverRegistrador(
-    0x2D,
-    0x08
-  );
-
-  delay(100);
+  delay(500);
 
   Serial.println();
-  Serial.println(
-    "================================="
-  );
+  Serial.println("=================================");
+  Serial.println("LIFTECH - MONITORAMENTO");
+  Serial.print("Versao: ");
+  Serial.println(FW_VERSAO);
+  Serial.println("=================================");
 
-  Serial.println(
-    "MONITORAMENTO DE EMPILHADEIRA"
-  );
+  sensorOk = iniciarSensor();
+  if (!sensorOk) {
+    Serial.println("ERRO: Verifique o ADXL345.");
+  }
 
-  Serial.println(
-    "ESP32 + ADXL345"
-  );
+  carregarWiFiSalvo();
 
-  Serial.println(
-    "================================="
-  );
+  if (!calibrado) {
+    Serial.println("Nenhuma calibracao no NVS. Iniciando autocalibracao...");
+    calibrarSensor();
+  }
 
-  conectarWiFi();
+  iniciarWiFi();
 
-  carregarCalibracao();
+  iniciarOta();
 
-  Serial.println();
-  Serial.println(
-    "Digite C no Serial Monitor para recalibrar."
-  );
+  configurarRotas();
+
+  Serial.println("LIFTECH INICIADA!");
+  Serial.println("Acesse http://192.168.4.1");
+  Serial.println("Digite C no Serial Monitor ou use POST /calibrar para recalibrar.");
 }
+
+// ==========================================
+// LOOP
+// ==========================================
 
 void loop() {
 
-  unsigned long agora =
-    millis();
+  tratarOta();
+  if (otaEmAndamento) {
+    return;
+  }
+
+  server.handleClient();
+
+  unsigned long agora = millis();
+
+  gerenciarConexao(agora);
 
   if (Serial.available()) {
-
-    char comando =
-      Serial.read();
-
-    if (
-      comando == 'c' ||
-      comando == 'C'
-    ) {
-
+    char comando = Serial.read();
+    if (comando == 'c' || comando == 'C') {
       calibrarSensor();
     }
   }
 
-  if (
-    agora - ultimaLeitura <
-    INTERVALO_LEITURA
-  ) {
-
+  if (agora - ultimaLeitura < INTERVALO_LEITURA) {
     return;
   }
 
   ultimaLeitura = agora;
 
-  int16_t valorX;
-  int16_t valorY;
-  int16_t valorZ;
+  float x, y, z;
 
-  if (
-    !lerAceleracao(
-      valorX,
-      valorY,
-      valorZ
-    )
-  ) {
+  if (lerSensor(x, y, z)) {
+    sensorOk = true;
+    ultimaLeituraOkMs = agora;
 
-    return;
+    if (calibrado) {
+      x -= offsetX;
+      y -= offsetY;
+      z -= offsetZ;
+    }
+
+    aplicarFiltro(x, y, z);
+
+    detectarEventos();
+  } else {
+    sensorOk = false;
   }
 
-  float aceleracaoX =
-    valorX * 0.0039;
+  if (agora - ultimaTelemetria >= INTERVALO_TELEMETRIA) {
 
-  float aceleracaoY =
-    valorY * 0.0039;
+    ultimaTelemetria = agora;
 
-  float aceleracaoZ =
-    valorZ * 0.0039;
-
-  aceleracaoXFiltrada =
-    aplicarFiltro(
-      aceleracaoX,
-      aceleracaoXFiltrada
-    );
-
-  aceleracaoYFiltrada =
-    aplicarFiltro(
-      aceleracaoY,
-      aceleracaoYFiltrada
-    );
-
-  aceleracaoZFiltrada =
-    aplicarFiltro(
-      aceleracaoZ,
-      aceleracaoZFiltrada
-    );
-
-  float aceleracaoMovimentoX =
-    aceleracaoXFiltrada -
-    gravidadeX;
-
-  float aceleracaoMovimentoY =
-    aceleracaoYFiltrada -
-    gravidadeY;
-
-  float aceleracaoMovimentoZ =
-    aceleracaoZFiltrada -
-    gravidadeZ;
-
-  float magnitude =
-    sqrt(
-      aceleracaoMovimentoX *
-      aceleracaoMovimentoX +
-
-      aceleracaoMovimentoY *
-      aceleracaoMovimentoY +
-
-      aceleracaoMovimentoZ *
-      aceleracaoMovimentoZ
-    );
-
-  float inclinacaoAtualX =
-    calcularInclinacaoX(
-      aceleracaoXFiltrada,
-      aceleracaoYFiltrada,
-      aceleracaoZFiltrada
-    );
-
-  float inclinacaoAtualY =
-    calcularInclinacaoY(
-      aceleracaoXFiltrada,
-      aceleracaoYFiltrada,
-      aceleracaoZFiltrada
-    );
-
-  float inclinacaoX =
-    inclinacaoAtualX -
-    inclinacaoInicialX;
-
-  float inclinacaoY =
-    inclinacaoAtualY -
-    inclinacaoInicialY;
-
-  if (
-    magnitude >= LIMITE_COLISAO &&
-    podeGerarEvento(
-      ultimoEventoColisao
-    )
-  ) {
-
-    ultimoEventoColisao =
-      agora;
-
-    enviarEvento(
-      "colisao",
-      "critica",
-      aceleracaoMovimentoX,
-      aceleracaoMovimentoY,
-      aceleracaoMovimentoZ,
-      inclinacaoX,
-      inclinacaoY,
-      magnitude
-    );
-  }
-
-  else if (
-    aceleracaoMovimentoX <=
-    LIMITE_FRENAGEM_BRUSCA &&
-
-    podeGerarEvento(
-      ultimoEventoFrenagem
-    )
-  ) {
-
-    ultimoEventoFrenagem =
-      agora;
-
-    enviarEvento(
-      "frenagem_brusca",
-      "alta",
-      aceleracaoMovimentoX,
-      aceleracaoMovimentoY,
-      aceleracaoMovimentoZ,
-      inclinacaoX,
-      inclinacaoY,
-      magnitude
-    );
-  }
-
-  else if (
-    aceleracaoMovimentoX >=
-    LIMITE_ACELERACAO_BRUSCA &&
-
-    podeGerarEvento(
-      ultimoEventoAceleracao
-    )
-  ) {
-
-    ultimoEventoAceleracao =
-      agora;
-
-    enviarEvento(
-      "aceleracao_brusca",
-      "alta",
-      aceleracaoMovimentoX,
-      aceleracaoMovimentoY,
-      aceleracaoMovimentoZ,
-      inclinacaoX,
-      inclinacaoY,
-      magnitude
-    );
-  }
-
-  else if (
-    fabs(aceleracaoMovimentoY) >=
-    LIMITE_CURVA_BRUSCA &&
-
-    podeGerarEvento(
-      ultimoEventoCurva
-    )
-  ) {
-
-    ultimoEventoCurva =
-      agora;
-
-    enviarEvento(
-      "curva_brusca",
-      "media",
-      aceleracaoMovimentoX,
-      aceleracaoMovimentoY,
-      aceleracaoMovimentoZ,
-      inclinacaoX,
-      inclinacaoY,
-      magnitude
-    );
-  }
-
-  else if (
-    (
-      fabs(inclinacaoX) >=
-      LIMITE_INCLINACAO ||
-
-      fabs(inclinacaoY) >=
-      LIMITE_INCLINACAO
-    )
-
-    &&
-
-    podeGerarEvento(
-      ultimoEventoInclinacao
-    )
-  ) {
-
-    ultimoEventoInclinacao =
-      agora;
-
-    enviarEvento(
-      "inclinacao_excessiva",
-      "alta",
-      aceleracaoMovimentoX,
-      aceleracaoMovimentoY,
-      aceleracaoMovimentoZ,
-      inclinacaoX,
-      inclinacaoY,
-      magnitude
-    );
-  }
-
-  if (
-    agora - ultimaTelemetria >=
-    INTERVALO_TELEMETRIA
-  ) {
-
-    ultimaTelemetria =
-      agora;
-
-    enviarTelemetria(
-      aceleracaoMovimentoX,
-      aceleracaoMovimentoY,
-      aceleracaoMovimentoZ,
-      inclinacaoX,
-      inclinacaoY,
-      magnitude
-    );
+    enviarTelemetria();
   }
 }

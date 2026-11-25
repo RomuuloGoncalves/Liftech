@@ -4,16 +4,25 @@ import { aplicarStatus } from "../machine/statusService.js";
 import { publicarMaquina, publicar } from "../stream/streamHub.js";
 import { logger } from "../../utils/logger.js";
 
+const OFFLINE_LIMITE_PADRAO_MS = 30000;
+
 let repoEmpilhadeiras = new ForkliftRepository(Forklift);
 let timerVarredor: NodeJS.Timeout | null = null;
 let emExecucao = false;
+
+/** Limiar em milissegundos sem leituras para marcar a máquina como offline. */
+export function obterOfflineLimiteMs(): number {
+  const bruto = process.env.OFFLINE_LIMITE_MS?.trim();
+  const valor = Number(bruto);
+  return bruto && Number.isFinite(valor) && valor > 0 ? valor : OFFLINE_LIMITE_PADRAO_MS;
+}
 
 export function _setRepositorios(deps?: { empilhadeiras?: ForkliftRepository }): void {
   repoEmpilhadeiras = deps?.empilhadeiras ?? new ForkliftRepository(Forklift);
 }
 
 export async function varrerOffline(agora = new Date()): Promise<void> {
-  const limite = new Date(agora.getTime() - 30000);
+  const limite = new Date(agora.getTime() - obterOfflineLimiteMs());
   const filtro = {
     dispositivoConectadoId: { $ne: null },
     ultimaLeituraEm: { $ne: null, $lt: limite },

@@ -3,6 +3,7 @@ import {
   varrerOffline,
   iniciarVarredor,
   pararVarredor,
+  obterOfflineLimiteMs,
   _setRepositorios,
   _obterEstadoVarredor,
 } from "../../src/feature/telemetry/offlineService.js";
@@ -37,6 +38,7 @@ describe("offlineService (T18: Varredor de offline)", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllEnvs();
     pararVarredor();
     _setRepositorios();
   });
@@ -191,5 +193,47 @@ describe("offlineService (T18: Varredor de offline)", () => {
 
     pararVarredor();
     expect(_obterEstadoVarredor().ativo).toBe(false);
+  });
+
+  test("obterOfflineLimiteMs usa OFFLINE_LIMITE_MS do ambiente e cai em 30000 quando inválido", () => {
+    delete process.env.OFFLINE_LIMITE_MS;
+    expect(obterOfflineLimiteMs()).toBe(30000);
+
+    vi.stubEnv("OFFLINE_LIMITE_MS", "120000");
+    expect(obterOfflineLimiteMs()).toBe(120000);
+
+    for (const invalido of ["", "   ", "abc", "0", "-5000", "Infinity"]) {
+      vi.stubEnv("OFFLINE_LIMITE_MS", invalido);
+      expect(obterOfflineLimiteMs()).toBe(30000);
+    }
+  });
+
+  test("varrerOffline usa o limiar configurado em OFFLINE_LIMITE_MS no filtro e no update", async () => {
+    vi.stubEnv("OFFLINE_LIMITE_MS", "120000");
+    const agora = new Date("2026-10-15T12:03:00.000Z");
+    const esperadoLimite = new Date("2026-10-15T12:01:00.000Z");
+    const doc = {
+      _id: "fork-010",
+      identificacao: "EMP-010",
+      filialId: "filial-123",
+      status: "disponivel",
+      dispositivoConectadoId: "disp-010",
+      ultimaLeituraEm: new Date("2026-10-15T12:00:00.000Z"),
+      offlineDesde: null,
+    };
+
+    mockEmpilhadeiras.obterTodos.mockResolvedValue([{ getDocumento: () => doc }]);
+
+    await varrerOffline(agora);
+
+    expect(mockEmpilhadeiras.obterTodos).toHaveBeenCalledWith({
+      dispositivoConectadoId: { $ne: null },
+      ultimaLeituraEm: { $ne: null, $lt: esperadoLimite },
+      offlineDesde: null,
+    });
+    expect(mockEmpilhadeiras.atualizarUm).toHaveBeenCalledWith(
+      { _id: "fork-010", offlineDesde: null, ultimaLeituraEm: { $lt: esperadoLimite } },
+      { $set: { offlineDesde: agora } }
+    );
   });
 });

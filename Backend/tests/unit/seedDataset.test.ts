@@ -10,6 +10,7 @@ import {
   FILIAIS_EXTRAS,
   MATRIZ_NOME,
   OPERADORES,
+  PLACA,
   SENHA_PADRAO,
   SOLICITACOES,
   filialDaEmpilhadeira,
@@ -17,6 +18,7 @@ import {
   filialDoOperador,
   gerarIncidentes,
   gerarTelemetria,
+  macDaPlaca,
 } from "../../src/scripts/seedDataset.js";
 
 describe("seedDataset: empresa e filiais", () => {
@@ -230,5 +232,33 @@ describe("seedDataset: incidentes", () => {
 
     const datas = EMPILHADEIRAS.flatMap((_, i) => gerarIncidentes("f", "o", i).map((x) => x.dataIncidente.toISOString()));
     expect(new Set(datas).size).toBe(8);
+  });
+});
+
+describe("seedDataset: placa real", () => {
+  test("PLACA usa o MAC e a identificação esperados e não entra em DISPOSITIVOS", () => {
+    expect(PLACA.enderecoMac).toBe("F8:B3:B7:44:82:E8");
+    expect(PLACA.dispositivoNome).toBe("ESP32-01");
+    expect(PLACA.identificacao).toBe("EMP001");
+    expect(PLACA.nome).toBe("EMP001");
+    expect(DISPOSITIVOS.map((d) => d.enderecoMac.toUpperCase())).not.toContain(PLACA.enderecoMac);
+    expect(EMPILHADEIRAS.map((e) => e.identificacao)).not.toContain(PLACA.identificacao);
+  });
+
+  test("macDaPlaca normaliza em maiúsculo sem espaço", () => {
+    expect(macDaPlaca("f8:b3:b7:44:82:e8 ")).toBe("F8:B3:B7:44:82:E8");
+    expect(macDaPlaca("  aa:bb:cc:dd:ee:ff  ")).toBe("AA:BB:CC:DD:EE:FF");
+  });
+
+  test("macDaPlaca vazio ou ausente cai no MAC padrão da placa", () => {
+    const anterior = process.env.PLACA_MAC;
+    delete process.env.PLACA_MAC;
+    try {
+      expect(macDaPlaca("")).toBe("F8:B3:B7:44:82:E8");
+      expect(macDaPlaca("   ")).toBe("F8:B3:B7:44:82:E8");
+      expect(macDaPlaca()).toBe("F8:B3:B7:44:82:E8");
+    } finally {
+      if (anterior !== undefined) process.env.PLACA_MAC = anterior;
+    }
   });
 });

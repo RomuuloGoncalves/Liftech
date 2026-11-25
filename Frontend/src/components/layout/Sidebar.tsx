@@ -3,12 +3,16 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   AlertCircle,
+  /* DEV: reativar para testes de tela
   AlertTriangle,
+  */
   ChevronRight,
   FileText,
   Forklift,
   LayoutDashboard,
+  /* DEV: reativar para testes de tela
   LogIn,
+  */
   MessageCircle,
   Menu,
   PanelLeft,
@@ -18,7 +22,9 @@ import {
 } from 'lucide-react'
 import BranchSelector from './BranchSelector'
 import { useActiveBranch } from '../../context/ActiveBranchContext'
+/* DEV: reativar para testes de tela
 import { useAlerts } from '../../context/AlertsContext'
+*/
 import logo from '../../assets/logo.svg'
 import logoName from '../../assets/logo-name.svg'
 import styles from './Sidebar.module.css'
@@ -42,12 +48,14 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/alertas', labelKey: 'navigation.alerts', icon: AlertCircle },
 ]
 
+/* DEV: reativar para testes de tela
 const TEMP_AUTH_LINKS: { to: string; label: string }[] = [
   { to: '/login', label: 'Login Admin' },
   { to: '/login/colaborador', label: 'Login Colaborador' },
   { to: '/solicitar-acesso', label: 'Solicitar Acesso' },
   { to: '/funcionario', label: 'Área do Funcionário' },
 ]
+*/
 
 function readStoredCollapsed(): boolean {
   try {
@@ -69,7 +77,9 @@ const Sidebar: React.FC = () => {
   const location = useLocation()
   const { t } = useTranslation()
   const { user } = useActiveBranch()
+  /* DEV: reativar para testes de tela
   const { simulate } = useAlerts()
+  */
   const [collapsed, setCollapsed] = useState<boolean>(readStoredCollapsed)
   const [isMobile, setIsMobile] = useState<boolean>(() => window.innerWidth < MOBILE_BREAKPOINT)
   const [mobileOpen, setMobileOpen] = useState<boolean>(false)
@@ -192,6 +202,7 @@ const Sidebar: React.FC = () => {
 
         <div className={styles.spacer} />
 
+        {/* DEV: reativar para testes de tela
         {!showCollapsedLayout && (
           <div style={{ padding: '0 12px 8px', display: 'flex', flexDirection: 'column', gap: 4 }}>
             <p className={styles.sectionLabel}>DEV: Telas de auth</p>
@@ -225,6 +236,7 @@ const Sidebar: React.FC = () => {
             </button>
           </div>
         )}
+        */}
 
         <div className={styles.footer}>
           {user?.empresa && (

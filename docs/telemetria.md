@@ -1,6 +1,6 @@
 # Telemetria e Fila de Mensagens (RabbitMQ) - Liftech
 
-Este documento detalha o funcionamento da fila de mensagens, o contrato dos pacotes enviados pelas empilhadeiras, as regras de negócio de telemetria e incidentes, a detecção de comunicação offline, o simulador de hardware e a configuração do CloudAMQP.
+Este documento detalha o funcionamento da fila de mensagens, o contrato dos pacotes enviados pelas empilhadeiras, as regras de negócio de telemetria e incidentes, a detecção de comunicação offline, o simulador de hardware, a configuração do CloudAMQP, a gravação do firmware no ESP32 (com portal Wi-Fi AP+STA) e a atualização por Wi-Fi (OTA).
 
 ---
 
@@ -53,7 +53,7 @@ v                      v
 
 ## 3. Contrato das Mensagens
 
-As mensagens enviadas à fila devem ser objetos JSON válidos. O campo `dispositivo` transporta o endereço MAC da placa (case-insensitive, normalizado para maiúsculas no backend).
+As mensagens enviadas à fila devem ser objetos JSON válidos. O campo `dispositivo` transporta o endereço MAC da placa (case-insensitive, normalizado para maiúsculas no backend). As constantes `EMPILHADEIRA_ID`, `EMPILHADEIRA_NOME` e `DISPOSITIVO_NOME` em `secrets.h` (com fallback em `codigo.ino`) identificam a placa no portal Web e no SSID do Access Point.
 
 ### 3.1. Mensagem de Telemetria Contínua
 
@@ -67,7 +67,7 @@ Enviada periodicamente pelo hardware (a cada 5 segundos):
   "movimento": {
     "aceleracao_x": 0.05,
     "aceleracao_y": -0.02,
-    "aceleracao_z": 0.98,
+    "aceleracao_z": 0.01,
     "inclinacao_x": 1.2,
     "inclinacao_y": -0.4,
     "magnitude": 0.06
@@ -76,7 +76,7 @@ Enviada periodicamente pelo hardware (a cada 5 segundos):
 ```
 
 - `tempo`: tempo de atividade em milissegundos (`millis()` do ESP32). É ignorado na persistência do backend.
-- `movimento`: valores de aceleração em G, inclinação em graus e magnitude calculada do vetor dinâmico.
+- `movimento`: valores filtrados de aceleração (no firmware em m/s², com offset da calibração descontado), inclinação em graus (`inclinacao_x` e `inclinacao_y`) e magnitude calculada do vetor.
 
 ### 3.2. Mensagem de Evento de Movimento
 
@@ -95,7 +95,7 @@ Enviada imediatamente quando um dos limites de segurança é ultrapassado:
   "movimento": {
     "aceleracao_x": 2.85,
     "aceleracao_y": 0.12,
-    "aceleracao_z": 1.05,
+    "aceleracao_z": 0.05,
     "inclinacao_x": 3.1,
     "inclinacao_y": 0.5,
     "magnitude": 2.86
@@ -135,7 +135,8 @@ Enviada imediatamente quando um dos limites de segurança é ultrapassado:
 ### 4.3. Monitoramento de Placa sem Comunicação (Offline)
 
 - O serviço `offlineService` executa uma varredura a cada 10 segundos.
-- Critério: empilhadeiras que possuem dispositivo vinculado e `ultimaLeituraEm` há mais de 30 segundos, sem a marca `offlineDesde`.
+- Critério: empilhadeiras que possuem dispositivo vinculado e `ultimaLeituraEm` há mais de 30 segundos (padrão; configurável via `OFFLINE_LIMITE_MS` em ms no `.env` do backend), sem a marca `offlineDesde`.
+- **Relação com intervalo de envio e cota:** com `INTERVALO_TELEMETRIA = 5000` ms (5 s), 1 placa envia cerca de **518 mil mensagens/mês** (~2 placas no plano gratuito Little Lemur de ~1 M msg/mês). Se aumentar `INTERVALO_TELEMETRIA` no firmware para economizar cota quando a frota crescer, ajuste `OFFLINE_LIMITE_MS` na mesma proporção (regra prática: `6 × INTERVALO_TELEMETRIA`), caso contrário as placas serão marcadas como offline entre leituras.
 - Ao atingir 30 segundos sem comunicação:
   - Grava `offlineDesde = agora`.
   - Se a máquina estiver com status `disponivel`, muda para `manutencao` marcando `manutencaoPorOffline = true`.
@@ -210,8 +211,256 @@ O RabbitMQ entrega mensagens de uma fila dividindo-as entre os consumidores cone
    RABBITMQ_URL="amqps://usuario:senha@host.cloudamqp.com/vhost"
    RABBITMQ_PREFIXO=""
    ```
-5. _(Opcional)_ Caso conecte placas ESP32 reais via MQTT:
+5. Para conectar placas ESP32 reais via MQTT:
    - No menu lateral do CloudAMQP, acesse **RabbitMQ Management**.
    - Em **Plugins**, certifique-se de que o plugin `rabbitmq_mqtt` está habilitado.
-   - Crie um usuário com permissão de escrita restrita no exchange `amq.topic` para gravar no firmware das placas.
-6. Ao iniciar a API do Liftech (`yarn dev`), o backend conecta automaticamente ao broker, declara as filas `telemetria` e `eventos` e inicia o consumo.
+   - Crie um usuário dedicado para as placas (ou use o usuário da instância) com permissão no exchange `amq.topic` e anote o **vhost**, **usuário**, **senha** e **host** para preencher `iot/codigo/secrets.h`.
+   - No firmware, o usuário MQTT deve ser preenchido no formato **`vhost:usuario`** (ex.: `abc12345:placa_esp32`), pois o plugin MQTT do RabbitMQ/CloudAMQP exige o vhost antes dos dois pontos. Se o plano permitir permissão por tópico, restrinja a escrita do usuário das placas ao exchange `amq.topic`.
+6. Ao iniciar a API do Liftech (`yarn dev`), o backend conecta automaticamente ao broker, declara as filas `<prefixo>telemetria` e `<prefixo>eventos` e inicia o consumo.
+
+---
+
+## 7. Gravar a Placa (ESP32 + ADXL345)
+
+Guia para preparar o ambiente na Arduino IDE, configurar credenciais, conectar o Wi-Fi pelo portal, calibrar e validar uma placa nova (`iot/codigo/codigo.ino`).
+
+### 7.1. Hardware e Serial
+
+- **Placa:** ESP32 (core `arduino-esp32` instalado pelo Gerenciador de Placas da Arduino IDE).
+- **Acelerômetro:** ADXL345 via I2C no endereço `0x53` (`SDA_PIN = 21`, `SCL_PIN = 22`).
+- **Serial Monitor:** `115200` baud.
+
+### 7.2. Bibliotecas necessárias
+
+No **Gerenciador de Bibliotecas** da Arduino IDE, instale:
+
+| Biblioteca | Autor / Referência | Header no firmware | Uso |
+| --- | --- | --- | --- |
+| **MQTT** | Joel Gaehwiler (`256dpi/arduino-mqtt`) | `#include <MQTT.h>` | Cliente MQTT com suporte a QoS 0 e QoS 1 sobre TLS (`MQTTClient`, buffer de `768` bytes) |
+| **ArduinoJson** | Benoit Blanchon (v7+) | `#include <ArduinoJson.h>` | Serialização dos pacotes JSON (`JsonDocument`) para MQTT e portal Web |
+
+As demais bibliotecas (`WiFi.h`, `WiFiClientSecure.h`, `WebServer.h`, `Wire.h`, `Preferences.h`, `time.h`, `ArduinoOTA.h`, `esp_ota_ops.h`) já vêm no core `arduino-esp32`.
+
+### 7.3. Arquivo `secrets.h` (credenciais fora do Git)
+
+1. Copie `iot/codigo/secrets.example.h` para `iot/codigo/secrets.h`.
+2. O arquivo `secrets.h` não deve ser versionado (adicione-o ao `.gitignore` caso não esteja presente na sua branch).
+3. As credenciais da rede Wi-Fi de operação (`ssid` e `password`) **não ficam em `secrets.h`**: são configuradas pelo portal Web e salvas no NVS (`Preferences`).
+4. Preencha as constantes abaixo (mantenha as aspas em textos e sem aspas em `MQTT_PORTA`):
+
+| Constante | Tipo / Exemplo | Descrição |
+| --- | --- | --- |
+| `EMPILHADEIRA_ID` | `"EMP001"` | Identificador curto da empilhadeira; compõe o SSID do AP (`Liftech-<EMPILHADEIRA_ID>`) |
+| `EMPILHADEIRA_NOME` | `"EMP001"` | Nome exibido no cabeçalho do portal da placa |
+| `DISPOSITIVO_NOME` | `"ESP32-01"` | Nome do dispositivo exibido no portal da placa |
+| `AP_SENHA` | `"SUBSTITUA_PELA_SENHA_AP"` | Senha WPA2 (mínimo 8 caracteres) do Access Point de configuração (`Liftech-<EMPILHADEIRA_ID>`) |
+| `MQTT_HOST` | `"seu-host.lmq.cloudamqp.com"` | Hostname da instância no CloudAMQP |
+| `MQTT_PORTA` | `8883` | Porta padrão MQTT sobre TLS (`mqtts`) |
+| `MQTT_USUARIO` | `"vhost:usuario"` | Usuário MQTT no formato **`vhost:usuario`** do CloudAMQP |
+| `MQTT_SENHA` | `"SENHA_MQTT"` | Senha do usuário MQTT |
+| `MQTT_PREFIXO` | `""` | Prefixo dos tópicos; deve ser idêntico a `RABBITMQ_PREFIXO` no `.env` do backend (vazio `""` por padrão) |
+| `OTA_SENHA_MD5` | `"SUBSTITUA_PELO_HASH_MD5"` | Hash MD5 (32 caracteres hexadecimais) da senha de atualização OTA (ver [seção 8.2](#82-gerar-o-hash-md5-da-senha-ota)) |
+| `OTA_URL_BASE` | `"https://exemplo.invalid/releases/"` | Prefixo de URL HTTPS permitida para download de `.bin` na futura OTA-2 |
+
+### 7.4. Portal da placa (AP + STA) e Rotas
+
+O ESP32 opera em modo `WIFI_AP_STA` e serve uma página estática armazenada em `PROGMEM` (`iot/codigo/portal.h`), atualizada via polling em `GET /status` a cada `3 s` enquanto a aba estiver visível.
+
+#### Endereços de acesso
+
+- **Access Point (AP) da placa:** sobe no boot com SSID `Liftech-<EMPILHADEIRA_ID>` (padrão `Liftech-EMP001`) e senha WPA2 `AP_SENHA` (definida em `secrets.h`). Acesse **`http://192.168.4.1`**.
+- **Na rede local (STA):** após conectar ao Wi-Fi salvo, o portal também responde em **`http://<IP_DA_PLACA>`** (o IP obtido por DHCP aparece no Serial Monitor e no campo **IP na rede** do próprio portal).
+- **Credenciais STA no NVS:** gravadas e lidas do namespace `"liftech"` (`ssid` e `password` em `Preferences`).
+
+> **Aviso de segurança:** o portal é **aberto na LAN, sem login nem autenticação (risco aceito pelo usuário)**. Qualquer dispositivo na mesma rede Wi-Fi ou conectado ao AP `Liftech-<EMPILHADEIRA_ID>` (protegido pela `AP_SENHA`) pode consultar o status, alterar a rede Wi-Fi e recalibrar o sensor.
+
+#### Significado dos selos e campos do portal
+
+- **Selo de estado geral** (cabeçalho e card da empilhadeira):
+  - **Online** (verde): Wi-Fi conectado e broker MQTT conectado.
+  - **Sem broker** (amarelo): Wi-Fi conectado, mas o MQTT ainda não conectou (aguardando NTP ou reconexão ao CloudAMQP).
+  - **Sem Wi-Fi** (cinza): placa sem conexão à rede Wi-Fi local (use o AP `192.168.4.1`).
+  - **Sem resposta** (vermelho + faixa de aviso): o navegador não obteve resposta de `GET /status`; os últimos valores recebidos permanecem visíveis esmaecidos até a placa responder novamente.
+- **Card principal (Empilhadeira):** exibe `EMPILHADEIRA_NOME` (ou `"Instância não configurada (secrets.h)"` se vazio), `DISPOSITIVO_NOME` e o **MAC** da placa.
+- **Card Conexão:**
+  - **Rede Wi-Fi:** SSID conectado, indicador de 4 barras e potência do sinal (`rssi` em dBm), ou `Não conectada`.
+  - **IP na rede:** IP da placa na rede Wi-Fi local (STA).
+  - **AP local:** IP e SSID do Access Point da placa (ex.: `192.168.4.1 (Liftech-EMP001)`).
+  - **Broker MQTT:** selo `Conectado` / `Desconectado` e tempo desde o último envio MQTT (`há N s`, `há N min`, `há N h` ou `nunca`).
+  - **Horário NTP:** `Aguardando NTP` ou `Sincronizado · <HH:MM:SS UTC>` (necessário para validar o certificado TLS).
+- **Card Dispositivo:** exibe `MAC`, `Dispositivo` (`DISPOSITIVO_NOME`), `Versão FW` (`FW_VERSAO`) e `Tempo ligado (uptime)`.
+- **Card Sensor:**
+  - Selo **Sensor ok** (verde) ou **Sem resposta** (vermelho) para a leitura I2C do ADXL345 (`0x53`).
+  - **Calibrado:** `Sim` (verde) ou `Não` (amarelo).
+  - **Última leitura:** tempo desde a última leitura válida (`há N s` ou `nunca`).
+  - **Aceleração e inclinação:** magnitude (m/s²) e ângulos X/Y (°) filtrados, ou `"Sem resposta do ADXL345"`.
+- **Card Calibração:** botão **Calibrar sensor** com confirmação inline (*"Mantenha a empilhadeira parada e nivelada ao calibrar."* → **Confirmar** / **Cancelar**). Executa `POST /calibrar`, mostra spinner durante as `300` amostras (~`1,2 s`) e exibe o horário de conclusão ou erro caso o sensor não retorne amostras.
+- **Card Wi-Fi:** botão **Buscar redes disponíveis** (`GET /scan`, deduplica SSID mantendo o maior RSSI e ordena do sinal mais forte ao mais fraco), lista selecionável com barras de sinal e indicação de segurança, campo **Nome da rede (SSID)** (permite digitar manualmente para redes ocultas), campo **Senha da rede** com **Mostrar/Ocultar** (ocultado automaticamente quando uma rede aberta é selecionada na lista) e **Salvar e conectar** (`POST /salvar`).
+
+#### Rotas expostas pelo `WebServer` (porta `80`)
+
+| Rota | Método | Entrada / Validação | Resposta |
+| --- | --- | --- | --- |
+| `/` | `GET` | — | HTML estático do portal (`PAGINA_PORTAL` via `send_P`) |
+| `/status` | `GET` | — | JSON com o estado completo da placa (ver exemplo abaixo) |
+| `/scan` | `GET` | — | Array JSON `[{"ssid":"...","rssi":-58,"segura":true}]` |
+| `/salvar` | `POST` | Form `ssid` (`1..32` bytes) e `password` (`<= 63` bytes) | `200 {"ok":true}` e reinicia após `1,5 s`; `400 {"ok":false,"erro":"..."}` se inválido |
+| `/calibrar` | `POST` | — | `200 {"ok":true}` ou `{"ok":false}` quando `amostrasValidas == 0` |
+
+Exemplo de resposta de `GET /status`:
+
+```json
+{
+  "conectado": true,
+  "ssid": "Liftech-Galpao",
+  "rssi": -58,
+  "ip": "10.148.87.16",
+  "apSsid": "Liftech-EMP001",
+  "apIp": "192.168.4.1",
+  "mac": "F8:B3:B7:44:82:E8",
+  "mqtt": true,
+  "calibrado": true,
+  "sensorOk": true,
+  "versao": "1.1.0",
+  "empilhadeiraId": "EMP001",
+  "empilhadeiraNome": "EMP001",
+  "dispositivoNome": "ESP32-01",
+  "ntpOk": true,
+  "ntpHora": "23:14:46 UTC",
+  "leitura": "Acel. 0.14 m/s² · Incl. X 1.2° / Y -0.4°",
+  "leituraHaMs": 12,
+  "envioHaMs": 3100,
+  "uptimeS": 8040
+}
+```
+
+`leituraHaMs` e `envioHaMs` retornam `-1` quando ainda não houve leitura ou envio desde o boot.
+
+### 7.5. Conexão, TLS, NTP e Tópicos MQTT
+
+- **Boot e reconexão:** no `setup()`, se houver `ssid` salvo no NVS, aguarda até `15 s` pela conexão inicial. No `loop()`, toda reconexão é **não bloqueante**: `server.handleClient()`, `ArduinoOTA.handle()` e a leitura do sensor (`INTERVALO_LEITURA = 10` ms) continuam executando normalmente mesmo sem rede. O Wi-Fi tenta reconectar a cada `10 s` (`INTERVALO_RECONEXAO_WIFI = 10000`) e o MQTT a cada `5 s` (`INTERVALO_RECONEXAO_MQTT = 5000`), mantendo `mqtt.loop()` ativo.
+- **TLS e NTP:** o firmware conecta em `mqtts` na porta `8883` validando o certificado raiz `CA_CLOUDAMQP` (**ISRG Root X1**). Assim que o Wi-Fi conecta, o ESP32 sincroniza a hora via NTP (`pool.ntp.org`, `a.st1.ntp.br`, `time.nist.gov`) até atingir `EPOCH_MINIMO_VALIDO` (`1700000000L`), pois a checagem de validade do certificado TLS exige relógio ajustado.
+- **Client ID:** `liftech-<MAC sem :>`.
+- **Tópicos publicados pelo firmware:**
+
+| Tipo | Tópico MQTT | QoS | Routing Key no `amq.topic` | Frequência / Regra |
+| --- | --- | --- | --- | --- |
+| Telemetria contínua | `<MQTT_PREFIXO>telemetria/<MAC>` | `0` | `<prefixo>telemetria.<MAC>` | A cada `5 s` (`INTERVALO_TELEMETRIA = 5000`) |
+| Evento de movimento | `<MQTT_PREFIXO>evento/<MAC>` | `1` | `<prefixo>evento.<MAC>` | Imediato ao cruzar um limite, com bloqueio de `3 s` (`BLOQUEIO_EVENTO = 3000`) |
+
+`<MAC>` é obtido automaticamente por `WiFi.macAddress()` (formato `XX:XX:XX:XX:XX:XX`).
+
+### 7.6. Calibração do sensor (NVS)
+
+A calibração mede os valores de repouso na posição de montagem da placa (`300` amostras, `delay(4)` por amostra) e grava `offsetX`, `offsetY`, `offsetZ` e `calibrado = true` na memória permanente (NVS, namespace `"liftech"`).
+
+- **Primeiro boot (ou NVS sem calibração):** `carregarWiFiSalvo()` verifica a chave `calibrado`. Quando `!calibrado`, o `setup()` imprime `"Nenhuma calibracao no NVS. Iniciando autocalibracao..."` e executa `calibrarSensor()` automaticamente. **Ligue a placa pela primeira vez já apoiada parada e nivelada na posição de operação.**
+- **Boots seguintes:** os offsets salvos são carregados direto do NVS.
+- **Recalibrar manualmente:** no portal da placa (`http://192.168.4.1` ou pelo IP na rede local), clique em **"Calibrar sensor"** e depois em **"Confirmar"** (dispara `POST /calibrar`), ou conecte via USB no Serial Monitor (`115200` baud) e envie **`C`** (ou `c`) com a empilhadeira parada e nivelada.
+- **Persistência em OTA:** atualizações por Wi-Fi não apagam a partição `nvs`, mantendo o Wi-Fi salvo e a calibração.
+- **Filtro e limiares iniciais no código (`codigo.ino`):** filtro exponencial com `ALPHA = 0.20` e limiares `LIMITE_ACELERACAO` (`1.50`), `LIMITE_FRENAGEM` (`-1.50`), `LIMITE_COLISAO` (`2.50`), `LIMITE_CURVA` (`1.50`) e `LIMITE_INCLINACAO` (`15.0`). Ainda são valores de partida a ajustar com coleta real na empilhadeira.
+
+### 7.7. Passos para gravar pela Arduino IDE
+
+1. Preencha `iot/codigo/secrets.h` (com `EMPILHADEIRA_ID`, `EMPILHADEIRA_NOME`, `DISPOSITIVO_NOME`, `AP_SENHA`, credenciais MQTT e `OTA_SENHA_MD5`; veja `iot/codigo/secrets.example.h`).
+2. Instale as bibliotecas `MQTT` e `ArduinoJson`.
+3. Selecione a placa ESP32 correta e o esquema de partição adequado para OTA (ver [seção 8.1](#81-esquema-de-partição-primeira-gravação-por-cabo)).
+4. Conecte a placa pelo cabo USB, selecione a porta serial e faça o **Upload**.
+5. Conecte um celular ou computador ao Wi-Fi do AP **`Liftech-EMP001`** usando a `AP_SENHA`, acesse **`http://192.168.4.1`**, busque a rede Wi-Fi desejada, salve a senha e anote o endereço **MAC** exibido no portal (ou no Serial Monitor em `115200` baud).
+
+### 7.8. Checklist E2E (do cabo ao painel)
+
+1. **Broker e Backend prontos:** plugin `rabbitmq_mqtt` ativo no CloudAMQP; `.env` do backend com `RABBITMQ_URL` e `RABBITMQ_PREFIXO` igual a `MQTT_PREFIXO`; apenas **uma** instância do backend conectada àquele prefixo.
+2. **Configuração Wi-Fi pelo portal:** acesse `http://192.168.4.1`, clique em **Buscar redes disponíveis**, salve a rede Wi-Fi e confirme que após o reinício o portal (`/status`) e o Serial exibem `Wi-Fi conectado!`, `Horario NTP sincronizado.`, `Conectando ao broker MQTT... conectado.` e linhas `[Telemetria] ... [MQTT OK]` a cada 5 s.
+3. **Cadastro no sistema:** cadastre o dispositivo com o `MAC` exibido no portal/Serial e vincule-o a uma empilhadeira. Confirme que o backend para de registrar aviso de MAC desconhecido e atualiza a leitura da máquina.
+4. **Evento com sessão aberta:** inicie uma sessão de trabalho na empilhadeira no sistema, sacuda/incline a placa acima do limite (`> 15°` ou impacto `>= 2.50`) e confirme `EVENTO ENVIADO: ...` no Serial, card movido para a coluna de alerta ("Acidentes") e pop-up no frontend em até 2 s.
+5. **Evento sem sessão aberta:** encerre a sessão da empilhadeira, repita o movimento e confirme que nenhum novo incidente é criado.
+6. **Offline e retorno automático:** deixe a empilhadeira em `disponivel` (sem sessão) e desligue a placa da tomada. Após 30–40 s, confirme o card cinza, status `manutencao` e pop-up de dispositivo offline. Religue a placa e confirme o retorno automático a `disponivel`.
+7. **Atualização OTA:** com a sessão fechada, execute uma atualização por Wi-Fi seguindo a [seção 8](#8-atualizar-a-placa-por-wi-fi-ota) e confirme a versão nova no boot e em `/status`.
+
+---
+
+## 8. Atualizar a Placa por Wi-Fi (OTA)
+
+O firmware usa **ArduinoOTA** (OTA-1, na mesma rede Wi-Fi/LAN) com janela de confirmação para **rollback automático** (OTA-3).
+
+> **Regra obrigatória:** nunca atualize uma empilhadeira com **sessão de trabalho aberta**. Durante a gravação, `ArduinoOTA.handle()` bloqueia o loop por ~10 a 30 s e pausa o portal, a leitura e o envio do sensor (`otaEmAndamento`). Se a transferência passar de 30 s (`OFFLINE_LIMITE_MS`), o backend marcará a placa como offline (e `disponivel` vira `manutencao`), restaurando o status automaticamente quando a placa voltar a publicar telemetria.
+
+### 8.1. Esquema de partição (primeira gravação por cabo)
+
+A OTA precisa de dois slots de aplicativo na flash:
+
+- **"Default 4MB with spiffs"**: ~1,2 MB por slot de app. Como o sketch inclui `WebServer` + Wi-Fi + TLS + MQTT + OTA + JSON, o binário pode ficar próximo ou acima desse limite.
+- **"Minimal SPIFFS (1.9MB APP with OTA)"**: recomendado caso o binário compilado passe de ~1,15 MB.
+- **Nunca usar "Huge APP"**: possui apenas um slot de aplicação e não suporta OTA.
+- A **primeira gravação** após alterar o esquema de partição precisa ser feita por **cabo USB**.
+
+### 8.2. Gerar o hash MD5 da senha OTA
+
+A senha em texto puro nunca é gravada no binário: o firmware chama `ArduinoOTA.setPasswordHash(OTA_SENHA_MD5)`. Gere o MD5 **sem quebra de linha** e copie os 32 caracteres hexadecimais para `OTA_SENHA_MD5` em `secrets.h`:
+
+- **Linux / macOS / Git Bash:**
+  ```bash
+  echo -n "sua-senha" | md5sum
+  ```
+  *(copie apenas o hash de 32 caracteres antes de ` -`).*
+- **Windows (PowerShell):**
+  ```powershell
+  $bytes = [System.Text.Encoding]::UTF8.GetBytes("sua-senha")
+  $md5 = [System.Security.Cryptography.MD5]::Create()
+  ([System.BitConverter]::ToString($md5.ComputeHash($bytes)) -replace '-','').ToLower()
+  ```
+
+Na hora de enviar o firmware (Arduino IDE ou `espota.py`), informe a **senha em texto puro** (`sua-senha`), não o hash.
+
+### 8.3. Pré-requisito de rede e envio (IDE ou `espota.py`)
+
+- O computador e o ESP32 precisam estar na **mesma rede Wi-Fi/LAN**. Redes com isolamento de clientes (comum em redes acadêmicas/visitantes) bloqueiam mDNS/UDP; nesse caso, use o hotspot do celular/notebook.
+- Após conectar ao Wi-Fi, a placa anuncia o hostname **`liftech-<MAC sem :>`** (ex.: `liftech-001B44113AB7.local`) e imprime o IP no Serial e na rota `/status`.
+
+**Opção A — Arduino IDE:**
+1. Incremente `#define FW_VERSAO "x.y.z"` em `codigo.ino`.
+2. Em **Tools → Port**, selecione a porta de rede `liftech-<MAC>` (ou o IP da placa).
+3. Clique em **Upload** e digite a senha OTA em texto puro quando solicitada.
+
+**Opção B — Linha de comando (`espota.py`):**
+1. Na Arduino IDE, gere o `.bin` via **Sketch → Export Compiled Binary**.
+2. Execute o `espota.py` (presente na pasta `tools/` do core `arduino-esp32`):
+   ```bash
+   python3 espota.py -i <IP_OU_HOSTNAME_LOCAL> -a <SENHA_OTA> -f <CAMINHO_DO_BINARIO.bin>
+   ```
+   - `-i`: IP da placa ou `liftech-<MAC sem :>.local`
+   - `-a`: senha OTA em texto puro
+   - `-f`: caminho do arquivo `.bin` exportado
+
+### 8.4. Como conferir a versão
+
+- Antes de compilar, atualize `#define FW_VERSAO "x.y.z"` no topo de `codigo.ino`.
+- No boot, o Serial Monitor (`115200` baud) imprime `Versao: <FW_VERSAO>` no cabeçalho inicial (e o campo `versao` também é exposto em `GET /status`).
+- Ao concluir a transferência, a placa imprime `"OTA: atualizacao concluida. Reiniciando..."` e reinicia já no novo slot.
+
+### 8.5. Como funciona o rollback (OTA-3)
+
+- O firmware sobrescreve `verifyRollbackLater()` retornando `true` e também registra o estado pendente no NVS (namespace `"ota"`, chave `"pendente"`).
+- Ao subir após uma OTA, inicia uma janela de **90 segundos** (`TEMPO_LIMITE_VALIDACAO_OTA_MS = 90000UL`).
+- Quando o ESP32 conecta ao Wi-Fi, conecta ao MQTT e conclui o primeiro `publish` com sucesso, chama `confirmarOtaValida()` (`esp_ota_mark_app_valid_cancel_rollback()`), marcando o firmware novo como válido e imprimindo `"OTA: firmware confirmado como valido."`.
+- Se isso **não** acontecer em até 90 s (por exemplo, credencial MQTT errada ou broker inacessível), o firmware imprime `"OTA: timeout de 90 s sem confirmacao. Executando rollback..."` e chama `esp_ota_mark_app_invalid_rollback_and_reboot()`, reiniciando na versão anterior.
+- **Atenção sobre `CONFIG_APP_ROLLBACK_ENABLE` no `sdkconfig`:** o core ESP32 não estava instalado no ambiente durante a documentação, então **não foi confirmado se o `sdkconfig` do core instalado habilita `CONFIG_APP_ROLLBACK_ENABLE` no bootloader**.
+  - Se habilitado no bootloader: o rollback protege também contra crash/boot loop imediato antes de chegar ao `loop()`.
+  - Se **não** habilitado no core: apenas o fallback via NVS entra em ação, protegendo **somente firmwares que sobem até o `loop()` e falham em conectar/publicar em 90 s** — um crash imediato no boot exigirá gravação por cabo USB. Sempre teste firmwares novos em bancada antes de atualizar uma placa montada.
+
+### 8.6. (Futuro — OTA-2) Atualização remota fora da LAN via MQTT + HTTPS
+
+Para placas em campo fora da LAN do operador, está prevista a **OTA-2 (P3, ainda não implementada no firmware atual)**:
+
+- A placa assinará `<MQTT_PREFIXO>ota/<MAC>` (QoS 1) e publicará o resultado em `<MQTT_PREFIXO>ota_status/<MAC>`.
+- Payload do comando:
+  ```json
+  {
+    "url": "https://exemplo.invalid/releases/liftech-1.1.0.bin",
+    "md5": "hash-md5-do-arquivo-bin",
+    "versao": "1.1.0"
+  }
+  ```
+- O firmware recusará URLs que não comecem com `OTA_URL_BASE`, ignorará versões iguais à `FW_VERSAO` atual e validará o MD5 do `.bin` antes de reiniciar.
+- **Como disparar sem script extra:** no painel **RabbitMQ Management** do CloudAMQP → **Exchanges** → `amq.topic` → **Publish message**, informe a routing key `<prefixo>ota.<MAC>` e o JSON acima no payload. O backend não consome `ota.*` (não há binding ligada a esse padrão).

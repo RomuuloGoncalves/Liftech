@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { seedData, seedEDesconectar } from "../../src/scripts/seedData.js";
 import { seedAdmin } from "../../src/scripts/seedAdmin.js";
+import { seedPlaca } from "../../src/scripts/seedPlaca.js";
 import { Operator } from "../../src/schemas/operator.js";
 import { Device } from "../../src/schemas/device.js";
 import { Forklift } from "../../src/schemas/forklift.js";
@@ -30,6 +31,7 @@ vi.mock("../../src/schemas/company.js", () => ({ Company: { findOneAndUpdate: vi
 vi.mock("../../src/schemas/branch.js", () => ({ Branch: { findOneAndUpdate: vi.fn() } }));
 vi.mock("../../src/feature/category/categoryService.js", () => ({ criarQuadroInicial: vi.fn(), posicionarSemCategoria: vi.fn() }));
 vi.mock("../../src/scripts/seedAdmin.js", () => ({ seedAdmin: vi.fn() }));
+vi.mock("../../src/scripts/seedPlaca.js", () => ({ seedPlaca: vi.fn() }));
 vi.mock("../../src/config/conn.js", () => ({ conn: { mongoose: { disconnect: vi.fn() } } }));
 vi.mock("../../src/utils/logger.js", () => ({ logger: { info: vi.fn(), warn: vi.fn() } }));
 
@@ -72,6 +74,13 @@ describe("seedData", () => {
 
     expect(seedAdmin).toHaveBeenCalledTimes(1);
     expect(seedAdmin).toHaveBeenCalledWith(EMPRESA_ID);
+  });
+
+  test("chama o seedPlaca, uma vez, com o id da Matriz", async () => {
+    await seedData();
+
+    expect(seedPlaca).toHaveBeenCalledTimes(1);
+    expect(seedPlaca).toHaveBeenCalledWith(filialId("Matriz"));
   });
 
   test("cria 1 empresa e 3 filiais pela chave natural, só a matriz com matriz: true", async () => {

@@ -11,6 +11,7 @@ import { AccessRequest } from "../schemas/accessRequest.js";
 import { gerarHashSenha } from "../utils/senha.js";
 import { logger } from "../utils/logger.js";
 import { seedAdmin } from "./seedAdmin.js";
+import { seedPlaca } from "./seedPlaca.js";
 import {
   COLABORADORES,
   DISPOSITIVOS,
@@ -18,6 +19,7 @@ import {
   FICHAS,
   FILIAIS_DOS_COLABORADORES,
   FILIAIS_EXTRAS,
+  MATRIZ_NOME,
   OPERADORES,
   SENHA_PADRAO,
   SOLICITACOES,
@@ -78,6 +80,8 @@ export async function seedData() {
       )
     );
   }
+
+  await seedPlaca(filialIds.get(MATRIZ_NOME));
 
   // Máquina em uso tem sessão aberta de verdade: sem ela o evento do sensor é descartado.
   for (const [i, e] of EMPILHADEIRAS.entries()) {

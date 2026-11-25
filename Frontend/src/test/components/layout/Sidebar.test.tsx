@@ -47,7 +47,8 @@ describe('Sidebar component', () => {
     setViewportWidth(DESKTOP_WIDTH)
   })
 
-  it('shows the temporary Área do Funcionário link pointing to /funcionario', () => {
+  // DEV: reativar para testes de tela (link temporário comentado na Sidebar)
+  it.skip('shows the temporary Área do Funcionário link pointing to /funcionario', () => {
     renderSidebarAt('/')
     expect(screen.getByRole('link', { name: 'Área do Funcionário' })).toHaveAttribute('href', '/funcionario')
   })
@@ -397,7 +398,8 @@ describe('Sidebar branch selector and company', () => {
     expect(screen.queryByRole('dialog', { name: 'Envie-nos feedback ou uma sugestão' })).not.toBeInTheDocument()
   })
 
-  it('clicar em "Simular alerta" mostra o alertdialog com Alexandre Mattos e não chama listar a mais', async () => {
+  // DEV: reativar para testes de tela (botão "Simular alerta" comentado na Sidebar)
+  it.skip('clicar em "Simular alerta" mostra o alertdialog com Alexandre Mattos e não chama listar a mais', async () => {
     window.localStorage.setItem('user', JSON.stringify(user))
     const listarMock = vi.mocked(incidentService.listar)
     listarMock.mockClear()
@@ -420,7 +422,8 @@ describe('Sidebar branch selector and company', () => {
     expect(listarMock.mock.calls.length).toBe(chamadasAntes)
   })
 
-  it('com a sidebar colapsada o botão "Simular alerta" não aparece', () => {
+  // DEV: reativar para testes de tela (botão "Simular alerta" comentado na Sidebar)
+  it.skip('com a sidebar colapsada o botão "Simular alerta" não aparece', () => {
     window.localStorage.setItem('user', JSON.stringify(user))
     renderWithSession()
 
