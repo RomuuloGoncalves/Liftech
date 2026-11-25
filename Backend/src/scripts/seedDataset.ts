@@ -308,6 +308,17 @@ export const DISPOSITIVOS = EMPILHADEIRAS.map(({ enderecoMac, status }, i) => ({
   status: status === "offline" ? "offline" : "online",
 }));
 
+// Placa real de teste. Fora de DISPOSITIVOS/EMPILHADEIRAS: não ganha telemetria nem incidente fake.
+export const PLACA = {
+  enderecoMac: "F8:B3:B7:44:82:E8",
+  dispositivoNome: "ESP32-01",
+  identificacao: "EMP001",
+  nome: "EMP001",
+  setor: "Expedição - Bloco B",
+};
+
+export const macDaPlaca = (env = process.env.PLACA_MAC) => (env?.trim() || PLACA.enderecoMac).toUpperCase();
+
 // Todos com SENHA_PADRAO. O acesso negado segue a Equipe do Figma; colaborador@colaborador.com é o login fixo de teste.
 export const COLABORADORES: { nome: string; usuario: string; acessoNegado?: boolean }[] = [
   // { nome: "Alexandre Mattos", usuario: "AlexandreMattos" },

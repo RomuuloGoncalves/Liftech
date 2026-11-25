@@ -11,17 +11,26 @@
 #include <time.h>
 
 #include "secrets.h"
+#include "portal.h"
 
 // ==========================================
 // LIFTECH - MONITORAMENTO DE EMPILHADEIRAS
 // ESP32 + ADXL345 + PORTAL WI-FI + MQTT/TLS + OTA
 // ==========================================
 
-#define FW_VERSAO "1.0.0"
+#define FW_VERSAO "1.1.0"
 
 // ---------- IDENTIFICAÇÃO ----------
-// Rótulo amigável para o portal e SSID do AP; o backend identifica a placa pelo MAC.
-#define ID_DISPOSITIVO "EMP001"
+// Identidade da instancia no sistema; fallback caso o secrets.h local ainda nao defina.
+#ifndef EMPILHADEIRA_ID
+#define EMPILHADEIRA_ID "EMP001"
+#endif
+#ifndef EMPILHADEIRA_NOME
+#define EMPILHADEIRA_NOME ""
+#endif
+#ifndef DISPOSITIVO_NOME
+#define DISPOSITIVO_NOME ""
+#endif
 
 // ---------- SENSOR ADXL345 ----------
 #define ADXL_ADDR 0x53
@@ -29,7 +38,7 @@
 #define SCL_PIN 22
 
 // ---------- ACCESS POINT ----------
-const char* AP_SSID = "Liftech-" ID_DISPOSITIVO;
+const char* AP_SSID = "Liftech-" EMPILHADEIRA_ID;
 
 WebServer server(80);
 Preferences preferences;
@@ -105,6 +114,11 @@ const unsigned long INTERVALO_TELEMETRIA = 5000;
 const unsigned long BLOQUEIO_EVENTO = 3000;
 
 unsigned long contadorEventos = 0;
+
+// ---------- ESTADO DO SENSOR E TELEMETRIA ----------
+bool sensorOk = false;
+unsigned long ultimaLeituraOkMs = 0;
+unsigned long ultimoEnvioOkMs = 0;
 
 // ---------- CALIBRAÇÃO ----------
 float offsetX = 0;
@@ -245,7 +259,7 @@ void salvarCalibracao() {
 // CALIBRAÇÃO
 // ==========================================
 
-void calibrarSensor() {
+bool calibrarSensor() {
   Serial.println("Iniciando calibracao...");
 
   const int AMOSTRAS = 300;
@@ -270,7 +284,8 @@ void calibrarSensor() {
 
   if (amostrasValidas == 0) {
     Serial.println("ERRO: nenhuma amostra obtida na calibracao.");
-    return;
+    sensorOk = false;
+    return false;
   }
 
   offsetX = somaX / amostrasValidas;
@@ -283,7 +298,9 @@ void calibrarSensor() {
 
   salvarCalibracao();
 
+  sensorOk = true;
   Serial.println("Calibracao concluida!");
+  return true;
 }
 
 // ==========================================
@@ -516,6 +533,7 @@ bool publicarMQTT(const String &topico, JsonDocument &doc, int qos) {
   );
 
   if (enviado) {
+    ultimoEnvioOkMs = millis();
     confirmarOtaValida();
   } else {
     Serial.print("Erro MQTT ao publicar em ");
@@ -646,137 +664,10 @@ void detectarEventos() {
 // PORTAL WEB
 // ==========================================
 
-String paginaHTML() {
-  String html = R"rawliteral(
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Liftech - Configuração</title>
-
-<style>
-body {
-  background:#101820;
-  color:white;
-  font-family:Arial;
-  padding:20px;
-  max-width:500px;
-  margin:auto;
-}
-.card {
-  background:#1d2b36;
-  padding:20px;
-  border-radius:12px;
-  margin-bottom:15px;
-}
-input,select,button {
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  box-sizing:border-box;
-  border-radius:6px;
-  border:0;
-}
-button {
-  background:#00a878;
-  color:white;
-  font-weight:bold;
-}
-h1 {color:#00c896}
-</style>
-</head>
-
-<body>
-
-<h1>LIFTECH</h1>
-<p>Monitoramento Operacional</p>
-
-<div class="card">
-<h3>Configuração Wi-Fi</h3>
-
-<button onclick="buscarRedes()">Buscar redes disponíveis</button>
-
-<form action="/salvar" method="POST">
-
-<select name="ssid" id="redes" required>
-<option value="">Selecione uma rede</option>
-</select>
-
-<input type="password" name="password"
-placeholder="Senha da rede">
-
-<button type="submit">Salvar e conectar</button>
-</form>
-</div>
-
-<div class="card">
-<h3>Dispositivo</h3>
-<p>Rótulo: )rawliteral" + String(ID_DISPOSITIVO) + R"rawliteral(</p>
-<p>MAC: <strong id="mac">)rawliteral" + macDispositivo + R"rawliteral(</strong></p>
-<p id="status">Consultando status...</p>
-<button onclick="location.href='/calibrar'">
-Calibrar sensor
-</button>
-</div>
-
-<script>
-async function buscarRedes() {
-  const select = document.getElementById('redes');
-  select.innerHTML = '<option>Buscando...</option>';
-
-  try {
-    const resposta = await fetch('/scan');
-    const redes = await resposta.json();
-
-    select.innerHTML = '<option value="">Selecione uma rede</option>';
-
-    redes.forEach(rede => {
-      const option = document.createElement('option');
-      option.value = rede.ssid;
-      option.textContent =
-        rede.ssid + ' (' + rede.rssi + ' dBm) ' +
-        (rede.segura ? '🔒' : 'Aberta');
-      select.appendChild(option);
-    });
-  } catch(e) {
-    select.innerHTML = '<option>Erro ao buscar redes</option>';
-  }
-}
-
-async function atualizarStatus() {
-  try {
-    const resposta = await fetch('/status');
-    const dados = await resposta.json();
-
-    if (dados.mac) {
-      document.getElementById('mac').textContent = dados.mac;
-    }
-
-    document.getElementById('status').textContent =
-      dados.conectado
-        ? 'Conectado: ' + dados.ssid + ' | IP: ' + dados.ip +
-          ' | MQTT: ' + (dados.mqtt ? 'OK' : 'conectando')
-        : 'Aguardando conexão Wi-Fi';
-  } catch(e) {
-    document.getElementById('status').textContent = 'Erro ao consultar status';
-  }
-}
-
-atualizarStatus();
-</script>
-
-</body>
-</html>
-)rawliteral";
-
-  return html;
-}
-
 void configurarRotas() {
 
   server.on("/", HTTP_GET, []() {
-    server.send(200, "text/html", paginaHTML());
+    server.send_P(200, "text/html", PAGINA_PORTAL);
   });
 
   server.on("/scan", HTTP_GET, []() {
@@ -809,16 +700,30 @@ void configurarRotas() {
     String ssid = server.arg("ssid");
     String password = server.arg("password");
 
+    const char* erro = nullptr;
     if (ssid.length() == 0) {
-      server.send(400, "text/plain", "SSID invalido");
+      erro = "SSID obrigatorio";
+    } else if (ssid.length() > 32) {
+      erro = "SSID deve ter no maximo 32 bytes";
+    } else if (password.length() > 63) {
+      erro = "Senha deve ter no maximo 63 bytes";
+    }
+
+    if (erro != nullptr) {
+      JsonDocument doc;
+      doc["ok"] = false;
+      doc["erro"] = erro;
+
+      String json;
+      serializeJson(doc, json);
+
+      server.send(400, "application/json", json);
       return;
     }
 
     salvarWiFi(ssid, password);
 
-    server.send(200, "text/html",
-      "<h2>Wi-Fi salvo!</h2>"
-      "<p>O dispositivo vai reiniciar para conectar.</p>");
+    server.send(200, "application/json", "{\"ok\":true}");
 
     delay(1500);
     ESP.restart();
@@ -826,16 +731,64 @@ void configurarRotas() {
 
   server.on("/status", HTTP_GET, []() {
 
+    unsigned long agora = millis();
+    bool conectado = (WiFi.status() == WL_CONNECTED);
+    time_t agoraEpoch = time(nullptr);
+    bool ntpOk = conectado && (agoraEpoch >= EPOCH_MINIMO_VALIDO);
+
+    char horaBuf[16] = "";
+    if (ntpOk) {
+      struct tm tmInfo;
+      gmtime_r(&agoraEpoch, &tmInfo);
+      snprintf(horaBuf, sizeof(horaBuf), "%02d:%02d:%02d UTC",
+               tmInfo.tm_hour, tmInfo.tm_min, tmInfo.tm_sec);
+    }
+
+    char leituraBuf[64] = "";
+    if (sensorOk && ultimaLeituraOkMs > 0) {
+      snprintf(
+        leituraBuf,
+        sizeof(leituraBuf),
+        "Acel. %.2f m/s² · Incl. X %.1f° / Y %.1f°",
+        calcularMagnitude(),
+        calcularInclinacaoX(),
+        calcularInclinacaoY()
+      );
+    }
+
     JsonDocument doc;
 
-    doc["conectado"] = WiFi.status() == WL_CONNECTED;
-    doc["ssid"] = WiFi.SSID();
-    doc["ip"] = WiFi.localIP().toString();
+    doc["conectado"] = conectado;
+    doc["ssid"] = conectado ? WiFi.SSID() : "";
+    doc["rssi"] = conectado ? WiFi.RSSI() : 0;
+    doc["ip"] = conectado ? WiFi.localIP().toString() : "";
+    doc["apSsid"] = AP_SSID;
+    doc["apIp"] = WiFi.softAPIP().toString();
     doc["mac"] = macDispositivo;
-    doc["rotulo"] = ID_DISPOSITIVO;
     doc["mqtt"] = mqtt.connected();
     doc["calibrado"] = calibrado;
+    doc["sensorOk"] = sensorOk;
     doc["versao"] = FW_VERSAO;
+    doc["empilhadeiraId"] = EMPILHADEIRA_ID;
+    doc["empilhadeiraNome"] = EMPILHADEIRA_NOME;
+    doc["dispositivoNome"] = DISPOSITIVO_NOME;
+    doc["ntpOk"] = ntpOk;
+    doc["ntpHora"] = horaBuf;
+    doc["leitura"] = leituraBuf;
+
+    if (ultimaLeituraOkMs == 0) {
+      doc["leituraHaMs"] = -1;
+    } else {
+      doc["leituraHaMs"] = agora - ultimaLeituraOkMs;
+    }
+
+    if (ultimoEnvioOkMs == 0) {
+      doc["envioHaMs"] = -1;
+    } else {
+      doc["envioHaMs"] = agora - ultimoEnvioOkMs;
+    }
+
+    doc["uptimeS"] = agora / 1000UL;
 
     String json;
     serializeJson(doc, json);
@@ -843,13 +796,17 @@ void configurarRotas() {
     server.send(200, "application/json", json);
   });
 
-  server.on("/calibrar", HTTP_GET, []() {
+  server.on("/calibrar", HTTP_POST, []() {
 
-    calibrarSensor();
+    bool ok = calibrarSensor();
 
-    server.send(200, "text/html",
-      "<h2>Calibracao concluida!</h2>"
-      "<a href='/'>Voltar</a>");
+    JsonDocument doc;
+    doc["ok"] = ok;
+
+    String json;
+    serializeJson(doc, json);
+
+    server.send(200, "application/json", json);
   });
 
   server.begin();
@@ -1015,7 +972,8 @@ void setup() {
   Serial.println(FW_VERSAO);
   Serial.println("=================================");
 
-  if (!iniciarSensor()) {
+  sensorOk = iniciarSensor();
+  if (!sensorOk) {
     Serial.println("ERRO: Verifique o ADXL345.");
   }
 
@@ -1034,7 +992,7 @@ void setup() {
 
   Serial.println("LIFTECH INICIADA!");
   Serial.println("Acesse http://192.168.4.1");
-  Serial.println("Digite C no Serial Monitor ou acesse /calibrar para recalibrar.");
+  Serial.println("Digite C no Serial Monitor ou use POST /calibrar para recalibrar.");
 }
 
 // ==========================================
@@ -1070,6 +1028,8 @@ void loop() {
   float x, y, z;
 
   if (lerSensor(x, y, z)) {
+    sensorOk = true;
+    ultimaLeituraOkMs = agora;
 
     if (calibrado) {
       x -= offsetX;
@@ -1080,6 +1040,8 @@ void loop() {
     aplicarFiltro(x, y, z);
 
     detectarEventos();
+  } else {
+    sensorOk = false;
   }
 
   if (agora - ultimaTelemetria >= INTERVALO_TELEMETRIA) {

@@ -5,6 +5,11 @@
 // O arquivo secrets.h esta no .gitignore e nao deve ser versionado.
 // As credenciais da rede Wi-Fi (STA) sao configuradas pelo portal Web e salvas no NVS.
 
+// Identidade da instancia no sistema (o `yarn seed:placa` imprime estas linhas)
+#define EMPILHADEIRA_ID "EMP001"
+#define EMPILHADEIRA_NOME "EMP001"
+#define DISPOSITIVO_NOME "ESP32-01"
+
 // Access Point de configuracao (minimo 8 caracteres para WPA2)
 #define AP_SENHA "SUBSTITUA_PELA_SENHA_AP"
 

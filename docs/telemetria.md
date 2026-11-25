@@ -53,7 +53,7 @@ v                      v
 
 ## 3. Contrato das Mensagens
 
-As mensagens enviadas à fila devem ser objetos JSON válidos. O campo `dispositivo` transporta o endereço MAC da placa (case-insensitive, normalizado para maiúsculas no backend). O `#define ID_DISPOSITIVO` do firmware é usado apenas como rótulo exibido no portal Web e no SSID do Access Point.
+As mensagens enviadas à fila devem ser objetos JSON válidos. O campo `dispositivo` transporta o endereço MAC da placa (case-insensitive, normalizado para maiúsculas no backend). As constantes `EMPILHADEIRA_ID`, `EMPILHADEIRA_NOME` e `DISPOSITIVO_NOME` em `secrets.h` (com fallback em `codigo.ino`) identificam a placa no portal Web e no SSID do Access Point.
 
 ### 3.1. Mensagem de Telemetria Contínua
 
@@ -250,7 +250,10 @@ As demais bibliotecas (`WiFi.h`, `WiFiClientSecure.h`, `WebServer.h`, `Wire.h`, 
 
 | Constante | Tipo / Exemplo | Descrição |
 | --- | --- | --- |
-| `AP_SENHA` | `"SUBSTITUA_PELA_SENHA_AP"` | Senha WPA2 (mínimo 8 caracteres) do Access Point de configuração (`Liftech-<ID_DISPOSITIVO>`) |
+| `EMPILHADEIRA_ID` | `"EMP001"` | Identificador curto da empilhadeira; compõe o SSID do AP (`Liftech-<EMPILHADEIRA_ID>`) |
+| `EMPILHADEIRA_NOME` | `"EMP001"` | Nome exibido no cabeçalho do portal da placa |
+| `DISPOSITIVO_NOME` | `"ESP32-01"` | Nome do dispositivo exibido no portal da placa |
+| `AP_SENHA` | `"SUBSTITUA_PELA_SENHA_AP"` | Senha WPA2 (mínimo 8 caracteres) do Access Point de configuração (`Liftech-<EMPILHADEIRA_ID>`) |
 | `MQTT_HOST` | `"seu-host.lmq.cloudamqp.com"` | Hostname da instância no CloudAMQP |
 | `MQTT_PORTA` | `8883` | Porta padrão MQTT sobre TLS (`mqtts`) |
 | `MQTT_USUARIO` | `"vhost:usuario"` | Usuário MQTT no formato **`vhost:usuario`** do CloudAMQP |
@@ -259,18 +262,79 @@ As demais bibliotecas (`WiFi.h`, `WiFiClientSecure.h`, `WebServer.h`, `Wire.h`, 
 | `OTA_SENHA_MD5` | `"SUBSTITUA_PELO_HASH_MD5"` | Hash MD5 (32 caracteres hexadecimais) da senha de atualização OTA (ver [seção 8.2](#82-gerar-o-hash-md5-da-senha-ota)) |
 | `OTA_URL_BASE` | `"https://exemplo.invalid/releases/"` | Prefixo de URL HTTPS permitida para download de `.bin` na futura OTA-2 |
 
-### 7.4. Portal Web Wi-Fi (AP + STA) e Rotas
+### 7.4. Portal da placa (AP + STA) e Rotas
 
-O ESP32 opera em modo `WIFI_AP_STA`:
+O ESP32 opera em modo `WIFI_AP_STA` e serve uma página estática armazenada em `PROGMEM` (`iot/codigo/portal.h`), atualizada via polling em `GET /status` a cada `3 s` enquanto a aba estiver visível.
 
-- **Access Point (AP):** sobe no boot com SSID `Liftech-<ID_DISPOSITIVO>` (padrão `Liftech-EMP001`) e senha `AP_SENHA` (de `secrets.h`), acessível em **`http://192.168.4.1`**.
-- **Credenciais STA no NVS:** lidas do namespace `"liftech"` (`ssid` e `password`).
-- **Rotas expostas pelo `WebServer` (porta `80`):**
-  - `GET /`: página HTML de configuração Wi-Fi, exibição do rótulo (`ID_DISPOSITIVO`), endereço **MAC** da placa, status da conexão Wi-Fi/MQTT e botão de calibração.
-  - `GET /scan`: varre as redes Wi-Fi próximas e devolve JSON com `ssid`, `rssi` e `segura`.
-  - `POST /salvar`: recebe `ssid` e `password`, grava em `Preferences` e reinicia o ESP32 para conectar à rede salva.
-  - `GET /status`: retorna JSON com `conectado`, `ssid`, `ip`, `mac`, `rotulo`, `mqtt`, `calibrado` e `versao`.
-  - `GET /calibrar`: executa `calibrarSensor()` e exibe confirmação com link de retorno.
+#### Endereços de acesso
+
+- **Access Point (AP) da placa:** sobe no boot com SSID `Liftech-<EMPILHADEIRA_ID>` (padrão `Liftech-EMP001`) e senha WPA2 `AP_SENHA` (definida em `secrets.h`). Acesse **`http://192.168.4.1`**.
+- **Na rede local (STA):** após conectar ao Wi-Fi salvo, o portal também responde em **`http://<IP_DA_PLACA>`** (o IP obtido por DHCP aparece no Serial Monitor e no campo **IP na rede** do próprio portal).
+- **Credenciais STA no NVS:** gravadas e lidas do namespace `"liftech"` (`ssid` e `password` em `Preferences`).
+
+> **Aviso de segurança:** o portal é **aberto na LAN, sem login nem autenticação (risco aceito pelo usuário)**. Qualquer dispositivo na mesma rede Wi-Fi ou conectado ao AP `Liftech-<EMPILHADEIRA_ID>` (protegido pela `AP_SENHA`) pode consultar o status, alterar a rede Wi-Fi e recalibrar o sensor.
+
+#### Significado dos selos e campos do portal
+
+- **Selo de estado geral** (cabeçalho e card da empilhadeira):
+  - **Online** (verde): Wi-Fi conectado e broker MQTT conectado.
+  - **Sem broker** (amarelo): Wi-Fi conectado, mas o MQTT ainda não conectou (aguardando NTP ou reconexão ao CloudAMQP).
+  - **Sem Wi-Fi** (cinza): placa sem conexão à rede Wi-Fi local (use o AP `192.168.4.1`).
+  - **Sem resposta** (vermelho + faixa de aviso): o navegador não obteve resposta de `GET /status`; os últimos valores recebidos permanecem visíveis esmaecidos até a placa responder novamente.
+- **Card principal (Empilhadeira):** exibe `EMPILHADEIRA_NOME` (ou `"Instância não configurada (secrets.h)"` se vazio), `DISPOSITIVO_NOME` e o **MAC** da placa.
+- **Card Conexão:**
+  - **Rede Wi-Fi:** SSID conectado, indicador de 4 barras e potência do sinal (`rssi` em dBm), ou `Não conectada`.
+  - **IP na rede:** IP da placa na rede Wi-Fi local (STA).
+  - **AP local:** IP e SSID do Access Point da placa (ex.: `192.168.4.1 (Liftech-EMP001)`).
+  - **Broker MQTT:** selo `Conectado` / `Desconectado` e tempo desde o último envio MQTT (`há N s`, `há N min`, `há N h` ou `nunca`).
+  - **Horário NTP:** `Aguardando NTP` ou `Sincronizado · <HH:MM:SS UTC>` (necessário para validar o certificado TLS).
+- **Card Dispositivo:** exibe `MAC`, `Dispositivo` (`DISPOSITIVO_NOME`), `Versão FW` (`FW_VERSAO`) e `Tempo ligado (uptime)`.
+- **Card Sensor:**
+  - Selo **Sensor ok** (verde) ou **Sem resposta** (vermelho) para a leitura I2C do ADXL345 (`0x53`).
+  - **Calibrado:** `Sim` (verde) ou `Não` (amarelo).
+  - **Última leitura:** tempo desde a última leitura válida (`há N s` ou `nunca`).
+  - **Aceleração e inclinação:** magnitude (m/s²) e ângulos X/Y (°) filtrados, ou `"Sem resposta do ADXL345"`.
+- **Card Calibração:** botão **Calibrar sensor** com confirmação inline (*"Mantenha a empilhadeira parada e nivelada ao calibrar."* → **Confirmar** / **Cancelar**). Executa `POST /calibrar`, mostra spinner durante as `300` amostras (~`1,2 s`) e exibe o horário de conclusão ou erro caso o sensor não retorne amostras.
+- **Card Wi-Fi:** botão **Buscar redes disponíveis** (`GET /scan`, deduplica SSID mantendo o maior RSSI e ordena do sinal mais forte ao mais fraco), lista selecionável com barras de sinal e indicação de segurança, campo **Nome da rede (SSID)** (permite digitar manualmente para redes ocultas), campo **Senha da rede** com **Mostrar/Ocultar** (ocultado automaticamente quando uma rede aberta é selecionada na lista) e **Salvar e conectar** (`POST /salvar`).
+
+#### Rotas expostas pelo `WebServer` (porta `80`)
+
+| Rota | Método | Entrada / Validação | Resposta |
+| --- | --- | --- | --- |
+| `/` | `GET` | — | HTML estático do portal (`PAGINA_PORTAL` via `send_P`) |
+| `/status` | `GET` | — | JSON com o estado completo da placa (ver exemplo abaixo) |
+| `/scan` | `GET` | — | Array JSON `[{"ssid":"...","rssi":-58,"segura":true}]` |
+| `/salvar` | `POST` | Form `ssid` (`1..32` bytes) e `password` (`<= 63` bytes) | `200 {"ok":true}` e reinicia após `1,5 s`; `400 {"ok":false,"erro":"..."}` se inválido |
+| `/calibrar` | `POST` | — | `200 {"ok":true}` ou `{"ok":false}` quando `amostrasValidas == 0` |
+
+Exemplo de resposta de `GET /status`:
+
+```json
+{
+  "conectado": true,
+  "ssid": "Liftech-Galpao",
+  "rssi": -58,
+  "ip": "10.148.87.16",
+  "apSsid": "Liftech-EMP001",
+  "apIp": "192.168.4.1",
+  "mac": "F8:B3:B7:44:82:E8",
+  "mqtt": true,
+  "calibrado": true,
+  "sensorOk": true,
+  "versao": "1.1.0",
+  "empilhadeiraId": "EMP001",
+  "empilhadeiraNome": "EMP001",
+  "dispositivoNome": "ESP32-01",
+  "ntpOk": true,
+  "ntpHora": "23:14:46 UTC",
+  "leitura": "Acel. 0.14 m/s² · Incl. X 1.2° / Y -0.4°",
+  "leituraHaMs": 12,
+  "envioHaMs": 3100,
+  "uptimeS": 8040
+}
+```
+
+`leituraHaMs` e `envioHaMs` retornam `-1` quando ainda não houve leitura ou envio desde o boot.
 
 ### 7.5. Conexão, TLS, NTP e Tópicos MQTT
 
@@ -292,13 +356,13 @@ A calibração mede os valores de repouso na posição de montagem da placa (`30
 
 - **Primeiro boot (ou NVS sem calibração):** `carregarWiFiSalvo()` verifica a chave `calibrado`. Quando `!calibrado`, o `setup()` imprime `"Nenhuma calibracao no NVS. Iniciando autocalibracao..."` e executa `calibrarSensor()` automaticamente. **Ligue a placa pela primeira vez já apoiada parada e nivelada na posição de operação.**
 - **Boots seguintes:** os offsets salvos são carregados direto do NVS.
-- **Recalibrar manualmente:** acesse o botão **"Calibrar sensor"** (`GET /calibrar`) no portal Web em `http://192.168.4.1` (ou pelo IP da placa na rede local), ou conecte via USB no Serial Monitor (`115200` baud) e envie **`C`** (ou `c`) com a empilhadeira parada.
+- **Recalibrar manualmente:** no portal da placa (`http://192.168.4.1` ou pelo IP na rede local), clique em **"Calibrar sensor"** e depois em **"Confirmar"** (dispara `POST /calibrar`), ou conecte via USB no Serial Monitor (`115200` baud) e envie **`C`** (ou `c`) com a empilhadeira parada e nivelada.
 - **Persistência em OTA:** atualizações por Wi-Fi não apagam a partição `nvs`, mantendo o Wi-Fi salvo e a calibração.
 - **Filtro e limiares iniciais no código (`codigo.ino`):** filtro exponencial com `ALPHA = 0.20` e limiares `LIMITE_ACELERACAO` (`1.50`), `LIMITE_FRENAGEM` (`-1.50`), `LIMITE_COLISAO` (`2.50`), `LIMITE_CURVA` (`1.50`) e `LIMITE_INCLINACAO` (`15.0`). Ainda são valores de partida a ajustar com coleta real na empilhadeira.
 
 ### 7.7. Passos para gravar pela Arduino IDE
 
-1. Preencha `iot/codigo/secrets.h` (com `AP_SENHA`, credenciais MQTT e `OTA_SENHA_MD5`) e ajuste `#define ID_DISPOSITIVO` em `iot/codigo/codigo.ino` se desejar um rótulo diferente de `"EMP001"`.
+1. Preencha `iot/codigo/secrets.h` (com `EMPILHADEIRA_ID`, `EMPILHADEIRA_NOME`, `DISPOSITIVO_NOME`, `AP_SENHA`, credenciais MQTT e `OTA_SENHA_MD5`; veja `iot/codigo/secrets.example.h`).
 2. Instale as bibliotecas `MQTT` e `ArduinoJson`.
 3. Selecione a placa ESP32 correta e o esquema de partição adequado para OTA (ver [seção 8.1](#81-esquema-de-partição-primeira-gravação-por-cabo)).
 4. Conecte a placa pelo cabo USB, selecione a porta serial e faça o **Upload**.
